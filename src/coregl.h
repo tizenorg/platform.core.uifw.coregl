@@ -13,7 +13,7 @@
 #undef _COREGL_DESKTOP_GL
 #endif
 
-#define _COREGL_NAME_MANGLE(name) glsym_##name
+#define COREGL_API           __attribute__((visibility("default")))
 
 // Include GL/EGL/GLX types
 #ifndef _COREGL_DESKTOP_GL

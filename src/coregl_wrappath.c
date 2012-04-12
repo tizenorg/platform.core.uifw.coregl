@@ -4,6 +4,11 @@
 #include <string.h>
 #include <sys/time.h>
 
+// Symbol definition for override
+#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*_COREGL_NAME_MANGLE(FUNC_NAME)) PARAM_LIST = NULL;
+#include "headers/sym.h"
+#undef _COREGL_SYMBOL
+
 typedef struct _GLGlueFakeContext
 {
 	GLuint gl_num_tex_units[1];
@@ -32,22 +37,24 @@ _get_texture_states(GLenum pname, GLint *params)
 }
 
 void
+init_wrap_gl()
+{
+}
+
+void
+free_wrap_gl()
+{
+}
+
+void
 dump_wrap_context_states(int force_output)
 {
 	static struct timeval tv_last = { 0, 0 };
 
+	if (trace_ctx_flag != 1) return;
 
 	_sym_glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, (GLint *)initial_fake_ctx->gl_num_tex_units);
 	_sym_glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, (GLint *)initial_fake_ctx->gl_num_vertex_attribs);
-
-	{
-		char *fp_env = NULL;
-		int fp_envi = 0;
-		fp_env = getenv("COREGL_TRACE_STATE");
-		if (fp_env) fp_envi = atoi(fp_env);
-		else fp_envi = 0;
-		if (fp_envi == 0) return;
-	}
 
 	if (!force_output)
 	{

@@ -6,7 +6,8 @@ eglGetError(void)
 	EGLint ret = _COREGL_INT_INIT_VALUE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglGetError();
+	if (api_opt == COREGL_UNKNOWN_PATH) goto finish;
+	ret = ovr_eglGetError();
 	goto finish;
 
 finish:
@@ -20,7 +21,8 @@ eglGetDisplay(EGLNativeDisplayType display_id)
 	EGLDisplay ret = EGL_NO_DISPLAY;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglGetDisplay(display_id);
+	if (api_opt == COREGL_UNKNOWN_PATH) goto finish;
+	ret = ovr_eglGetDisplay(display_id);
 	goto finish;
 
 finish:
@@ -32,9 +34,9 @@ EGLBoolean
 eglInitialize(EGLDisplay dpy, EGLint* major, EGLint* minor)
 {
 	EGLBoolean ret = EGL_FALSE;
-
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglInitialize(dpy, major, minor);
+	if (api_opt == COREGL_UNKNOWN_PATH) goto finish;
+	ret = ovr_eglInitialize(dpy, major, minor);
 	goto finish;
 
 finish:
@@ -48,7 +50,8 @@ eglTerminate(EGLDisplay dpy)
 	EGLBoolean ret = EGL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglTerminate(dpy);
+	if (api_opt == COREGL_UNKNOWN_PATH) goto finish;
+	ret = ovr_eglTerminate(dpy);
 	goto finish;
 
 finish:
@@ -62,7 +65,7 @@ eglGetConfigs(EGLDisplay dpy, EGLConfig *configs, EGLint config_size, EGLint *nu
 	EGLBoolean ret = EGL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglGetConfigs(dpy, configs, config_size, num_config);
+	ret = ovr_eglGetConfigs(dpy, configs, config_size, num_config);
 	goto finish;
 
 finish:
@@ -76,7 +79,7 @@ eglChooseConfig(EGLDisplay dpy, const EGLint* attrib_list, EGLConfig* configs, E
 	EGLBoolean ret = EGL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglChooseConfig(dpy, attrib_list, configs, config_size, num_config);
+	ret = ovr_eglChooseConfig(dpy, attrib_list, configs, config_size, num_config);
 	goto finish;
 
 finish:
@@ -90,7 +93,7 @@ eglGetConfigAttrib(EGLDisplay dpy, EGLConfig config, EGLint attribute, EGLint *v
 	EGLBoolean ret = EGL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglGetConfigAttrib(dpy, config, attribute, value);
+	ret = ovr_eglGetConfigAttrib(dpy, config, attribute, value);
 	goto finish;
 
 finish:
@@ -105,7 +108,7 @@ eglCreateWindowSurface(EGLDisplay dpy, EGLConfig config, EGLNativeWindowType win
 	EGLSurface ret = EGL_NO_SURFACE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglCreateWindowSurface(dpy, config, win, attrib_list);
+	ret = ovr_eglCreateWindowSurface(dpy, config, win, attrib_list);
 	goto finish;
 
 finish:
@@ -119,7 +122,7 @@ eglCreatePbufferSurface(EGLDisplay dpy, EGLConfig config, const EGLint *attrib_l
 	EGLSurface ret = EGL_NO_SURFACE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglCreatePbufferSurface(dpy, config, attrib_list);
+	ret = ovr_eglCreatePbufferSurface(dpy, config, attrib_list);
 	goto finish;
 
 finish:
@@ -133,7 +136,7 @@ eglCreatePixmapSurface(EGLDisplay dpy, EGLConfig config, EGLNativePixmapType pix
 	EGLSurface ret = EGL_NO_SURFACE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglCreatePixmapSurface(dpy, config, pixmap, attrib_list);
+	ret = ovr_eglCreatePixmapSurface(dpy, config, pixmap, attrib_list);
 	goto finish;
 
 finish:
@@ -147,7 +150,7 @@ eglDestroySurface(EGLDisplay dpy, EGLSurface surface)
 	EGLBoolean ret = EGL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglDestroySurface(dpy, surface);
+	ret = ovr_eglDestroySurface(dpy, surface);
 	goto finish;
 
 finish:
@@ -161,7 +164,7 @@ eglQuerySurface(EGLDisplay dpy, EGLSurface surface, EGLint attribute, EGLint *va
 	EGLBoolean ret = EGL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglQuerySurface(dpy, surface, attribute, value);
+	ret = ovr_eglQuerySurface(dpy, surface, attribute, value);
 	goto finish;
 
 finish:
@@ -175,7 +178,8 @@ eglBindAPI(EGLenum api)
 	EGLBoolean ret = EGL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglBindAPI(api);
+	if (api_opt == COREGL_UNKNOWN_PATH) goto finish;
+	ret = ovr_eglBindAPI(api);
 	goto finish;
 
 finish:
@@ -189,7 +193,8 @@ eglQueryAPI(void)
 	EGLenum ret = 0;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglQueryAPI();
+	if (api_opt == COREGL_UNKNOWN_PATH) goto finish;
+	ret = ovr_eglQueryAPI();
 	goto finish;
 
 finish:
@@ -203,7 +208,7 @@ eglWaitClient(void)
 	EGLBoolean ret = EGL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglWaitClient();
+	ret = ovr_eglWaitClient();
 	goto finish;
 
 finish:
@@ -217,7 +222,7 @@ eglReleaseThread(void)
 	EGLBoolean ret = EGL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglReleaseThread();
+	ret = ovr_eglReleaseThread();
 	goto finish;
 
 finish:
@@ -231,7 +236,7 @@ eglCreatePbufferFromClientBuffer(EGLDisplay dpy, EGLenum buftype, EGLClientBuffe
 	EGLSurface ret = EGL_NO_SURFACE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglCreatePbufferFromClientBuffer(dpy, buftype, buffer, config, attrib_list);
+	ret = ovr_eglCreatePbufferFromClientBuffer(dpy, buftype, buffer, config, attrib_list);
 	goto finish;
 
 finish:
@@ -245,7 +250,7 @@ eglSurfaceAttrib(EGLDisplay dpy, EGLSurface surface, EGLint attribute, EGLint va
 	EGLBoolean ret = EGL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglSurfaceAttrib(dpy, surface, attribute, value);
+	ret = ovr_eglSurfaceAttrib(dpy, surface, attribute, value);
 	goto finish;
 
 finish:
@@ -257,7 +262,7 @@ void
 eglBindTexImage(EGLDisplay dpy, EGLSurface surface, EGLint buffer)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_eglBindTexImage(dpy, surface, buffer);
+	ovr_eglBindTexImage(dpy, surface, buffer);
 	goto finish;
 
 finish:
@@ -270,7 +275,7 @@ eglReleaseTexImage(EGLDisplay dpy, EGLSurface surface, EGLint buffer)
 	EGLBoolean ret = EGL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglReleaseTexImage(dpy, surface, buffer);
+	ret = ovr_eglReleaseTexImage(dpy, surface, buffer);
 	goto finish;
 
 finish:
@@ -284,7 +289,7 @@ eglSwapInterval(EGLDisplay dpy, EGLint interval)
 	EGLBoolean ret = EGL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglSwapInterval(dpy, interval);
+	ret = ovr_eglSwapInterval(dpy, interval);
 	goto finish;
 
 finish:
@@ -298,7 +303,7 @@ eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_context, con
 	EGLContext ret = EGL_NO_CONTEXT;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglCreateContext(dpy, config, share_context, attrib_list);
+	ret = ovr_eglCreateContext(dpy, config, share_context, attrib_list);
 	goto finish;
 
 finish:
@@ -312,7 +317,7 @@ eglDestroyContext(EGLDisplay dpy, EGLContext ctx)
 	EGLBoolean ret = EGL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglDestroyContext(dpy, ctx);
+	ret = ovr_eglDestroyContext(dpy, ctx);
 	goto finish;
 
 finish:
@@ -326,13 +331,13 @@ eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLContext ctx)
 	EGLBoolean ret = EGL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglMakeCurrent(dpy, draw, read, ctx);
+	ret = ovr_eglMakeCurrent(dpy, draw, read, ctx);
 	goto finish;
 
 finish:
 	_COREGL_WRAP_FUNC_END();
 #ifdef COREGL_TRACE_STATE_INFO
-	if (glsym_eglMakeCurrent != fpgl_eglMakeCurrent)
+	if (ovr_eglMakeCurrent == _sym_eglMakeCurrent)
 		dump_wrap_context_states(0);
 #endif // COREGL_TRACE_STATE_INFO
 	return ret;
@@ -344,7 +349,7 @@ eglGetCurrentContext(void)
 	EGLContext ret = EGL_NO_CONTEXT;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglGetCurrentContext();
+	ret = ovr_eglGetCurrentContext();
 	goto finish;
 
 finish:
@@ -358,7 +363,7 @@ eglGetCurrentSurface(EGLint readdraw)
 	EGLSurface ret = EGL_NO_SURFACE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglGetCurrentSurface(readdraw);
+	ret = ovr_eglGetCurrentSurface(readdraw);
 	goto finish;
 
 finish:
@@ -372,7 +377,7 @@ eglGetCurrentDisplay(void)
 	EGLDisplay ret = EGL_NO_DISPLAY;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglGetCurrentDisplay();
+	ret = ovr_eglGetCurrentDisplay();
 	goto finish;
 
 finish:
@@ -386,7 +391,7 @@ eglQueryContext(EGLDisplay dpy, EGLContext ctx, EGLint attribute, EGLint *value)
 	EGLBoolean ret = EGL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglQueryContext(dpy, ctx, attribute, value);
+	ret = ovr_eglQueryContext(dpy, ctx, attribute, value);
 	goto finish;
 
 finish:
@@ -400,7 +405,7 @@ eglWaitGL(void)
 	EGLBoolean ret = EGL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglWaitGL();
+	ret = ovr_eglWaitGL();
 	goto finish;
 
 finish:
@@ -414,7 +419,7 @@ eglWaitNative(EGLint engine)
 	EGLBoolean ret = EGL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglWaitNative(engine);
+	ret = ovr_eglWaitNative(engine);
 	goto finish;
 
 finish:
@@ -428,7 +433,7 @@ eglSwapBuffers(EGLDisplay dpy, EGLSurface surface)
 	EGLBoolean ret = EGL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglSwapBuffers(dpy, surface);
+	ret = ovr_eglSwapBuffers(dpy, surface);
 
 	goto finish;
 
@@ -444,7 +449,7 @@ eglCopyBuffers(EGLDisplay dpy, EGLSurface surface, EGLNativePixmapType target)
 	EGLBoolean ret = EGL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglCopyBuffers(dpy, surface, target);
+	ret = ovr_eglCopyBuffers(dpy, surface, target);
 	goto finish;
 
 finish:
@@ -458,7 +463,8 @@ eglGetProcAddress(const char* procname)
 	_eng_fn ret = NULL;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglGetProcAddress(procname);
+	if (api_opt == COREGL_UNKNOWN_PATH) goto finish;
+	ret = ovr_eglGetProcAddress(procname);
 	goto finish;
 
 finish:
@@ -472,7 +478,8 @@ eglQueryString(EGLDisplay dpy, EGLint name)
 	const char *ret = NULL;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglQueryString(dpy, name);
+	if (api_opt == COREGL_UNKNOWN_PATH) goto finish;
+	ret = ovr_eglQueryString(dpy, name);
 	goto finish;
 
 finish:
@@ -486,7 +493,7 @@ eglCreateImageKHR (EGLDisplay dpy, EGLContext ctx, EGLenum target, EGLClientBuff
 	void *ret = NULL;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglCreateImageKHR(dpy, ctx, target, buffer, attrib_list);
+	ret = ovr_eglCreateImageKHR(dpy, ctx, target, buffer, attrib_list);
 	goto finish;
 
 finish:
@@ -497,10 +504,10 @@ finish:
 EGLBoolean
 eglDestroyImageKHR(EGLDisplay dpy, EGLImageKHR image)
 {
-	unsigned int ret = _COREGL_INT_INIT_VALUE;
+	EGLBoolean ret = EGL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglDestroyImageKHR(dpy, image);
+	ret = ovr_eglDestroyImageKHR(dpy, image);
 	goto finish;
 
 finish:
@@ -514,7 +521,7 @@ eglMapImageSEC(EGLDisplay dpy, EGLImageKHR image)
 	void *ret = NULL;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglMapImageSEC(dpy, image);
+	ret = ovr_eglMapImageSEC(dpy, image);
 	goto finish;
 
 finish:
@@ -525,10 +532,10 @@ finish:
 EGLBoolean
 eglUnmapImageSEC(EGLDisplay dpy, EGLImageKHR image)
 {
-	unsigned int ret = _COREGL_INT_INIT_VALUE;
+	EGLBoolean ret = EGL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglUnmapImageSEC(dpy, image);
+	ret = ovr_eglUnmapImageSEC(dpy, image);
 	goto finish;
 
 finish:
@@ -539,10 +546,38 @@ finish:
 EGLBoolean
 eglGetImageAttribSEC(EGLDisplay dpy, EGLImageKHR image, EGLint attribute, EGLint *value)
 {
-	unsigned int ret = _COREGL_INT_INIT_VALUE;
+	EGLBoolean ret = EGL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_eglGetImageAttribSEC(dpy, image, attribute, value);
+	ret = ovr_eglGetImageAttribSEC(dpy, image, attribute, value);
+	goto finish;
+
+finish:
+	_COREGL_WRAP_FUNC_END();
+	return ret;
+}
+
+EGLBoolean
+eglLockSurfaceKHR(EGLDisplay display, EGLSurface surface, const EGLint *attrib_list)
+{
+	EGLBoolean ret = EGL_FALSE;
+
+	_COREGL_WRAP_FUNC_BEGIN();
+	ret = ovr_eglLockSurfaceKHR(display, surface, attrib_list);
+	goto finish;
+
+finish:
+	_COREGL_WRAP_FUNC_END();
+	return ret;
+}
+
+EGLBoolean
+eglUnlockSurfaceKHR(EGLDisplay display, EGLSurface surface)
+{
+	EGLBoolean ret = EGL_FALSE;
+
+	_COREGL_WRAP_FUNC_BEGIN();
+	ret = ovr_eglUnlockSurfaceKHR(display, surface);
 	goto finish;
 
 finish:

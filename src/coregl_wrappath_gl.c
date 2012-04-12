@@ -4,7 +4,7 @@ void
 glActiveTexture(GLenum texture)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glActiveTexture(texture);
+	ovr_glActiveTexture(texture);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -16,7 +16,7 @@ void
 glAttachShader(GLuint program, GLuint shader)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glAttachShader(program, shader);
+	ovr_glAttachShader(program, shader);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -28,7 +28,7 @@ void
 glBindAttribLocation(GLuint program, GLuint index, const char* name)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glBindAttribLocation(program, index, name);
+	ovr_glBindAttribLocation(program, index, name);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -40,7 +40,7 @@ void
 glBindBuffer(GLenum target, GLuint buffer)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glBindBuffer(target, buffer);
+	ovr_glBindBuffer(target, buffer);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -52,7 +52,7 @@ void
 glBindFramebuffer(GLenum target, GLuint framebuffer)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glBindFramebuffer(target, framebuffer);
+	ovr_glBindFramebuffer(target, framebuffer);
 
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
@@ -65,7 +65,7 @@ void
 glBindRenderbuffer(GLenum target, GLuint renderbuffer)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glBindRenderbuffer(target, renderbuffer);
+	ovr_glBindRenderbuffer(target, renderbuffer);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -77,7 +77,7 @@ void
 glBindTexture(GLenum target, GLuint texture)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glBindTexture(target, texture);
+	ovr_glBindTexture(target, texture);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -89,7 +89,7 @@ void
 glBlendColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glBlendColor(red, green, blue, alpha);
+	ovr_glBlendColor(red, green, blue, alpha);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -101,7 +101,7 @@ void
 glBlendEquation(GLenum mode)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glBlendEquation(mode);
+	ovr_glBlendEquation(mode);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -113,7 +113,7 @@ void
 glBlendEquationSeparate(GLenum modeRGB, GLenum modeAlpha)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glBlendEquationSeparate(modeRGB, modeAlpha);
+	ovr_glBlendEquationSeparate(modeRGB, modeAlpha);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -125,7 +125,7 @@ void
 glBlendFunc(GLenum sfactor, GLenum dfactor)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glBlendFunc(sfactor, dfactor);
+	ovr_glBlendFunc(sfactor, dfactor);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -137,7 +137,7 @@ void
 glBlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glBlendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha);
+	ovr_glBlendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -149,7 +149,7 @@ void
 glBufferData(GLenum target, GLsizeiptr size, const void* data, GLenum usage)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glBufferData(target, size, data, usage);
+	ovr_glBufferData(target, size, data, usage);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -161,7 +161,7 @@ void
 glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, const void* data)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glBufferSubData(target, offset, size, data);
+	ovr_glBufferSubData(target, offset, size, data);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -175,7 +175,7 @@ glCheckFramebufferStatus(GLenum target)
 	GLenum ret = GL_NONE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_glCheckFramebufferStatus(target);
+	ret = ovr_glCheckFramebufferStatus(target);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -188,7 +188,7 @@ void
 glClear(GLbitfield mask)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glClear(mask);
+	ovr_glClear(mask);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -200,7 +200,7 @@ void
 glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glClearColor(red, green, blue, alpha);
+	ovr_glClearColor(red, green, blue, alpha);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -212,7 +212,7 @@ void
 glClearDepthf(GLclampf depth)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glClearDepthf(depth);
+	ovr_glClearDepthf(depth);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -224,7 +224,7 @@ void
 glClearStencil(GLint s)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glClearStencil(s);
+	ovr_glClearStencil(s);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -236,7 +236,7 @@ void
 glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glColorMask(red, green, blue, alpha);
+	ovr_glColorMask(red, green, blue, alpha);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -248,7 +248,7 @@ void
 glCompileShader(GLuint shader)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glCompileShader(shader);
+	ovr_glCompileShader(shader);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -260,7 +260,7 @@ void
 glCompressedTexImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void* data)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glCompressedTexImage2D(target, level, internalformat, width, height, border, imageSize, data);
+	ovr_glCompressedTexImage2D(target, level, internalformat, width, height, border, imageSize, data);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -272,7 +272,7 @@ void
 glCompressedTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const void* data)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glCompressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, imageSize, data);
+	ovr_glCompressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, imageSize, data);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -284,7 +284,7 @@ void
 glCopyTexImage2D(GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glCopyTexImage2D(target, level, internalformat, x, y, width, height, border);
+	ovr_glCopyTexImage2D(target, level, internalformat, x, y, width, height, border);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -296,7 +296,7 @@ void
 glCopyTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glCopyTexSubImage2D(target, level, xoffset, yoffset, x, y, width, height);
+	ovr_glCopyTexSubImage2D(target, level, xoffset, yoffset, x, y, width, height);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -310,7 +310,7 @@ glCreateProgram(void)
 	GLuint ret = _COREGL_INT_INIT_VALUE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_glCreateProgram();
+	ret = ovr_glCreateProgram();
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -324,7 +324,7 @@ glCreateShader(GLenum type)
 {
 	GLuint ret = _COREGL_INT_INIT_VALUE;
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_glCreateShader(type);
+	ret = ovr_glCreateShader(type);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -337,7 +337,7 @@ void
 glCullFace(GLenum mode)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glCullFace(mode);
+	ovr_glCullFace(mode);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -349,7 +349,7 @@ void
 glDeleteBuffers(GLsizei n, const GLuint* buffers)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glDeleteBuffers(n, buffers);
+	ovr_glDeleteBuffers(n, buffers);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -361,7 +361,7 @@ void
 glDeleteFramebuffers(GLsizei n, const GLuint* framebuffers)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glDeleteFramebuffers(n, framebuffers);
+	ovr_glDeleteFramebuffers(n, framebuffers);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -373,7 +373,7 @@ void
 glDeleteProgram(GLuint program)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glDeleteProgram(program);
+	ovr_glDeleteProgram(program);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -385,7 +385,7 @@ void
 glDeleteRenderbuffers(GLsizei n, const GLuint* renderbuffers)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glDeleteRenderbuffers(n, renderbuffers);
+	ovr_glDeleteRenderbuffers(n, renderbuffers);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -397,7 +397,7 @@ void
 glDeleteShader(GLuint shader)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glDeleteShader(shader);
+	ovr_glDeleteShader(shader);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -409,7 +409,7 @@ void
 glDeleteTextures(GLsizei n, const GLuint* textures)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glDeleteTextures(n, textures);
+	ovr_glDeleteTextures(n, textures);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -421,7 +421,7 @@ void
 glDepthFunc(GLenum func)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glDepthFunc(func);
+	ovr_glDepthFunc(func);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -433,7 +433,7 @@ void
 glDepthMask(GLboolean flag)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glDepthMask(flag);
+	ovr_glDepthMask(flag);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -445,7 +445,7 @@ void
 glDepthRangef(GLclampf zNear, GLclampf zFar)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glDepthRangef(zNear, zFar);
+	ovr_glDepthRangef(zNear, zFar);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -457,7 +457,7 @@ void
 glDetachShader(GLuint program, GLuint shader)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glDetachShader(program, shader);
+	ovr_glDetachShader(program, shader);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -469,7 +469,7 @@ void
 glDisable(GLenum cap)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glDisable(cap);
+	ovr_glDisable(cap);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -481,7 +481,7 @@ void
 glDisableVertexAttribArray(GLuint index)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glDisableVertexAttribArray(index);
+	ovr_glDisableVertexAttribArray(index);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -493,7 +493,7 @@ void
 glDrawArrays(GLenum mode, GLint first, GLsizei count)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glDrawArrays(mode, first, count);
+	ovr_glDrawArrays(mode, first, count);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -505,7 +505,7 @@ void
 glDrawElements(GLenum mode, GLsizei count, GLenum type, const void* indices)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glDrawElements(mode, count, type, indices);
+	ovr_glDrawElements(mode, count, type, indices);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -517,7 +517,7 @@ void
 glEnable(GLenum cap)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glEnable(cap);
+	ovr_glEnable(cap);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -529,7 +529,7 @@ void
 glEnableVertexAttribArray(GLuint index)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glEnableVertexAttribArray(index);
+	ovr_glEnableVertexAttribArray(index);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -541,7 +541,7 @@ void
 glFinish(void)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glFinish();
+	ovr_glFinish();
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -554,7 +554,7 @@ void
 glFlush(void)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glFlush();
+	ovr_glFlush();
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -567,7 +567,7 @@ void
 glFramebufferRenderbuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glFramebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer);
+	ovr_glFramebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -579,7 +579,7 @@ void
 glFramebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glFramebufferTexture2D(target, attachment, textarget, texture, level);
+	ovr_glFramebufferTexture2D(target, attachment, textarget, texture, level);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -591,7 +591,7 @@ void
 glFrontFace(GLenum mode)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glFrontFace(mode);
+	ovr_glFrontFace(mode);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -603,7 +603,7 @@ void
 glGetVertexAttribfv(GLuint index, GLenum pname, GLfloat* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGetVertexAttribfv(index, pname, params);
+	ovr_glGetVertexAttribfv(index, pname, params);
 
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
@@ -616,7 +616,7 @@ void
 glGetVertexAttribiv(GLuint index, GLenum pname, GLint* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGetVertexAttribiv(index, pname, params);
+	ovr_glGetVertexAttribiv(index, pname, params);
 
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
@@ -629,7 +629,7 @@ void
 glGetVertexAttribPointerv(GLuint index, GLenum pname, void** pointer)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGetVertexAttribPointerv(index, pname, pointer);
+	ovr_glGetVertexAttribPointerv(index, pname, pointer);
 
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 
@@ -643,7 +643,7 @@ void
 glHint(GLenum target, GLenum mode)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glHint(target, mode);
+	ovr_glHint(target, mode);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -655,7 +655,7 @@ void
 glGenBuffers(GLsizei n, GLuint* buffers)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGenBuffers(n, buffers);
+	ovr_glGenBuffers(n, buffers);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -667,7 +667,7 @@ void
 glGenerateMipmap(GLenum target)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGenerateMipmap(target);
+	ovr_glGenerateMipmap(target);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -679,7 +679,7 @@ void
 glGenFramebuffers(GLsizei n, GLuint* framebuffers)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGenFramebuffers(n, framebuffers);
+	ovr_glGenFramebuffers(n, framebuffers);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -691,7 +691,7 @@ void
 glGenRenderbuffers(GLsizei n, GLuint* renderbuffers)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGenRenderbuffers(n, renderbuffers);
+	ovr_glGenRenderbuffers(n, renderbuffers);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -703,7 +703,7 @@ void
 glGenTextures(GLsizei n, GLuint* textures)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGenTextures(n, textures);
+	ovr_glGenTextures(n, textures);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -715,7 +715,7 @@ void
 glGetActiveAttrib(GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, char* name)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGetActiveAttrib(program, index, bufsize, length, size, type, name);
+	ovr_glGetActiveAttrib(program, index, bufsize, length, size, type, name);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -727,7 +727,7 @@ void
 glGetActiveUniform(GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, char* name)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGetActiveUniform(program, index, bufsize, length, size, type, name);
+	ovr_glGetActiveUniform(program, index, bufsize, length, size, type, name);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -739,7 +739,7 @@ void
 glGetAttachedShaders(GLuint program, GLsizei maxcount, GLsizei* count, GLuint* shaders)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGetAttachedShaders(program, maxcount, count, shaders);
+	ovr_glGetAttachedShaders(program, maxcount, count, shaders);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -752,7 +752,7 @@ glGetAttribLocation(GLuint program, const char* name)
 {
 	int ret = _COREGL_INT_INIT_VALUE;
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_glGetAttribLocation(program, name);
+	ret = ovr_glGetAttribLocation(program, name);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -765,7 +765,7 @@ void
 glGetBooleanv(GLenum pname, GLboolean* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGetBooleanv(pname, params);
+	ovr_glGetBooleanv(pname, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -777,7 +777,7 @@ void
 glGetBufferParameteriv(GLenum target, GLenum pname, GLint* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGetBufferParameteriv(target, pname, params);
+	ovr_glGetBufferParameteriv(target, pname, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -791,7 +791,7 @@ glGetError(void)
 	GLenum ret = GL_NONE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_glGetError();
+	ret = ovr_glGetError();
 	goto finish;
 
 finish:
@@ -803,7 +803,7 @@ void
 glGetFloatv(GLenum pname, GLfloat* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGetFloatv(pname, params);
+	ovr_glGetFloatv(pname, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -815,7 +815,7 @@ void
 glGetFramebufferAttachmentParameteriv(GLenum target, GLenum attachment, GLenum pname, GLint* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGetFramebufferAttachmentParameteriv(target, attachment, pname, params);
+	ovr_glGetFramebufferAttachmentParameteriv(target, attachment, pname, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -827,7 +827,7 @@ void
 glGetIntegerv(GLenum pname, GLint* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGetIntegerv(pname, params);
+	ovr_glGetIntegerv(pname, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -839,7 +839,7 @@ void
 glGetProgramiv(GLuint program, GLenum pname, GLint* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGetProgramiv(program, pname, params);
+	ovr_glGetProgramiv(program, pname, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -851,7 +851,7 @@ void
 glGetProgramInfoLog(GLuint program, GLsizei bufsize, GLsizei* length, char* infolog)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGetProgramInfoLog(program, bufsize, length, infolog);
+	ovr_glGetProgramInfoLog(program, bufsize, length, infolog);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -863,7 +863,7 @@ void
 glGetRenderbufferParameteriv(GLenum target, GLenum pname, GLint* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGetRenderbufferParameteriv(target, pname, params);
+	ovr_glGetRenderbufferParameteriv(target, pname, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -875,7 +875,7 @@ void
 glGetShaderiv(GLuint shader, GLenum pname, GLint* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGetShaderiv(shader, pname, params);
+	ovr_glGetShaderiv(shader, pname, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -887,7 +887,7 @@ void
 glGetShaderInfoLog(GLuint shader, GLsizei bufsize, GLsizei* length, char* infolog)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGetShaderInfoLog(shader, bufsize, length, infolog);
+	ovr_glGetShaderInfoLog(shader, bufsize, length, infolog);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -900,7 +900,7 @@ glGetShaderPrecisionFormat(GLenum shadertype, GLenum precisiontype, GLint* range
 {
 	_COREGL_WRAP_FUNC_BEGIN();
 #ifndef _COREGL_DESKTOP_GL
-	glsym_glGetShaderPrecisionFormat(shadertype, precisiontype, range, precision);
+	ovr_glGetShaderPrecisionFormat(shadertype, precisiontype, range, precision);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 #else
 	if (range)
@@ -926,7 +926,7 @@ void
 glGetShaderSource(GLuint shader, GLsizei bufsize, GLsizei* length, char* source)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGetShaderSource(shader, bufsize, length, source);
+	ovr_glGetShaderSource(shader, bufsize, length, source);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -940,7 +940,7 @@ glGetString(GLenum name)
 	const GLubyte *ret = NULL;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_glGetString(name);
+	ret = ovr_glGetString(name);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -953,7 +953,7 @@ void
 glGetTexParameterfv(GLenum target, GLenum pname, GLfloat* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGetTexParameterfv(target, pname, params);
+	ovr_glGetTexParameterfv(target, pname, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -965,7 +965,7 @@ void
 glGetTexParameteriv(GLenum target, GLenum pname, GLint* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGetTexParameteriv(target, pname, params);
+	ovr_glGetTexParameteriv(target, pname, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -977,7 +977,7 @@ void
 glGetUniformfv(GLuint program, GLint location, GLfloat* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGetUniformfv(program, location, params);
+	ovr_glGetUniformfv(program, location, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -989,7 +989,7 @@ void
 glGetUniformiv(GLuint program, GLint location, GLint* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGetUniformiv(program, location, params);
+	ovr_glGetUniformiv(program, location, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1002,7 +1002,7 @@ glGetUniformLocation(GLuint program, const char* name)
 	int ret = _COREGL_INT_INIT_VALUE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_glGetUniformLocation(program, name);
+	ret = ovr_glGetUniformLocation(program, name);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1017,7 +1017,7 @@ glIsBuffer(GLuint buffer)
 	GLboolean ret = GL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_glIsBuffer(buffer);
+	ret = ovr_glIsBuffer(buffer);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1032,7 +1032,7 @@ glIsEnabled(GLenum cap)
 	GLboolean ret = GL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_glIsEnabled(cap);
+	ret = ovr_glIsEnabled(cap);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1047,7 +1047,7 @@ glIsFramebuffer(GLuint framebuffer)
 	GLboolean ret = GL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_glIsFramebuffer(framebuffer);
+	ret = ovr_glIsFramebuffer(framebuffer);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1061,7 +1061,7 @@ glIsProgram(GLuint program)
 {
 	GLboolean ret;
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_glIsProgram(program);
+	ret = ovr_glIsProgram(program);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1075,7 +1075,7 @@ glIsRenderbuffer(GLuint renderbuffer)
 {
 	GLboolean ret;
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_glIsRenderbuffer(renderbuffer);
+	ret = ovr_glIsRenderbuffer(renderbuffer);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1089,7 +1089,7 @@ glIsShader(GLuint shader)
 {
 	GLboolean ret;
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_glIsShader(shader);
+	ret = ovr_glIsShader(shader);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1103,7 +1103,7 @@ glIsTexture(GLuint texture)
 {
 	GLboolean ret;
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = glsym_glIsTexture(texture);
+	ret = ovr_glIsTexture(texture);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1116,7 +1116,7 @@ void
 glLineWidth(GLfloat width)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glLineWidth(width);
+	ovr_glLineWidth(width);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1128,7 +1128,7 @@ void
 glLinkProgram(GLuint program)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glLinkProgram(program);
+	ovr_glLinkProgram(program);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1140,7 +1140,7 @@ void
 glPixelStorei(GLenum pname, GLint param)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glPixelStorei(pname, param);
+	ovr_glPixelStorei(pname, param);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1152,7 +1152,7 @@ void
 glPolygonOffset(GLfloat factor, GLfloat units)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glPolygonOffset(factor, units);
+	ovr_glPolygonOffset(factor, units);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1164,7 +1164,7 @@ void
 glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void* pixels)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glReadPixels(x, y, width, height, format, type, pixels);
+	ovr_glReadPixels(x, y, width, height, format, type, pixels);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1177,7 +1177,7 @@ glReleaseShaderCompiler(void)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
 #ifndef _COREGL_DESKTOP_GL
-	glsym_glReleaseShaderCompiler();
+	ovr_glReleaseShaderCompiler();
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 #else
 	//FIXME!!! need something here?
@@ -1193,7 +1193,7 @@ void
 glRenderbufferStorage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glRenderbufferStorage(target, internalformat, width, height);
+	ovr_glRenderbufferStorage(target, internalformat, width, height);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1205,7 +1205,7 @@ void
 glSampleCoverage(GLclampf value, GLboolean invert)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glSampleCoverage(value, invert);
+	ovr_glSampleCoverage(value, invert);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1217,7 +1217,7 @@ void
 glScissor(GLint x, GLint y, GLsizei width, GLsizei height)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glScissor(x, y, width, height);
+	ovr_glScissor(x, y, width, height);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1230,7 +1230,7 @@ glShaderBinary(GLsizei n, const GLuint* shaders, GLenum binaryformat, const void
 {
 	_COREGL_WRAP_FUNC_BEGIN();
 #ifndef _COREGL_DESKTOP_GL
-	glsym_glShaderBinary(n, shaders, binaryformat, binary, length);
+	ovr_glShaderBinary(n, shaders, binaryformat, binary, length);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 #else
 // FIXME: need to dlsym/getprocaddress for this
@@ -1250,7 +1250,7 @@ void
 glShaderSource(GLuint shader, GLsizei count, const char** string, const GLint* length)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glShaderSource(shader, count, string, length);
+	ovr_glShaderSource(shader, count, string, length);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1262,7 +1262,7 @@ void
 glStencilFunc(GLenum func, GLint ref, GLuint mask)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glStencilFunc(func, ref, mask);
+	ovr_glStencilFunc(func, ref, mask);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1274,7 +1274,7 @@ void
 glStencilFuncSeparate(GLenum face, GLenum func, GLint ref, GLuint mask)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glStencilFuncSeparate(face, func, ref, mask);
+	ovr_glStencilFuncSeparate(face, func, ref, mask);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1286,7 +1286,7 @@ void
 glStencilMask(GLuint mask)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glStencilMask(mask);
+	ovr_glStencilMask(mask);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1298,7 +1298,7 @@ void
 glStencilMaskSeparate(GLenum face, GLuint mask)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glStencilMaskSeparate(face, mask);
+	ovr_glStencilMaskSeparate(face, mask);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1310,7 +1310,7 @@ void
 glStencilOp(GLenum fail, GLenum zfail, GLenum zpass)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glStencilOp(fail, zfail, zpass);
+	ovr_glStencilOp(fail, zfail, zpass);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1322,7 +1322,7 @@ void
 glStencilOpSeparate(GLenum face, GLenum fail, GLenum zfail, GLenum zpass)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glStencilOpSeparate(face, fail, zfail, zpass);
+	ovr_glStencilOpSeparate(face, fail, zfail, zpass);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1334,7 +1334,7 @@ void
 glTexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* pixels)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
+	ovr_glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1346,7 +1346,7 @@ void
 glTexParameterf(GLenum target, GLenum pname, GLfloat param)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glTexParameterf(target, pname, param);
+	ovr_glTexParameterf(target, pname, param);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1358,7 +1358,7 @@ void
 glTexParameterfv(GLenum target, GLenum pname, const GLfloat* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glTexParameterfv(target, pname, params);
+	ovr_glTexParameterfv(target, pname, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1370,7 +1370,7 @@ void
 glTexParameteri(GLenum target, GLenum pname, GLint param)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glTexParameteri(target, pname, param);
+	ovr_glTexParameteri(target, pname, param);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1382,7 +1382,7 @@ void
 glTexParameteriv(GLenum target, GLenum pname, const GLint* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glTexParameteriv(target, pname, params);
+	ovr_glTexParameteriv(target, pname, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1394,7 +1394,7 @@ void
 glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void* pixels)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
+	ovr_glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1406,7 +1406,7 @@ void
 glUniform1f(GLint location, GLfloat x)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glUniform1f(location, x);
+	ovr_glUniform1f(location, x);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1418,7 +1418,7 @@ void
 glUniform1fv(GLint location, GLsizei count, const GLfloat* v)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glUniform1fv(location, count, v);
+	ovr_glUniform1fv(location, count, v);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1430,7 +1430,7 @@ void
 glUniform1i(GLint location, GLint x)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glUniform1i(location, x);
+	ovr_glUniform1i(location, x);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1442,7 +1442,7 @@ void
 glUniform1iv(GLint location, GLsizei count, const GLint* v)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glUniform1iv(location, count, v);
+	ovr_glUniform1iv(location, count, v);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1454,7 +1454,7 @@ void
 glUniform2f(GLint location, GLfloat x, GLfloat y)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glUniform2f(location, x, y);
+	ovr_glUniform2f(location, x, y);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1466,7 +1466,7 @@ void
 glUniform2fv(GLint location, GLsizei count, const GLfloat* v)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glUniform2fv(location, count, v);
+	ovr_glUniform2fv(location, count, v);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1478,7 +1478,7 @@ void
 glUniform2i(GLint location, GLint x, GLint y)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glUniform2i(location, x, y);
+	ovr_glUniform2i(location, x, y);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1490,7 +1490,7 @@ void
 glUniform2iv(GLint location, GLsizei count, const GLint* v)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glUniform2iv(location, count, v);
+	ovr_glUniform2iv(location, count, v);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1502,7 +1502,7 @@ void
 glUniform3f(GLint location, GLfloat x, GLfloat y, GLfloat z)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glUniform3f(location, x, y, z);
+	ovr_glUniform3f(location, x, y, z);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1514,7 +1514,7 @@ void
 glUniform3fv(GLint location, GLsizei count, const GLfloat* v)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glUniform3fv(location, count, v);
+	ovr_glUniform3fv(location, count, v);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1526,7 +1526,7 @@ void
 glUniform3i(GLint location, GLint x, GLint y, GLint z)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glUniform3i(location, x, y, z);
+	ovr_glUniform3i(location, x, y, z);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1538,7 +1538,7 @@ void
 glUniform3iv(GLint location, GLsizei count, const GLint* v)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glUniform3iv(location, count, v);
+	ovr_glUniform3iv(location, count, v);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1550,7 +1550,7 @@ void
 glUniform4f(GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glUniform4f(location, x, y, z, w);
+	ovr_glUniform4f(location, x, y, z, w);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1562,7 +1562,7 @@ void
 glUniform4fv(GLint location, GLsizei count, const GLfloat* v)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glUniform4fv(location, count, v);
+	ovr_glUniform4fv(location, count, v);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1574,7 +1574,7 @@ void
 glUniform4i(GLint location, GLint x, GLint y, GLint z, GLint w)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glUniform4i(location, x, y, z, w);
+	ovr_glUniform4i(location, x, y, z, w);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1586,7 +1586,7 @@ void
 glUniform4iv(GLint location, GLsizei count, const GLint* v)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glUniform4iv(location, count, v);
+	ovr_glUniform4iv(location, count, v);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1598,7 +1598,7 @@ void
 glUniformMatrix2fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glUniformMatrix2fv(location, count, transpose, value);
+	ovr_glUniformMatrix2fv(location, count, transpose, value);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1610,7 +1610,7 @@ void
 glUniformMatrix3fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glUniformMatrix3fv(location, count, transpose, value);
+	ovr_glUniformMatrix3fv(location, count, transpose, value);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1622,7 +1622,7 @@ void
 glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glUniformMatrix4fv(location, count, transpose, value);
+	ovr_glUniformMatrix4fv(location, count, transpose, value);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1634,7 +1634,7 @@ void
 glUseProgram(GLuint program)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glUseProgram(program);
+	ovr_glUseProgram(program);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1646,7 +1646,7 @@ void
 glValidateProgram(GLuint program)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glValidateProgram(program);
+	ovr_glValidateProgram(program);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1658,7 +1658,7 @@ void
 glVertexAttrib1f(GLuint indx, GLfloat x)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glVertexAttrib1f(indx, x);
+	ovr_glVertexAttrib1f(indx, x);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1670,7 +1670,7 @@ void
 glVertexAttrib1fv(GLuint indx, const GLfloat* values)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glVertexAttrib1fv(indx, values);
+	ovr_glVertexAttrib1fv(indx, values);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1682,7 +1682,7 @@ void
 glVertexAttrib2f(GLuint indx, GLfloat x, GLfloat y)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glVertexAttrib2f(indx, x, y);
+	ovr_glVertexAttrib2f(indx, x, y);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1694,7 +1694,7 @@ void
 glVertexAttrib2fv(GLuint indx, const GLfloat* values)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glVertexAttrib2fv(indx, values);
+	ovr_glVertexAttrib2fv(indx, values);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1706,7 +1706,7 @@ void
 glVertexAttrib3f(GLuint indx, GLfloat x, GLfloat y, GLfloat z)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glVertexAttrib3f(indx, x, y, z);
+	ovr_glVertexAttrib3f(indx, x, y, z);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1718,7 +1718,7 @@ void
 glVertexAttrib3fv(GLuint indx, const GLfloat* values)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glVertexAttrib3fv(indx, values);
+	ovr_glVertexAttrib3fv(indx, values);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1730,7 +1730,7 @@ void
 glVertexAttrib4f(GLuint indx, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glVertexAttrib4f(indx, x, y, z, w);
+	ovr_glVertexAttrib4f(indx, x, y, z, w);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1742,7 +1742,7 @@ void
 glVertexAttrib4fv(GLuint indx, const GLfloat* values)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glVertexAttrib4fv(indx, values);
+	ovr_glVertexAttrib4fv(indx, values);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1754,7 +1754,7 @@ void
 glVertexAttribPointer(GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* ptr)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glVertexAttribPointer(indx, size, type, normalized, stride, ptr);
+	ovr_glVertexAttribPointer(indx, size, type, normalized, stride, ptr);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1766,7 +1766,7 @@ void
 glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glViewport(x, y, width, height);
+	ovr_glViewport(x, y, width, height);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1780,7 +1780,7 @@ void
 glEGLImageTargetTexture2DOES(GLenum target, GLeglImageOES image)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glEGLImageTargetTexture2DOES(target, image);
+	ovr_glEGLImageTargetTexture2DOES(target, image);
 	goto finish;
 
 finish:
@@ -1791,7 +1791,7 @@ void
 glEGLImageTargetRenderbufferStorageOES(GLenum target, GLeglImageOES image)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glEGLImageTargetRenderbufferStorageOES(target, image);
+	ovr_glEGLImageTargetRenderbufferStorageOES(target, image);
 	goto finish;
 
 finish:
@@ -1802,7 +1802,7 @@ void
 glGetProgramBinary(GLuint program, GLsizei bufsize, GLsizei* length, GLenum* binaryFormat, void* binary)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glGetProgramBinary(program, bufsize, length, binaryFormat, binary);
+	ovr_glGetProgramBinary(program, bufsize, length, binaryFormat, binary);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1814,7 +1814,7 @@ void
 glProgramBinary(GLuint program, GLenum binaryFormat, const void* binary, GLint length)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glProgramBinary(program, binaryFormat, binary, length);
+	ovr_glProgramBinary(program, binaryFormat, binary, length);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1827,7 +1827,7 @@ void
 glProgramParameteri(GLuint program, GLuint pname, GLint value)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glProgramParameteri(program, pname, value);
+	ovr_glProgramParameteri(program, pname, value);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1839,7 +1839,7 @@ void
 glRenderbufferStorageMultisampleEXT(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glRenderbufferStorageMultisampleEXT(target, samples, internalformat, width, height);
+	ovr_glRenderbufferStorageMultisampleEXT(target, samples, internalformat, width, height);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1851,7 +1851,19 @@ void
 glFramebufferTexture2DMultisampleEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLsizei samples)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	glsym_glFramebufferTexture2DMultisampleEXT(target, attachment, textarget, texture, level, samples);
+	ovr_glFramebufferTexture2DMultisampleEXT(target, attachment, textarget, texture, level, samples);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_WRAP_FUNC_END();
+}
+
+void
+glDiscardFramebufferEXT(GLenum target, GLsizei numAttachments, const GLenum *attachments)
+{
+	_COREGL_WRAP_FUNC_BEGIN();
+	ovr_glDiscardFramebufferEXT(target, numAttachments, attachments);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 

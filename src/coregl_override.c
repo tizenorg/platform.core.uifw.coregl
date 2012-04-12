@@ -1,14 +1,16 @@
 #include "coregl_internal.h"
+#include "coregl_wrappath.h"
+#include "coregl_fastpath.h"
 
 #include <stdlib.h>
 
-#define COREGL_API_OVERRIDE(func, prefix) \
+#define COREGL_OVERRIDE_API(func, prefix) \
    _COREGL_NAME_MANGLE(func) = prefix##func
 
 void
 override_glue_normal_path()
 {
-#define N_ORD(f) COREGL_API_OVERRIDE(f, _sym_) // GL Normal Path
+#define N_ORD(f) COREGL_OVERRIDE_API(f, _sym_) // GL Normal Path
 
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     N_ORD(FUNC_NAME);
 # ifndef _COREGL_DESKTOP_GL
@@ -27,12 +29,15 @@ override_glue_fast_path()
 	// Inherit from normal path
 	override_glue_normal_path();
 
-#define F_ORD(f) COREGL_API_OVERRIDE(f, fpgl_) // GL Fast Path
+#define F_ORD(f) COREGL_OVERRIDE_API(f, fpgl_) // GL Fast Path
 
 
 #ifndef _COREGL_DESKTOP_GL
 	// Fast-Path Core Functions
 	F_ORD(eglGetProcAddress);
+
+	F_ORD(eglBindAPI);
+	F_ORD(eglQueryAPI);
 
 	F_ORD(eglCreateContext);
 	F_ORD(eglCreateImageKHR);
@@ -40,26 +45,18 @@ override_glue_fast_path()
 	F_ORD(eglDestroyContext);
 	F_ORD(eglQueryContext);
 	F_ORD(eglGetCurrentContext);
-
-	if (atoi(get_env_setting("COREGL_DEBUG_NOFP")) != 1)
-	{
-		F_ORD(eglGetCurrentSurface);
-		F_ORD(eglDestroySurface);
-	}
-	else
-	{
-		LOG("\E[0;35;1m[CoreGL] SKIP GLUE FASTPATH...\E[0m\n");
-	}
+	F_ORD(eglReleaseThread);
+	F_ORD(eglGetCurrentSurface);
 
 #else
-		// Fastpath-ed Functions
-		F_ORD(glXCreateContext);
-		F_ORD(glXDestroyContext);
-		F_ORD(glXMakeCurrent);
-		F_ORD(glXGetCurrentContext);
-		F_ORD(glXGetCurrentDrawable);
+	// Fastpath-ed Functions
+	F_ORD(glXCreateContext);
+	F_ORD(glXDestroyContext);
+	F_ORD(glXMakeCurrent);
+	F_ORD(glXGetCurrentContext);
+	F_ORD(glXGetCurrentDrawable);
 
-		F_ORD(glXMakeContextCurrent);
+	F_ORD(glXMakeContextCurrent);
 #endif
 
 #undef F_ORD
@@ -68,7 +65,7 @@ override_glue_fast_path()
 void
 override_gl_normal_path()
 {
-#define N_ORD(f) COREGL_API_OVERRIDE(f, _sym_) // GL Normal Path
+#define N_ORD(f) COREGL_OVERRIDE_API(f, _sym_) // GL Normal Path
 
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     N_ORD(FUNC_NAME);
 # include "headers/sym_gl.h"
@@ -83,25 +80,67 @@ override_gl_fast_path()
 	// Inherit from normal path
 	override_gl_normal_path();
 
-#define F_ORD(f) COREGL_API_OVERRIDE(f, fpgl_) // GL Wrapped Path
+#define F_ORD(f) COREGL_OVERRIDE_API(f, fpgl_) // GL Wrapped Path
 
 	// Fast-Path Functions
-	if (atoi(get_env_setting("COREGL_DEBUG_NOFP")) != 1)
+	if (debug_nofp != 1)
 	{
-		F_ORD(glActiveTexture);
-		F_ORD(glBindBuffer);
-		F_ORD(glDeleteBuffers);
+		F_ORD(glGetError);
 
+		F_ORD(glActiveTexture);
 		F_ORD(glGenTextures);
 		F_ORD(glBindTexture);
 		F_ORD(glIsTexture);
 		F_ORD(glFramebufferTexture2D);
 		F_ORD(glDeleteTextures);
 
+		F_ORD(glGenBuffers);
+		F_ORD(glBindBuffer);
+		F_ORD(glIsBuffer);
+		F_ORD(glDeleteBuffers);
+
+		F_ORD(glGenFramebuffers);
 		F_ORD(glBindFramebuffer);
+		F_ORD(glIsFramebuffer);
 		F_ORD(glDeleteFramebuffers);
+
+		F_ORD(glGenRenderbuffers);
 		F_ORD(glBindRenderbuffer);
+		F_ORD(glFramebufferRenderbuffer);
+		F_ORD(glIsRenderbuffer);
 		F_ORD(glDeleteRenderbuffers);
+
+		F_ORD(glCreateShader);
+		F_ORD(glCreateProgram);
+		F_ORD(glAttachShader);
+		F_ORD(glCompileShader);
+		F_ORD(glShaderBinary);
+		F_ORD(glDeleteShader);
+		F_ORD(glDetachShader);
+		F_ORD(glGetShaderiv);
+		F_ORD(glGetShaderInfoLog);
+		F_ORD(glGetShaderSource);
+		F_ORD(glIsShader);
+		F_ORD(glShaderSource);
+		F_ORD(glBindAttribLocation);
+		F_ORD(glDeleteProgram);
+		F_ORD(glDetachShader);
+		F_ORD(glGetActiveAttrib);
+		F_ORD(glGetActiveUniform);
+		F_ORD(glGetAttachedShaders);
+		F_ORD(glGetAttribLocation);
+		F_ORD(glGetProgramiv);
+		F_ORD(glGetProgramInfoLog);
+		F_ORD(glGetUniformfv);
+		F_ORD(glGetUniformiv);
+		F_ORD(glGetUniformLocation);
+		F_ORD(glIsProgram);
+		F_ORD(glLinkProgram);
+		F_ORD(glUseProgram);
+		F_ORD(glValidateProgram);
+		F_ORD(glGetProgramBinary);
+		F_ORD(glProgramBinary);
+
 		F_ORD(glBlendColor);
 		F_ORD(glBlendEquation);
 		F_ORD(glBlendEquationSeparate);
@@ -137,7 +176,6 @@ override_gl_fast_path()
 		F_ORD(glStencilMaskSeparate);
 		F_ORD(glStencilOp);
 		F_ORD(glStencilOpSeparate);
-		F_ORD(glUseProgram);
 		F_ORD(glVertexAttrib1f);
 		F_ORD(glVertexAttrib1fv);
 		F_ORD(glVertexAttrib2f);
@@ -179,7 +217,7 @@ override_glue_apis(CoreGL_Opt_Flag opt)
 			break;
 		default:
 			ERR("Invalide GL Override Option!!!\n");
-		}
+	}
 }
 
 void
@@ -195,6 +233,6 @@ override_gl_apis(CoreGL_Opt_Flag opt)
 			break;
 		default:
 			ERR("Invalide GL Override Option!!!\n");
-		}
+	}
 }
 

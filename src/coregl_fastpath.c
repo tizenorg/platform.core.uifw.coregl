@@ -4,6 +4,8 @@
 #include <string.h>
 #include <sys/time.h>
 
+GLenum FPGL_Error = GL_NO_ERROR;
+
 Mutex init_context_mutex = MUTEX_INITIALIZER;
 GLGlueContext *initial_ctx = NULL;
 
@@ -33,6 +35,37 @@ _get_stencil_max_mask()
 	return (1 << stencil_bit) - 1;
 }
 
+void
+init_fast_gl()
+{
+}
+
+void
+free_fast_gl()
+{
+}
+
+static GL_Object **
+_get_shared_object(GL_Shared_Object_State *sostate, GL_Object_Type type)
+{
+	switch (type)
+	{
+		case GL_OBJECT_TYPE_TEXTURE:
+			return sostate->texture;
+		case GL_OBJECT_TYPE_BUFFER:
+			return sostate->buffer;
+		case GL_OBJECT_TYPE_FRAMEBUFFER:
+			return sostate->framebuffer;
+		case GL_OBJECT_TYPE_RENDERBUFFER:
+			return sostate->renderbuffer;
+		case GL_OBJECT_TYPE_PROGRAM:
+			return sostate->program;
+		default:
+			return NULL;
+	}
+}
+
+
 GLuint
 sostate_create_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint real_name)
 {
@@ -40,10 +73,7 @@ sostate_create_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLui
 	GLuint ret = _COREGL_INT_INIT_VALUE;
 	int i;
 
-	switch (type)
-	{
-		case GL_OBJECT_TYPE_TEXTURE: object = sostate->texture; break;
-	}
+	object = _get_shared_object(sostate, type);
 
 	for (i = 1; i < MAX_GL_OBJECT_SIZE; i++)
 	{
@@ -70,10 +100,7 @@ sostate_remove_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLui
 	GLuint ret = _COREGL_INT_INIT_VALUE;
 	int hash = _COREGL_INT_INIT_VALUE;
 
-	switch (type)
-	{
-		case GL_OBJECT_TYPE_TEXTURE: object = sostate->texture; break;
-	}
+	object = _get_shared_object(sostate, type);
 
 	hash = glue_name - (int)type;
 	if (hash < 0 ||
@@ -87,6 +114,7 @@ sostate_remove_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLui
 
 	free(object[hash]);
 	object[hash] = NULL;
+	ret = 1;
 	goto finish;
 
 finish:
@@ -100,10 +128,7 @@ sostate_get_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint 
 	GLuint ret = _COREGL_INT_INIT_VALUE;
 	int hash = _COREGL_INT_INIT_VALUE;
 
-	switch (type)
-	{
-		case GL_OBJECT_TYPE_TEXTURE: object = sostate->texture; break;
-	}
+	object = _get_shared_object(sostate, type);
 
 	hash = glue_name - (int)type;
 	if (hash < 0 ||
@@ -128,10 +153,7 @@ sostate_find_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint
 	GLuint ret = _COREGL_INT_INIT_VALUE;
 	int i;
 
-	switch (type)
-	{
-		case GL_OBJECT_TYPE_TEXTURE: object = sostate->texture; break;
-	}
+	object = _get_shared_object(sostate, type);
 
 	for (i = 1; i < MAX_GL_OBJECT_SIZE; i++)
 	{
@@ -153,14 +175,7 @@ dump_context_states(GLGlueContext *ctx, int force_output)
 {
 	static struct timeval tv_last = { 0, 0 };
 
-	{
-		char *fp_env = NULL;
-		int fp_envi = 0;
-		fp_env = getenv("COREGL_TRACE_STATE");
-		if (fp_env) fp_envi = atoi(fp_env);
-		else fp_envi = 0;
-		if (fp_envi == 0) return;
-	}
+	if (trace_state_flag != 1) return;
 
 	if (!force_output)
 	{
@@ -372,7 +387,7 @@ make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 	unsigned char flag = 0;
 	int i = 0;
 
-	if (atoi(get_env_setting("COREGL_DEBUG_NOFP")) == 1) goto finish;
+	if (debug_nofp == 1) goto finish;
 
 	// Return if they're the same
 	if (oldctx == newctx) goto finish;
@@ -387,12 +402,14 @@ make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
    if ((memcmp((oldctx->state_ptr), (newctx->state_ptr), (bytes))) != 0)
 #endif
 
-	_COREGL_TRACE_API_BEGIN("eglMakeCurrent(FP glFinish)");
+	static void *trace_hint_glfinish = NULL;
+	trace_hint_glfinish = _COREGL_TRACE_API_BEGIN("eglMakeCurrent(FP glFinish)", trace_hint_glfinish, 0);
 	_sym_glFlush();
-	_COREGL_TRACE_API_END("eglMakeCurrent(FP glFinish)");
+	_COREGL_TRACE_API_END("eglMakeCurrent(FP glFinish)", trace_hint_glfinish, 0);
 
 
-	_COREGL_TRACE_API_BEGIN("eglMakeCurrent(FP bind buffers)");
+	static void *trace_hint_bindbuffers = NULL;
+	trace_hint_bindbuffers = _COREGL_TRACE_API_BEGIN("eglMakeCurrent(FP bind buffers)", trace_hint_bindbuffers, 0);
 
 	//------------------//
 	// _bind_flag
@@ -417,13 +434,14 @@ make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 		}
 	}
 
-	_COREGL_TRACE_API_END("eglMakeCurrent(FP bind buffers)");
+	_COREGL_TRACE_API_END("eglMakeCurrent(FP bind buffers)", trace_hint_bindbuffers, 0);
 
 
 	//------------------//
 	// Enable States
 	// _enable_flag1
-	_COREGL_TRACE_API_BEGIN("eglMakeCurrent(FP enable states)");
+	static void *trace_hint_enable_states = NULL;
+	trace_hint_enable_states = _COREGL_TRACE_API_BEGIN("eglMakeCurrent(FP enable states)", trace_hint_enable_states, 0);
 
 	flag = oldctx->_enable_flag1 | newctx->_enable_flag1;
 	if (flag)
@@ -499,11 +517,12 @@ make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 		}
 	}
 
-	_COREGL_TRACE_API_END("eglMakeCurrent(FP enable states)");
+	_COREGL_TRACE_API_END("eglMakeCurrent(FP enable states)", trace_hint_enable_states, 0);
 
 	//------------------//
 	// _clear_flag1
-	_COREGL_TRACE_API_BEGIN("eglMakeCurrent(FP clear/viewport)");
+	static void *trace_hint_clear_viewport = NULL;
+	trace_hint_clear_viewport = _COREGL_TRACE_API_BEGIN("eglMakeCurrent(FP clear/viewport)", trace_hint_clear_viewport, 0);
 
 	flag = oldctx->_clear_flag1 | newctx->_clear_flag1;
 	if (flag)
@@ -566,11 +585,12 @@ make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 
 	}
 
-	_COREGL_TRACE_API_END("eglMakeCurrent(FP clear/viewport)");
+	_COREGL_TRACE_API_END("eglMakeCurrent(FP clear/viewport)", trace_hint_clear_viewport, 0);
 
 	//------------------//
 	// Texture here...
-	_COREGL_TRACE_API_BEGIN("eglMakeCurrent(FP bind textures)");
+	static void *trace_hint_bind_textures = NULL;
+	trace_hint_bind_textures = _COREGL_TRACE_API_BEGIN("eglMakeCurrent(FP bind textures)", trace_hint_bind_textures, 0);
 
 	flag = oldctx->_tex_flag1 | newctx->_tex_flag1;
 	if (flag)
@@ -599,10 +619,11 @@ make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 			_sym_glHint(GL_GENERATE_MIPMAP_HINT, newctx->gl_generate_mipmap_hint[0]);
 		}
 	}
-	_COREGL_TRACE_API_END("eglMakeCurrent(FP bind textures)");
+	_COREGL_TRACE_API_END("eglMakeCurrent(FP bind textures)", trace_hint_bind_textures, 0);
 
 	//------------------//
-	_COREGL_TRACE_API_BEGIN("eglMakeCurrent(FP etc.)");
+	static void *trace_hint_etc = NULL;
+	trace_hint_etc = _COREGL_TRACE_API_BEGIN("eglMakeCurrent(FP etc.)", trace_hint_etc, 0);
 
 	flag = oldctx->_blend_flag | newctx->_blend_flag;
 	if (flag)
@@ -743,10 +764,11 @@ make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 			_sym_glPixelStorei(GL_UNPACK_ALIGNMENT, newctx->gl_unpack_alignment[0]);
 		}
 	}
-	_COREGL_TRACE_API_END("eglMakeCurrent(FP etc.)");
+	_COREGL_TRACE_API_END("eglMakeCurrent(FP etc.)", trace_hint_etc, 0);
 
 	// _varray_flag
-	_COREGL_TRACE_API_BEGIN("eglMakeCurrent(FP vertex attrib)");
+	static void *trace_hint_vertex_attrib = NULL;
+	trace_hint_vertex_attrib = _COREGL_TRACE_API_BEGIN("eglMakeCurrent(FP vertex attrib)", trace_hint_vertex_attrib, 0);
 	flag = oldctx->_vattrib_flag | newctx->_vattrib_flag;
 	if (flag)
 	{
@@ -791,7 +813,7 @@ make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 
 	}
 
-	_COREGL_TRACE_API_END("eglMakeCurrent(FP vertex attrib)");
+	_COREGL_TRACE_API_END("eglMakeCurrent(FP vertex attrib)", trace_hint_vertex_attrib, 0);
 	goto finish;
 
 finish:

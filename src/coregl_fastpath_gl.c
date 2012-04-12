@@ -23,6 +23,68 @@
    current_ctx = (GLGlueContext *)tstate->cstate->data; \
    AST(current_ctx != NULL);
 
+#define GET_REAL_OBJ(type, glue_handle, real_handle) \
+	_get_real_obj(current_ctx->sostate, type, glue_handle, real_handle)
+
+static inline int
+_get_real_obj(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint glue_handle, GLuint *real_handle)
+{
+	if (glue_handle == 0)
+	{
+		*real_handle = 0;
+	}
+	else
+	{
+		AST(sostate != NULL);
+		*real_handle = sostate_get_object(sostate, type, glue_handle);
+		if (*real_handle == 0)
+			return 0;
+	}
+	return 1;
+}
+
+static void
+_set_gl_error(GLenum error)
+{
+	GLenum glerror = GL_NONE;
+	DEFINE_FAST_GL_FUNC();
+	INIT_FAST_GL_FUNC();
+
+	glerror = _sym_glGetError();
+
+	if (current_ctx->gl_error == GL_NO_ERROR &&
+	    glerror == GL_NO_ERROR &&
+	    error != GL_NO_ERROR)
+	{
+		current_ctx->gl_error = error;
+	}
+}
+
+GLenum
+fpgl_glGetError(void)
+{
+	GLenum ret = GL_NONE;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (current_ctx->gl_error != GL_NO_ERROR)
+	{
+		ret = current_ctx->gl_error;
+	}
+	else
+	{
+		ret = _sym_glGetError();
+	}
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+	return ret;
+}
+
+////////////////////////////////////////////////////////////////////////
 
 void
 fpgl_glActiveTexture(GLenum texture)
@@ -37,7 +99,6 @@ fpgl_glActiveTexture(GLenum texture)
 
 		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 
-
 		current_ctx->_tex_flag1 |= FLAG_BIT_1;
 		current_ctx->gl_active_texture[0] = texture;
 	}
@@ -49,128 +110,10 @@ finish:
 
 
 void
-fpgl_glBindBuffer(GLenum target, GLuint buffer)
-{
-	DEFINE_FAST_GL_FUNC();
-	_COREGL_FAST_FUNC_BEGIN();
-	INIT_FAST_GL_FUNC();
-
-
-	if (target == GL_ARRAY_BUFFER)
-	{
-		CURR_STATE_COMPARE(gl_array_buffer_binding, buffer)
-		{
-			_sym_glBindBuffer(target, buffer);
-
-			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-			if (buffer == 0)
-				current_ctx->_bind_flag &= (~FLAG_BIT_0);
-			else
-				current_ctx->_bind_flag |= FLAG_BIT_0;
-			current_ctx->gl_array_buffer_binding[0] = buffer;
-		}
-	}
-	else if (target == GL_ELEMENT_ARRAY_BUFFER)
-	{
-		CURR_STATE_COMPARE(gl_element_array_buffer_binding, buffer)
-		{
-			_sym_glBindBuffer(target, buffer);
-			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-			if (buffer == 0)
-				current_ctx->_bind_flag &= (~FLAG_BIT_1);
-			else
-				current_ctx->_bind_flag |= FLAG_BIT_1;
-			current_ctx->gl_element_array_buffer_binding[0] = buffer;
-		}
-	}
-	else
-	{
-		// For error recording
-		_sym_glBindBuffer(target, buffer);
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-	}
-	goto finish;
-
-finish:
-	_COREGL_FAST_FUNC_END();
-}
-
-
-void
-fpgl_glBindFramebuffer(GLenum target, GLuint framebuffer)
-{
-	DEFINE_FAST_GL_FUNC();
-	_COREGL_FAST_FUNC_BEGIN();
-	INIT_FAST_GL_FUNC();
-
-	if (target == GL_FRAMEBUFFER)
-	{
-		CURR_STATE_COMPARE(gl_framebuffer_binding, framebuffer)
-		{
-			_sym_glBindFramebuffer(target, framebuffer);
-			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-			if (framebuffer == 0)
-				current_ctx->_bind_flag &= (~FLAG_BIT_2);
-			else
-				current_ctx->_bind_flag |= FLAG_BIT_2;
-			current_ctx->gl_framebuffer_binding[0] = framebuffer;
-		}
-	}
-	else
-	{
-		// For error recording
-		_sym_glBindFramebuffer(target, framebuffer);
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-	}
-	goto finish;
-
-finish:
-	_COREGL_FAST_FUNC_END();
-}
-
-
-void
-fpgl_glBindRenderbuffer(GLenum target, GLuint renderbuffer)
-{
-	DEFINE_FAST_GL_FUNC();
-	_COREGL_FAST_FUNC_BEGIN();
-	INIT_FAST_GL_FUNC();
-
-	if (target == GL_RENDERBUFFER)
-	{
-		CURR_STATE_COMPARE(gl_renderbuffer_binding, renderbuffer)
-		{
-			_sym_glBindRenderbuffer(target, renderbuffer);
-			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-			if (renderbuffer == 0)
-				current_ctx->_bind_flag &= (~FLAG_BIT_3);
-			else
-				current_ctx->_bind_flag |= FLAG_BIT_3;
-			current_ctx->gl_renderbuffer_binding[0] = renderbuffer;
-		}
-	}
-	else
-	{
-		// For error recording
-		_sym_glBindRenderbuffer(target, renderbuffer);
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-	}
-	goto finish;
-
-finish:
-	_COREGL_FAST_FUNC_END();
-}
-
-void
 fpgl_glGenTextures(GLsizei n, GLuint* textures)
 {
 	int i;
-	GLuint *texid_array = NULL;
+	GLuint *objid_array = NULL;
 
 	DEFINE_FAST_GL_FUNC();
 	_COREGL_FAST_FUNC_BEGIN();
@@ -180,20 +123,23 @@ fpgl_glGenTextures(GLsizei n, GLuint* textures)
 
 	AST(current_ctx->sostate != NULL);
 
-	texid_array = (GLuint *)calloc(1, sizeof(GLuint) * n);
+	objid_array = (GLuint *)calloc(1, sizeof(GLuint) * n);
 
-	_sym_glGenTextures(n, texid_array);
+	_sym_glGenTextures(n, objid_array);
 
 	for (i = 0; i < n; i++)
 	{
-		textures[i] = sostate_create_object(current_ctx->sostate, GL_OBJECT_TYPE_TEXTURE, texid_array[i]);
+		textures[i] = sostate_create_object(current_ctx->sostate, GL_OBJECT_TYPE_TEXTURE, objid_array[i]);
 	}
-
-	free(texid_array);
 
 	goto finish;
 
 finish:
+	if (objid_array != NULL)
+	{
+		free(objid_array);
+		objid_array = NULL;
+	}
 	_COREGL_FAST_FUNC_END();
 }
 
@@ -202,7 +148,7 @@ void
 fpgl_glBindTexture(GLenum target, GLuint texture)
 {
 	int active_idx;
-	GLuint real_texobj;
+	GLuint real_obj;
 
 	DEFINE_FAST_GL_FUNC();
 	_COREGL_FAST_FUNC_BEGIN();
@@ -210,46 +156,36 @@ fpgl_glBindTexture(GLenum target, GLuint texture)
 
 	active_idx = current_ctx->gl_active_texture[0] - GL_TEXTURE0;
 
-	if (texture == 0)
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_TEXTURE, texture, &real_obj) != 1)
 	{
-		real_texobj = 0;
-	}
-	else
-	{
-		AST(current_ctx->sostate != NULL);
-		real_texobj = sostate_get_object(current_ctx->sostate, GL_OBJECT_TYPE_TEXTURE, texture);
-		if (real_texobj == 0)
-		{
-			// GLERROR : OUT_OF_MEMORY
-			LOG("\E[0;31;1mWARNING : Try binding invalid texture object\E[0m\n");
-			goto finish;
-		}
+		_set_gl_error(GL_OUT_OF_MEMORY);
+		goto finish;
 	}
 
 	if (target == GL_TEXTURE_2D)
 	{
-		if (current_ctx->gl_tex_2d_state[active_idx] != real_texobj)
+		if (current_ctx->gl_tex_2d_state[active_idx] != real_obj)
 		{
-			_sym_glBindTexture(target, real_texobj);
+			_sym_glBindTexture(target, real_obj);
 
 			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 
 			current_ctx->_tex_flag1 |= FLAG_BIT_3;
 
-			current_ctx->gl_tex_2d_state[active_idx] = real_texobj;
+			current_ctx->gl_tex_2d_state[active_idx] = real_obj;
 		}
 	}
 	else if (target == GL_TEXTURE_CUBE_MAP)
 	{
-		if (current_ctx->gl_tex_cube_state[active_idx] != real_texobj)
+		if (current_ctx->gl_tex_cube_state[active_idx] != real_obj)
 		{
-			_sym_glBindTexture(target, real_texobj);
+			_sym_glBindTexture(target, real_obj);
 
 			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 
 			current_ctx->_tex_flag1 |= FLAG_BIT_4;
 
-			current_ctx->gl_tex_cube_state[active_idx] = real_texobj;
+			current_ctx->gl_tex_cube_state[active_idx] = real_obj;
 		}
 	}
 	goto finish;
@@ -262,29 +198,19 @@ finish:
 void
 fpgl_glFramebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)
 {
-	GLuint real_texobj;
+	GLuint real_obj;
 
 	DEFINE_FAST_GL_FUNC();
 	_COREGL_FAST_FUNC_BEGIN();
 	INIT_FAST_GL_FUNC();
 
-	if (texture == 0)
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_TEXTURE, texture, &real_obj) != 1)
 	{
-		real_texobj = 0;
-	}
-	else
-	{
-		AST(current_ctx->sostate != NULL);
-		real_texobj = sostate_get_object(current_ctx->sostate, GL_OBJECT_TYPE_TEXTURE, texture);
-		if (real_texobj == 0)
-		{
-			// GLERROR : OUT_OF_MEMORY
-			LOG("\E[0;31;1mWARNING : Try using invalid texture object\E[0m\n");
-			goto finish;
-		}
+		_set_gl_error(GL_OUT_OF_MEMORY);
+		goto finish;
 	}
 
-	_sym_glFramebufferTexture2D(target, attachment, textarget, real_texobj, level);
+	_sym_glFramebufferTexture2D(target, attachment, textarget, real_obj, level);
 
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
@@ -296,29 +222,19 @@ finish:
 void
 fpgl_glFramebufferTexture2DMultisampleEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLsizei samples)
 {
-	GLuint real_texobj;
+	GLuint real_obj;
 
 	DEFINE_FAST_GL_FUNC();
 	_COREGL_FAST_FUNC_BEGIN();
 	INIT_FAST_GL_FUNC();
 
-	if (texture == 0)
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_TEXTURE, texture, &real_obj) != 1)
 	{
-		real_texobj = 0;
-	}
-	else
-	{
-		AST(current_ctx->sostate != NULL);
-		real_texobj = sostate_get_object(current_ctx->sostate, GL_OBJECT_TYPE_TEXTURE, texture);
-		if (real_texobj == 0)
-		{
-			// GLERROR : OUT_OF_MEMORY
-			LOG("\E[0;31;1mWARNING : Try using invalid texture object\E[0m\n");
-			goto finish;
-		}
+		_set_gl_error(GL_OUT_OF_MEMORY);
+		goto finish;
 	}
 
-	_sym_glFramebufferTexture2DMultisampleEXT(target, attachment, textarget, real_texobj, level, samples);
+	_sym_glFramebufferTexture2DMultisampleEXT(target, attachment, textarget, real_obj, level, samples);
 
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
@@ -331,28 +247,19 @@ GLboolean
 fpgl_glIsTexture(GLuint texture)
 {
 	GLboolean ret;
-	GLuint real_texobj;
+	GLuint real_obj;
 
 	DEFINE_FAST_GL_FUNC();
 	_COREGL_FAST_FUNC_BEGIN();
 	INIT_FAST_GL_FUNC();
 
-	if (texture == 0)
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_TEXTURE, texture, &real_obj) != 1)
 	{
-		real_texobj = 0;
-	}
-	else
-	{
-		AST(current_ctx->sostate != NULL);
-		real_texobj = sostate_get_object(current_ctx->sostate, GL_OBJECT_TYPE_TEXTURE, texture);
-		if (real_texobj == 0)
-		{
-			ret = GL_FALSE;
-			goto finish;
-		}
+		ret = GL_FALSE;
+		goto finish;
 	}
 
-	ret = _sym_glIsTexture(real_texobj);
+	ret = _sym_glIsTexture(real_obj);
 
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 
@@ -368,7 +275,7 @@ void
 fpgl_glDeleteTextures(GLsizei n, const GLuint* textures)
 {
 	int i, j;
-	GLuint *texid_array = NULL;
+	GLuint *objid_array = NULL;
 
 	DEFINE_FAST_GL_FUNC();
 	_COREGL_FAST_FUNC_BEGIN();
@@ -378,69 +285,332 @@ fpgl_glDeleteTextures(GLsizei n, const GLuint* textures)
 
 	AST(current_ctx->sostate != NULL);
 
-	texid_array = (GLuint *)calloc(1, sizeof(GLuint) * n);
+	objid_array = (GLuint *)calloc(1, sizeof(GLuint) * n);
 	{
 		int real_n = 0;
 
 		for (i = 0; i < n; i++)
 		{
-			int real_texid = _COREGL_INT_INIT_VALUE;
+			int real_objid = _COREGL_INT_INIT_VALUE;
 			if (textures[i] == 0) continue;
 
-			real_texid = sostate_get_object(current_ctx->sostate, GL_OBJECT_TYPE_TEXTURE, textures[i]);
-			if (real_texid == 0) continue;
+			real_objid = sostate_get_object(current_ctx->sostate, GL_OBJECT_TYPE_TEXTURE, textures[i]);
+			if (real_objid == 0) continue;
 
 			sostate_remove_object(current_ctx->sostate, GL_OBJECT_TYPE_TEXTURE, textures[i]);
-			texid_array[real_n++] = real_texid;
+			objid_array[real_n++] = real_objid;
 		}
 
-		_sym_glDeleteTextures(real_n, texid_array);
+		_sym_glDeleteTextures(real_n, objid_array);
 		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 
 		for (i = 0; i < real_n; i++)
 		{
 			for (j = 0; j < current_ctx->gl_num_tex_units[0]; j++)
 			{
-				if (current_ctx->gl_tex_2d_state[j] == texid_array[i])
+				if (current_ctx->gl_tex_2d_state[j] == objid_array[i])
 					current_ctx->gl_tex_2d_state[j] = 0;
-				if (current_ctx->gl_tex_cube_state[j] == texid_array[i])
+				if (current_ctx->gl_tex_cube_state[j] == objid_array[i])
 					current_ctx->gl_tex_cube_state[j] = 0;
 			}
 		}
 	}
 
-	free(texid_array);
+	goto finish;
 
+finish:
+	if (objid_array != NULL)
+	{
+		free(objid_array);
+		objid_array = NULL;
+	}
+	_COREGL_FAST_FUNC_END();
+}
+
+////////////////////////////////////////////////////////////////////////
+
+void
+fpgl_glGenBuffers(GLsizei n, GLuint* buffers)
+{
+	int i;
+	GLuint *objid_array = NULL;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (buffers == NULL) goto finish;
+
+	AST(current_ctx->sostate != NULL);
+
+	objid_array = (GLuint *)calloc(1, sizeof(GLuint) * n);
+
+	_sym_glGenBuffers(n, objid_array);
+
+	for (i = 0; i < n; i++)
+	{
+		buffers[i] = sostate_create_object(current_ctx->sostate, GL_OBJECT_TYPE_BUFFER, objid_array[i]);
+	}
+
+	goto finish;
+
+finish:
+	if (objid_array != NULL)
+	{
+		free(objid_array);
+		objid_array = NULL;
+	}
+	_COREGL_FAST_FUNC_END();
+}
+
+
+void
+fpgl_glBindBuffer(GLenum target, GLuint buffer)
+{
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_BUFFER, buffer, &real_obj) != 1)
+	{
+		_set_gl_error(GL_OUT_OF_MEMORY);
+		goto finish;
+	}
+
+	if (target == GL_ARRAY_BUFFER)
+	{
+		CURR_STATE_COMPARE(gl_array_buffer_binding, real_obj)
+		{
+			_sym_glBindBuffer(target, real_obj);
+
+			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
+			if (real_obj == 0)
+				current_ctx->_bind_flag &= (~FLAG_BIT_0);
+			else
+				current_ctx->_bind_flag |= FLAG_BIT_0;
+			current_ctx->gl_array_buffer_binding[0] = real_obj;
+		}
+	}
+	else if (target == GL_ELEMENT_ARRAY_BUFFER)
+	{
+		CURR_STATE_COMPARE(gl_element_array_buffer_binding, real_obj)
+		{
+			_sym_glBindBuffer(target, real_obj);
+			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
+			if (real_obj == 0)
+				current_ctx->_bind_flag &= (~FLAG_BIT_1);
+			else
+				current_ctx->_bind_flag |= FLAG_BIT_1;
+			current_ctx->gl_element_array_buffer_binding[0] = real_obj;
+		}
+	}
+	else
+	{
+		// For error recording
+		_sym_glBindBuffer(target, real_obj);
+		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	}
 	goto finish;
 
 finish:
 	_COREGL_FAST_FUNC_END();
 }
 
-void
-fpgl_glDeleteBuffers(GLsizei n, const GLuint* buffers)
+GLboolean
+fpgl_glIsBuffer(GLuint buffer)
 {
-	int i;
+	GLboolean ret;
+	GLuint real_obj;
 
 	DEFINE_FAST_GL_FUNC();
 	_COREGL_FAST_FUNC_BEGIN();
 	INIT_FAST_GL_FUNC();
 
-	_sym_glDeleteBuffers(n, buffers);
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_BUFFER, buffer, &real_obj) != 1)
+	{
+		ret = GL_FALSE;
+		goto finish;
+	}
+
+	ret = _sym_glIsBuffer(real_obj);
 
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+	return ret;
+}
+
+
+void
+fpgl_glDeleteBuffers(GLsizei n, const GLuint* buffers)
+{
+	int i;
+	GLuint *objid_array = NULL;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (buffers == NULL) goto finish;
+
+	AST(current_ctx->sostate != NULL);
+
+	objid_array = (GLuint *)calloc(1, sizeof(GLuint) * n);
+	{
+		int real_n = 0;
+
+		for (i = 0; i < n; i++)
+		{
+			int real_objid = _COREGL_INT_INIT_VALUE;
+			if (buffers[i] == 0) continue;
+
+			real_objid = sostate_get_object(current_ctx->sostate, GL_OBJECT_TYPE_BUFFER, buffers[i]);
+			if (real_objid == 0) continue;
+
+			sostate_remove_object(current_ctx->sostate, GL_OBJECT_TYPE_BUFFER, buffers[i]);
+			objid_array[real_n++] = real_objid;
+		}
+
+		_sym_glDeleteBuffers(real_n, objid_array);
+		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
+		for (i = 0; i < real_n; i++)
+		{
+			if (current_ctx->gl_array_buffer_binding[0] == objid_array[i])
+			{
+				current_ctx->_bind_flag &= (~FLAG_BIT_0);
+				current_ctx->gl_array_buffer_binding[0] = 0;
+			}
+			if (current_ctx->gl_element_array_buffer_binding[0] == objid_array[i])
+			{
+				current_ctx->_bind_flag &= (~FLAG_BIT_1);
+				current_ctx->gl_element_array_buffer_binding[0] = 0;
+			}
+		}
+	}
+
+	goto finish;
+
+finish:
+	if (objid_array != NULL)
+	{
+		free(objid_array);
+		objid_array = NULL;
+	}
+	_COREGL_FAST_FUNC_END();
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+
+void
+fpgl_glGenFramebuffers(GLsizei n, GLuint* framebuffers)
+{
+	int i;
+	GLuint *objid_array = NULL;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (framebuffers == NULL) goto finish;
+
+	AST(current_ctx->sostate != NULL);
+
+	objid_array = (GLuint *)calloc(1, sizeof(GLuint) * n);
+
+	_sym_glGenFramebuffers(n, objid_array);
+
 	for (i = 0; i < n; i++)
 	{
-		if (current_ctx->gl_array_buffer_binding[0] == buffers[i])
-			current_ctx->gl_array_buffer_binding[0] = 0;
-		if (current_ctx->gl_element_array_buffer_binding[0] == buffers[i])
-			current_ctx->gl_element_array_buffer_binding[0] = 0;
+		framebuffers[i] = sostate_create_object(current_ctx->sostate, GL_OBJECT_TYPE_FRAMEBUFFER, objid_array[i]);
+	}
+
+	goto finish;
+
+finish:
+	if (objid_array != NULL)
+	{
+		free(objid_array);
+		objid_array = NULL;
+	}
+	_COREGL_FAST_FUNC_END();
+}
+
+
+void
+fpgl_glBindFramebuffer(GLenum target, GLuint framebuffer)
+{
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_FRAMEBUFFER, framebuffer, &real_obj) != 1)
+	{
+		_set_gl_error(GL_OUT_OF_MEMORY);
+		goto finish;
+	}
+
+	if (target == GL_FRAMEBUFFER)
+	{
+		CURR_STATE_COMPARE(gl_framebuffer_binding, real_obj)
+		{
+			_sym_glBindFramebuffer(target, real_obj);
+			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
+			if (real_obj == 0)
+				current_ctx->_bind_flag &= (~FLAG_BIT_2);
+			else
+				current_ctx->_bind_flag |= FLAG_BIT_2;
+			current_ctx->gl_framebuffer_binding[0] = real_obj;
+		}
+	}
+	else
+	{
+		// For error recording
+		_sym_glBindFramebuffer(target, real_obj);
+		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
 	}
 	goto finish;
 
 finish:
 	_COREGL_FAST_FUNC_END();
+}
+
+GLboolean
+fpgl_glIsFramebuffer(GLuint framebuffer)
+{
+	GLboolean ret;
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_FRAMEBUFFER, framebuffer, &real_obj) != 1)
+	{
+		ret = GL_FALSE;
+		goto finish;
+	}
+
+	ret = _sym_glIsFramebuffer(real_obj);
+
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+	return ret;
 }
 
 
@@ -448,20 +618,884 @@ void
 fpgl_glDeleteFramebuffers(GLsizei n, const GLuint* framebuffers)
 {
 	int i;
+	GLuint *objid_array = NULL;
 
 	DEFINE_FAST_GL_FUNC();
 	_COREGL_FAST_FUNC_BEGIN();
 	INIT_FAST_GL_FUNC();
 
-	_sym_glDeleteFramebuffers(n, framebuffers);
+	if (framebuffers == NULL) goto finish;
 
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	AST(current_ctx->sostate != NULL);
+
+	objid_array = (GLuint *)calloc(1, sizeof(GLuint) * n);
+	{
+		int real_n = 0;
+
+		for (i = 0; i < n; i++)
+		{
+			int real_objid = _COREGL_INT_INIT_VALUE;
+			if (framebuffers[i] == 0) continue;
+
+			real_objid = sostate_get_object(current_ctx->sostate, GL_OBJECT_TYPE_FRAMEBUFFER, framebuffers[i]);
+			if (real_objid == 0) continue;
+
+			sostate_remove_object(current_ctx->sostate, GL_OBJECT_TYPE_FRAMEBUFFER, framebuffers[i]);
+			objid_array[real_n++] = real_objid;
+		}
+
+		_sym_glDeleteFramebuffers(real_n, objid_array);
+		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
+		for (i = 0; i < real_n; i++)
+		{
+			if (current_ctx->gl_framebuffer_binding[0] == framebuffers[i])
+			{
+				current_ctx->_bind_flag &= (~FLAG_BIT_2);
+				current_ctx->gl_framebuffer_binding[0] = 0;
+			}
+		}
+	}
+
+	goto finish;
+
+finish:
+	if (objid_array != NULL)
+	{
+		free(objid_array);
+		objid_array = NULL;
+	}
+	_COREGL_FAST_FUNC_END();
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+
+void
+fpgl_glGenRenderbuffers(GLsizei n, GLuint* renderbuffers)
+{
+	int i;
+	GLuint *objid_array = NULL;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (renderbuffers == NULL) goto finish;
+
+	AST(current_ctx->sostate != NULL);
+
+	objid_array = (GLuint *)calloc(1, sizeof(GLuint) * n);
+
+	_sym_glGenRenderbuffers(n, objid_array);
 
 	for (i = 0; i < n; i++)
 	{
-		if (current_ctx->gl_framebuffer_binding[0] == framebuffers[i])
-			current_ctx->gl_framebuffer_binding[0] = 0;
+		renderbuffers[i] = sostate_create_object(current_ctx->sostate, GL_OBJECT_TYPE_RENDERBUFFER, objid_array[i]);
 	}
+
+	goto finish;
+
+finish:
+	if (objid_array != NULL)
+	{
+		free(objid_array);
+		objid_array = NULL;
+	}
+	_COREGL_FAST_FUNC_END();
+}
+
+
+void
+fpgl_glBindRenderbuffer(GLenum target, GLuint renderbuffer)
+{
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_RENDERBUFFER, renderbuffer, &real_obj) != 1)
+	{
+		_set_gl_error(GL_OUT_OF_MEMORY);
+		goto finish;
+	}
+
+	if (target == GL_RENDERBUFFER)
+	{
+		CURR_STATE_COMPARE(gl_renderbuffer_binding, real_obj)
+		{
+			_sym_glBindRenderbuffer(target, real_obj);
+			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
+			if (real_obj == 0)
+				current_ctx->_bind_flag &= (~FLAG_BIT_3);
+			else
+				current_ctx->_bind_flag |= FLAG_BIT_3;
+			current_ctx->gl_renderbuffer_binding[0] = real_obj;
+		}
+	}
+	else
+	{
+		// For error recording
+		_sym_glBindRenderbuffer(target, real_obj);
+		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	}
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+}
+
+void
+fpgl_glFramebufferRenderbuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)
+{
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_RENDERBUFFER, renderbuffer, &real_obj) != 1)
+	{
+		_set_gl_error(GL_OUT_OF_MEMORY);
+		goto finish;
+	}
+
+	_sym_glFramebufferRenderbuffer(target, attachment, renderbuffertarget, real_obj);
+
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+}
+
+GLboolean
+fpgl_glIsRenderbuffer(GLuint renderbuffer)
+{
+	GLboolean ret;
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_RENDERBUFFER, renderbuffer, &real_obj) != 1)
+	{
+		ret = GL_FALSE;
+		goto finish;
+	}
+
+	ret = _sym_glIsRenderbuffer(real_obj);
+
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+	return ret;
+}
+
+
+void
+fpgl_glDeleteRenderbuffers(GLsizei n, const GLuint* renderbuffers)
+{
+	int i;
+	GLuint *objid_array = NULL;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (renderbuffers == NULL) goto finish;
+
+	AST(current_ctx->sostate != NULL);
+
+	objid_array = (GLuint *)calloc(1, sizeof(GLuint) * n);
+	{
+		int real_n = 0;
+
+		for (i = 0; i < n; i++)
+		{
+			int real_objid = _COREGL_INT_INIT_VALUE;
+			if (renderbuffers[i] == 0) continue;
+
+			real_objid = sostate_get_object(current_ctx->sostate, GL_OBJECT_TYPE_RENDERBUFFER, renderbuffers[i]);
+			if (real_objid == 0) continue;
+
+			sostate_remove_object(current_ctx->sostate, GL_OBJECT_TYPE_RENDERBUFFER, renderbuffers[i]);
+			objid_array[real_n++] = real_objid;
+		}
+
+		_sym_glDeleteRenderbuffers(real_n, objid_array);
+		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
+		for (i = 0; i < real_n; i++)
+		{
+			if (current_ctx->gl_renderbuffer_binding[0] == renderbuffers[i])
+			{
+				current_ctx->_bind_flag &= (~FLAG_BIT_3);
+				current_ctx->gl_renderbuffer_binding[0] = 0;
+			}
+		}
+	}
+
+	goto finish;
+
+finish:
+	if (objid_array != NULL)
+	{
+		free(objid_array);
+		objid_array = NULL;
+	}
+	_COREGL_FAST_FUNC_END();
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+
+GLuint
+fpgl_glCreateProgram(void)
+{
+	GLuint ret = _COREGL_INT_INIT_VALUE;
+	GLuint real_obj = _COREGL_INT_INIT_VALUE;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	AST(current_ctx->sostate != NULL);
+
+	real_obj = _sym_glCreateProgram();
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
+	ret = sostate_create_object(current_ctx->sostate, GL_OBJECT_TYPE_PROGRAM, real_obj);
+
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+	return ret;
+}
+
+GLuint
+fpgl_glCreateShader(GLenum type)
+{
+	GLuint ret = _COREGL_INT_INIT_VALUE;
+	GLuint real_obj = _COREGL_INT_INIT_VALUE;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	AST(current_ctx->sostate != NULL);
+
+	real_obj = _sym_glCreateShader(type);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
+	ret = sostate_create_object(current_ctx->sostate, GL_OBJECT_TYPE_PROGRAM, real_obj);
+
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+	return ret;
+}
+
+void
+fpgl_glShaderSource(GLuint shader, GLsizei count, const char** string, const GLint* length)
+{
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, shader, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+	_sym_glShaderSource(real_obj, count, string, length);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+}
+
+void
+fpgl_glShaderBinary(GLsizei n, const GLuint* shaders, GLenum binaryformat, const void* binary, GLsizei length)
+{
+	int i;
+	GLuint *objid_array = NULL;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (shaders == NULL) goto finish;
+
+	AST(current_ctx->sostate != NULL);
+
+	objid_array = (GLuint *)calloc(1, sizeof(GLuint) * n);
+
+	for (i = 0; i < n; i++)
+	{
+		if (shaders[i] == 0) continue;
+		objid_array[i] = sostate_get_object(current_ctx->sostate, GL_OBJECT_TYPE_PROGRAM, shaders[i]);
+	}
+
+#ifndef _COREGL_DESKTOP_GL
+	_sym_glShaderBinary(n, objid_array, binaryformat, binary, length);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+#else
+// FIXME: need to dlsym/getprocaddress for this
+	/*
+	   n = binaryformat = length = 0;
+	   shaders = binary = 0;
+	*/
+#endif
+	goto finish;
+
+finish:
+	if (objid_array != NULL)
+	{
+		free(objid_array);
+		objid_array = NULL;
+	}
+
+	_COREGL_FAST_FUNC_END();
+}
+
+void
+fpgl_glCompileShader(GLuint shader)
+{
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, shader, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_sym_glCompileShader(real_obj);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+}
+
+void
+fpgl_glBindAttribLocation(GLuint program, GLuint index, const char* name)
+{
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_sym_glBindAttribLocation(real_obj, index, name);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+}
+
+void
+fpgl_glAttachShader(GLuint program, GLuint shader)
+{
+	GLuint real_obj_program;
+	GLuint real_obj_shader;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj_program) != 1 ||
+	    GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, shader, &real_obj_shader) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_sym_glAttachShader(real_obj_program, real_obj_shader);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+}
+
+void
+fpgl_glDetachShader(GLuint program, GLuint shader)
+{
+	GLuint real_obj_program;
+	GLuint real_obj_shader;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj_program) != 1 ||
+	    GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, shader, &real_obj_shader) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_sym_glDetachShader(real_obj_program, real_obj_shader);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+}
+
+GLboolean
+fpgl_glIsShader(GLuint shader)
+{
+	GLboolean ret;
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, shader, &real_obj) != 1)
+	{
+		ret = GL_FALSE;
+		goto finish;
+	}
+
+	ret = _sym_glIsShader(real_obj);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+	return ret;
+}
+
+GLboolean
+fpgl_glIsProgram(GLuint program)
+{
+	GLboolean ret;
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		ret = GL_FALSE;
+		goto finish;
+	}
+
+	ret = _sym_glIsProgram(real_obj);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+	return ret;
+}
+
+void
+fpgl_glLinkProgram(GLuint program)
+{
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_sym_glLinkProgram(real_obj);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+}
+
+void
+fpgl_glValidateProgram(GLuint program)
+{
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_sym_glValidateProgram(real_obj);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+}
+
+void
+fpgl_glUseProgram(GLuint program)
+{
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	CURR_STATE_COMPARE(gl_current_program, real_obj)
+	{
+		_sym_glUseProgram(real_obj);
+
+		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
+		current_ctx->_clear_flag1 |= FLAG_BIT_1;
+		current_ctx->gl_current_program[0] = real_obj;
+	}
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+}
+
+void
+fpgl_glGetActiveAttrib(GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, char* name)
+{
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_sym_glGetActiveAttrib(real_obj, index, bufsize, length, size, type, name);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+}
+
+void
+fpgl_glGetActiveUniform(GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, char* name)
+{
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_sym_glGetActiveUniform(real_obj, index, bufsize, length, size, type, name);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+}
+
+void
+fpgl_glGetAttachedShaders(GLuint program, GLsizei maxcount, GLsizei* count, GLuint* shaders)
+{
+	int i;
+	GLsizei real_count = _COREGL_INT_INIT_VALUE;
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_sym_glGetAttachedShaders(real_obj, maxcount, &real_count, shaders);
+
+	for (i = 0; i < real_count; i++)
+	{
+		if (shaders[i] != 0)
+			shaders[i] = sostate_find_object(current_ctx->sostate, GL_OBJECT_TYPE_PROGRAM, shaders[i]);
+	}
+	if (count != NULL) *count = real_count;
+
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+}
+
+int
+fpgl_glGetAttribLocation(GLuint program, const char* name)
+{
+	int ret = _COREGL_INT_INIT_VALUE;
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	ret = _sym_glGetAttribLocation(real_obj, name);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+	return ret;
+}
+
+void
+fpgl_glGetShaderiv(GLuint shader, GLenum pname, GLint* params)
+{
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, shader, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_sym_glGetShaderiv(real_obj, pname, params);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+}
+
+void
+fpgl_glGetShaderInfoLog(GLuint shader, GLsizei bufsize, GLsizei* length, char* infolog)
+{
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, shader, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_sym_glGetShaderInfoLog(real_obj, bufsize, length, infolog);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+}
+
+void
+fpgl_glGetProgramiv(GLuint program, GLenum pname, GLint* params)
+{
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_sym_glGetProgramiv(real_obj, pname, params);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+}
+
+void
+fpgl_glGetProgramInfoLog(GLuint program, GLsizei bufsize, GLsizei* length, char* infolog)
+{
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_sym_glGetProgramInfoLog(real_obj, bufsize, length, infolog);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+}
+
+void
+fpgl_glGetShaderSource(GLuint shader, GLsizei bufsize, GLsizei* length, char* source)
+{
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, shader, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_sym_glGetShaderSource(real_obj, bufsize, length, source);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+}
+
+void
+fpgl_glGetUniformfv(GLuint program, GLint location, GLfloat* params)
+{
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_sym_glGetUniformfv(real_obj, location, params);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+}
+
+void
+fpgl_glGetUniformiv(GLuint program, GLint location, GLint* params)
+{
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_sym_glGetUniformiv(real_obj, location, params);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+}
+
+void
+fpgl_glGetProgramBinary(GLuint program, GLsizei bufsize, GLsizei* length, GLenum* binaryFormat, void* binary)
+{
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_sym_glGetProgramBinary(real_obj, bufsize, length, binaryFormat, binary);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+}
+
+void
+fpgl_glProgramBinary(GLuint program, GLenum binaryFormat, const void* binary, GLint length)
+{
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_sym_glProgramBinary(real_obj, binaryFormat, binary, length);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
 finish:
@@ -470,29 +1504,113 @@ finish:
 
 
 void
-fpgl_glDeleteRenderbuffers(GLsizei n, const GLuint* renderbuffers)
+fpgl_glProgramParameteri(GLuint program, GLuint pname, GLint value)
 {
-	int i;
+	GLuint real_obj;
 
 	DEFINE_FAST_GL_FUNC();
 	_COREGL_FAST_FUNC_BEGIN();
 	INIT_FAST_GL_FUNC();
 
-	_sym_glDeleteRenderbuffers(n, renderbuffers);
-
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-	for (i = 0; i < n; i++)
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
 	{
-		if (current_ctx->gl_renderbuffer_binding[0] == renderbuffers[i])
-			current_ctx->gl_renderbuffer_binding[0] = 0;
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
 	}
+
+	_sym_glProgramParameteri(real_obj, pname, value);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
 finish:
 	_COREGL_FAST_FUNC_END();
 }
 
+int
+fpgl_glGetUniformLocation(GLuint program, const char* name)
+{
+	int ret = _COREGL_INT_INIT_VALUE;
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		ret = -1;
+		goto finish;
+	}
+
+	ret = _sym_glGetUniformLocation(real_obj, name);
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+	return ret;
+}
+
+void
+fpgl_glDeleteShader(GLuint shader)
+{
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, shader, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_sym_glDeleteShader(real_obj);
+	if (real_obj != 0)
+	{
+		AST(sostate_remove_object(current_ctx->sostate, GL_OBJECT_TYPE_PROGRAM, shader) == 1);
+	}
+
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+}
+
+void
+fpgl_glDeleteProgram(GLuint program)
+{
+	GLuint real_obj;
+
+	DEFINE_FAST_GL_FUNC();
+	_COREGL_FAST_FUNC_BEGIN();
+	INIT_FAST_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_sym_glDeleteProgram(real_obj);
+	if (real_obj != 0)
+	{
+		AST(sostate_remove_object(current_ctx->sostate, GL_OBJECT_TYPE_PROGRAM, program) == 1);
+	}
+
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////////////
 
 void
 fpgl_glBlendColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
@@ -911,7 +2029,7 @@ fpgl_glDisable(GLenum cap)
 				current_ctx->gl_stencil_test[0] = GL_FALSE;
 			}
 			break;
-		}
+	}
 	goto finish;
 
 finish:
@@ -1075,7 +2193,7 @@ fpgl_glEnable(GLenum cap)
 				current_ctx->gl_stencil_test[0] = GL_TRUE;
 			}
 			break;
-		}
+	}
 	goto finish;
 
 finish:
@@ -1603,30 +2721,6 @@ finish:
 	_COREGL_FAST_FUNC_END();
 }
 
-
-void
-fpgl_glUseProgram(GLuint program)
-{
-	DEFINE_FAST_GL_FUNC();
-	_COREGL_FAST_FUNC_BEGIN();
-	INIT_FAST_GL_FUNC();
-
-	CURR_STATE_COMPARE(gl_current_program, program)
-	{
-		_sym_glUseProgram(program);
-
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		current_ctx->_clear_flag1 |= FLAG_BIT_1;
-		current_ctx->gl_current_program[0] = program;
-	}
-	goto finish;
-
-finish:
-	_COREGL_FAST_FUNC_END();
-}
-
-
 // Optmize?
 void
 fpgl_glVertexAttrib1f(GLuint indx, GLfloat x)
@@ -1894,7 +2988,7 @@ fpgl_glEGLImageTargetTexture2DOES(GLenum target, GLeglImageOES image)
 		case GL_TEXTURE_CUBE_MAP:
 			current_ctx->gl_tex_cube_state[tex_idx] = -1;
 			break;
-		}
+	}
 
 	_sym_glEGLImageTargetTexture2DOES(target, image);
 
@@ -1936,9 +3030,15 @@ _process_getfunc(GLenum pname, GLvoid *ptr, GLenum get_type)
 
 			switch (get_type)
 			{
-				case GL_INT: ((GLint *)ptr)[0] = glue_tex_id; break;
-				case GL_FLOAT: ((GLfloat *)ptr)[0] = (GLfloat)glue_tex_id; break;
-				case GL_BOOL: ((GLboolean *)ptr)[0] = (glue_tex_id == 0) ? GL_FALSE : GL_TRUE; break;
+				case GL_INT:
+					((GLint *)ptr)[0] = glue_tex_id;
+					break;
+				case GL_FLOAT:
+					((GLfloat *)ptr)[0] = (GLfloat)glue_tex_id;
+					break;
+				case GL_BOOL:
+					((GLboolean *)ptr)[0] = (glue_tex_id == 0) ? GL_FALSE : GL_TRUE;
+					break;
 			}
 			ret = GL_TRUE;
 			break;
@@ -1966,7 +3066,7 @@ fpgl_glGetBooleanv(GLenum pname, GLboolean* params)
 	goto finish;
 
 finish:
-	_COREGL_WRAP_FUNC_END();
+	_COREGL_FAST_FUNC_END();
 }
 
 void
@@ -1984,7 +3084,7 @@ fpgl_glGetFloatv(GLenum pname, GLfloat* params)
 	goto finish;
 
 finish:
-	_COREGL_WRAP_FUNC_END();
+	_COREGL_FAST_FUNC_END();
 }
 
 void
@@ -2002,6 +3102,6 @@ fpgl_glGetIntegerv(GLenum pname, GLint* params)
 	goto finish;
 
 finish:
-	_COREGL_WRAP_FUNC_END();
+	_COREGL_FAST_FUNC_END();
 }
 

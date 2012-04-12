@@ -9,27 +9,13 @@
 General_Trace_List *glue_ctx_trace_list = NULL;
 General_Trace_List *context_state_trace_list = NULL;
 
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) \
-	extern RET_TYPE FUNC_NAME PARAM_LIST;
-#include "headers/sym_egl.h"
-#include "headers/sym_gl.h"
-#undef _COREGL_SYMBOL
-
-
 static void
 _dump_context_info(const char *ment, int force_output)
 {
 	GLThreadState *tstate = NULL;
 	static struct timeval tv_last = { 0, 0 };
 
-	{
-		char *fp_env = NULL;
-		int fp_envi = 0;
-		fp_env = getenv("COREGL_TRACE_CTX");
-		if (fp_env) fp_envi = atoi(fp_env);
-		else fp_envi = 0;
-		if (fp_envi == 0) return;
-	}
+	if (trace_ctx_flag != 1) return;
 
 	AST(mutex_lock(&ctx_list_access_mutex) == 1);
 	AST(mutex_lock(&general_trace_lists_access_mutex) == 1);
@@ -48,9 +34,9 @@ _dump_context_info(const char *ment, int force_output)
 	tstate = get_current_thread_state();
 
 	LOG("\n");
-	LOG("\E[0;40;34m========================================================================================================================\E[0m\n");
-	LOG("\E[0;32;1m  Context info \E[1;37;1m: %s\E[0m\n", ment);
-	LOG("\E[0;40;34m========================================================================================================================\E[0m\n");
+	LOG("\E[40;34m========================================================================================================================\E[0m\n");
+	LOG("\E[40;32;1m  Context info \E[1;37;1m: %s\E[0m\n", ment);
+	LOG("\E[40;34m========================================================================================================================\E[0m\n");
 
 
 	// Thread State List
@@ -132,7 +118,7 @@ _dump_context_info(const char *ment, int force_output)
 		}
 	}
 
-	LOG("\E[0;40;33m........................................................................................................................\E[0m\n");
+	LOG("\E[40;33m........................................................................................................................\E[0m\n");
 
 	// Not-binded Context State List
 	{
@@ -203,7 +189,7 @@ _dump_context_info(const char *ment, int force_output)
 
 	}
 
-	LOG("\E[0;40;33m........................................................................................................................\E[0m\n");
+	LOG("\E[40;33m........................................................................................................................\E[0m\n");
 
 	// Not-binded Glue Context List
 	{
@@ -229,7 +215,7 @@ _dump_context_info(const char *ment, int force_output)
 		}
 	}
 
-	LOG("\E[0;40;34m========================================================================================================================\E[0m\n");
+	LOG("\E[40;34m========================================================================================================================\E[0m\n");
 	LOG("\n");
 
 	goto finish;
@@ -287,7 +273,7 @@ _pack_egl_context_option(EGL_packed_option *pack_data, EGLDisplay dpy, EGLConfig
 			default:
 				ERR("Invalid context attribute.\n");
 				goto finish;
-			}
+		}
 		attrib += 2;
 	}
 	ret = 1;
@@ -508,7 +494,7 @@ _egl_create_context(EGL_packed_option *real_ctx_option, GLContextState **cstate_
 	// Pack context option
 	AST(_pack_egl_context_option(real_ctx_option, dpy, config, 0, attrib_list) == 1);
 
-	if (atoi(get_env_setting("COREGL_DEBUG_NOFP")) == 1)
+	if (debug_nofp == 1)
 	{
 		static int debug_force_real = 100001;
 		AST(_pack_egl_context_option(real_ctx_option, dpy, config, debug_force_real, attrib_list) == 1);
@@ -584,6 +570,81 @@ finish:
 //                   Fastpath EGL Functions                       //
 //    The functions have prefix 'fpgl_' for (fastpath gl)         //
 //----------------------------------------------------------------//
+
+extern EGLBoolean (*_COREGL_NAME_MANGLE(eglBindAPI))(EGLenum api);
+extern EGLenum (*_COREGL_NAME_MANGLE(eglQueryAPI))(void);
+
+EGLBoolean
+fpgl_eglBindAPI(EGLenum api)
+{
+	EGLBoolean ret = EGL_FALSE;
+	GLThreadState *tstate = NULL;
+
+	_COREGL_FAST_FUNC_BEGIN();
+	if (api_opt == COREGL_UNKNOWN_PATH) goto finish;
+
+	ret = _sym_eglBindAPI(api);
+
+	tstate = get_current_thread_state();
+	if (tstate == NULL)
+	{
+		AST(init_new_thread_state() == 1);
+
+		tstate = get_current_thread_state();
+		AST(tstate != NULL);
+	}
+
+	{
+		EGLenum newapi = _sym_eglQueryAPI();
+		if (tstate->binded_api != newapi)
+		{
+			if (newapi != EGL_OPENGL_ES_API)
+			{
+				// Fallback when binding other API
+				// Fastpath restores when bind OPENGL_ES_API
+				override_glue_normal_path();
+				_COREGL_NAME_MANGLE(eglBindAPI) = fpgl_eglBindAPI;
+				_COREGL_NAME_MANGLE(eglQueryAPI) = fpgl_eglQueryAPI;
+			}
+			else
+			{
+				override_glue_fast_path();
+			}
+			tstate->binded_api = newapi;
+		}
+	}
+
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+	return ret;
+}
+
+EGLenum
+fpgl_eglQueryAPI(void)
+{
+	EGLenum ret = 0;
+	GLThreadState *tstate = NULL;
+
+	_COREGL_FAST_FUNC_BEGIN();
+	if (api_opt == COREGL_UNKNOWN_PATH) goto finish;
+
+	ret = _sym_eglQueryAPI();
+
+	tstate = get_current_thread_state();
+	if (tstate != NULL)
+	{
+		AST(tstate->binded_api == ret);
+	}
+
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+	return ret;
+}
+
 EGLContext
 fpgl_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_context, const EGLint* attrib_list)
 {
@@ -732,7 +793,7 @@ fpgl_eglDestroyContext(EGLDisplay dpy, EGLContext ctx)
 
 		if (gctx->is_destroyed == 1)
 		{
-			ERR("\E[0;31;1mWARNING : Context [%p] is already destroyed!!!\E[0m\n", ctx);
+			ERR("\E[40;31;1mWARNING : Context [%p] is already destroyed!!!\E[0m\n", ctx);
 		}
 		else
 		{
@@ -781,7 +842,9 @@ fpgl_eglQueryContext(EGLDisplay dpy, EGLContext ctx, EGLint attribute, EGLint *v
 		real_ctx = gctx->cstate->rctx;
 	}
 
+	_COREGL_FAST_FUNC_SYMCALL_BEGIN();
 	ret = _sym_eglQueryContext(dpy, real_ctx, attribute, value);
+	_COREGL_FAST_FUNC_SYMCALL_END();
 	goto finish;
 
 finish:
@@ -790,15 +853,19 @@ finish:
 }
 
 
+
 EGLBoolean
-fpgl_eglDestroySurface(EGLDisplay dpy, EGLSurface surface)
+fpgl_eglReleaseThread(void)
 {
 	EGLBoolean ret = EGL_FALSE;
+	EGLDisplay dpy = EGL_NO_DISPLAY;
 
 	_COREGL_FAST_FUNC_BEGIN();
 
-	// BB : NO OP
-	ret = _sym_eglDestroySurface(dpy, surface);
+	dpy = _sym_eglGetCurrentDisplay();
+	AST(dpy != EGL_NO_DISPLAY);
+	fpgl_eglMakeCurrent(dpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+	ret = _sym_eglReleaseThread();
 	goto finish;
 
 finish:
@@ -841,9 +908,9 @@ fpgl_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLContext
 			_bind_context_state(NULL, tstate->cstate, &ctx_list_access_mutex);
 			tstate->cstate = NULL;
 		}
-		if (!_sym_eglMakeCurrent(dpy, draw, read, EGL_NO_CONTEXT))
+		if (_sym_eglMakeCurrent(dpy, draw, read, ctx) != EGL_TRUE)
 		{
-			ERR("WARNING : Error making EGL_NO_CONTEXT current. (invalid EGL display [%p] or EGL surface [D:%p/R:%p])\n", dpy, draw, read);
+			ERR("WARNING : Error making context [%p] current. (invalid EGL display [%p] or EGL surface [D:%p/R:%p])\n", ctx, dpy, draw, read);
 			ret = EGL_FALSE;
 			goto finish;
 		}
@@ -890,7 +957,7 @@ fpgl_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLContext
 		_bind_context_state(gctx, cstate_new, &ctx_list_access_mutex);
 
 		// TODO : Setup context state for new real ctx
-		ERR("\E[0;31;1mWARNING : Cross-thread usage(makecurrent) can cause a state-broken situation!\E[0m\n");
+		ERR("\E[40;31;1mWARNING : Cross-thread usage(makecurrent) can cause a state-broken situation!\E[0m\n");
 
 		_unlink_context_state(gctx, &ctx_list_access_mutex);
 		_link_context_state(gctx, cstate_new);
@@ -939,7 +1006,7 @@ fpgl_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLContext
 	if (need_mc == EGL_TRUE)
 	{
 		// BB : full makecurrent
-		if (!_sym_eglMakeCurrent(dpy, draw, read, gctx->cstate->rctx))
+		if (_sym_eglMakeCurrent(dpy, draw, read, gctx->cstate->rctx) != EGL_TRUE)
 		{
 			ERR("Error making context current with the drawable.\n");
 			ret = EGL_FALSE;
@@ -1052,7 +1119,7 @@ fpgl_eglGetCurrentSurface(EGLint readdraw)
 			case EGL_READ :
 				ret = (GLGlueContext *)tstate->rsurf_read;
 				break;
-			}
+		}
 	}
 	goto finish;
 
@@ -1065,19 +1132,23 @@ EGLImageKHR
 fpgl_eglCreateImageKHR (EGLDisplay dpy, EGLContext ctx, EGLenum target, EGLClientBuffer buffer, const EGLint *attrib_list)
 {
 	void *ret = NULL;
-	GLThreadState *tstate = NULL;
 	EGLContext real_ctx = EGL_NO_CONTEXT;
 
 	_COREGL_FAST_FUNC_BEGIN();
-
-	tstate = get_current_thread_state();
 
 	if (ctx != NULL && ctx != EGL_NO_CONTEXT)
 	{
 		GLGlueContext *gctx = (GLGlueContext *)ctx;
 
-		AST(gctx->cstate != NULL);
-		real_ctx = gctx->cstate->rctx;
+		if (gctx->magic != MAGIC_GLFAST)
+		{
+			real_ctx = ctx;
+		}
+		else
+		{
+			AST(gctx->cstate != NULL);
+			real_ctx = gctx->cstate->rctx;
+		}
 	}
 	ret = _sym_eglCreateImageKHR(dpy, real_ctx, target, buffer, attrib_list);
 
@@ -1108,7 +1179,7 @@ fpgl_eglGetProcAddress(const char* procname)
 	ret = _sym_eglGetProcAddress(procname);
 	if (ret != NULL)
 	{
-		LOG("\E[0;31;1mWARNING : COREGL can't support '%s' (unmanaged situation may occur)\E[0m\n", procname);
+		LOG("\E[40;31;1mWARNING : COREGL can't support '%s' (unmanaged situation may occur)\E[0m\n", procname);
 	}
 
 	goto finish;

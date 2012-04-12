@@ -1,9 +1,9 @@
 CC = gcc
 
-CFLAGS = -g -O2 -fPIC -Wall -std=c99 \
+CFLAGS = -g -O2 -fvisibility=hidden -fPIC -Wall -std=c99 \
 	-D_COREGL_EMBEDDED_GL \
 
-LDFLAGS = -g -O2 -Wall -std=c99 -lpthread
+LDFLAGS = -g -O2 -fvisibility=hidden -Wall -std=c99 -lpthread
 
 SOURCES = \
 		src/coregl.c \

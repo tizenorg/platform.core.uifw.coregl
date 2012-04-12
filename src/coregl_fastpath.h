@@ -3,6 +3,11 @@
 
 #include "coregl_internal.h"
 
+// Symbol definition for fastpath
+#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     extern RET_TYPE (fpgl_##FUNC_NAME) PARAM_LIST;
+# include "headers/sym.h"
+#undef _COREGL_SYMBOL
+
 #define FLAG_BIT_0      0x01
 #define FLAG_BIT_1      0x02
 #define FLAG_BIT_2      0x04
@@ -44,7 +49,12 @@ typedef struct
 
 typedef enum
 {
-	GL_OBJECT_TYPE_TEXTURE = 0x1000000,
+	GL_OBJECT_TYPE_UNKNOWN       = 0x0,
+	GL_OBJECT_TYPE_TEXTURE       = 0x1000000,
+	GL_OBJECT_TYPE_BUFFER        = 0x2000000,
+	GL_OBJECT_TYPE_FRAMEBUFFER   = 0x3000000,
+	GL_OBJECT_TYPE_RENDERBUFFER  = 0x4000000,
+	GL_OBJECT_TYPE_PROGRAM       = 0x5000000,
 } GL_Object_Type;
 
 typedef struct _GL_Object
@@ -59,7 +69,11 @@ typedef struct _GL_Shared_Object_State
 {
 	int                    ref_count;
 
-	GL_Object              *texture[MAX_GL_OBJECT_SIZE]; // Texture object : 0x10000X
+	GL_Object              *texture[MAX_GL_OBJECT_SIZE];
+	GL_Object              *buffer[MAX_GL_OBJECT_SIZE];
+	GL_Object              *framebuffer[MAX_GL_OBJECT_SIZE];
+	GL_Object              *renderbuffer[MAX_GL_OBJECT_SIZE];
+	GL_Object              *program[MAX_GL_OBJECT_SIZE];
 } GL_Shared_Object_State;
 
 typedef struct _GLGlueContext
@@ -98,6 +112,8 @@ typedef struct _GLGlueContext
 
 	GL_Shared_Object_State *sostate;
 
+	GLenum                  gl_error;
+
 	// General state
 #define GLUE_STATE(TYPE, NAME, SIZE, ARRAY_SIZE, DEFAULT_STMT, GET_STMT)     TYPE NAME[ARRAY_SIZE];
 # include "coregl_fastpath_state.h"
@@ -106,6 +122,11 @@ typedef struct _GLGlueContext
 } GLGlueContext;
 
 extern GLGlueContext *initial_ctx;
+
+extern int            debug_nofp;
+
+extern void     init_fast_gl();
+extern void     free_fast_gl();
 
 extern int      init_context_states(GLGlueContext *ctx);
 extern void     make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx);

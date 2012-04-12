@@ -4,6 +4,8 @@
 #include <string.h>
 #include "coregl_internal.h"
 
+CoreGL_Opt_Flag         api_opt = COREGL_UNKNOWN_PATH;
+
 Mutex                   ctx_list_access_mutex = MUTEX_INITIALIZER;
 
 void                   *egl_lib_handle;
@@ -11,12 +13,12 @@ void                   *gl_lib_handle;
 
 GLContext_List         *glctx_list = NULL;
 
-// Symbol definition for local
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*_COREGL_NAME_MANGLE(FUNC_NAME)) PARAM_LIST = NULL;
-#include "headers/sym.h"
-#undef _COREGL_SYMBOL
+int                 trace_api_flag = 0;
+int                 trace_ctx_flag = 0;
+int                 trace_state_flag = 0;
+int                 debug_nofp = 0;
 
-// Symbol definition for static
+// Symbol definition for real
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*_sym_##FUNC_NAME) PARAM_LIST;
 #include "headers/sym.h"
 #undef _COREGL_SYMBOL
@@ -184,6 +186,7 @@ init_new_thread_state()
 
 	tstate = (GLThreadState *)calloc(1, sizeof(GLThreadState));
 	tstate->thread_id = get_current_thread();
+	tstate->binded_api = EGL_NONE;
 
 	set_current_thread_state(&ctx_list_access_mutex, tstate);
 
@@ -285,6 +288,11 @@ _gl_sym_init(void)
 	return 1;
 }
 
+COREGL_API void coregl_symbol_exported()
+{
+	LOG("\E[0;31;1mERROR : Invalid library link! (Check linkage of libCOREGL)\E[0m\n");
+}
+
 static int
 _gl_lib_init(void)
 {
@@ -293,15 +301,23 @@ _gl_lib_init(void)
 	//------------------------------------------------//
 	// Open EGL Library as EGL is separate
 #ifndef _COREGL_EMBED_EVAS
-	egl_lib_handle = dlopen("libEGL_drv.so", RTLD_NOW | RTLD_GLOBAL);
+	egl_lib_handle = dlopen("libEGL_drv.so", RTLD_NOW);
 #else
-	egl_lib_handle = dlopen("libEGL.so.1", RTLD_NOW | RTLD_GLOBAL);
+	egl_lib_handle = dlopen("libEGL.so.1", RTLD_NOW);
 	if (!egl_lib_handle)
-		egl_lib_handle = dlopen("libEGL.so", RTLD_NOW | RTLD_GLOBAL);
+		egl_lib_handle = dlopen("libEGL.so", RTLD_NOW);
 #endif
 	if (!egl_lib_handle)
 	{
-		ERR("%s\n", dlerror());
+		ERR("\E[0;31;1mERROR : %s\E[0m\n\n", dlerror());
+		ERR("\E[0;31;1mERROR : Invalid library link! (Check linkage of libCOREGL -> libEGL_drv)\E[0m\n");
+		return 0;
+	}
+
+	// test for invalid linking egl
+	if (dlsym(egl_lib_handle, "coregl_symbol_exported"))
+	{
+		ERR("\E[0;31;1mERROR : Invalid library link! (Check linkage of libCOREGL -> libEGL_drv)\E[0m\n");
 		return 0;
 	}
 
@@ -315,7 +331,15 @@ _gl_lib_init(void)
 #endif
 	if (!gl_lib_handle)
 	{
-		ERR("%s\n", dlerror());
+		ERR("\E[0;31;1mERROR : %s\E[0m\n\n", dlerror());
+		ERR("\E[0;31;1mERROR : Invalid library link! (Check linkage of libCOREGL -> libGLESv2_drv)\E[0m\n");
+		return 0;
+	}
+
+	// test for invalid linking gl
+	if (dlsym(gl_lib_handle, "coregl_symbol_exported"))
+	{
+		ERR("\E[0;31;1mERROR : Invalid library link! (Check linkage of libCOREGL -> libGLESv2_drv)\E[0m\n");
 		return 0;
 	}
 	//------------------------------------------------//
@@ -346,6 +370,9 @@ _gl_lib_init(void)
 	return 1;
 }
 
+extern void init_fast_gl();
+extern void init_wrap_gl();
+
 #ifndef _COREGL_EMBED_EVAS
 __attribute__((constructor))
 #endif
@@ -353,7 +380,6 @@ int
 init_gl()
 {
 	int fastpath_opt = 0;
-	CoreGL_Opt_Flag api_opt = COREGL_NORMAL_PATH;
 
 	LOG("[CoreGL] ");
 
@@ -366,18 +392,36 @@ init_gl()
 		case 1:
 			api_opt = COREGL_FAST_PATH;
 			LOG(": (%d) Fastpath enabled...\n", fastpath_opt);
+			init_fast_gl();
 			break;
 		default:
 			LOG(": (%d) Default API path enabled...\n", fastpath_opt);
 			api_opt = COREGL_NORMAL_PATH;
+			init_wrap_gl();
 			break;
-		}
+	}
+
+#ifdef COREGL_TRACE_APICALL_INFO
+	trace_api_flag = atoi(get_env_setting("COREGL_TRACE_API"));
+#endif
+#ifdef COREGL_TRACE_CONTEXT_INFO
+	trace_ctx_flag = atoi(get_env_setting("COREGL_TRACE_CTX"));
+#endif
+#ifdef COREGL_TRACE_STATE_INFO
+	trace_state_flag = atoi(get_env_setting("COREGL_TRACE_STATE"));
+#endif
+
+	debug_nofp = atoi(get_env_setting("COREGL_DEBUG_NOFP"));
+
 
 	override_glue_apis(api_opt);
 	override_gl_apis(api_opt);
 
 	return 1;
 }
+
+extern void free_fast_gl();
+extern void free_wrap_gl();
 
 #ifndef _COREGL_EMBED_EVAS
 __attribute__((destructor))
@@ -386,6 +430,16 @@ void
 free_gl()
 {
 	GLContext_List *current = NULL;
+
+	switch (api_opt)
+	{
+		case COREGL_FAST_PATH:
+			free_fast_gl();
+			break;
+		default:
+			free_wrap_gl();
+			break;
+	}
 
 	AST(mutex_lock(&ctx_list_access_mutex) == 1);
 

@@ -1,7 +1,7 @@
 // Defult use-case for exporting symbols
 #ifndef _COREGL_SYMBOL
 #define _COREGL_SYMBOL_NOT_DEFINED
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     extern RET_TYPE (*_COREGL_NAME_MANGLE(FUNC_NAME)) PARAM_LIST;
+#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_API extern RET_TYPE FUNC_NAME PARAM_LIST;
 #endif
 
 /* version 1: */
@@ -164,6 +164,7 @@ _COREGL_SYMBOL(GL_TRUE, void, glProgramBinary, (GLuint program, GLenum binaryFor
 _COREGL_SYMBOL(GL_TRUE, void, glProgramParameteri, (GLuint a, GLuint b, GLint d))
 _COREGL_SYMBOL(GL_TRUE, void, glRenderbufferStorageMultisampleEXT, (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height))
 _COREGL_SYMBOL(GL_TRUE, void, glFramebufferTexture2DMultisampleEXT, (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLsizei samples))
+_COREGL_SYMBOL(GL_TRUE, void, glDiscardFramebufferEXT, (GLenum target, GLsizei numAttachments, const GLenum *attachments))
 
 #ifdef _COREGL_SYMBOL_NOT_DEFINED
 #undef _COREGL_SYMBOL_NOT_DEFINED
