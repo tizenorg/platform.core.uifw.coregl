@@ -1,0 +1,9 @@
+coregl (0.1-1) unstable; urgency=low
+
+  * Init Coregl
+  * Git: slp/pkgs/c/coregl
+  * Tag: coregl_0.1-01
+
+ -- Wonsik Jung <sidein@samsung.com>  Thu, 29 Mar 2012 10:42:28 +0900
+
+

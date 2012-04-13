@@ -1,0 +1,27 @@
+Source: coregl
+Section: libs
+Priority: extra
+Maintainer: Wonsik Jung(sidein@samsung.com)
+Uploaders: Wonsik Jung(sidein@samsung.com)
+Build-Depends: libx11-dev, opengl-es-dev
+Standards-Version: 3.8.1
+
+Package: libcoregl-dev
+Section: libs
+Architecture: any
+Depends: libcoregl, opengl-es-drv
+Description: extra libgles, libegl library
+
+Package: libcoregl
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, opengl-es-drv
+Description: extra libgles, libegl library
+
+Package: libcoregl-dbg
+Section: debug
+Architecture: any
+Depends: ${misc:Depends}, libcoregl (= ${Source-Version})
+Description: extra libgles, libegl library.
+
+

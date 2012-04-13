@@ -1,0 +1,13 @@
+# Package Information for pkg-config
+
+prefix=@PREFIX@
+exec_prefix=@EXEC_PREFIX@
+libdir=@LIBDIR@
+includedir=@INCLUDEDIR@
+
+Name: coregl
+Description: SAMSUNG Linux platform application library
+Version: @VERSION@
+Requires: x11
+Libs: -L${libdir} -lcoregl
+Cflags: -I${includedir} -I${includedir}/coregl
