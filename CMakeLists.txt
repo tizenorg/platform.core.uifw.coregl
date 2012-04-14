@@ -13,7 +13,7 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
 ADD_DEFINITIONS("-DPREFIX=\"${PREFIX}\"")
 
 SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} -fvisibility=hidden")
-SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} -g -O2 -fvisibility=hidden -fPIC -Wall -std=c99 -D_COREGL_EMBEDDED_GL")
+SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} -g -O2 -fPIC -Wall -std=c99 -D_COREGL_EMBEDDED_GL")
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_CFLAGS}")
 
 SET(CMAKE_SKIP_BUILD_RPATH TRUE)
@@ -30,7 +30,7 @@ SET(SRCS_common src/coregl.c src/coregl_thread_pthread.c src/coregl_trace.c
 #SET(HEADERS_common src/coregl_fastpath.h src/coregl_fastpath_state.h src/coregl.h src/coregl_internal.h src/coregl_thread_pthread.h src/coregl_wrappath.h)
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(pkg_common REQUIRED x11)
+pkg_check_modules(pkg_common REQUIRED x11 gles20)
 FOREACH(flag ${pkg_common_CFLAGS})
 	SET(EXTRA_CFLAGS_common "${EXTRA_CFLAGS_common} ${flag}")
 ENDFOREACH(flag)
