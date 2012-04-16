@@ -18,8 +18,11 @@
 
 #define INIT_FAST_GL_FUNC() \
    tstate = get_current_thread_state(); \
-   AST(tstate != NULL); \
-   AST(tstate->cstate != NULL); \
+   if (tstate == NULL || tstate->cstate == NULL) \
+   { \
+		ERR("\E[0;31;1mWARNING : '%s' called when GLES2 context is not binded (Check MakeCurrent)!\E[0m\n", __func__); \
+		goto finish; \
+   } \
    current_ctx = (GLGlueContext *)tstate->cstate->data; \
    AST(current_ctx != NULL);
 
@@ -58,6 +61,10 @@ _set_gl_error(GLenum error)
 	{
 		current_ctx->gl_error = error;
 	}
+	goto finish;
+
+finish:
+	return;
 }
 
 GLenum
@@ -246,7 +253,7 @@ finish:
 GLboolean
 fpgl_glIsTexture(GLuint texture)
 {
-	GLboolean ret;
+	GLboolean ret = GL_FALSE;
 	GLuint real_obj;
 
 	DEFINE_FAST_GL_FUNC();
@@ -423,7 +430,7 @@ finish:
 GLboolean
 fpgl_glIsBuffer(GLuint buffer)
 {
-	GLboolean ret;
+	GLboolean ret = GL_FALSE;
 	GLuint real_obj;
 
 	DEFINE_FAST_GL_FUNC();
@@ -589,7 +596,7 @@ finish:
 GLboolean
 fpgl_glIsFramebuffer(GLuint framebuffer)
 {
-	GLboolean ret;
+	GLboolean ret = GL_FALSE;
 	GLuint real_obj;
 
 	DEFINE_FAST_GL_FUNC();
@@ -774,7 +781,7 @@ finish:
 GLboolean
 fpgl_glIsRenderbuffer(GLuint renderbuffer)
 {
-	GLboolean ret;
+	GLboolean ret = GL_FALSE;
 	GLuint real_obj;
 
 	DEFINE_FAST_GL_FUNC();
@@ -1068,7 +1075,7 @@ finish:
 GLboolean
 fpgl_glIsShader(GLuint shader)
 {
-	GLboolean ret;
+	GLboolean ret = GL_FALSE;
 	GLuint real_obj;
 
 	DEFINE_FAST_GL_FUNC();
@@ -1093,7 +1100,7 @@ finish:
 GLboolean
 fpgl_glIsProgram(GLuint program)
 {
-	GLboolean ret;
+	GLboolean ret = GL_FALSE;
 	GLuint real_obj;
 
 	DEFINE_FAST_GL_FUNC();

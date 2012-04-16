@@ -154,6 +154,7 @@ extern Mutex                general_trace_lists_access_mutex;
 
 extern int                 trace_api_flag;
 extern int                 trace_ctx_flag;
+extern int                 trace_ctx_force_flag;
 extern int                 trace_state_flag;
 extern int                 debug_nofp;
 

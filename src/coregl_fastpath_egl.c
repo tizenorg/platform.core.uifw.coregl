@@ -20,7 +20,7 @@ _dump_context_info(const char *ment, int force_output)
 	AST(mutex_lock(&ctx_list_access_mutex) == 1);
 	AST(mutex_lock(&general_trace_lists_access_mutex) == 1);
 
-	if (!force_output)
+	if (!force_output && !trace_ctx_force_flag)
 	{
 		struct timeval tv_now = { 0, 0 };
 		AST(gettimeofday(&tv_now, NULL) == 0);

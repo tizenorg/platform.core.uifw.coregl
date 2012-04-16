@@ -15,6 +15,7 @@ GLContext_List         *glctx_list = NULL;
 
 int                 trace_api_flag = 0;
 int                 trace_ctx_flag = 0;
+int                 trace_ctx_force_flag = 0;
 int                 trace_state_flag = 0;
 int                 debug_nofp = 0;
 
@@ -406,6 +407,9 @@ init_gl()
 #endif
 #ifdef COREGL_TRACE_CONTEXT_INFO
 	trace_ctx_flag = atoi(get_env_setting("COREGL_TRACE_CTX"));
+#endif
+#ifdef COREGL_TRACE_CONTEXT_INFO
+	trace_ctx_force_flag = atoi(get_env_setting("COREGL_TRACE_CTX_FORCE"));
 #endif
 #ifdef COREGL_TRACE_STATE_INFO
 	trace_state_flag = atoi(get_env_setting("COREGL_TRACE_STATE"));
