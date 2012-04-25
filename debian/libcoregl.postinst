@@ -1,23 +1,13 @@
 #!/bin/sh
 
-INHOUSE_ID="5000"
-
 init_coregl()
 {
     cd /usr/lib/
 
-    file="./libEGL_drv.so.1.4"
-    if [ -e $file ]; then
-            echo "libEGL_drv.so.1.4 exists"
-    else
-            echo "libEGL_drv.so.1.4 not exist"
-	    mv libEGL.so.1.4 libEGL_drv.so.1.4
-	    ln -s libEGL_drv.so.1.4 libEGL_drv.so.1
-	    ln -s libEGL_drv.so.1.4 libEGL_drv.so
-
-	    mv libGLESv2.so.2.0 libGLESv2_drv.so.2.0
-	    ln -s libGLESv2_drv.so.2.0 libGLESv2_drv.so.2
-	    ln -s libGLESv2_drv.so.2.0 libGLESv2_drv.so
+#    file="./libEGL.so"
+#    if [ -e $file ]; then
+            rm -f ./libEGL.*
+            rm -f ./libGLESv2.*
 
 	    ln -s libCOREGL.so libGLESv2.so.2.0
 	    ln -s libCOREGL.so libGLESv2.so.2
@@ -26,16 +16,7 @@ init_coregl()
 	    ln -s libCOREGL.so libEGL.so.1.4
 	    ln -s libCOREGL.so libEGL.so.1
 	    ln -s libCOREGL.so libEGL.so
-
-	    #mv libGLESv1_CM.so.1.1 libGLESv1_drv_CM.so.1.1
-	    #ln -s libGLESv1_drv_CM.so.1.1 libGLESv1_drv_CM.so.1
-	    #ln -s libGLESv1_drv_CM.so.1.1 libGLESv1_drv_CM.so
-	    #ln -s libCOREGL.so libGLESv1_CM.so.1.1
-	    #ln -s libCOREGL.so libGLESv1_CM.so.1
-	    #ln -s libCOREGL.so libGLESv1_CM.so
-
-	    #echo "export COREGL_FASTPATH=1" >> /etc/profile.d/elm.sh
-    fi
+#    fi
 
     cd -
 }
