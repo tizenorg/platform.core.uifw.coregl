@@ -8,19 +8,19 @@ Standards-Version: 3.8.1
 
 Package: libcoregl-dev
 Section: libs
-Architecture: any
+Architecture: armel
 Depends: libcoregl, opengl-es-drv
 Description: extra libgles, libegl library
 
 Package: libcoregl
 Section: libs
-Architecture: any
+Architecture: armel
 Depends: ${shlibs:Depends}, ${misc:Depends}, opengl-es-drv
 Description: extra libgles, libegl library
 
 Package: libcoregl-dbg
 Section: debug
-Architecture: any
+Architecture: armel
 Depends: ${misc:Depends}, libcoregl (= ${Source-Version})
 Description: extra libgles, libegl library.
 

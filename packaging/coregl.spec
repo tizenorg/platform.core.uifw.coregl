@@ -1,6 +1,7 @@
 Name: coregl
 Version: 0.1.1
 Release: 1
+ExclusiveArch:  %arm
 Summary: coregl
 Group: TO_BE/FILLED_IN
 License: TO_BE/FILLED_IN
