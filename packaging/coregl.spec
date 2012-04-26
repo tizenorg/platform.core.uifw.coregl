@@ -19,6 +19,7 @@ BuildRequires:  pkgconfig(xfixes)
 BuildRequires:  opengl-es-devel
 %endif
 BuildRequires:  pkgconfig(x11)
+BuildRequires:  cmake
 
 %description
 This package contains the ….
@@ -27,16 +28,16 @@ This package contains the ….
 %setup -q -n %{name}-%{version}
 
 %build
+cmake . -DCMAKE_INSTALL_PREFIX=/usr
+
 make %{?jobs:-j%jobs}
 
 %install
 
-mkdir %{buildroot}/usr
-mkdir %{buildroot}/usr/lib
-mkdir %{buildroot}/usr/include
-mkdir %{buildroot}/usr/include/EGL
-mkdir %{buildroot}/usr/include/GLES2
-cp %{_builddir}/%{name}-%{version}/lib/libCOREGL.so %{buildroot}%{_libdir}/libCOREGL.so
+mkdir -p %{buildroot}/usr/lib
+mkdir -p %{buildroot}/usr/include/EGL
+mkdir -p %{buildroot}/usr/include/GLES2
+cp %{_builddir}/%{name}-%{version}/libCOREGL.so %{buildroot}%{_libdir}/libCOREGL.so
 
 %clean
 rm -rf %{buildroot}
