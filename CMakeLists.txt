@@ -30,9 +30,9 @@ SET(SRCS_common src/coregl.c src/coregl_thread_pthread.c src/coregl_trace.c
 #SET(HEADERS_common src/coregl_fastpath.h src/coregl_fastpath_state.h src/coregl.h src/coregl_internal.h src/coregl_thread_pthread.h src/coregl_wrappath.h)
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(pkg_common REQUIRED x11 gles20)
+pkg_check_modules(pkg_common REQUIRED x11)
 FOREACH(flag ${pkg_common_CFLAGS})
-	SET(EXTRA_CFLAGS_common "${EXTRA_CFLAGS_common} ${flag}")
+	SET(EXTRA_CFLAGS_common "${EXTRA_CFLAGS_common} ${flag} -lGLESv2_drv -lEGL_drv")
 ENDFOREACH(flag)
 
 ADD_LIBRARY(${COREGL} SHARED ${SRCS_common})
