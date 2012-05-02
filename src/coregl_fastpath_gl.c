@@ -79,6 +79,7 @@ fpgl_glGetError(void)
 	if (current_ctx->gl_error != GL_NO_ERROR)
 	{
 		ret = current_ctx->gl_error;
+		current_ctx->gl_error = GL_NO_ERROR;
 	}
 	else
 	{
