@@ -68,8 +68,8 @@ typedef struct _Trace_Data Trace_Data;
 # define _COREGL_TRACE_API_OUTPUT(force_output) \
    trace_output(force_output);
 #else
-# define _COREGL_TRACE_API_BEGIN(api, trace_total_time)
-# define _COREGL_TRACE_API_END(api, trace_total_time)
+# define _COREGL_TRACE_API_BEGIN(api, hint, trace_total_time) NULL;
+# define _COREGL_TRACE_API_END(api, hint, trace_total_time)
 # define _COREGL_TRACE_API_OUTPUT(force_output)
 #endif
 

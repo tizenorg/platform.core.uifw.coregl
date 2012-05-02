@@ -258,14 +258,14 @@ trace_end(const char *funcname, void *hint, int trace_total_time)
 	Trace_Data *ftd = NULL;
 	struct timeval t = TIMEVAL_INIT;
 
-	ftd = (Trace_Data *)hint;
-
-	AST(gettimeofday(&t, NULL) == 0);
-
 	if (trace_api_flag == 1)
 	{
 		GLThreadState *tstate = NULL;
 		struct timeval elapsed_time = TIMEVAL_INIT;
+
+		ftd = (Trace_Data *)hint;
+
+		AST(gettimeofday(&t, NULL) == 0);
 
 		if (ftd == NULL)
 		{
