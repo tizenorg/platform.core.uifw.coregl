@@ -18,6 +18,7 @@ int                 trace_ctx_flag = 0;
 int                 trace_ctx_force_flag = 0;
 int                 trace_state_flag = 0;
 int                 debug_nofp = 0;
+FILE               *trace_fp = NULL;
 
 // Symbol definition for real
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*_sym_##FUNC_NAME) PARAM_LIST;
@@ -187,7 +188,7 @@ init_new_thread_state()
 
 	tstate = (GLThreadState *)calloc(1, sizeof(GLThreadState));
 	tstate->thread_id = get_current_thread();
-	tstate->binded_api = EGL_NONE;
+	tstate->binded_api = EGL_OPENGL_ES_API;
 
 	set_current_thread_state(&ctx_list_access_mutex, tstate);
 
@@ -400,6 +401,17 @@ init_gl()
 			api_opt = COREGL_NORMAL_PATH;
 			init_wrap_gl();
 			break;
+	}
+
+	{
+		const char *output_file = NULL;
+		output_file = get_env_setting("COREGL_LOG_FILE");
+		if (strlen(output_file) > 0)
+		{
+			trace_fp = fopen(output_file, "w");
+		}
+		if (trace_fp == NULL)
+			trace_fp = stderr;
 	}
 
 #ifdef COREGL_TRACE_APICALL_INFO

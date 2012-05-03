@@ -6,7 +6,6 @@ eglGetError(void)
 	EGLint ret = _COREGL_INT_INIT_VALUE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	if (api_opt == COREGL_UNKNOWN_PATH) goto finish;
 	ret = ovr_eglGetError();
 	goto finish;
 
@@ -21,7 +20,6 @@ eglGetDisplay(EGLNativeDisplayType display_id)
 	EGLDisplay ret = EGL_NO_DISPLAY;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	if (api_opt == COREGL_UNKNOWN_PATH) goto finish;
 	ret = ovr_eglGetDisplay(display_id);
 	goto finish;
 
@@ -35,7 +33,6 @@ eglInitialize(EGLDisplay dpy, EGLint* major, EGLint* minor)
 {
 	EGLBoolean ret = EGL_FALSE;
 	_COREGL_WRAP_FUNC_BEGIN();
-	if (api_opt == COREGL_UNKNOWN_PATH) goto finish;
 	ret = ovr_eglInitialize(dpy, major, minor);
 	goto finish;
 
@@ -50,7 +47,6 @@ eglTerminate(EGLDisplay dpy)
 	EGLBoolean ret = EGL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	if (api_opt == COREGL_UNKNOWN_PATH) goto finish;
 	ret = ovr_eglTerminate(dpy);
 	goto finish;
 
@@ -178,7 +174,6 @@ eglBindAPI(EGLenum api)
 	EGLBoolean ret = EGL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	if (api_opt == COREGL_UNKNOWN_PATH) goto finish;
 	ret = ovr_eglBindAPI(api);
 	goto finish;
 
@@ -193,7 +188,6 @@ eglQueryAPI(void)
 	EGLenum ret = 0;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	if (api_opt == COREGL_UNKNOWN_PATH) goto finish;
 	ret = ovr_eglQueryAPI();
 	goto finish;
 
@@ -466,7 +460,6 @@ eglGetProcAddress(const char* procname)
 	_eng_fn ret = NULL;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	if (api_opt == COREGL_UNKNOWN_PATH) goto finish;
 	ret = ovr_eglGetProcAddress(procname);
 	goto finish;
 
@@ -481,7 +474,6 @@ eglQueryString(EGLDisplay dpy, EGLint name)
 	const char *ret = NULL;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	if (api_opt == COREGL_UNKNOWN_PATH) goto finish;
 	ret = ovr_eglQueryString(dpy, name);
 	goto finish;
 

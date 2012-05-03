@@ -188,10 +188,10 @@ dump_context_states(GLGlueContext *ctx, int force_output)
 		tv_last = tv_now;
 	}
 
-	LOG("\n");
-	LOG("\E[0;40;34m========================================================================================================================\E[0m\n");
-	LOG("\E[0;32;1m  State info \E[1;37;1m: GlueCTX = %p\E[0m\n", ctx);
-	LOG("\E[0;40;34m========================================================================================================================\E[0m\n");
+	TRACE("\n");
+	TRACE("\E[0;40;34m========================================================================================================================\E[0m\n");
+	TRACE("\E[0;32;1m  State info \E[1;37;1m: GlueCTX = %p\E[0m\n", ctx);
+	TRACE("\E[0;40;34m========================================================================================================================\E[0m\n");
 
 #define PRINTF_CHAR_GLenum "%10d"
 #define PRINTF_CHAR_GLboolean "%10d"
@@ -213,26 +213,28 @@ dump_context_states(GLGlueContext *ctx, int force_output)
       TYPE valuedata[SIZE]; \
       TYPE *value = NULL; \
       value = valuedata; GET_STMT; value = valuedata; \
-      LOG("\E[0;37;1m %-30.30s : (\E[0m ", #NAME); \
+      TRACE("\E[0;37;1m %-30.30s : (\E[0m ", #NAME); \
       for (int i = 0; i < SIZE; i++) \
       { \
          if (i > 0) { \
             if (i % 4 == 0) \
-               LOG("\n %-30.30s     ", "");\
+               TRACE("\n %-30.30s     ", "");\
             else \
-               LOG(", "); \
+               TRACE(", "); \
          } \
-         LOG(PRINTF_CHAR(TYPE), ctx->NAME[i]); \
-         LOG("["PRINTF_CHAR(TYPE)"]", value[i]); \
+         TRACE(PRINTF_CHAR(TYPE), ctx->NAME[i]); \
+         TRACE("["PRINTF_CHAR(TYPE)"]", value[i]); \
       } \
-      LOG(" \E[0;37;1m)\E[0m\n"); \
+      TRACE(" \E[0;37;1m)\E[0m\n"); \
    }
 # include "coregl_fastpath_state.h"
 #undef GLUE_STATE
 #undef INITIAL_CTX
 
-	LOG("\E[0;40;34m========================================================================================================================\E[0m\n");
-	LOG("\n");
+	TRACE("\E[0;40;34m========================================================================================================================\E[0m\n");
+	TRACE("\n");
+
+	TRACE_END();
 
 finish:
 	return;

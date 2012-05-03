@@ -263,9 +263,9 @@ trace_end(const char *funcname, void *hint, int trace_total_time)
 		GLThreadState *tstate = NULL;
 		struct timeval elapsed_time = TIMEVAL_INIT;
 
-		ftd = (Trace_Data *)hint;
-
 		AST(gettimeofday(&t, NULL) == 0);
+
+		ftd = (Trace_Data *)hint;
 
 		if (ftd == NULL)
 		{
@@ -382,10 +382,10 @@ trace_output(int force_output)
 	}
 
 
-	LOG("\n");
-	LOG("\E[40;34m========================================================================================================================\E[0m\n");
-	LOG("\E[40;32;1m  API call info \E[1;37;1m: Thread ID = %d  [Swaps per Second(P) = %7.2f]\E[0m\n", tstate->thread_id, swaps_per_sec);
-	LOG("\E[40;34m========================================================================================================================\E[0m\n");
+	TRACE("\n");
+	TRACE("\E[40;34m========================================================================================================================\E[0m\n");
+	TRACE("\E[40;32;1m  API call info \E[1;37;1m: Thread ID = %d  [Swaps per Second(P) = %7.2f]\E[0m\n", tstate->thread_id, swaps_per_sec);
+	TRACE("\E[40;34m========================================================================================================================\E[0m\n");
 
 	// highlighted
 	for (i = 0; i < MAX_TRACE_TABLE_SIZE; i++)
@@ -411,8 +411,8 @@ trace_output(int force_output)
 
 					if (elapsed_time_per_call_period >= 0.01 || current->call_count - current->last_call_count > 1000)
 					{
-						LOG("\E[40;37;1m %-42.42s : %10d call(s), %10.2f ms, %9.3f ms/API, %9.3f ms/API(P) \E[0m\n",
-						    current->name, current->call_count, elapsed_time, elapsed_time_per_call, elapsed_time_per_call_period);
+						TRACE("\E[40;37;1m %-42.42s : %10d call(s), %10.2f ms, %9.3f ms/API, %9.3f ms/API(P) \E[0m\n",
+						      current->name, current->call_count, elapsed_time, elapsed_time_per_call, elapsed_time_per_call_period);
 						current->traced = 1;
 					}
 				}
@@ -424,7 +424,7 @@ trace_output(int force_output)
 	{
 		int fp_env = 0;
 		fp_env = atoi(get_env_setting("COREGL_TRACE_API_ALL"));
-		if (fp_env == 0)
+		if (fp_env == 1)
 		{
 			// other
 			for (i = 0; i < MAX_TRACE_TABLE_SIZE; i++)
@@ -440,8 +440,8 @@ trace_output(int force_output)
 							double elapsed_time = _get_timeval(current->elapsed_time);
 							double elapsed_time_per_call = elapsed_time / current->call_count;
 
-							LOG(" %-42.42s : %10d call(s), %10.2f ms, %9.3f ms/API\n",
-							    current->name, current->call_count, elapsed_time, elapsed_time_per_call);
+							TRACE(" %-42.42s : %10d call(s), %10.2f ms, %9.3f ms/API\n",
+							      current->name, current->call_count, elapsed_time, elapsed_time_per_call);
 						}
 						current = current->next;
 					}
@@ -450,39 +450,39 @@ trace_output(int force_output)
 		}
 	}
 
-	LOG("\E[40;34m========================================================================================================================\E[0m\n");
+	TRACE("\E[40;34m========================================================================================================================\E[0m\n");
 
-	LOG("\E[40;36;1m %-42.42s : %13.2f ms[%6.2f%%], %13.2f ms(P)[%6.2f%%]\E[0m\n",
-	    "TOTAL elapsed Time",
-	    total_elapsed_time,
-	    100.0,
-	    total_elapsed_time_period,
-	    100.0);
+	TRACE("\E[40;36;1m %-42.42s : %13.2f ms[%6.2f%%], %13.2f ms(P)[%6.2f%%]\E[0m\n",
+	      "TOTAL elapsed Time",
+	      total_elapsed_time,
+	      100.0,
+	      total_elapsed_time_period,
+	      100.0);
 
 
-	LOG("\E[40;36;1m %-42.42s : %13.2f ms[%6.2f%%], %13.2f ms(P)[%6.2f%%]\E[0m\n",
-	    "OpenGL elapsed Time",
-	    total_opengl_elapsed_time,
-	    total_opengl_elapsed_time * 100.0 / total_elapsed_time,
-	    total_opengl_elapsed_time_period,
-	    total_opengl_elapsed_time_period * 100.0 / total_elapsed_time_period);
+	TRACE("\E[40;36;1m %-42.42s : %13.2f ms[%6.2f%%], %13.2f ms(P)[%6.2f%%]\E[0m\n",
+	      "OpenGL elapsed Time",
+	      total_opengl_elapsed_time,
+	      total_opengl_elapsed_time * 100.0 / total_elapsed_time,
+	      total_opengl_elapsed_time_period,
+	      total_opengl_elapsed_time_period * 100.0 / total_elapsed_time_period);
 
-	LOG("\E[40;36;1m %-42.42s : %13.2f ms[%6.2f%%], %13.2f ms(P)[%6.2f%%]\E[0m\n",
-	    "Out of OpenGL elapsed time",
-	    total_other_elapsed_time,
-	    total_other_elapsed_time * 100.0 / total_elapsed_time,
-	    total_other_elapsed_time_period,
-	    total_other_elapsed_time_period * 100.0 / total_elapsed_time_period);
+	TRACE("\E[40;36;1m %-42.42s : %13.2f ms[%6.2f%%], %13.2f ms(P)[%6.2f%%]\E[0m\n",
+	      "Out of OpenGL elapsed time",
+	      total_other_elapsed_time,
+	      total_other_elapsed_time * 100.0 / total_elapsed_time,
+	      total_other_elapsed_time_period,
+	      total_other_elapsed_time_period * 100.0 / total_elapsed_time_period);
 
-	LOG("\E[40;36;1m %-42.42s : %13.2f ms[%6.2f%%], %13.2f ms(P)[%6.2f%%]\E[0m\n",
-	    "CoreGL API tracing overhead",
-	    total_elapsed_time - total_opengl_elapsed_time - total_other_elapsed_time,
-	    (total_elapsed_time - total_opengl_elapsed_time - total_other_elapsed_time) * 100.0 / total_elapsed_time,
-	    total_elapsed_time_period - total_opengl_elapsed_time_period - total_other_elapsed_time_period,
-	    (total_elapsed_time_period - total_opengl_elapsed_time_period - total_other_elapsed_time_period) * 100.0 / total_elapsed_time_period);
+	TRACE("\E[40;36;1m %-42.42s : %13.2f ms[%6.2f%%], %13.2f ms(P)[%6.2f%%]\E[0m\n",
+	      "CoreGL API tracing overhead",
+	      total_elapsed_time - total_opengl_elapsed_time - total_other_elapsed_time,
+	      (total_elapsed_time - total_opengl_elapsed_time - total_other_elapsed_time) * 100.0 / total_elapsed_time,
+	      total_elapsed_time_period - total_opengl_elapsed_time_period - total_other_elapsed_time_period,
+	      (total_elapsed_time_period - total_opengl_elapsed_time_period - total_other_elapsed_time_period) * 100.0 / total_elapsed_time_period);
 
-	LOG("\E[40;34m========================================================================================================================\E[0m\n");
-	LOG("\n");
+	TRACE("\E[40;34m========================================================================================================================\E[0m\n");
+	TRACE("\n");
 
 	for (i = 0; i < MAX_TRACE_TABLE_SIZE; i++)
 	{
@@ -499,6 +499,8 @@ trace_output(int force_output)
 			}
 		}
 	}
+
+	TRACE_END();
 
 	goto finish;
 

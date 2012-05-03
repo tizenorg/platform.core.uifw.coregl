@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+#include <execinfo.h>
 
 #ifdef COREGL_TRACE_CONTEXT_INFO
 
@@ -33,10 +34,10 @@ _dump_context_info(const char *ment, int force_output)
 
 	tstate = get_current_thread_state();
 
-	LOG("\n");
-	LOG("\E[40;34m========================================================================================================================\E[0m\n");
-	LOG("\E[40;32;1m  Context info \E[1;37;1m: %s\E[0m\n", ment);
-	LOG("\E[40;34m========================================================================================================================\E[0m\n");
+	TRACE("\n");
+	TRACE("\E[40;34m========================================================================================================================\E[0m\n");
+	TRACE("\E[40;32;1m  Context info \E[1;37;1m: %s\E[0m\n", ment);
+	TRACE("\E[40;34m========================================================================================================================\E[0m\n");
 
 
 	// Thread State List
@@ -48,21 +49,21 @@ _dump_context_info(const char *ment, int force_output)
 		{
 			GLThreadState *cur_tstate = (GLThreadState *)current->value;
 
-			LOG(" %c Thread  [%12d] : Surf <D=[%12p] R=[%12p]>",
-			    (tstate == cur_tstate) ? '*' : ' ',
-			    cur_tstate->thread_id,
-			    cur_tstate->rsurf_draw,
-			    cur_tstate->rsurf_read);
+			TRACE(" %c Thread  [%12d] : Surf <D=[%12p] R=[%12p]>",
+			      (tstate == cur_tstate) ? '*' : ' ',
+			      cur_tstate->thread_id,
+			      cur_tstate->rsurf_draw,
+			      cur_tstate->rsurf_read);
 
 			if (cur_tstate->cstate != NULL)
 			{
-				LOG(" GlueCTX=[%12p] RealCTX=[%12p]\E[0m\n",
-				    cur_tstate->cstate->data,
-				    cur_tstate->cstate);
+				TRACE(" GlueCTX=[%12p] RealCTX=[%12p]\E[0m\n",
+				      cur_tstate->cstate->data,
+				      cur_tstate->cstate);
 			}
 			else
 			{
-				LOG(" (NOT BINDED TO THREAD)\E[0m\n");
+				TRACE(" (NOT BINDED TO THREAD)\E[0m\n");
 			}
 
 			// Binded Context State List
@@ -76,11 +77,11 @@ _dump_context_info(const char *ment, int force_output)
 
 					if (cur_tstate->cstate == cur_cstate)
 					{
-						LOG("   -> RealCTX [%12p] : EGLDPY=[%12p] EGLCTX=[%12p] <[%2d] GlueCTXs>\E[0m\n",
-						    cur_cstate,
-						    cur_cstate->rdpy,
-						    cur_cstate->rctx,
-						    cur_cstate->ref_count);
+						TRACE("   -> RealCTX [%12p] : EGLDPY=[%12p] EGLCTX=[%12p] <[%2d] GlueCTXs>\E[0m\n",
+						      cur_cstate,
+						      cur_cstate->rdpy,
+						      cur_cstate->rctx,
+						      cur_cstate->ref_count);
 
 						// Binded Glue Context List
 						{
@@ -93,14 +94,14 @@ _dump_context_info(const char *ment, int force_output)
 
 								if (cur_gctx->cstate == cur_cstate)
 								{
-									LOG("    -%c GlueCTX [%12p] : EGLDPY=[%12p] TID=[%12d] <MC count [%10d]>",
-									    (cur_cstate->data == cur_gctx) ? '>' : '-',
-									    cur_gctx,
-									    cur_gctx->rdpy,
-									    cur_gctx->thread_id,
-									    cur_gctx->used_count);
+									TRACE("    -%c GlueCTX [%12p] : EGLDPY=[%12p] TID=[%12d] <MC count [%10d]>",
+									      (cur_cstate->data == cur_gctx) ? '>' : '-',
+									      cur_gctx,
+									      cur_gctx->rdpy,
+									      cur_gctx->thread_id,
+									      cur_gctx->used_count);
 
-									LOG(" <Ref [%2d]>\E[0m\n", cur_gctx->ref_count);
+									TRACE(" <Ref [%2d]>\E[0m\n", cur_gctx->ref_count);
 								}
 
 								current = current->next;
@@ -118,7 +119,7 @@ _dump_context_info(const char *ment, int force_output)
 		}
 	}
 
-	LOG("\E[40;33m........................................................................................................................\E[0m\n");
+	TRACE("\E[40;33m........................................................................................................................\E[0m\n");
 
 	// Not-binded Context State List
 	{
@@ -152,11 +153,11 @@ _dump_context_info(const char *ment, int force_output)
 
 			if (isbinded == 0)
 			{
-				LOG("   RealCTX   [%12p] : EGLDPY=[%12p] EGLCTX=[%12p] <[%2d] GlueCTXs>\E[0m\n",
-				    cur_cstate,
-				    cur_cstate->rdpy,
-				    cur_cstate->rctx,
-				    cur_cstate->ref_count);
+				TRACE("   RealCTX   [%12p] : EGLDPY=[%12p] EGLCTX=[%12p] <[%2d] GlueCTXs>\E[0m\n",
+				      cur_cstate,
+				      cur_cstate->rdpy,
+				      cur_cstate->rctx,
+				      cur_cstate->ref_count);
 
 				// Binded Glue Context List
 				{
@@ -169,14 +170,14 @@ _dump_context_info(const char *ment, int force_output)
 
 						if (cur_gctx->cstate == cur_cstate)
 						{
-							LOG("    -%c GlueCTX [%12p] : EGLDPY=[%12p] TID=[%12d] <MC count [%10d]>",
-							    (cur_cstate->data == cur_gctx) ? '>' : '-',
-							    cur_gctx,
-							    cur_gctx->rdpy,
-							    cur_gctx->thread_id,
-							    cur_gctx->used_count);
+							TRACE("    -%c GlueCTX [%12p] : EGLDPY=[%12p] TID=[%12d] <MC count [%10d]>",
+							      (cur_cstate->data == cur_gctx) ? '>' : '-',
+							      cur_gctx,
+							      cur_gctx->rdpy,
+							      cur_gctx->thread_id,
+							      cur_gctx->used_count);
 
-							LOG(" <Ref [%2d]>\E[0m\n", cur_gctx->ref_count);
+							TRACE(" <Ref [%2d]>\E[0m\n", cur_gctx->ref_count);
 						}
 
 						current = current->next;
@@ -189,7 +190,7 @@ _dump_context_info(const char *ment, int force_output)
 
 	}
 
-	LOG("\E[40;33m........................................................................................................................\E[0m\n");
+	TRACE("\E[40;33m........................................................................................................................\E[0m\n");
 
 	// Not-binded Glue Context List
 	{
@@ -202,21 +203,23 @@ _dump_context_info(const char *ment, int force_output)
 
 			if (cur_gctx->cstate == NULL)
 			{
-				LOG("   GlueCTX [%12p]   : EGLDPY=[%12p] TID=[%12d] <MC count [%10d]>",
-				    cur_gctx,
-				    cur_gctx->rdpy,
-				    cur_gctx->thread_id,
-				    cur_gctx->used_count);
+				TRACE("   GlueCTX [%12p]   : EGLDPY=[%12p] TID=[%12d] <MC count [%10d]>",
+				      cur_gctx,
+				      cur_gctx->rdpy,
+				      cur_gctx->thread_id,
+				      cur_gctx->used_count);
 
-				LOG(" <Ref [%2d]>\E[0m\n", cur_gctx->ref_count);
+				TRACE(" <Ref [%2d]>\E[0m\n", cur_gctx->ref_count);
 			}
 
 			current = current->next;
 		}
 	}
 
-	LOG("\E[40;34m========================================================================================================================\E[0m\n");
-	LOG("\n");
+	TRACE("\E[40;34m========================================================================================================================\E[0m\n");
+	TRACE("\n");
+
+	TRACE_END();
 
 	goto finish;
 
@@ -581,7 +584,11 @@ fpgl_eglBindAPI(EGLenum api)
 	GLThreadState *tstate = NULL;
 
 	_COREGL_FAST_FUNC_BEGIN();
-	if (api_opt == COREGL_UNKNOWN_PATH) goto finish;
+	if (api_opt == COREGL_UNKNOWN_PATH)
+	{
+		ERR("\E[0;31;1mERROR : Invalid library link! (CoreGL path option is invalid)\E[0m\n");
+		goto finish;
+	}
 
 	ret = _sym_eglBindAPI(api);
 
@@ -628,7 +635,11 @@ fpgl_eglQueryAPI(void)
 	GLThreadState *tstate = NULL;
 
 	_COREGL_FAST_FUNC_BEGIN();
-	if (api_opt == COREGL_UNKNOWN_PATH) goto finish;
+	if (api_opt == COREGL_UNKNOWN_PATH)
+	{
+		ERR("\E[0;31;1mERROR : Invalid library link! (CoreGL path option is invalid)\E[0m\n");
+		goto finish;
+	}
 
 	ret = _sym_eglQueryAPI();
 
@@ -649,6 +660,7 @@ EGLContext
 fpgl_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_context, const EGLint* attrib_list)
 {
 	GLGlueContext *gctx = NULL;
+	GLThreadState *tstate = NULL;
 	GLContextState *cstate = NULL;
 	GLContextState *cstate_new = NULL;
 	GL_Shared_Object_State *sostate_new = NULL;
@@ -656,6 +668,13 @@ fpgl_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_context
 
 	EGL_packed_option *real_ctx_option = NULL;
 	EGL_packed_sharable_option *real_ctx_sharable_option = NULL;
+
+	// Special eject condition for binding API
+	tstate = get_current_thread_state();
+	if (tstate != NULL && tstate->binded_api != EGL_OPENGL_ES_API)
+	{
+		return _sym_eglCreateContext(dpy, config, share_context, attrib_list);
+	}
 
 	_COREGL_FAST_FUNC_BEGIN();
 
@@ -779,15 +798,16 @@ fpgl_eglDestroyContext(EGLDisplay dpy, EGLContext ctx)
 
 	gctx = (GLGlueContext *)ctx;
 
-	if (gctx != NULL)
+	if (gctx != NULL && gctx != EGL_NO_CONTEXT)
 	{
 		GLContextState *cstate = NULL;
+
 		if (gctx->magic != MAGIC_GLFAST)
 		{
-			ERR("Magic Check Failed!!!\n");
-			ret = EGL_FALSE;
+			ret = _sym_eglDestroyContext(dpy, ctx);
 			goto finish;
 		}
+
 		cstate = gctx->cstate;
 		AST(cstate != NULL);
 
@@ -838,8 +858,15 @@ fpgl_eglQueryContext(EGLDisplay dpy, EGLContext ctx, EGLint attribute, EGLint *v
 		GLGlueContext *gctx = NULL;
 		gctx = (GLGlueContext *)ctx;
 
-		AST(gctx->cstate != NULL);
-		real_ctx = gctx->cstate->rctx;
+		if (gctx->magic != MAGIC_GLFAST)
+		{
+			real_ctx = ctx;
+		}
+		else
+		{
+			AST(gctx->cstate != NULL);
+			real_ctx = gctx->cstate->rctx;
+		}
 	}
 
 	_COREGL_FAST_FUNC_SYMCALL_BEGIN();
@@ -859,6 +886,15 @@ fpgl_eglReleaseThread(void)
 {
 	EGLBoolean ret = EGL_FALSE;
 	EGLDisplay dpy = EGL_NO_DISPLAY;
+	GLThreadState *tstate = NULL;
+
+	tstate = get_current_thread_state();
+
+	// Special eject condition for binding API
+	if (tstate != NULL && tstate->binded_api != EGL_OPENGL_ES_API)
+	{
+		return _sym_eglReleaseThread();
+	}
 
 	_COREGL_FAST_FUNC_BEGIN();
 
@@ -885,11 +921,18 @@ fpgl_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLContext
 	GLThreadState *tstate = NULL;
 	GLContextState *cstate = NULL;
 
+	tstate = get_current_thread_state();
+
+	// Special eject condition for binding API
+	if (tstate != NULL && tstate->binded_api != EGL_OPENGL_ES_API)
+	{
+		return _sym_eglMakeCurrent(dpy, draw, read, ctx);
+	}
+
 	_COREGL_FAST_FUNC_BEGIN();
 
 	gctx = (GLGlueContext *)ctx;
 
-	tstate = get_current_thread_state();
 	if (tstate == NULL)
 	{
 		AST(init_new_thread_state() == 1);
@@ -1032,16 +1075,23 @@ fpgl_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLContext
 	// Setup initial Viewport & Scissor
 	if (gctx->surface_attached == 0 && draw != EGL_NO_SURFACE)
 	{
-		EGLint width;
-		EGLint height;
-		_sym_eglQuerySurface(dpy, draw, EGL_WIDTH, &width);
-		_sym_eglQuerySurface(dpy, draw, EGL_HEIGHT, &height);
+		EGLint box_buffer[4];
+		EGLint width = 0;
+		EGLint height = 0;
+
+		_sym_glGetIntegerv(GL_VIEWPORT, box_buffer);
+		width = box_buffer[2];
+		height = box_buffer[3];
 
 		gctx->_clear_flag1 |= FLAG_BIT_0;
 		gctx->gl_viewport[0] = 0;
 		gctx->gl_viewport[1] = 0;
 		gctx->gl_viewport[2] = width;
 		gctx->gl_viewport[3] = height;
+
+		_sym_glGetIntegerv(GL_SCISSOR_BOX, box_buffer);
+		width = box_buffer[2];
+		height = box_buffer[3];
 
 		gctx->_misc_flag2 |= FLAG_BIT_0;
 		gctx->gl_scissor_box[0] = 0;
@@ -1080,15 +1130,22 @@ fpgl_eglGetCurrentContext(void)
 	GLGlueContext *ret = NULL;
 	GLThreadState *tstate = NULL;
 
-	_COREGL_FAST_FUNC_BEGIN();
-
 	tstate = get_current_thread_state();
+
+	// Special eject condition for binding API
+	if (tstate != NULL && tstate->binded_api != EGL_OPENGL_ES_API)
+	{
+		return _sym_eglGetCurrentContext();
+	}
+
+	_COREGL_FAST_FUNC_BEGIN();
 
 	if (tstate != NULL)
 	{
 		if (tstate->cstate != NULL)
 		{
 			ret = (GLGlueContext *)tstate->cstate->data;
+			AST(ret->magic == MAGIC_GLFAST);
 		}
 	}
 	goto finish;
@@ -1104,6 +1161,14 @@ fpgl_eglGetCurrentSurface(EGLint readdraw)
 {
 	EGLSurface ret = EGL_NO_SURFACE;
 	GLThreadState *tstate = NULL;
+
+	tstate = get_current_thread_state();
+
+	// Special eject condition for binding API
+	if (tstate != NULL && tstate->binded_api != EGL_OPENGL_ES_API)
+	{
+		return _sym_eglGetCurrentSurface(readdraw);
+	}
 
 	_COREGL_FAST_FUNC_BEGIN();
 

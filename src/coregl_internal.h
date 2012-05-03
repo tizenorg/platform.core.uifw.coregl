@@ -24,6 +24,12 @@
 # define LOG(...) \
      fprintf(stderr, __VA_ARGS__)
 
+# define TRACE(...) \
+     fprintf(trace_fp, __VA_ARGS__)
+
+# define TRACE_END() \
+     fflush(trace_fp)
+
 #ifdef COREGL_DEBUG
 # define AST(expr) \
      if (!(expr)) { fprintf(stderr, "\E[0;31;1m%s(%d) error. '"#expr"'\E[0m\n", __func__, __LINE__); }
@@ -84,10 +90,12 @@ typedef struct _Trace_Data Trace_Data;
 
 #define _COREGL_WRAP_FUNC_BEGIN() \
 	static void *trace_hint = NULL; \
-   trace_hint = _COREGL_TRACE_API_BEGIN(__func__, trace_hint, 1);
+	if (trace_api_flag == 1) \
+		trace_hint = _COREGL_TRACE_API_BEGIN(__func__, trace_hint, 1);
 
 #define _COREGL_WRAP_FUNC_END() \
-   _COREGL_TRACE_API_END(__func__, trace_hint, 1);
+	if (trace_api_flag == 1) \
+		_COREGL_TRACE_API_END(__func__, trace_hint, 1);
 
 typedef enum _CoreGL_Opt_Flag
 {
@@ -157,6 +165,7 @@ extern int                 trace_ctx_flag;
 extern int                 trace_ctx_force_flag;
 extern int                 trace_state_flag;
 extern int                 debug_nofp;
+extern FILE               *trace_fp;
 
 // Environment functions
 extern const char         *get_env_setting(const char *name);
