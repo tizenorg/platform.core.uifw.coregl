@@ -258,15 +258,18 @@ finish:
 	return ret;
 }
 
-void
+EGLBoolean
 eglBindTexImage(EGLDisplay dpy, EGLSurface surface, EGLint buffer)
 {
+	EGLBoolean ret = EGL_FALSE;
+
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_eglBindTexImage(dpy, surface, buffer);
+	ret = ovr_eglBindTexImage(dpy, surface, buffer);
 	goto finish;
 
 finish:
 	_COREGL_WRAP_FUNC_END();
+	return ret;
 }
 
 EGLBoolean
