@@ -821,7 +821,8 @@ make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 finish:
 
 #ifdef COREGL_TRACE_STATE_INFO
-	dump_context_states(newctx, 0);
+	if (trace_state_flag == 1)
+		dump_context_states(newctx, 0);
 #endif // COREGL_TRACE_STATE_INFO
 	return;
 #undef STATE_COMPARE

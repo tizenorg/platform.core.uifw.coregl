@@ -334,8 +334,11 @@ eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLContext ctx)
 finish:
 	_COREGL_WRAP_FUNC_END();
 #ifdef COREGL_TRACE_STATE_INFO
-	if (ovr_eglMakeCurrent == _sym_eglMakeCurrent)
-		dump_wrap_context_states(0);
+	if (trace_state_flag == 1)
+	{
+		if (ovr_eglMakeCurrent == _sym_eglMakeCurrent)
+			dump_wrap_context_states(0);
+	}
 #endif // COREGL_TRACE_STATE_INFO
 	return ret;
 }

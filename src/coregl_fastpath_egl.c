@@ -374,7 +374,8 @@ _unlink_context_state(GLGlueContext *gctx, Mutex *ctx_list_mtx)
 		AST(cstate->data == NULL || cstate->data == initial_ctx);
 
 #ifdef COREGL_TRACE_CONTEXT_INFO
-		remove_from_general_trace_list(&context_state_trace_list, cstate);
+		if (trace_ctx_flag == 1)
+			remove_from_general_trace_list(&context_state_trace_list, cstate);
 #endif // COREGL_TRACE_CONTEXT_INFO
 
 		AST(remove_context_states_from_list(cstate, ctx_list_mtx) == 1);
@@ -431,7 +432,8 @@ _remove_context_ref(GLGlueContext *gctx, Mutex *ctx_list_mtx)
 	if (gctx->ref_count == 0)
 	{
 #ifdef COREGL_TRACE_CONTEXT_INFO
-		remove_from_general_trace_list(&glue_ctx_trace_list, gctx);
+		if (trace_ctx_flag == 1)
+			remove_from_general_trace_list(&glue_ctx_trace_list, gctx);
 #endif // COREGL_TRACE_CONTEXT_INFO
 
 		_unlink_context_state(gctx, ctx_list_mtx);
@@ -553,7 +555,8 @@ _egl_create_context(EGL_packed_option *real_ctx_option, GLContextState **cstate_
 		AST(add_context_state_to_list(real_ctx_option, sizeof(EGL_packed_option), *cstate_new, &ctx_list_access_mutex) == 1);
 
 #ifdef COREGL_TRACE_CONTEXT_INFO
-		add_to_general_trace_list(&context_state_trace_list, *cstate_new);
+		if (trace_ctx_flag == 1)
+			add_to_general_trace_list(&context_state_trace_list, *cstate_new);
 #endif // COREGL_TRACE_CONTEXT_INFO
 
 		cstate = *cstate_new;
@@ -738,10 +741,11 @@ fpgl_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_context
 	gctx->cstate = cstate;
 
 #ifdef COREGL_TRACE_CONTEXT_INFO
-	add_to_general_trace_list(&glue_ctx_trace_list, gctx);
-
+	if (trace_ctx_flag == 1)
 	{
 		char ment[256];
+		add_to_general_trace_list(&glue_ctx_trace_list, gctx);
+
 		sprintf(ment, "eglCreateContext completed (GlueCTX=[%12p])", gctx);
 		_dump_context_info(ment, 1);
 	}
@@ -775,7 +779,8 @@ finish:
 		if (cstate_new != NULL)
 		{
 #ifdef COREGL_TRACE_CONTEXT_INFO
-			remove_from_general_trace_list(&context_state_trace_list, cstate_new);
+			if (trace_ctx_flag == 1)
+				remove_from_general_trace_list(&context_state_trace_list, cstate_new);
 #endif // COREGL_TRACE_CONTEXT_INFO
 
 			remove_context_states_from_list(cstate_new, &ctx_list_access_mutex);
@@ -835,6 +840,7 @@ finish:
 	_COREGL_FAST_FUNC_END();
 
 #ifdef COREGL_TRACE_CONTEXT_INFO
+	if (trace_ctx_flag == 1)
 	{
 		char ment[256];
 		sprintf(ment, "eglDestroyContext completed (GlueCTX=[%12p])", ctx);
@@ -1113,6 +1119,7 @@ finish:
 	_COREGL_FAST_FUNC_END();
 
 #ifdef COREGL_TRACE_CONTEXT_INFO
+	if (trace_ctx_flag == 1)
 	{
 		char ment[256];
 		sprintf(ment, "eglMakeCurrent finished (GlueCTX=[%12p] Surf=[D:%12p R:%12p])", ctx, draw, read);
