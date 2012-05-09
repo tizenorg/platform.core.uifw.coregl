@@ -1,9 +1,9 @@
 CC = gcc
 
 CFLAGS = -g -O2 -fvisibility=hidden -fPIC -Wall -std=c99 \
-	-D_COREGL_EMBEDDED_GL \
+	-D_COREGL_EMBEDDED_GL `pkg-config --cflags opengl-es-20`\
 
-LDFLAGS = -g -O2 -fvisibility=hidden -Wall -std=c99 -lpthread
+LDFLAGS = -g -O2 -fvisibility=hidden -Wall -std=c99 -lpthread `pkg-config --libs opengl-es-20`
 
 SOURCES = \
 		src/coregl.c \
@@ -17,11 +17,13 @@ SOURCES = \
 		src/coregl_fastpath_egl.c \
 		src/coregl_fastpath_gl.c
 
-BIN = libCOREGL.so
+BIN = libCOREGL.so.1.1
 
 OBJECTS = $(SOURCES:.c=.o)
 
 all : $(BIN)
+	ln -sf $(BIN) lib/libCOREGL.so
+	ln -sf $(BIN) lib/libCOREGL.so.1
 	ln -sf $(BIN) lib/libEGL.so.1.4
 	ln -sf $(BIN) lib/libGLESv2.so.2.0
 	cp src/headers/egl.h include/EGL/def_egl.h
