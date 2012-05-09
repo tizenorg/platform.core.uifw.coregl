@@ -5,6 +5,8 @@
 
 #include "coregl.h"
 
+#define unlikely(x) __builtin_expect(x, 0)
+
 // Symbol definition for real
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     extern RET_TYPE (*_sym_##FUNC_NAME) PARAM_LIST;
 # include "headers/sym.h"
@@ -90,11 +92,11 @@ typedef struct _Trace_Data Trace_Data;
 
 #define _COREGL_WRAP_FUNC_BEGIN() \
 	static void *trace_hint = NULL; \
-	if (trace_api_flag == 1) \
+	if (unlikely(trace_api_flag == 1)) \
 		trace_hint = _COREGL_TRACE_API_BEGIN(__func__, trace_hint, 1);
 
 #define _COREGL_WRAP_FUNC_END() \
-	if (trace_api_flag == 1) \
+	if (unlikely(trace_api_flag == 1)) \
 		_COREGL_TRACE_API_END(__func__, trace_hint, 1);
 
 typedef enum _CoreGL_Opt_Flag

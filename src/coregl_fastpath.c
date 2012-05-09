@@ -175,7 +175,7 @@ dump_context_states(GLGlueContext *ctx, int force_output)
 {
 	static struct timeval tv_last = { 0, 0 };
 
-	if (trace_state_flag != 1) return;
+	if (unlikely(trace_state_flag != 1)) return;
 
 	if (!force_output)
 	{
@@ -821,7 +821,7 @@ make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 finish:
 
 #ifdef COREGL_TRACE_STATE_INFO
-	if (trace_state_flag == 1)
+	if (unlikely(trace_state_flag == 1)) return;
 		dump_context_states(newctx, 0);
 #endif // COREGL_TRACE_STATE_INFO
 	return;

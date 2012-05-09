@@ -51,7 +51,7 @@ dump_wrap_context_states(int force_output)
 {
 	static struct timeval tv_last = { 0, 0 };
 
-	if (trace_state_flag != 1) return;
+	if (unlikely(trace_state_flag != 1)) return;
 
 	_sym_glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, (GLint *)initial_fake_ctx->gl_num_tex_units);
 	_sym_glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, (GLint *)initial_fake_ctx->gl_num_vertex_attribs);
