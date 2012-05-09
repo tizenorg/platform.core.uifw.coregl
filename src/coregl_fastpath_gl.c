@@ -28,6 +28,8 @@
 
 #define GET_REAL_OBJ(type, glue_handle, real_handle) \
 	_get_real_obj(current_ctx->sostate, type, glue_handle, real_handle)
+#define GET_GLUE_OBJ(type, real_handle, glue_handle) \
+	_get_glue_obj(current_ctx->sostate, type, real_handle, glue_handle)
 
 static inline int
 _get_real_obj(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint glue_handle, GLuint *real_handle)
@@ -41,6 +43,23 @@ _get_real_obj(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint glue_
 		AST(sostate != NULL);
 		*real_handle = sostate_get_object(sostate, type, glue_handle);
 		if (*real_handle == 0)
+			return 0;
+	}
+	return 1;
+}
+
+static inline int
+_get_glue_obj(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint real_handle, GLuint *glue_handle)
+{
+	if (real_handle == 0)
+	{
+		*glue_handle = 0;
+	}
+	else
+	{
+		AST(sostate != NULL);
+		*glue_handle = sostate_find_object(sostate, type, real_handle);
+		if (*glue_handle == 0)
 			return 0;
 	}
 	return 1;
@@ -3008,6 +3027,16 @@ finish:
 	_COREGL_FAST_FUNC_END();
 }
 
+#define TRANS_VALUE(index, value) \
+{ \
+	switch (get_type) \
+	{ \
+		case GL_INT: ((GLint *)ptr)[index] = value; break; \
+		case GL_FLOAT: ((GLfloat *)ptr)[index] = (GLfloat)value; break; \
+		case GL_BOOL: ((GLboolean *)ptr)[index] = (value == 0) ? GL_FALSE : GL_TRUE; break; \
+	} \
+}
+
 static GLboolean
 _process_getfunc(GLenum pname, GLvoid *ptr, GLenum get_type)
 {
@@ -3019,35 +3048,44 @@ _process_getfunc(GLenum pname, GLvoid *ptr, GLenum get_type)
 	switch (pname)
 	{
 		case GL_TEXTURE_BINDING_2D:
+		case GL_TEXTURE_BINDING_CUBE_MAP:
+		case GL_ARRAY_BUFFER_BINDING:
+		case GL_ELEMENT_ARRAY_BUFFER_BINDING:
+		case GL_FRAMEBUFFER_BINDING:
+		case GL_RENDERBUFFER_BINDING:
+		case GL_CURRENT_PROGRAM:
 		{
-			GLint real_tex_id = _COREGL_INT_INIT_VALUE;
-			GLuint glue_tex_id = _COREGL_INT_INIT_VALUE;
-			_sym_glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint *)real_tex_id);
+			GLint real_obj_id = _COREGL_INT_INIT_VALUE;
+			GLuint glue_obj_id = _COREGL_INT_INIT_VALUE;
+			GL_Object_Type obj_type = GL_OBJECT_TYPE_UNKNOWN;
+			_sym_glGetIntegerv(pname, (GLint *)&real_obj_id);
 
 			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 
-			if (real_tex_id == 0)
+			switch(pname)
 			{
-				glue_tex_id = 0;
+				case GL_TEXTURE_BINDING_2D:
+				case GL_TEXTURE_BINDING_CUBE_MAP:
+					obj_type = GL_OBJECT_TYPE_TEXTURE;
+					break;
+				case GL_ARRAY_BUFFER_BINDING:
+				case GL_ELEMENT_ARRAY_BUFFER_BINDING:
+					obj_type = GL_OBJECT_TYPE_BUFFER;
+					break;
+				case GL_FRAMEBUFFER_BINDING:
+					obj_type = GL_OBJECT_TYPE_FRAMEBUFFER;
+					break;
+				case GL_RENDERBUFFER_BINDING:
+					obj_type = GL_OBJECT_TYPE_RENDERBUFFER;
+					break;
+				case GL_CURRENT_PROGRAM:
+					obj_type = GL_OBJECT_TYPE_PROGRAM;
+					break;
 			}
-			else
-			{
-				AST(current_ctx->sostate != NULL);
-				glue_tex_id = sostate_find_object(current_ctx->sostate, GL_OBJECT_TYPE_TEXTURE, real_tex_id);
-			}
+			AST(obj_type != GL_OBJECT_TYPE_UNKNOWN);
+			AST(GET_GLUE_OBJ(obj_type, real_obj_id, &glue_obj_id) == 1);
+			TRANS_VALUE(0, glue_obj_id);
 
-			switch (get_type)
-			{
-				case GL_INT:
-					((GLint *)ptr)[0] = glue_tex_id;
-					break;
-				case GL_FLOAT:
-					((GLfloat *)ptr)[0] = (GLfloat)glue_tex_id;
-					break;
-				case GL_BOOL:
-					((GLboolean *)ptr)[0] = (glue_tex_id == 0) ? GL_FALSE : GL_TRUE;
-					break;
-			}
 			ret = GL_TRUE;
 			break;
 		}

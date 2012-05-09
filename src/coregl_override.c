@@ -87,12 +87,17 @@ override_gl_fast_path()
 	{
 		F_ORD(glGetError);
 
+		F_ORD(glGetIntegerv);
+		F_ORD(glGetFloatv);
+		F_ORD(glGetBooleanv);
+
 		F_ORD(glActiveTexture);
 		F_ORD(glGenTextures);
 		F_ORD(glBindTexture);
 		F_ORD(glIsTexture);
-		F_ORD(glFramebufferTexture2D);
 		F_ORD(glDeleteTextures);
+		F_ORD(glFramebufferTexture2D);
+		F_ORD(glFramebufferTexture2DMultisampleEXT);
 
 		F_ORD(glGenBuffers);
 		F_ORD(glBindBuffer);
@@ -187,12 +192,7 @@ override_gl_fast_path()
 		F_ORD(glVertexAttribPointer);
 		F_ORD(glViewport);
 
-		F_ORD(glGetIntegerv);
-		F_ORD(glGetFloatv);
-		F_ORD(glGetBooleanv);
-
 		F_ORD(glEGLImageTargetTexture2DOES);
-		F_ORD(glFramebufferTexture2DMultisampleEXT);
 
 	}
 	else
