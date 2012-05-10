@@ -46,7 +46,7 @@ typedef GLuint       GLuintmask;
 //#define COREGL_TRACE_ALL
 #define COREGL_TRACE_CONTEXT_INFO
 #define COREGL_TRACE_STATE_INFO
-#define COREGL_TRACE_APICALL_INFO
+//#define COREGL_TRACE_APICALL_INFO
 
 #ifdef COREGL_TRACE_ALL
 #define COREGL_TRACE_CONTEXT_INFO   // Context state & thread state & Glue-context info
