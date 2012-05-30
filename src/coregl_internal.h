@@ -43,10 +43,7 @@
 typedef GLvoid *     GLvoidptr;
 typedef GLuint       GLuintmask;
 
-//#define COREGL_TRACE_ALL
-#define COREGL_TRACE_CONTEXT_INFO
-#define COREGL_TRACE_STATE_INFO
-//#define COREGL_TRACE_APICALL_INFO
+#define COREGL_TRACE_ALL
 
 #ifdef COREGL_TRACE_ALL
 #define COREGL_TRACE_CONTEXT_INFO   // Context state & thread state & Glue-context info
@@ -63,8 +60,6 @@ typedef GLuint       GLuintmask;
 #else
 # define GLERR(fn, fl, ln, op)
 #endif
-
-#define _COREGL_NAME_MANGLE(name) ovr_##name
 
 typedef struct _Trace_Data Trace_Data;
 
@@ -91,13 +86,12 @@ typedef struct _Trace_Data Trace_Data;
 #define _COREGL_FAST_FUNC_SYMCALL_END()
 
 #define _COREGL_WRAP_FUNC_BEGIN() \
-	static void *trace_hint = NULL; \
 	if (unlikely(trace_api_flag == 1)) \
-		trace_hint = _COREGL_TRACE_API_BEGIN(__func__, trace_hint, 1);
+		_COREGL_TRACE_API_BEGIN(__func__, NULL, 1);
 
 #define _COREGL_WRAP_FUNC_END() \
 	if (unlikely(trace_api_flag == 1)) \
-		_COREGL_TRACE_API_END(__func__, trace_hint, 1);
+		_COREGL_TRACE_API_END(__func__, NULL, 1);
 
 typedef enum _CoreGL_Opt_Flag
 {
@@ -168,6 +162,8 @@ extern int                 trace_ctx_force_flag;
 extern int                 trace_state_flag;
 extern int                 debug_nofp;
 extern FILE               *trace_fp;
+
+#define NEED_WRAPPING		(trace_api_flag == 1 || trace_ctx_flag == 1 || trace_state_flag == 1)
 
 // Environment functions
 extern const char         *get_env_setting(const char *name);

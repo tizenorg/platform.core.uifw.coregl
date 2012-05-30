@@ -1,17 +1,21 @@
 #include "coregl_internal.h"
+#include "coregl_export.h"
 #include "coregl_wrappath.h"
 #include "coregl_fastpath.h"
 
 #include <stdlib.h>
 
-#define COREGL_OVERRIDE_API(func, prefix) \
-   _COREGL_NAME_MANGLE(func) = prefix##func
+#define COREGL_OVERRIDE_API(mangle, func, prefix) \
+   mangle##func = prefix##func
 
 void
 override_glue_normal_path()
 {
-#define N_ORD(f) COREGL_OVERRIDE_API(f, _sym_) // GL Normal Path
+#define C_ORD(f) COREGL_OVERRIDE_API(ovr_, f, _sym_)
+#define N_ORD(f) COREGL_OVERRIDE_API(ovr_, f, wpgl_); COREGL_OVERRIDE_API(wrp_, f, _sym_)
 
+	if (NEED_WRAPPING)
+	{
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     N_ORD(FUNC_NAME);
 # ifndef _COREGL_DESKTOP_GL
 #  include "headers/sym_egl.h"
@@ -19,8 +23,20 @@ override_glue_normal_path()
 #  include "headers/sym_glx.h"
 # endif
 #undef _COREGL_SYMBOL
+	}
+	else
+	{
+#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     C_ORD(FUNC_NAME);
+# ifndef _COREGL_DESKTOP_GL
+#  include "headers/sym_egl.h"
+# else
+#  include "headers/sym_glx.h"
+# endif
+#undef _COREGL_SYMBOL
+	}
 
 #undef N_ORD
+#undef C_ORD
 }
 
 void
@@ -29,7 +45,11 @@ override_glue_fast_path()
 	// Inherit from normal path
 	override_glue_normal_path();
 
-#define F_ORD(f) COREGL_OVERRIDE_API(f, fpgl_) // GL Fast Path
+#define F_ORD(f) \
+	if (NEED_WRAPPING) \
+		COREGL_OVERRIDE_API(wrp_, f, fpgl_); \
+	else \
+		COREGL_OVERRIDE_API(ovr_, f, fpgl_);
 
 
 #ifndef _COREGL_DESKTOP_GL
@@ -65,13 +85,24 @@ override_glue_fast_path()
 void
 override_gl_normal_path()
 {
-#define N_ORD(f) COREGL_OVERRIDE_API(f, _sym_) // GL Normal Path
+#define C_ORD(f) COREGL_OVERRIDE_API(ovr_, f, _sym_)
+#define N_ORD(f) COREGL_OVERRIDE_API(ovr_, f, wpgl_); COREGL_OVERRIDE_API(wrp_, f, _sym_)
 
+	if (NEED_WRAPPING)
+	{
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     N_ORD(FUNC_NAME);
 # include "headers/sym_gl.h"
 #undef _COREGL_SYMBOL
+	}
+	else
+	{
+#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     C_ORD(FUNC_NAME);
+# include "headers/sym_gl.h"
+#undef _COREGL_SYMBOL
+	}
 
 #undef N_ORD
+#undef C_ORD
 }
 
 void
@@ -80,7 +111,11 @@ override_gl_fast_path()
 	// Inherit from normal path
 	override_gl_normal_path();
 
-#define F_ORD(f) COREGL_OVERRIDE_API(f, fpgl_) // GL Wrapped Path
+#define F_ORD(f) \
+	if (NEED_WRAPPING) \
+		COREGL_OVERRIDE_API(wrp_, f, fpgl_); \
+	else \
+		COREGL_OVERRIDE_API(ovr_, f, fpgl_);
 
 	// Fast-Path Functions
 	if (debug_nofp != 1)

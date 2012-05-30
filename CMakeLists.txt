@@ -22,12 +22,11 @@ SET(CMAKE_SKIP_BUILD_RPATH TRUE)
 # Build coregl Library
 # ------------------------------
 SET(COREGL "COREGL")
-SET(SRCS_common src/coregl.c src/coregl_thread_pthread.c src/coregl_trace.c
-		src/coregl_override.c src/coregl_wrappath.c
-		src/coregl_wrappath_egl.c src/coregl_wrappath_gl.c
-		src/coregl_fastpath.c src/coregl_fastpath_egl.c
-		src/coregl_fastpath_gl.c)
-#SET(HEADERS_common src/coregl_fastpath.h src/coregl_fastpath_state.h src/coregl.h src/coregl_internal.h src/coregl_thread_pthread.h src/coregl_wrappath.h)
+SET(SRCS_common src/coregl.c src/coregl_thread_pthread.c src/coregl_trace.c src/coregl_override.c
+		src/coregl_export.c src/coregl_export_egl.c src/coregl_export_gl.c
+		src/coregl_wrappath.c src/coregl_wrappath_egl.c src/coregl_wrappath_gl.c
+		src/coregl_fastpath.c src/coregl_fastpath_egl.c	src/coregl_fastpath_gl.c)
+#SET(HEADERS_common src/coregl_export.h src/coregl_fastpath.h src/coregl_fastpath_state.h src/coregl.h src/coregl_internal.h src/coregl_thread_pthread.h src/coregl_wrappath.h)
 
 INCLUDE(FindPkgConfig)
 pkg_check_modules(pkg_common REQUIRED x11)

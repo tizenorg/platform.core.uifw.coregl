@@ -1,10 +1,10 @@
 #include "coregl_wrappath.h"
 
 void
-glActiveTexture(GLenum texture)
+wpgl_glActiveTexture(GLenum texture)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glActiveTexture(texture);
+	wrp_glActiveTexture(texture);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -13,10 +13,10 @@ finish:
 }
 
 void
-glAttachShader(GLuint program, GLuint shader)
+wpgl_glAttachShader(GLuint program, GLuint shader)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glAttachShader(program, shader);
+	wrp_glAttachShader(program, shader);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -25,10 +25,10 @@ finish:
 }
 
 void
-glBindAttribLocation(GLuint program, GLuint index, const char* name)
+wpgl_glBindAttribLocation(GLuint program, GLuint index, const char* name)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glBindAttribLocation(program, index, name);
+	wrp_glBindAttribLocation(program, index, name);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -37,10 +37,10 @@ finish:
 }
 
 void
-glBindBuffer(GLenum target, GLuint buffer)
+wpgl_glBindBuffer(GLenum target, GLuint buffer)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glBindBuffer(target, buffer);
+	wrp_glBindBuffer(target, buffer);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -49,10 +49,10 @@ finish:
 }
 
 void
-glBindFramebuffer(GLenum target, GLuint framebuffer)
+wpgl_glBindFramebuffer(GLenum target, GLuint framebuffer)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glBindFramebuffer(target, framebuffer);
+	wrp_glBindFramebuffer(target, framebuffer);
 
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
@@ -62,10 +62,10 @@ finish:
 }
 
 void
-glBindRenderbuffer(GLenum target, GLuint renderbuffer)
+wpgl_glBindRenderbuffer(GLenum target, GLuint renderbuffer)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glBindRenderbuffer(target, renderbuffer);
+	wrp_glBindRenderbuffer(target, renderbuffer);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -74,10 +74,10 @@ finish:
 }
 
 void
-glBindTexture(GLenum target, GLuint texture)
+wpgl_glBindTexture(GLenum target, GLuint texture)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glBindTexture(target, texture);
+	wrp_glBindTexture(target, texture);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -86,10 +86,10 @@ finish:
 }
 
 void
-glBlendColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
+wpgl_glBlendColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glBlendColor(red, green, blue, alpha);
+	wrp_glBlendColor(red, green, blue, alpha);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -98,10 +98,10 @@ finish:
 }
 
 void
-glBlendEquation(GLenum mode)
+wpgl_glBlendEquation(GLenum mode)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glBlendEquation(mode);
+	wrp_glBlendEquation(mode);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -110,10 +110,10 @@ finish:
 }
 
 void
-glBlendEquationSeparate(GLenum modeRGB, GLenum modeAlpha)
+wpgl_glBlendEquationSeparate(GLenum modeRGB, GLenum modeAlpha)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glBlendEquationSeparate(modeRGB, modeAlpha);
+	wrp_glBlendEquationSeparate(modeRGB, modeAlpha);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -122,10 +122,10 @@ finish:
 }
 
 void
-glBlendFunc(GLenum sfactor, GLenum dfactor)
+wpgl_glBlendFunc(GLenum sfactor, GLenum dfactor)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glBlendFunc(sfactor, dfactor);
+	wrp_glBlendFunc(sfactor, dfactor);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -134,10 +134,10 @@ finish:
 }
 
 void
-glBlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
+wpgl_glBlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glBlendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha);
+	wrp_glBlendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -146,10 +146,10 @@ finish:
 }
 
 void
-glBufferData(GLenum target, GLsizeiptr size, const void* data, GLenum usage)
+wpgl_glBufferData(GLenum target, GLsizeiptr size, const void* data, GLenum usage)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glBufferData(target, size, data, usage);
+	wrp_glBufferData(target, size, data, usage);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -158,10 +158,10 @@ finish:
 }
 
 void
-glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, const void* data)
+wpgl_glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, const void* data)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glBufferSubData(target, offset, size, data);
+	wrp_glBufferSubData(target, offset, size, data);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -170,12 +170,12 @@ finish:
 }
 
 GLenum
-glCheckFramebufferStatus(GLenum target)
+wpgl_glCheckFramebufferStatus(GLenum target)
 {
 	GLenum ret = GL_NONE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = ovr_glCheckFramebufferStatus(target);
+	ret = wrp_glCheckFramebufferStatus(target);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -185,10 +185,10 @@ finish:
 }
 
 void
-glClear(GLbitfield mask)
+wpgl_glClear(GLbitfield mask)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glClear(mask);
+	wrp_glClear(mask);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -197,10 +197,10 @@ finish:
 }
 
 void
-glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
+wpgl_glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glClearColor(red, green, blue, alpha);
+	wrp_glClearColor(red, green, blue, alpha);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -209,10 +209,10 @@ finish:
 }
 
 void
-glClearDepthf(GLclampf depth)
+wpgl_glClearDepthf(GLclampf depth)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glClearDepthf(depth);
+	wrp_glClearDepthf(depth);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -221,10 +221,10 @@ finish:
 }
 
 void
-glClearStencil(GLint s)
+wpgl_glClearStencil(GLint s)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glClearStencil(s);
+	wrp_glClearStencil(s);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -233,10 +233,10 @@ finish:
 }
 
 void
-glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
+wpgl_glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glColorMask(red, green, blue, alpha);
+	wrp_glColorMask(red, green, blue, alpha);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -245,10 +245,10 @@ finish:
 }
 
 void
-glCompileShader(GLuint shader)
+wpgl_glCompileShader(GLuint shader)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glCompileShader(shader);
+	wrp_glCompileShader(shader);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -257,10 +257,10 @@ finish:
 }
 
 void
-glCompressedTexImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void* data)
+wpgl_glCompressedTexImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void* data)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glCompressedTexImage2D(target, level, internalformat, width, height, border, imageSize, data);
+	wrp_glCompressedTexImage2D(target, level, internalformat, width, height, border, imageSize, data);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -269,10 +269,10 @@ finish:
 }
 
 void
-glCompressedTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const void* data)
+wpgl_glCompressedTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const void* data)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glCompressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, imageSize, data);
+	wrp_glCompressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, imageSize, data);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -281,10 +281,10 @@ finish:
 }
 
 void
-glCopyTexImage2D(GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border)
+wpgl_glCopyTexImage2D(GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glCopyTexImage2D(target, level, internalformat, x, y, width, height, border);
+	wrp_glCopyTexImage2D(target, level, internalformat, x, y, width, height, border);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -293,10 +293,10 @@ finish:
 }
 
 void
-glCopyTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height)
+wpgl_glCopyTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glCopyTexSubImage2D(target, level, xoffset, yoffset, x, y, width, height);
+	wrp_glCopyTexSubImage2D(target, level, xoffset, yoffset, x, y, width, height);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -305,12 +305,12 @@ finish:
 }
 
 GLuint
-glCreateProgram(void)
+wpgl_glCreateProgram(void)
 {
 	GLuint ret = _COREGL_INT_INIT_VALUE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = ovr_glCreateProgram();
+	ret = wrp_glCreateProgram();
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -320,11 +320,11 @@ finish:
 }
 
 GLuint
-glCreateShader(GLenum type)
+wpgl_glCreateShader(GLenum type)
 {
 	GLuint ret = _COREGL_INT_INIT_VALUE;
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = ovr_glCreateShader(type);
+	ret = wrp_glCreateShader(type);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -334,10 +334,10 @@ finish:
 }
 
 void
-glCullFace(GLenum mode)
+wpgl_glCullFace(GLenum mode)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glCullFace(mode);
+	wrp_glCullFace(mode);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -346,10 +346,10 @@ finish:
 }
 
 void
-glDeleteBuffers(GLsizei n, const GLuint* buffers)
+wpgl_glDeleteBuffers(GLsizei n, const GLuint* buffers)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glDeleteBuffers(n, buffers);
+	wrp_glDeleteBuffers(n, buffers);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -358,10 +358,10 @@ finish:
 }
 
 void
-glDeleteFramebuffers(GLsizei n, const GLuint* framebuffers)
+wpgl_glDeleteFramebuffers(GLsizei n, const GLuint* framebuffers)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glDeleteFramebuffers(n, framebuffers);
+	wrp_glDeleteFramebuffers(n, framebuffers);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -370,10 +370,10 @@ finish:
 }
 
 void
-glDeleteProgram(GLuint program)
+wpgl_glDeleteProgram(GLuint program)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glDeleteProgram(program);
+	wrp_glDeleteProgram(program);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -382,10 +382,10 @@ finish:
 }
 
 void
-glDeleteRenderbuffers(GLsizei n, const GLuint* renderbuffers)
+wpgl_glDeleteRenderbuffers(GLsizei n, const GLuint* renderbuffers)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glDeleteRenderbuffers(n, renderbuffers);
+	wrp_glDeleteRenderbuffers(n, renderbuffers);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -394,10 +394,10 @@ finish:
 }
 
 void
-glDeleteShader(GLuint shader)
+wpgl_glDeleteShader(GLuint shader)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glDeleteShader(shader);
+	wrp_glDeleteShader(shader);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -406,10 +406,10 @@ finish:
 }
 
 void
-glDeleteTextures(GLsizei n, const GLuint* textures)
+wpgl_glDeleteTextures(GLsizei n, const GLuint* textures)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glDeleteTextures(n, textures);
+	wrp_glDeleteTextures(n, textures);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -418,10 +418,10 @@ finish:
 }
 
 void
-glDepthFunc(GLenum func)
+wpgl_glDepthFunc(GLenum func)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glDepthFunc(func);
+	wrp_glDepthFunc(func);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -430,10 +430,10 @@ finish:
 }
 
 void
-glDepthMask(GLboolean flag)
+wpgl_glDepthMask(GLboolean flag)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glDepthMask(flag);
+	wrp_glDepthMask(flag);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -442,10 +442,10 @@ finish:
 }
 
 void
-glDepthRangef(GLclampf zNear, GLclampf zFar)
+wpgl_glDepthRangef(GLclampf zNear, GLclampf zFar)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glDepthRangef(zNear, zFar);
+	wrp_glDepthRangef(zNear, zFar);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -454,10 +454,10 @@ finish:
 }
 
 void
-glDetachShader(GLuint program, GLuint shader)
+wpgl_glDetachShader(GLuint program, GLuint shader)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glDetachShader(program, shader);
+	wrp_glDetachShader(program, shader);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -466,10 +466,10 @@ finish:
 }
 
 void
-glDisable(GLenum cap)
+wpgl_glDisable(GLenum cap)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glDisable(cap);
+	wrp_glDisable(cap);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -478,10 +478,10 @@ finish:
 }
 
 void
-glDisableVertexAttribArray(GLuint index)
+wpgl_glDisableVertexAttribArray(GLuint index)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glDisableVertexAttribArray(index);
+	wrp_glDisableVertexAttribArray(index);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -490,10 +490,10 @@ finish:
 }
 
 void
-glDrawArrays(GLenum mode, GLint first, GLsizei count)
+wpgl_glDrawArrays(GLenum mode, GLint first, GLsizei count)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glDrawArrays(mode, first, count);
+	wrp_glDrawArrays(mode, first, count);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -502,10 +502,10 @@ finish:
 }
 
 void
-glDrawElements(GLenum mode, GLsizei count, GLenum type, const void* indices)
+wpgl_glDrawElements(GLenum mode, GLsizei count, GLenum type, const void* indices)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glDrawElements(mode, count, type, indices);
+	wrp_glDrawElements(mode, count, type, indices);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -514,10 +514,10 @@ finish:
 }
 
 void
-glEnable(GLenum cap)
+wpgl_glEnable(GLenum cap)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glEnable(cap);
+	wrp_glEnable(cap);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -526,10 +526,10 @@ finish:
 }
 
 void
-glEnableVertexAttribArray(GLuint index)
+wpgl_glEnableVertexAttribArray(GLuint index)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glEnableVertexAttribArray(index);
+	wrp_glEnableVertexAttribArray(index);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -538,10 +538,10 @@ finish:
 }
 
 void
-glFinish(void)
+wpgl_glFinish(void)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glFinish();
+	wrp_glFinish();
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -551,10 +551,10 @@ finish:
 }
 
 void
-glFlush(void)
+wpgl_glFlush(void)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glFlush();
+	wrp_glFlush();
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -564,10 +564,10 @@ finish:
 }
 
 void
-glFramebufferRenderbuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)
+wpgl_glFramebufferRenderbuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glFramebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer);
+	wrp_glFramebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -576,10 +576,10 @@ finish:
 }
 
 void
-glFramebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)
+wpgl_glFramebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glFramebufferTexture2D(target, attachment, textarget, texture, level);
+	wrp_glFramebufferTexture2D(target, attachment, textarget, texture, level);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -588,10 +588,10 @@ finish:
 }
 
 void
-glFrontFace(GLenum mode)
+wpgl_glFrontFace(GLenum mode)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glFrontFace(mode);
+	wrp_glFrontFace(mode);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -600,23 +600,10 @@ finish:
 }
 
 void
-glGetVertexAttribfv(GLuint index, GLenum pname, GLfloat* params)
+wpgl_glGetVertexAttribfv(GLuint index, GLenum pname, GLfloat* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGetVertexAttribfv(index, pname, params);
-
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-	goto finish;
-
-finish:
-	_COREGL_WRAP_FUNC_END();
-}
-
-void
-glGetVertexAttribiv(GLuint index, GLenum pname, GLint* params)
-{
-	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGetVertexAttribiv(index, pname, params);
+	wrp_glGetVertexAttribfv(index, pname, params);
 
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
@@ -626,10 +613,23 @@ finish:
 }
 
 void
-glGetVertexAttribPointerv(GLuint index, GLenum pname, void** pointer)
+wpgl_glGetVertexAttribiv(GLuint index, GLenum pname, GLint* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGetVertexAttribPointerv(index, pname, pointer);
+	wrp_glGetVertexAttribiv(index, pname, params);
+
+	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	goto finish;
+
+finish:
+	_COREGL_WRAP_FUNC_END();
+}
+
+void
+wpgl_glGetVertexAttribPointerv(GLuint index, GLenum pname, void** pointer)
+{
+	_COREGL_WRAP_FUNC_BEGIN();
+	wrp_glGetVertexAttribPointerv(index, pname, pointer);
 
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 
@@ -640,10 +640,10 @@ finish:
 }
 
 void
-glHint(GLenum target, GLenum mode)
+wpgl_glHint(GLenum target, GLenum mode)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glHint(target, mode);
+	wrp_glHint(target, mode);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -652,10 +652,10 @@ finish:
 }
 
 void
-glGenBuffers(GLsizei n, GLuint* buffers)
+wpgl_glGenBuffers(GLsizei n, GLuint* buffers)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGenBuffers(n, buffers);
+	wrp_glGenBuffers(n, buffers);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -664,10 +664,10 @@ finish:
 }
 
 void
-glGenerateMipmap(GLenum target)
+wpgl_glGenerateMipmap(GLenum target)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGenerateMipmap(target);
+	wrp_glGenerateMipmap(target);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -676,10 +676,10 @@ finish:
 }
 
 void
-glGenFramebuffers(GLsizei n, GLuint* framebuffers)
+wpgl_glGenFramebuffers(GLsizei n, GLuint* framebuffers)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGenFramebuffers(n, framebuffers);
+	wrp_glGenFramebuffers(n, framebuffers);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -688,10 +688,10 @@ finish:
 }
 
 void
-glGenRenderbuffers(GLsizei n, GLuint* renderbuffers)
+wpgl_glGenRenderbuffers(GLsizei n, GLuint* renderbuffers)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGenRenderbuffers(n, renderbuffers);
+	wrp_glGenRenderbuffers(n, renderbuffers);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -700,10 +700,10 @@ finish:
 }
 
 void
-glGenTextures(GLsizei n, GLuint* textures)
+wpgl_glGenTextures(GLsizei n, GLuint* textures)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGenTextures(n, textures);
+	wrp_glGenTextures(n, textures);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -712,10 +712,10 @@ finish:
 }
 
 void
-glGetActiveAttrib(GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, char* name)
+wpgl_glGetActiveAttrib(GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, char* name)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGetActiveAttrib(program, index, bufsize, length, size, type, name);
+	wrp_glGetActiveAttrib(program, index, bufsize, length, size, type, name);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -724,10 +724,10 @@ finish:
 }
 
 void
-glGetActiveUniform(GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, char* name)
+wpgl_glGetActiveUniform(GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, char* name)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGetActiveUniform(program, index, bufsize, length, size, type, name);
+	wrp_glGetActiveUniform(program, index, bufsize, length, size, type, name);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -736,10 +736,10 @@ finish:
 }
 
 void
-glGetAttachedShaders(GLuint program, GLsizei maxcount, GLsizei* count, GLuint* shaders)
+wpgl_glGetAttachedShaders(GLuint program, GLsizei maxcount, GLsizei* count, GLuint* shaders)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGetAttachedShaders(program, maxcount, count, shaders);
+	wrp_glGetAttachedShaders(program, maxcount, count, shaders);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -748,11 +748,11 @@ finish:
 }
 
 int
-glGetAttribLocation(GLuint program, const char* name)
+wpgl_glGetAttribLocation(GLuint program, const char* name)
 {
 	int ret = _COREGL_INT_INIT_VALUE;
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = ovr_glGetAttribLocation(program, name);
+	ret = wrp_glGetAttribLocation(program, name);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -762,10 +762,10 @@ finish:
 }
 
 void
-glGetBooleanv(GLenum pname, GLboolean* params)
+wpgl_glGetBooleanv(GLenum pname, GLboolean* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGetBooleanv(pname, params);
+	wrp_glGetBooleanv(pname, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -774,10 +774,10 @@ finish:
 }
 
 void
-glGetBufferParameteriv(GLenum target, GLenum pname, GLint* params)
+wpgl_glGetBufferParameteriv(GLenum target, GLenum pname, GLint* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGetBufferParameteriv(target, pname, params);
+	wrp_glGetBufferParameteriv(target, pname, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -786,12 +786,12 @@ finish:
 }
 
 GLenum
-glGetError(void)
+wpgl_glGetError(void)
 {
 	GLenum ret = GL_NONE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = ovr_glGetError();
+	ret = wrp_glGetError();
 	goto finish;
 
 finish:
@@ -800,10 +800,10 @@ finish:
 }
 
 void
-glGetFloatv(GLenum pname, GLfloat* params)
+wpgl_glGetFloatv(GLenum pname, GLfloat* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGetFloatv(pname, params);
+	wrp_glGetFloatv(pname, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -812,10 +812,10 @@ finish:
 }
 
 void
-glGetFramebufferAttachmentParameteriv(GLenum target, GLenum attachment, GLenum pname, GLint* params)
+wpgl_glGetFramebufferAttachmentParameteriv(GLenum target, GLenum attachment, GLenum pname, GLint* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGetFramebufferAttachmentParameteriv(target, attachment, pname, params);
+	wrp_glGetFramebufferAttachmentParameteriv(target, attachment, pname, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -824,10 +824,10 @@ finish:
 }
 
 void
-glGetIntegerv(GLenum pname, GLint* params)
+wpgl_glGetIntegerv(GLenum pname, GLint* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGetIntegerv(pname, params);
+	wrp_glGetIntegerv(pname, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -836,10 +836,10 @@ finish:
 }
 
 void
-glGetProgramiv(GLuint program, GLenum pname, GLint* params)
+wpgl_glGetProgramiv(GLuint program, GLenum pname, GLint* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGetProgramiv(program, pname, params);
+	wrp_glGetProgramiv(program, pname, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -848,10 +848,10 @@ finish:
 }
 
 void
-glGetProgramInfoLog(GLuint program, GLsizei bufsize, GLsizei* length, char* infolog)
+wpgl_glGetProgramInfoLog(GLuint program, GLsizei bufsize, GLsizei* length, char* infolog)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGetProgramInfoLog(program, bufsize, length, infolog);
+	wrp_glGetProgramInfoLog(program, bufsize, length, infolog);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -860,10 +860,10 @@ finish:
 }
 
 void
-glGetRenderbufferParameteriv(GLenum target, GLenum pname, GLint* params)
+wpgl_glGetRenderbufferParameteriv(GLenum target, GLenum pname, GLint* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGetRenderbufferParameteriv(target, pname, params);
+	wrp_glGetRenderbufferParameteriv(target, pname, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -872,10 +872,10 @@ finish:
 }
 
 void
-glGetShaderiv(GLuint shader, GLenum pname, GLint* params)
+wpgl_glGetShaderiv(GLuint shader, GLenum pname, GLint* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGetShaderiv(shader, pname, params);
+	wrp_glGetShaderiv(shader, pname, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -884,10 +884,10 @@ finish:
 }
 
 void
-glGetShaderInfoLog(GLuint shader, GLsizei bufsize, GLsizei* length, char* infolog)
+wpgl_glGetShaderInfoLog(GLuint shader, GLsizei bufsize, GLsizei* length, char* infolog)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGetShaderInfoLog(shader, bufsize, length, infolog);
+	wrp_glGetShaderInfoLog(shader, bufsize, length, infolog);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -896,11 +896,11 @@ finish:
 }
 
 void
-glGetShaderPrecisionFormat(GLenum shadertype, GLenum precisiontype, GLint* range, GLint* precision)
+wpgl_glGetShaderPrecisionFormat(GLenum shadertype, GLenum precisiontype, GLint* range, GLint* precision)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
 #ifndef _COREGL_DESKTOP_GL
-	ovr_glGetShaderPrecisionFormat(shadertype, precisiontype, range, precision);
+	wrp_glGetShaderPrecisionFormat(shadertype, precisiontype, range, precision);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 #else
 	if (range)
@@ -923,10 +923,10 @@ finish:
 }
 
 void
-glGetShaderSource(GLuint shader, GLsizei bufsize, GLsizei* length, char* source)
+wpgl_glGetShaderSource(GLuint shader, GLsizei bufsize, GLsizei* length, char* source)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGetShaderSource(shader, bufsize, length, source);
+	wrp_glGetShaderSource(shader, bufsize, length, source);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -935,12 +935,12 @@ finish:
 }
 
 const GLubyte *
-glGetString(GLenum name)
+wpgl_glGetString(GLenum name)
 {
 	const GLubyte *ret = NULL;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = ovr_glGetString(name);
+	ret = wrp_glGetString(name);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -950,10 +950,10 @@ finish:
 }
 
 void
-glGetTexParameterfv(GLenum target, GLenum pname, GLfloat* params)
+wpgl_glGetTexParameterfv(GLenum target, GLenum pname, GLfloat* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGetTexParameterfv(target, pname, params);
+	wrp_glGetTexParameterfv(target, pname, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -962,10 +962,10 @@ finish:
 }
 
 void
-glGetTexParameteriv(GLenum target, GLenum pname, GLint* params)
+wpgl_glGetTexParameteriv(GLenum target, GLenum pname, GLint* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGetTexParameteriv(target, pname, params);
+	wrp_glGetTexParameteriv(target, pname, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -974,10 +974,10 @@ finish:
 }
 
 void
-glGetUniformfv(GLuint program, GLint location, GLfloat* params)
+wpgl_glGetUniformfv(GLuint program, GLint location, GLfloat* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGetUniformfv(program, location, params);
+	wrp_glGetUniformfv(program, location, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -986,10 +986,10 @@ finish:
 }
 
 void
-glGetUniformiv(GLuint program, GLint location, GLint* params)
+wpgl_glGetUniformiv(GLuint program, GLint location, GLint* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGetUniformiv(program, location, params);
+	wrp_glGetUniformiv(program, location, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -997,12 +997,12 @@ finish:
 	_COREGL_WRAP_FUNC_END();
 }
 int
-glGetUniformLocation(GLuint program, const char* name)
+wpgl_glGetUniformLocation(GLuint program, const char* name)
 {
 	int ret = _COREGL_INT_INIT_VALUE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = ovr_glGetUniformLocation(program, name);
+	ret = wrp_glGetUniformLocation(program, name);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1012,12 +1012,12 @@ finish:
 }
 
 GLboolean
-glIsBuffer(GLuint buffer)
+wpgl_glIsBuffer(GLuint buffer)
 {
 	GLboolean ret = GL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = ovr_glIsBuffer(buffer);
+	ret = wrp_glIsBuffer(buffer);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1027,12 +1027,12 @@ finish:
 }
 
 GLboolean
-glIsEnabled(GLenum cap)
+wpgl_glIsEnabled(GLenum cap)
 {
 	GLboolean ret = GL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = ovr_glIsEnabled(cap);
+	ret = wrp_glIsEnabled(cap);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1042,12 +1042,12 @@ finish:
 }
 
 GLboolean
-glIsFramebuffer(GLuint framebuffer)
+wpgl_glIsFramebuffer(GLuint framebuffer)
 {
 	GLboolean ret = GL_FALSE;
 
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = ovr_glIsFramebuffer(framebuffer);
+	ret = wrp_glIsFramebuffer(framebuffer);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1057,11 +1057,11 @@ finish:
 }
 
 GLboolean
-glIsProgram(GLuint program)
+wpgl_glIsProgram(GLuint program)
 {
 	GLboolean ret;
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = ovr_glIsProgram(program);
+	ret = wrp_glIsProgram(program);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1071,11 +1071,11 @@ finish:
 }
 
 GLboolean
-glIsRenderbuffer(GLuint renderbuffer)
+wpgl_glIsRenderbuffer(GLuint renderbuffer)
 {
 	GLboolean ret;
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = ovr_glIsRenderbuffer(renderbuffer);
+	ret = wrp_glIsRenderbuffer(renderbuffer);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1085,11 +1085,11 @@ finish:
 }
 
 GLboolean
-glIsShader(GLuint shader)
+wpgl_glIsShader(GLuint shader)
 {
 	GLboolean ret;
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = ovr_glIsShader(shader);
+	ret = wrp_glIsShader(shader);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1099,11 +1099,11 @@ finish:
 }
 
 GLboolean
-glIsTexture(GLuint texture)
+wpgl_glIsTexture(GLuint texture)
 {
 	GLboolean ret;
 	_COREGL_WRAP_FUNC_BEGIN();
-	ret = ovr_glIsTexture(texture);
+	ret = wrp_glIsTexture(texture);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1113,10 +1113,10 @@ finish:
 }
 
 void
-glLineWidth(GLfloat width)
+wpgl_glLineWidth(GLfloat width)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glLineWidth(width);
+	wrp_glLineWidth(width);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1125,10 +1125,10 @@ finish:
 }
 
 void
-glLinkProgram(GLuint program)
+wpgl_glLinkProgram(GLuint program)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glLinkProgram(program);
+	wrp_glLinkProgram(program);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1137,10 +1137,10 @@ finish:
 }
 
 void
-glPixelStorei(GLenum pname, GLint param)
+wpgl_glPixelStorei(GLenum pname, GLint param)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glPixelStorei(pname, param);
+	wrp_glPixelStorei(pname, param);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1149,10 +1149,10 @@ finish:
 }
 
 void
-glPolygonOffset(GLfloat factor, GLfloat units)
+wpgl_glPolygonOffset(GLfloat factor, GLfloat units)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glPolygonOffset(factor, units);
+	wrp_glPolygonOffset(factor, units);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1161,10 +1161,10 @@ finish:
 }
 
 void
-glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void* pixels)
+wpgl_glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void* pixels)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glReadPixels(x, y, width, height, format, type, pixels);
+	wrp_glReadPixels(x, y, width, height, format, type, pixels);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1173,11 +1173,11 @@ finish:
 }
 
 void
-glReleaseShaderCompiler(void)
+wpgl_glReleaseShaderCompiler(void)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
 #ifndef _COREGL_DESKTOP_GL
-	ovr_glReleaseShaderCompiler();
+	wrp_glReleaseShaderCompiler();
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 #else
 	//FIXME!!! need something here?
@@ -1190,10 +1190,10 @@ finish:
 }
 
 void
-glRenderbufferStorage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height)
+wpgl_glRenderbufferStorage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glRenderbufferStorage(target, internalformat, width, height);
+	wrp_glRenderbufferStorage(target, internalformat, width, height);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1202,10 +1202,10 @@ finish:
 }
 
 void
-glSampleCoverage(GLclampf value, GLboolean invert)
+wpgl_glSampleCoverage(GLclampf value, GLboolean invert)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glSampleCoverage(value, invert);
+	wrp_glSampleCoverage(value, invert);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1214,10 +1214,10 @@ finish:
 }
 
 void
-glScissor(GLint x, GLint y, GLsizei width, GLsizei height)
+wpgl_glScissor(GLint x, GLint y, GLsizei width, GLsizei height)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glScissor(x, y, width, height);
+	wrp_glScissor(x, y, width, height);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1226,11 +1226,11 @@ finish:
 }
 
 void
-glShaderBinary(GLsizei n, const GLuint* shaders, GLenum binaryformat, const void* binary, GLsizei length)
+wpgl_glShaderBinary(GLsizei n, const GLuint* shaders, GLenum binaryformat, const void* binary, GLsizei length)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
 #ifndef _COREGL_DESKTOP_GL
-	ovr_glShaderBinary(n, shaders, binaryformat, binary, length);
+	wrp_glShaderBinary(n, shaders, binaryformat, binary, length);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 #else
 // FIXME: need to dlsym/getprocaddress for this
@@ -1247,10 +1247,10 @@ finish:
 }
 
 void
-glShaderSource(GLuint shader, GLsizei count, const char** string, const GLint* length)
+wpgl_glShaderSource(GLuint shader, GLsizei count, const char** string, const GLint* length)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glShaderSource(shader, count, string, length);
+	wrp_glShaderSource(shader, count, string, length);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1259,10 +1259,10 @@ finish:
 }
 
 void
-glStencilFunc(GLenum func, GLint ref, GLuint mask)
+wpgl_glStencilFunc(GLenum func, GLint ref, GLuint mask)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glStencilFunc(func, ref, mask);
+	wrp_glStencilFunc(func, ref, mask);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1271,10 +1271,10 @@ finish:
 }
 
 void
-glStencilFuncSeparate(GLenum face, GLenum func, GLint ref, GLuint mask)
+wpgl_glStencilFuncSeparate(GLenum face, GLenum func, GLint ref, GLuint mask)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glStencilFuncSeparate(face, func, ref, mask);
+	wrp_glStencilFuncSeparate(face, func, ref, mask);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1283,10 +1283,10 @@ finish:
 }
 
 void
-glStencilMask(GLuint mask)
+wpgl_glStencilMask(GLuint mask)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glStencilMask(mask);
+	wrp_glStencilMask(mask);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1295,10 +1295,10 @@ finish:
 }
 
 void
-glStencilMaskSeparate(GLenum face, GLuint mask)
+wpgl_glStencilMaskSeparate(GLenum face, GLuint mask)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glStencilMaskSeparate(face, mask);
+	wrp_glStencilMaskSeparate(face, mask);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1307,10 +1307,10 @@ finish:
 }
 
 void
-glStencilOp(GLenum fail, GLenum zfail, GLenum zpass)
+wpgl_glStencilOp(GLenum fail, GLenum zfail, GLenum zpass)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glStencilOp(fail, zfail, zpass);
+	wrp_glStencilOp(fail, zfail, zpass);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1319,10 +1319,10 @@ finish:
 }
 
 void
-glStencilOpSeparate(GLenum face, GLenum fail, GLenum zfail, GLenum zpass)
+wpgl_glStencilOpSeparate(GLenum face, GLenum fail, GLenum zfail, GLenum zpass)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glStencilOpSeparate(face, fail, zfail, zpass);
+	wrp_glStencilOpSeparate(face, fail, zfail, zpass);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1331,10 +1331,10 @@ finish:
 }
 
 void
-glTexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* pixels)
+wpgl_glTexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* pixels)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
+	wrp_glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1343,10 +1343,10 @@ finish:
 }
 
 void
-glTexParameterf(GLenum target, GLenum pname, GLfloat param)
+wpgl_glTexParameterf(GLenum target, GLenum pname, GLfloat param)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glTexParameterf(target, pname, param);
+	wrp_glTexParameterf(target, pname, param);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1355,10 +1355,10 @@ finish:
 }
 
 void
-glTexParameterfv(GLenum target, GLenum pname, const GLfloat* params)
+wpgl_glTexParameterfv(GLenum target, GLenum pname, const GLfloat* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glTexParameterfv(target, pname, params);
+	wrp_glTexParameterfv(target, pname, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1367,10 +1367,10 @@ finish:
 }
 
 void
-glTexParameteri(GLenum target, GLenum pname, GLint param)
+wpgl_glTexParameteri(GLenum target, GLenum pname, GLint param)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glTexParameteri(target, pname, param);
+	wrp_glTexParameteri(target, pname, param);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1379,10 +1379,10 @@ finish:
 }
 
 void
-glTexParameteriv(GLenum target, GLenum pname, const GLint* params)
+wpgl_glTexParameteriv(GLenum target, GLenum pname, const GLint* params)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glTexParameteriv(target, pname, params);
+	wrp_glTexParameteriv(target, pname, params);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1391,10 +1391,10 @@ finish:
 }
 
 void
-glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void* pixels)
+wpgl_glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void* pixels)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
+	wrp_glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1403,10 +1403,10 @@ finish:
 }
 
 void
-glUniform1f(GLint location, GLfloat x)
+wpgl_glUniform1f(GLint location, GLfloat x)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glUniform1f(location, x);
+	wrp_glUniform1f(location, x);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1415,10 +1415,10 @@ finish:
 }
 
 void
-glUniform1fv(GLint location, GLsizei count, const GLfloat* v)
+wpgl_glUniform1fv(GLint location, GLsizei count, const GLfloat* v)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glUniform1fv(location, count, v);
+	wrp_glUniform1fv(location, count, v);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1427,10 +1427,10 @@ finish:
 }
 
 void
-glUniform1i(GLint location, GLint x)
+wpgl_glUniform1i(GLint location, GLint x)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glUniform1i(location, x);
+	wrp_glUniform1i(location, x);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1439,10 +1439,10 @@ finish:
 }
 
 void
-glUniform1iv(GLint location, GLsizei count, const GLint* v)
+wpgl_glUniform1iv(GLint location, GLsizei count, const GLint* v)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glUniform1iv(location, count, v);
+	wrp_glUniform1iv(location, count, v);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1451,10 +1451,10 @@ finish:
 }
 
 void
-glUniform2f(GLint location, GLfloat x, GLfloat y)
+wpgl_glUniform2f(GLint location, GLfloat x, GLfloat y)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glUniform2f(location, x, y);
+	wrp_glUniform2f(location, x, y);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1463,10 +1463,10 @@ finish:
 }
 
 void
-glUniform2fv(GLint location, GLsizei count, const GLfloat* v)
+wpgl_glUniform2fv(GLint location, GLsizei count, const GLfloat* v)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glUniform2fv(location, count, v);
+	wrp_glUniform2fv(location, count, v);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1475,10 +1475,10 @@ finish:
 }
 
 void
-glUniform2i(GLint location, GLint x, GLint y)
+wpgl_glUniform2i(GLint location, GLint x, GLint y)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glUniform2i(location, x, y);
+	wrp_glUniform2i(location, x, y);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1487,10 +1487,10 @@ finish:
 }
 
 void
-glUniform2iv(GLint location, GLsizei count, const GLint* v)
+wpgl_glUniform2iv(GLint location, GLsizei count, const GLint* v)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glUniform2iv(location, count, v);
+	wrp_glUniform2iv(location, count, v);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1499,10 +1499,10 @@ finish:
 }
 
 void
-glUniform3f(GLint location, GLfloat x, GLfloat y, GLfloat z)
+wpgl_glUniform3f(GLint location, GLfloat x, GLfloat y, GLfloat z)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glUniform3f(location, x, y, z);
+	wrp_glUniform3f(location, x, y, z);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1511,10 +1511,10 @@ finish:
 }
 
 void
-glUniform3fv(GLint location, GLsizei count, const GLfloat* v)
+wpgl_glUniform3fv(GLint location, GLsizei count, const GLfloat* v)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glUniform3fv(location, count, v);
+	wrp_glUniform3fv(location, count, v);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1523,10 +1523,10 @@ finish:
 }
 
 void
-glUniform3i(GLint location, GLint x, GLint y, GLint z)
+wpgl_glUniform3i(GLint location, GLint x, GLint y, GLint z)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glUniform3i(location, x, y, z);
+	wrp_glUniform3i(location, x, y, z);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1535,10 +1535,10 @@ finish:
 }
 
 void
-glUniform3iv(GLint location, GLsizei count, const GLint* v)
+wpgl_glUniform3iv(GLint location, GLsizei count, const GLint* v)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glUniform3iv(location, count, v);
+	wrp_glUniform3iv(location, count, v);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1547,10 +1547,10 @@ finish:
 }
 
 void
-glUniform4f(GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+wpgl_glUniform4f(GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glUniform4f(location, x, y, z, w);
+	wrp_glUniform4f(location, x, y, z, w);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1559,10 +1559,10 @@ finish:
 }
 
 void
-glUniform4fv(GLint location, GLsizei count, const GLfloat* v)
+wpgl_glUniform4fv(GLint location, GLsizei count, const GLfloat* v)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glUniform4fv(location, count, v);
+	wrp_glUniform4fv(location, count, v);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1571,10 +1571,10 @@ finish:
 }
 
 void
-glUniform4i(GLint location, GLint x, GLint y, GLint z, GLint w)
+wpgl_glUniform4i(GLint location, GLint x, GLint y, GLint z, GLint w)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glUniform4i(location, x, y, z, w);
+	wrp_glUniform4i(location, x, y, z, w);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1583,10 +1583,10 @@ finish:
 }
 
 void
-glUniform4iv(GLint location, GLsizei count, const GLint* v)
+wpgl_glUniform4iv(GLint location, GLsizei count, const GLint* v)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glUniform4iv(location, count, v);
+	wrp_glUniform4iv(location, count, v);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1595,10 +1595,10 @@ finish:
 }
 
 void
-glUniformMatrix2fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+wpgl_glUniformMatrix2fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glUniformMatrix2fv(location, count, transpose, value);
+	wrp_glUniformMatrix2fv(location, count, transpose, value);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1607,10 +1607,10 @@ finish:
 }
 
 void
-glUniformMatrix3fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+wpgl_glUniformMatrix3fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glUniformMatrix3fv(location, count, transpose, value);
+	wrp_glUniformMatrix3fv(location, count, transpose, value);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1619,10 +1619,10 @@ finish:
 }
 
 void
-glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+wpgl_glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glUniformMatrix4fv(location, count, transpose, value);
+	wrp_glUniformMatrix4fv(location, count, transpose, value);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1631,10 +1631,10 @@ finish:
 }
 
 void
-glUseProgram(GLuint program)
+wpgl_glUseProgram(GLuint program)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glUseProgram(program);
+	wrp_glUseProgram(program);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1643,10 +1643,10 @@ finish:
 }
 
 void
-glValidateProgram(GLuint program)
+wpgl_glValidateProgram(GLuint program)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glValidateProgram(program);
+	wrp_glValidateProgram(program);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1655,10 +1655,10 @@ finish:
 }
 
 void
-glVertexAttrib1f(GLuint indx, GLfloat x)
+wpgl_glVertexAttrib1f(GLuint indx, GLfloat x)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glVertexAttrib1f(indx, x);
+	wrp_glVertexAttrib1f(indx, x);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1667,10 +1667,10 @@ finish:
 }
 
 void
-glVertexAttrib1fv(GLuint indx, const GLfloat* values)
+wpgl_glVertexAttrib1fv(GLuint indx, const GLfloat* values)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glVertexAttrib1fv(indx, values);
+	wrp_glVertexAttrib1fv(indx, values);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1679,10 +1679,10 @@ finish:
 }
 
 void
-glVertexAttrib2f(GLuint indx, GLfloat x, GLfloat y)
+wpgl_glVertexAttrib2f(GLuint indx, GLfloat x, GLfloat y)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glVertexAttrib2f(indx, x, y);
+	wrp_glVertexAttrib2f(indx, x, y);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1691,10 +1691,10 @@ finish:
 }
 
 void
-glVertexAttrib2fv(GLuint indx, const GLfloat* values)
+wpgl_glVertexAttrib2fv(GLuint indx, const GLfloat* values)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glVertexAttrib2fv(indx, values);
+	wrp_glVertexAttrib2fv(indx, values);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1703,10 +1703,10 @@ finish:
 }
 
 void
-glVertexAttrib3f(GLuint indx, GLfloat x, GLfloat y, GLfloat z)
+wpgl_glVertexAttrib3f(GLuint indx, GLfloat x, GLfloat y, GLfloat z)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glVertexAttrib3f(indx, x, y, z);
+	wrp_glVertexAttrib3f(indx, x, y, z);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1715,10 +1715,10 @@ finish:
 }
 
 void
-glVertexAttrib3fv(GLuint indx, const GLfloat* values)
+wpgl_glVertexAttrib3fv(GLuint indx, const GLfloat* values)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glVertexAttrib3fv(indx, values);
+	wrp_glVertexAttrib3fv(indx, values);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1727,10 +1727,10 @@ finish:
 }
 
 void
-glVertexAttrib4f(GLuint indx, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+wpgl_glVertexAttrib4f(GLuint indx, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glVertexAttrib4f(indx, x, y, z, w);
+	wrp_glVertexAttrib4f(indx, x, y, z, w);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1739,10 +1739,10 @@ finish:
 }
 
 void
-glVertexAttrib4fv(GLuint indx, const GLfloat* values)
+wpgl_glVertexAttrib4fv(GLuint indx, const GLfloat* values)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glVertexAttrib4fv(indx, values);
+	wrp_glVertexAttrib4fv(indx, values);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1751,10 +1751,10 @@ finish:
 }
 
 void
-glVertexAttribPointer(GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* ptr)
+wpgl_glVertexAttribPointer(GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* ptr)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glVertexAttribPointer(indx, size, type, normalized, stride, ptr);
+	wrp_glVertexAttribPointer(indx, size, type, normalized, stride, ptr);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1763,10 +1763,10 @@ finish:
 }
 
 void
-glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
+wpgl_glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glViewport(x, y, width, height);
+	wrp_glViewport(x, y, width, height);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1777,10 +1777,10 @@ finish:
 
 // GLES Extensions...
 void
-glEGLImageTargetTexture2DOES(GLenum target, GLeglImageOES image)
+wpgl_glEGLImageTargetTexture2DOES(GLenum target, GLeglImageOES image)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glEGLImageTargetTexture2DOES(target, image);
+	wrp_glEGLImageTargetTexture2DOES(target, image);
 	goto finish;
 
 finish:
@@ -1788,10 +1788,10 @@ finish:
 }
 
 void
-glEGLImageTargetRenderbufferStorageOES(GLenum target, GLeglImageOES image)
+wpgl_glEGLImageTargetRenderbufferStorageOES(GLenum target, GLeglImageOES image)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glEGLImageTargetRenderbufferStorageOES(target, image);
+	wrp_glEGLImageTargetRenderbufferStorageOES(target, image);
 	goto finish;
 
 finish:
@@ -1799,10 +1799,10 @@ finish:
 }
 
 void
-glGetProgramBinary(GLuint program, GLsizei bufsize, GLsizei* length, GLenum* binaryFormat, void* binary)
+wpgl_glGetProgramBinary(GLuint program, GLsizei bufsize, GLsizei* length, GLenum* binaryFormat, void* binary)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glGetProgramBinary(program, bufsize, length, binaryFormat, binary);
+	wrp_glGetProgramBinary(program, bufsize, length, binaryFormat, binary);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1811,10 +1811,10 @@ finish:
 }
 
 void
-glProgramBinary(GLuint program, GLenum binaryFormat, const void* binary, GLint length)
+wpgl_glProgramBinary(GLuint program, GLenum binaryFormat, const void* binary, GLint length)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glProgramBinary(program, binaryFormat, binary, length);
+	wrp_glProgramBinary(program, binaryFormat, binary, length);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1824,10 +1824,10 @@ finish:
 
 
 void
-glProgramParameteri(GLuint program, GLuint pname, GLint value)
+wpgl_glProgramParameteri(GLuint program, GLuint pname, GLint value)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glProgramParameteri(program, pname, value);
+	wrp_glProgramParameteri(program, pname, value);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1836,10 +1836,10 @@ finish:
 }
 
 void
-glRenderbufferStorageMultisampleEXT(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height)
+wpgl_glRenderbufferStorageMultisampleEXT(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glRenderbufferStorageMultisampleEXT(target, samples, internalformat, width, height);
+	wrp_glRenderbufferStorageMultisampleEXT(target, samples, internalformat, width, height);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1848,10 +1848,10 @@ finish:
 }
 
 void
-glFramebufferTexture2DMultisampleEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLsizei samples)
+wpgl_glFramebufferTexture2DMultisampleEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLsizei samples)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glFramebufferTexture2DMultisampleEXT(target, attachment, textarget, texture, level, samples);
+	wrp_glFramebufferTexture2DMultisampleEXT(target, attachment, textarget, texture, level, samples);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
@@ -1860,10 +1860,10 @@ finish:
 }
 
 void
-glDiscardFramebufferEXT(GLenum target, GLsizei numAttachments, const GLenum *attachments)
+wpgl_glDiscardFramebufferEXT(GLenum target, GLsizei numAttachments, const GLenum *attachments)
 {
 	_COREGL_WRAP_FUNC_BEGIN();
-	ovr_glDiscardFramebufferEXT(target, numAttachments, attachments);
+	wrp_glDiscardFramebufferEXT(target, numAttachments, attachments);
 	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 

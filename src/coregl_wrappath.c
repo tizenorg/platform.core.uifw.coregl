@@ -4,11 +4,6 @@
 #include <string.h>
 #include <sys/time.h>
 
-// Symbol definition for override
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*_COREGL_NAME_MANGLE(FUNC_NAME)) PARAM_LIST = NULL;
-#include "headers/sym.h"
-#undef _COREGL_SYMBOL
-
 typedef struct _GLGlueFakeContext
 {
 	GLuint gl_num_tex_units[1];

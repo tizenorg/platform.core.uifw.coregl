@@ -408,11 +408,15 @@ trace_output(int force_output)
 				{
 					double elapsed_time_period = _get_timeval_period(current->elapsed_time, current->last_elapsed_time);
 					double elapsed_time_per_call_period = elapsed_time_period / (current->call_count - current->last_call_count);
+					char *fname = current->name;
+
+					if (!strncmp(fname, "wpgl_", 5))
+						fname = &current->name[5];
 
 					if (elapsed_time_per_call_period >= 0.01 || current->call_count - current->last_call_count > 1000)
 					{
 						TRACE("\E[40;37;1m %-42.42s : %10d call(s), %10.2f ms, %9.3f ms/API, %9.3f ms/API(P) \E[0m\n",
-						      current->name, current->call_count, elapsed_time, elapsed_time_per_call, elapsed_time_per_call_period);
+						      fname, current->call_count, elapsed_time, elapsed_time_per_call, elapsed_time_per_call_period);
 						current->traced = 1;
 					}
 				}
@@ -439,9 +443,13 @@ trace_output(int force_output)
 						{
 							double elapsed_time = _get_timeval(current->elapsed_time);
 							double elapsed_time_per_call = elapsed_time / current->call_count;
+							char *fname = current->name;
+
+							if (!strncmp(fname, "wpgl_", 5))
+								fname = &current->name[5];
 
 							TRACE(" %-42.42s : %10d call(s), %10.2f ms, %9.3f ms/API\n",
-							      current->name, current->call_count, elapsed_time, elapsed_time_per_call);
+							      fname, current->call_count, elapsed_time, elapsed_time_per_call);
 						}
 						current = current->next;
 					}

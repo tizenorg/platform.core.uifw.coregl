@@ -10,6 +10,9 @@ SOURCES = \
 		src/coregl_thread_pthread.c \
 		src/coregl_trace.c \
 		src/coregl_override.c \
+		src/coregl_export.c \
+		src/coregl_export_egl.c \
+		src/coregl_export_gl.c \
 		src/coregl_wrappath.c \
 		src/coregl_wrappath_egl.c \
 		src/coregl_wrappath_gl.c \

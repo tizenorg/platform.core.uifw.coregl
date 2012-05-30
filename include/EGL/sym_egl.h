@@ -29,7 +29,7 @@ _COREGL_SYMBOL(GL_FALSE, EGLBoolean, eglReleaseThread, (void))
 _COREGL_SYMBOL(GL_FALSE, EGLSurface, eglCreatePbufferFromClientBuffer, (EGLDisplay dpy, EGLenum buftype, EGLClientBuffer buffer, EGLConfig config, const EGLint *attrib_list))
 
 _COREGL_SYMBOL(GL_FALSE, EGLBoolean, eglSurfaceAttrib, (EGLDisplay dpy, EGLSurface surface, EGLint attribute, EGLint value))
-_COREGL_SYMBOL(GL_FALSE, void, eglBindTexImage, (EGLDisplay dpy, EGLSurface surface, EGLint buffer))
+_COREGL_SYMBOL(GL_FALSE, EGLBoolean, eglBindTexImage, (EGLDisplay dpy, EGLSurface surface, EGLint buffer))
 _COREGL_SYMBOL(GL_FALSE, EGLBoolean, eglReleaseTexImage, (EGLDisplay dpy, EGLSurface surface, EGLint buffer))
 _COREGL_SYMBOL(GL_FALSE, EGLBoolean, eglSwapInterval, (EGLDisplay dpy, EGLint interval))
 _COREGL_SYMBOL(GL_FALSE, EGLContext, eglCreateContext, (EGLDisplay dpy, EGLConfig config, EGLContext share_context, const EGLint* attrib_list))

@@ -577,8 +577,10 @@ finish:
 //    The functions have prefix 'fpgl_' for (fastpath gl)         //
 //----------------------------------------------------------------//
 
-extern EGLBoolean (*_COREGL_NAME_MANGLE(eglBindAPI))(EGLenum api);
-extern EGLenum (*_COREGL_NAME_MANGLE(eglQueryAPI))(void);
+extern EGLBoolean (*wrp_eglBindAPI)(EGLenum api);
+extern EGLenum (*wrp_eglQueryAPI)(void);
+extern EGLBoolean (*ovr_eglBindAPI)(EGLenum api);
+extern EGLenum (*ovr_eglQueryAPI)(void);
 
 EGLBoolean
 fpgl_eglBindAPI(EGLenum api)
@@ -613,8 +615,16 @@ fpgl_eglBindAPI(EGLenum api)
 				// Fallback when binding other API
 				// Fastpath restores when bind OPENGL_ES_API
 				override_glue_normal_path();
-				_COREGL_NAME_MANGLE(eglBindAPI) = fpgl_eglBindAPI;
-				_COREGL_NAME_MANGLE(eglQueryAPI) = fpgl_eglQueryAPI;
+				if (trace_api_flag == 1)
+				{
+					wrp_eglBindAPI = fpgl_eglBindAPI;
+					wrp_eglQueryAPI = fpgl_eglQueryAPI;
+				}
+				else
+				{
+					ovr_eglBindAPI = fpgl_eglBindAPI;
+					ovr_eglQueryAPI = fpgl_eglQueryAPI;
+				}
 			}
 			else
 			{
