@@ -67,6 +67,7 @@ override_glue_fast_path()
 	F_ORD(eglGetCurrentContext);
 	F_ORD(eglReleaseThread);
 	F_ORD(eglGetCurrentSurface);
+	F_ORD(eglTerminate);
 
 #else
 	// Fastpath-ed Functions

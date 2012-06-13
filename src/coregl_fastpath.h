@@ -121,6 +121,15 @@ typedef struct _GLGlueContext
 
 } GLGlueContext;
 
+typedef struct _GLGlueContext_List
+{
+	GLGlueContext              *gctx;
+	struct _GLGlueContext_List *prev;
+	struct _GLGlueContext_List *next;
+} GLGlueContext_List;
+
+extern GLGlueContext_List *gctx_list;
+
 extern GLGlueContext *initial_ctx;
 
 extern int            debug_nofp;

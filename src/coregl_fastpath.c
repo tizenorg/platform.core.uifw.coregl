@@ -6,6 +6,8 @@
 
 GLenum FPGL_Error = GL_NO_ERROR;
 
+GLGlueContext_List *gctx_list = NULL;
+
 Mutex init_context_mutex = MUTEX_INITIALIZER;
 GLGlueContext *initial_ctx = NULL;
 

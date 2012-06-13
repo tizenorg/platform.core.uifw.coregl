@@ -453,6 +453,35 @@ _remove_context_ref(GLGlueContext *gctx, Mutex *ctx_list_mtx)
 			gctx->real_ctx_sharable_option = NULL;
 		}
 		free(gctx);
+
+		{
+			GLGlueContext_List *current = NULL;
+
+			AST(mutex_lock(&ctx_list_access_mutex) == 1);
+
+			current = gctx_list;
+
+			while (current != NULL)
+			{
+				if (current->gctx == gctx)
+				{
+					if (current->next != NULL)
+						current->next->prev = current->prev;
+
+					if (current->prev != NULL)
+						current->prev->next = current->next;
+					else
+						gctx_list = current->next;
+
+					free(current);
+
+					break;
+				}
+				current = current->next;
+			}
+
+			AST(mutex_unlock(&ctx_list_access_mutex) == 1);
+		}
 	}
 }
 
@@ -673,6 +702,7 @@ EGLContext
 fpgl_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_context, const EGLint* attrib_list)
 {
 	GLGlueContext *gctx = NULL;
+	GLGlueContext_List *gctx_list_new = NULL;
 	GLThreadState *tstate = NULL;
 	GLContextState *cstate = NULL;
 	GLContextState *cstate_new = NULL;
@@ -750,6 +780,28 @@ fpgl_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_context
 
 	gctx->cstate = cstate;
 
+	{ // Add glue context to list
+		gctx_list_new = (GLGlueContext_List *)calloc(1, sizeof(GLGlueContext_List));
+		if (gctx_list_new == NULL)
+		{
+			ERR("Error creating a new GlGlueContext(5)\n");
+			goto finish;
+		}
+
+		AST(mutex_lock(&ctx_list_access_mutex) == 1);
+
+		gctx_list_new->gctx = gctx;
+
+		gctx_list_new->prev = NULL;
+		gctx_list_new->next = gctx_list;
+		if (gctx_list != NULL)
+			gctx_list->prev = gctx_list_new;
+
+		gctx_list = gctx_list_new;
+
+		AST(mutex_unlock(&ctx_list_access_mutex) == 1);
+	}
+
 #ifdef COREGL_TRACE_CONTEXT_INFO
 	if (unlikely(trace_ctx_flag == 1))
 	{
@@ -797,6 +849,22 @@ finish:
 			free(cstate_new);
 			cstate_new = NULL;
 		}
+		if (gctx_list_new != NULL)
+		{
+			AST(mutex_lock(&ctx_list_access_mutex) == 1);
+
+			if (gctx_list_new->next != NULL)
+				gctx_list_new->next->prev = gctx_list_new->prev;
+
+			if (gctx_list_new->prev != NULL)
+				gctx_list_new->prev->next = gctx_list_new->next;
+			else
+				gctx_list = gctx_list_new->next;
+
+			AST(mutex_unlock(&ctx_list_access_mutex) == 1);
+
+			free(gctx_list_new);
+		}
 	}
 
 	_COREGL_FAST_FUNC_END();
@@ -826,11 +894,7 @@ fpgl_eglDestroyContext(EGLDisplay dpy, EGLContext ctx)
 		cstate = gctx->cstate;
 		AST(cstate != NULL);
 
-		if (gctx->is_destroyed == 1)
-		{
-			ERR("\E[40;31;1mWARNING : Context [%p] is already destroyed!!!\E[0m\n", ctx);
-		}
-		else
+		if (gctx->is_destroyed != 1)
 		{
 			gctx->is_destroyed = 1;
 			_remove_context_ref(gctx, &ctx_list_access_mutex);
@@ -1264,6 +1328,49 @@ fpgl_eglGetProcAddress(const char* procname)
 		LOG("\E[40;31;1mWARNING : COREGL can't support '%s' (unmanaged situation may occur)\E[0m\n", procname);
 	}
 
+	goto finish;
+
+finish:
+	_COREGL_FAST_FUNC_END();
+	return ret;
+}
+
+EGLBoolean
+fpgl_eglTerminate(EGLDisplay dpy)
+{
+	EGLBoolean ret = EGL_FALSE;
+	GLGlueContext_List *current = NULL;
+	GLGlueContext_List *remove_list = NULL;
+
+	_COREGL_FAST_FUNC_BEGIN();
+
+	AST(mutex_lock(&ctx_list_access_mutex) == 1);
+	current = gctx_list;
+	while (current != NULL)
+	{
+		if (current->gctx->cstate->rdpy == dpy)
+		{
+			GLGlueContext_List *rm_newitm = NULL;
+			rm_newitm = (GLGlueContext_List *)calloc(1, sizeof(GLGlueContext_List));
+			rm_newitm->gctx = current->gctx;
+
+			rm_newitm->next = remove_list;
+			remove_list = rm_newitm;
+		}
+		current = current->next;
+	}
+	AST(mutex_unlock(&ctx_list_access_mutex) == 1);
+
+	current = remove_list;
+	while (current != NULL)
+	{
+		fpgl_eglDestroyContext(dpy, current->gctx);
+		remove_list = current->next;
+		free(current);
+		current = remove_list;
+	}
+
+	ret = _sym_eglTerminate(dpy);
 	goto finish;
 
 finish:
