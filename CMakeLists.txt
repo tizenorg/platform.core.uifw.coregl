@@ -22,10 +22,27 @@ SET(CMAKE_SKIP_BUILD_RPATH TRUE)
 # Build coregl Library
 # ------------------------------
 SET(COREGL "COREGL")
-SET(SRCS_common src/coregl.c src/coregl_thread_pthread.c src/coregl_trace.c src/coregl_override.c
-		src/coregl_export.c src/coregl_export_egl.c src/coregl_export_gl.c
-		src/coregl_wrappath.c src/coregl_wrappath_egl.c src/coregl_wrappath_gl.c
-		src/coregl_fastpath.c src/coregl_fastpath_egl.c	src/coregl_fastpath_gl.c)
+SET(SRCS_common
+		src/coregl.c
+		src/coregl_thread_pthread.c
+		src/coregl_trace.c
+		src/coregl_export.c
+		src/coregl_export_egl.c
+		src/coregl_export_gl.c
+		src/modules/coregl_module.c
+		src/modules/tracepath/coregl_tracepath.c
+		src/modules/tracepath/coregl_tracepath_egl.c
+		src/modules/tracepath/coregl_tracepath_gl.c
+
+		src/modules/fastpath/coregl_fastpath.c
+		src/modules/fastpath/coregl_fastpath_egl.c
+		src/modules/fastpath/coregl_fastpath_gl.c
+
+		src/modules/appopt/coregl_appopt.c
+		src/modules/appopt/coregl_appopt_egl.c
+		src/modules/appopt/coregl_appopt_gl.c
+)
+
 #SET(HEADERS_common src/coregl_export.h src/coregl_fastpath.h src/coregl_fastpath_state.h src/coregl.h src/coregl_internal.h src/coregl_thread_pthread.h src/coregl_wrappath.h)
 
 INCLUDE(FindPkgConfig)

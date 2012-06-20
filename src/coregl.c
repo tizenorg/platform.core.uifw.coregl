@@ -3,22 +3,10 @@
 #include <dlfcn.h>
 #include <string.h>
 #include "coregl_internal.h"
+#include "coregl_export.h"
 
-CoreGL_Opt_Flag         api_opt = COREGL_UNKNOWN_PATH;
-
-Mutex                   ctx_list_access_mutex = MUTEX_INITIALIZER;
-
-void                   *egl_lib_handle;
-void                   *gl_lib_handle;
-
-GLContext_List         *glctx_list = NULL;
-
-int                 trace_api_flag = 0;
-int                 trace_ctx_flag = 0;
-int                 trace_ctx_force_flag = 0;
-int                 trace_state_flag = 0;
-int                 debug_nofp = 0;
-FILE               *trace_fp = NULL;
+void               *egl_lib_handle;
+void               *gl_lib_handle;
 
 // Symbol definition for real
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*_sym_##FUNC_NAME) PARAM_LIST;
@@ -35,146 +23,22 @@ get_env_setting(const char *name)
 	return fp_env;
 }
 
-int
-add_context_state_to_list(const void *option, const int option_len, GLContextState *cstate, Mutex *mtx)
+void
+cleanup_current_thread_state()
 {
-	int ret = 0;
-	int tid = 0;
-	GLContext_List *current = NULL;
-	GLContext_List *newitm = NULL;
+	GLThreadState *tstate = NULL;
 
-	if (mtx != NULL) AST(mutex_lock(mtx) == 1);
+	tstate = get_current_thread_state();
 
-	AST(cstate != NULL);
-
-	tid = get_current_thread();
-
-	current = glctx_list;
-	while (current != NULL)
+	if (tstate != NULL)
 	{
-		if (current->option_len == option_len &&
-		    memcmp(current->option, option, option_len) == 0 &&
-		    current->thread_id == tid)
-		{
-			AST(current->cstate == cstate);
-			goto finish;
-		}
-		current = current->next;
+		LOG("[COREGL] de-init thread state \n");
+		deinit_modules_tstate(tstate);
+		free(tstate);
+		tstate = NULL;
 	}
 
-	newitm = (GLContext_List *)calloc(1, sizeof(GLContext_List));
-	if (newitm == NULL)
-	{
-		ERR("Failed to create context list.\n");
-		goto finish;
-	}
-
-	newitm->cstate = cstate;
-	newitm->thread_id = tid;
-	newitm->option_len = option_len;
-	newitm->option = (void *)malloc(option_len);
-	memcpy(newitm->option, option, option_len);
-
-	if (glctx_list != NULL)
-		newitm->next = glctx_list;
-
-	glctx_list = newitm;
-
-	ret = 1;
-	goto finish;
-
-finish:
-	if (ret != 1)
-	{
-		if (newitm != NULL)
-		{
-			free(newitm);
-			newitm = NULL;
-		}
-		if (cstate != NULL)
-		{
-			free(cstate);
-			cstate = NULL;
-		}
-	}
-	if (mtx != NULL) AST(mutex_unlock(mtx) == 1);
-
-	return ret;
-}
-
-GLContextState *
-get_context_state_from_list(const void *option, const int option_len, Mutex *mtx)
-{
-	GLContextState *ret = NULL;
-	GLContext_List *current = NULL;
-	int tid = 0;
-
-	if (mtx != NULL) AST(mutex_lock(mtx) == 1);
-
-	tid = get_current_thread();
-
-	current = glctx_list;
-	while (current != NULL)
-	{
-		if (current->option_len == option_len &&
-		    memcmp(current->option, option, option_len) == 0 &&
-		    current->thread_id == tid)
-		{
-			ret = current->cstate;
-			goto finish;
-		}
-		current = current->next;
-	}
-	goto finish;
-
-finish:
-	if (mtx != NULL) AST(mutex_unlock(mtx) == 1);
-	return ret;
-}
-
-int
-remove_context_states_from_list(GLContextState *cstate, Mutex *mtx)
-{
-	int ret = 0;
-	int tid = 0;
-	GLContext_List *olditm = NULL;
-	GLContext_List *current = NULL;
-
-	if (mtx != NULL) AST(mutex_lock(mtx) == 1);
-
-	AST(cstate != NULL);
-
-	tid = get_current_thread();
-	current = glctx_list;
-
-	while (current != NULL)
-	{
-		if (current->cstate == cstate)
-		{
-			GLContext_List *nextitm = NULL;
-			if (olditm != NULL)
-			{
-				olditm->next = current->next;
-				nextitm = olditm->next;
-			}
-			else
-			{
-				glctx_list = current->next;
-				nextitm = glctx_list;
-			}
-			free(current);
-			ret = 1;
-			current = nextitm;
-			continue;
-		}
-		olditm = current;
-		current = current->next;
-	}
-	goto finish;
-
-finish:
-	if (mtx != NULL) AST(mutex_unlock(mtx) == 1);
-	return ret;
+	set_current_thread_state(NULL);
 }
 
 int
@@ -188,9 +52,10 @@ init_new_thread_state()
 
 	tstate = (GLThreadState *)calloc(1, sizeof(GLThreadState));
 	tstate->thread_id = get_current_thread();
-	tstate->binded_api = EGL_OPENGL_ES_API;
 
-	set_current_thread_state(&ctx_list_access_mutex, tstate);
+	init_modules_tstate(tstate);
+
+	set_current_thread_state(tstate);
 
 #ifdef COREGL_TRACE_CONTEXT_INFO
 	add_to_general_trace_list(&thread_trace_list, tstate);
@@ -219,31 +84,16 @@ _glue_sym_init(void)
 #define FALLBAK(dst) \
    if (!dst) { dst = (__typeof__(dst))_sym_missing; ERR("WARNING : symbol '"#dst"' missing!\n"); }
 
-
-#ifndef _COREGL_DESKTOP_GL
-# define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) \
-     FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME); \
-     if (IS_EXTENSION == GL_TRUE) { \
-        FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"EXT"); \
-        FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"ARB"); \
-        FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"OES"); \
-        FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"KHR"); \
-     } else { FALLBAK(_sym_##FUNC_NAME); }
-# include "headers/sym_egl.h"
-# undef _COREGL_SYMBOL
-#else
-# define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) \
-     FINDSYM(glue_lib_handle, _sym_glXGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME); \
-     if (IS_EXTENSION == GL_TRUE) { \
-        FINDSYM(gl_lib_handle, _sym_glXGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"EXT"); \
-        FINDSYM(gl_lib_handle, _sym_glXGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"ARB"); \
-        FINDSYM(gl_lib_handle, _sym_glXGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"OES"); \
-        FINDSYM(gl_lib_handle, _sym_glXGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"MESA"); \
-        FINDSYM(gl_lib_handle, _sym_glXGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"SGI"); \
-     } else { FALLBAK(_sym_##FUNC_NAME); }
-# include "headers/sym_glx.h"
-# undef _COREGL_SYMBOL
-#endif
+#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) \
+    FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME); \
+    if (IS_EXTENSION == GL_TRUE) { \
+       FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"EXT"); \
+       FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"ARB"); \
+       FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"OES"); \
+       FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"KHR"); \
+    } else { FALLBAK(_sym_##FUNC_NAME); }
+#include "headers/sym_egl.h"
+#undef _COREGL_SYMBOL
 
 #undef FINDSYM
 #undef FALLBAK
@@ -261,28 +111,16 @@ _gl_sym_init(void)
 #define FALLBAK(dst) \
    if (!dst) { dst = (__typeof__(dst))_sym_missing; ERR("WARNING : symbol '"#dst"' missing!\n"); }
 
-#ifndef _COREGL_DESKTOP_GL
-# define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) \
-     FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME); \
-     if (IS_EXTENSION == GL_TRUE) { \
-        FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"EXT"); \
-        FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"ARB"); \
-        FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"OES"); \
-        FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"KHR"); \
-      } else { FALLBAK(_sym_##FUNC_NAME); }
-# include "headers/sym_gl.h"
-# undef _COREGL_SYMBOL
-#else
-# define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) \
-     if (IS_EXTENSION == GL_TRUE) { \
-        FINDSYM(gl_lib_handle, _sym_glXGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME); \
-        FINDSYM(gl_lib_handle, _sym_glXGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"EXT"); \
-        FINDSYM(gl_lib_handle, _sym_glXGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"ARB"); \
-        FINDSYM(gl_lib_handle, _sym_glXGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"OES"); \
+#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) \
+    FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME); \
+    if (IS_EXTENSION == GL_TRUE) { \
+       FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"EXT"); \
+       FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"ARB"); \
+       FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"OES"); \
+       FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"KHR"); \
      } else { FALLBAK(_sym_##FUNC_NAME); }
-# include "headers/sym_gl.h"
-# undef _COREGL_SYMBOL
-#endif
+#include "headers/sym_gl.h"
+#undef _COREGL_SYMBOL
 
 #undef FINDSYM
 #undef FALLBAK
@@ -299,16 +137,9 @@ static int
 _gl_lib_init(void)
 {
 
-#ifndef _COREGL_DESKTOP_GL
 	//------------------------------------------------//
 	// Open EGL Library as EGL is separate
-#ifndef _COREGL_EMBED_EVAS
 	egl_lib_handle = dlopen("libEGL_drv.so", RTLD_NOW);
-#else
-	egl_lib_handle = dlopen("libEGL.so.1", RTLD_NOW);
-	if (!egl_lib_handle)
-		egl_lib_handle = dlopen("libEGL.so", RTLD_NOW);
-#endif
 	if (!egl_lib_handle)
 	{
 		ERR("\E[0;31;1mERROR : %s\E[0m\n\n", dlerror());
@@ -324,13 +155,7 @@ _gl_lib_init(void)
 	}
 
 	// use gl_lib handle for GL symbols
-#ifndef _COREGL_EMBED_EVAS
 	gl_lib_handle = dlopen("libGLESv2_drv.so", RTLD_NOW);
-#else
-	gl_lib_handle = dlopen("libGLESv2.so.1", RTLD_NOW);
-	if (!gl_lib_handle)
-		gl_lib_handle = dlopen("libGLESv2.so", RTLD_NOW);
-#endif
 	if (!gl_lib_handle)
 	{
 		ERR("\E[0;31;1mERROR : %s\E[0m\n\n", dlerror());
@@ -346,160 +171,46 @@ _gl_lib_init(void)
 	}
 	//------------------------------------------------//
 
-#else // GLX
-
-
-#ifndef _COREGL_EMBED_EVAS
-	gl_lib_handle = dlopen("libGL_drv.so", RTLD_NOW);
-#else
-	gl_lib_handle = dlopen("libGL.so.1", RTLD_NOW);
-	if (!gl_lib_handle)
-		gl_lib_handle = dlopen("libGL.so", RTLD_NOW);
-#endif
-	if (!gl_lib_handle)
-	{
-		ERR("%s\n", dlerror());
-		return 0;
-	}
-
-	//------------------------------------------------//
-
-#endif // _COREGL_DESKTOP_GL
-
 	if (!_glue_sym_init()) return 0;
 	if (!_gl_sym_init()) return 0;
 
 	return 1;
 }
 
-extern void init_fast_gl();
-extern void init_wrap_gl();
-
-#ifndef _COREGL_EMBED_EVAS
-__attribute__((constructor))
-#endif
-int
-init_gl()
+static int
+_gl_lib_deinit(void)
 {
-	int fastpath_opt = 0;
-
-	LOG("[CoreGL] ");
-
-	if (!_gl_lib_init()) return 0;
-
-	fastpath_opt = atoi(get_env_setting("COREGL_FASTPATH"));
-
-	switch (fastpath_opt)
-	{
-		case 1:
-			api_opt = COREGL_FAST_PATH;
-			LOG(": (%d) Fastpath enabled...\n", fastpath_opt);
-			init_fast_gl();
-			break;
-		default:
-			LOG(": (%d) Default API path enabled...\n", fastpath_opt);
-			api_opt = COREGL_NORMAL_PATH;
-			init_wrap_gl();
-			break;
-	}
-
-	{
-		const char *output_file = NULL;
-		output_file = get_env_setting("COREGL_LOG_FILE");
-		if (strlen(output_file) > 0)
-		{
-			trace_fp = fopen(output_file, "w");
-		}
-		if (trace_fp == NULL)
-			trace_fp = stderr;
-	}
-
-#ifdef COREGL_TRACE_APICALL_INFO
-	trace_api_flag = atoi(get_env_setting("COREGL_TRACE_API"));
-#endif
-#ifdef COREGL_TRACE_CONTEXT_INFO
-	trace_ctx_flag = atoi(get_env_setting("COREGL_TRACE_CTX"));
-#endif
-#ifdef COREGL_TRACE_CONTEXT_INFO
-	trace_ctx_force_flag = atoi(get_env_setting("COREGL_TRACE_CTX_FORCE"));
-#endif
-#ifdef COREGL_TRACE_STATE_INFO
-	trace_state_flag = atoi(get_env_setting("COREGL_TRACE_STATE"));
-#endif
-
-	debug_nofp = atoi(get_env_setting("COREGL_DEBUG_NOFP"));
-
-
-	override_glue_apis(api_opt);
-	override_gl_apis(api_opt);
+	if (egl_lib_handle) dlclose(egl_lib_handle);
+	if (gl_lib_handle) dlclose(gl_lib_handle);
 
 	return 1;
 }
 
-extern void free_fast_gl();
-extern void free_wrap_gl();
+int
+init_gl()
+{
+	LOG("[CoreGL] Library initializing...");
 
-#ifndef _COREGL_EMBED_EVAS
+	if (!_gl_lib_init()) return 0;
+
+	init_export();
+
+	LOG(" -> Completed\n");
+
+	init_modules();
+
+	return 1;
+}
+
 __attribute__((destructor))
-#endif
 void
 free_gl()
 {
-	GLContext_List *current = NULL;
-
-	switch (api_opt)
+	if (export_initialized != 0)
 	{
-		case COREGL_FAST_PATH:
-			free_fast_gl();
-			break;
-		default:
-			free_wrap_gl();
-			break;
+		deinit_modules();
+
+		_gl_lib_deinit();
 	}
-
-	AST(mutex_lock(&ctx_list_access_mutex) == 1);
-
-	{
-		// Destroy remained context & Detect leaks
-		int retry_destroy = 0;
-
-		while (1)
-		{
-			retry_destroy = 0;
-			current = glctx_list;
-			while (current)
-			{
-				if (current->cstate != NULL)
-				{
-					ERR("\E[0;31;1mWARNING : Context attached to [dpy=%p|rctx=%p] has not been completely destroyed.(leak)\E[0m\n", current->cstate->rdpy, current->cstate->rctx);
-
-#ifndef _COREGL_DESKTOP_GL
-					_sym_eglMakeCurrent(current->cstate->rdpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-					_sym_eglDestroyContext(current->cstate->rdpy, current->cstate->rctx);
-#else
-					_sym_glXDestroyContext(current->cstate->rdpy, current->cstate->rctx);
-#endif
-
-					remove_context_states_from_list(current->cstate, NULL);
-					retry_destroy = 1;
-					break;
-				}
-
-				glctx_list = current->next;
-				free(current);
-				current = glctx_list;
-			}
-			if (retry_destroy == 0) break;
-		}
-	}
-
-#ifndef _COREGL_DESKTOP_GL
-	if (egl_lib_handle) dlclose(egl_lib_handle);
-#endif
-	if (gl_lib_handle) dlclose(gl_lib_handle);
-	goto finish;
-
-finish:
-	AST(mutex_unlock(&ctx_list_access_mutex) == 1);
 }
 

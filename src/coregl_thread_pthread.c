@@ -5,10 +5,11 @@
 int mutex_lock(Mutex *mt);
 int mutex_unlock(Mutex *mt);
 int get_current_thread();
-int set_current_thread_state(Mutex *mt, GLThreadState *tstate);
+int set_current_thread_state(GLThreadState *tstate);
 GLThreadState * get_current_thread_state();
 //////////////////////////////////////////////////////////////////////////
 
+static Mutex            thread_key_mutex = MUTEX_INITIALIZER;
 static int              thread_key_inited = 0;
 static pthread_key_t    thread_key = 0;
 
@@ -45,11 +46,11 @@ get_current_thread()
 }
 
 int
-set_current_thread_state(Mutex *mt, GLThreadState *tstate)
+set_current_thread_state(GLThreadState *tstate)
 {
 	int ret = 0;
 
-	AST(mutex_lock(mt) == 1);
+	AST(mutex_lock(&thread_key_mutex) == 1);
 
 	if (thread_key_inited == 0)
 	{
@@ -73,7 +74,7 @@ set_current_thread_state(Mutex *mt, GLThreadState *tstate)
 	goto finish;
 
 finish:
-	AST(mutex_unlock(mt) == 1);
+	AST(mutex_unlock(&thread_key_mutex) == 1);
 
 	return ret;
 }

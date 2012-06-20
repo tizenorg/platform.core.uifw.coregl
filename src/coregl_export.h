@@ -7,9 +7,10 @@
 # include "headers/sym.h"
 #undef _COREGL_SYMBOL
 
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     extern RET_TYPE (*wrp_##FUNC_NAME) PARAM_LIST;
-# include "headers/sym.h"
-#undef _COREGL_SYMBOL
+extern int export_initialized;
+
+extern void     init_export();
+extern void     clean_overrides();
 
 #endif // COREGL_EXPORT_H
 

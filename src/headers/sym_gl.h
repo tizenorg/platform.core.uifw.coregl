@@ -22,11 +22,7 @@ _COREGL_SYMBOL(GL_FALSE, void, glBufferSubData, (GLenum target, GLintptr offset,
 _COREGL_SYMBOL(GL_FALSE, GLenum, glCheckFramebufferStatus, (GLenum target))
 _COREGL_SYMBOL(GL_FALSE, void, glClear, (GLbitfield mask))
 _COREGL_SYMBOL(GL_FALSE, void, glClearColor, (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha))
-#ifndef _COREGL_DESKTOP_GL
 _COREGL_SYMBOL(GL_FALSE, void, glClearDepthf, (GLclampf depth))
-#else
-_COREGL_SYMBOL(GL_FALSE, void, glClearDepth, (GLclampf depth))
-#endif
 _COREGL_SYMBOL(GL_FALSE, void, glClearStencil, (GLint s))
 _COREGL_SYMBOL(GL_FALSE, void, glColorMask, (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha))
 _COREGL_SYMBOL(GL_FALSE, void, glCompileShader, (GLuint shader))
@@ -45,11 +41,7 @@ _COREGL_SYMBOL(GL_FALSE, void, glDeleteShader, (GLuint shader))
 _COREGL_SYMBOL(GL_FALSE, void, glDeleteTextures, (GLsizei n, const GLuint* textures))
 _COREGL_SYMBOL(GL_FALSE, void, glDepthFunc, (GLenum func))
 _COREGL_SYMBOL(GL_FALSE, void, glDepthMask, (GLboolean flag))
-#ifndef _COREGL_DESKTOP_GL
 _COREGL_SYMBOL(GL_FALSE, void, glDepthRangef, (GLclampf zNear, GLclampf zFar))
-#else
-_COREGL_SYMBOL(GL_FALSE, void, glDepthRange, (GLclampf zNear, GLclampf zFar))
-#endif
 _COREGL_SYMBOL(GL_FALSE, void, glDetachShader, (GLuint program, GLuint shader))
 _COREGL_SYMBOL(GL_FALSE, void, glDisable, (GLenum cap))
 _COREGL_SYMBOL(GL_FALSE, void, glDisableVertexAttribArray, (GLuint index))

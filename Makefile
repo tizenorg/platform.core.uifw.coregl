@@ -1,37 +1,38 @@
 CC = gcc
 
-CFLAGS = -g -O2 -fvisibility=hidden -fPIC -Wall -std=c99 \
-	-D_COREGL_EMBEDDED_GL\
+CFLAGS = -g -O2 -fvisibility=hidden -fPIC -Wall -std=c99
 
-LDFLAGS = -g -O2 -fvisibility=hidden -Wall -std=c99 -fPIC -ldl -lpthread -lGLESv2 -lEGL
+
+LDFLAGS = -g -O2 -fvisibility=hidden -Wall -std=c99 -lpthread
+
 
 SOURCES = \
 		src/coregl.c \
 		src/coregl_thread_pthread.c \
 		src/coregl_trace.c \
-		src/coregl_override.c \
 		src/coregl_export.c \
 		src/coregl_export_egl.c \
 		src/coregl_export_gl.c \
-		src/coregl_wrappath.c \
-		src/coregl_wrappath_egl.c \
-		src/coregl_wrappath_gl.c \
-		src/coregl_fastpath.c \
-		src/coregl_fastpath_egl.c \
-		src/coregl_fastpath_gl.c
+		src/modules/coregl_module.c \
+		\
+		src/modules/tracepath/coregl_tracepath.c \
+		src/modules/tracepath/coregl_tracepath_egl.c \
+		src/modules/tracepath/coregl_tracepath_gl.c \
+		\
+		src/modules/fastpath/coregl_fastpath.c \
+		src/modules/fastpath/coregl_fastpath_egl.c \
+		src/modules/fastpath/coregl_fastpath_gl.c \
+		\
+		src/modules/appopt/coregl_appopt.c \
+		src/modules/appopt/coregl_appopt_egl.c \
+		src/modules/appopt/coregl_appopt_gl.c
 
-BIN = libCOREGL.so.1.1
+BIN = libCOREGL.so
 
 OBJECTS = $(SOURCES:.c=.o)
 
 all : $(BIN)
-	ln -sf $(BIN) lib/libCOREGL.so
-	ln -sf $(BIN) lib/libCOREGL.so.1
-	ln -sf $(BIN) lib/libEGL.so
-	ln -sf $(BIN) lib/libEGL.so.1
 	ln -sf $(BIN) lib/libEGL.so.1.4
-	ln -sf $(BIN) lib/libGLESv2.so
-	ln -sf $(BIN) lib/libGLESv2.so.2
 	ln -sf $(BIN) lib/libGLESv2.so.2.0
 	cp src/headers/egl.h include/EGL/def_egl.h
 	cp src/headers/gl.h include/GLES2/def_gl.h
@@ -48,5 +49,5 @@ $(BIN) : $(OBJECTS)
 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
 
 clean:
-	rm -f $(OBJECTS) lib/*
+	rm -f $(OBJECTS) lib/$(BIN)
 

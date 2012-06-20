@@ -4,12 +4,25 @@
 #include <string.h>
 #include <sys/time.h>
 
-GLenum FPGL_Error = GL_NO_ERROR;
+#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*_orig_fastpath_##FUNC_NAME) PARAM_LIST = NULL;
+#include "../../headers/sym.h"
+#undef _COREGL_SYMBOL
+
+Fastpath_Opt_Flag   fp_opt = FP_UNKNOWN_PATH;
+
+int                 debug_nofp = 0;
+FILE               *trace_fp = NULL;
+
+GLenum              FPGL_Error = GL_NO_ERROR;
 
 GLGlueContext_List *gctx_list = NULL;
 
-Mutex init_context_mutex = MUTEX_INITIALIZER;
-GLGlueContext *initial_ctx = NULL;
+Mutex               init_context_mutex = MUTEX_INITIALIZER;
+GLGlueContext      *initial_ctx = NULL;
+
+Mutex               ctx_list_access_mutex = MUTEX_INITIALIZER;
+
+GLContext_List     *glctx_list = NULL;
 
 static void
 _get_texture_states(GLenum pname, GLint *params)
@@ -38,14 +51,268 @@ _get_stencil_max_mask()
 }
 
 void
-init_fast_gl()
+init_modules_fastpath()
 {
+	int fastpath_opt = 0;
+
+	LOG("[CoreGL] <Fastpath> : ");
+
+	fastpath_opt = atoi(get_env_setting("COREGL_FASTPATH"));
+
+	switch (fastpath_opt)
+	{
+		case 1:
+			LOG("(%d) Fastpath enabled...\n", fastpath_opt);
+			fp_opt = FP_FAST_PATH;
+			break;
+		default:
+			LOG("(%d) Default API path enabled...\n", fastpath_opt);
+			fp_opt = FP_NORMAL_PATH;
+			break;
+	}
+
+	debug_nofp = atoi(get_env_setting("COREGL_DEBUG_NOFP"));
+
+	fastpath_apply_overrides();
+
 }
 
 void
-free_fast_gl()
+deinit_modules_fastpath()
 {
+	GLContext_List *current = NULL;
+
+	AST(mutex_lock(&ctx_list_access_mutex) == 1);
+
+	// Destroy remained context & Detect leaks
+	int retry_destroy = 0;
+
+	while (1)
+	{
+		retry_destroy = 0;
+		current = glctx_list;
+		while (current)
+		{
+			if (current->cstate != NULL)
+			{
+				ERR("\E[0;31;1mWARNING : Context attached to [dpy=%p|rctx=%p] has not been completely destroyed.(leak)\E[0m\n", current->cstate->rdpy, current->cstate->rctx);
+
+				_sym_eglMakeCurrent(current->cstate->rdpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+				_sym_eglDestroyContext(current->cstate->rdpy, current->cstate->rctx);
+
+				fastpath_remove_context_states_from_list(current->cstate, NULL);
+				retry_destroy = 1;
+				break;
+			}
+
+			glctx_list = current->next;
+			free(current);
+			current = glctx_list;
+		}
+		if (retry_destroy == 0) break;
+	}
+	goto finish;
+
+finish:
+	AST(mutex_unlock(&ctx_list_access_mutex) == 1);
 }
+
+void
+init_modules_tstate_fastpath(GLThreadState *tstate)
+{
+	MY_MODULE_TSTATE *tstate_mt = NULL;
+
+	tstate_mt = (MY_MODULE_TSTATE *)calloc(1, sizeof(MY_MODULE_TSTATE));
+
+	tstate_mt->binded_api = EGL_OPENGL_ES_API;
+
+	tstate->module_data[MY_MODULE_ID] = tstate_mt;
+}
+
+void
+deinit_modules_tstate_fastpath(GLThreadState *tstate)
+{
+	if (tstate->module_data[MY_MODULE_ID] != NULL)
+	{
+		free(tstate->module_data[MY_MODULE_ID]);
+		tstate->module_data[MY_MODULE_ID] = NULL;
+	}
+}
+
+void
+fastpath_apply_overrides()
+{
+	switch(fp_opt)
+	{
+		case FP_FAST_PATH:
+			fastpath_apply_overrides_egl(1);
+			fastpath_apply_overrides_gl(1);
+			break;
+		case FP_NORMAL_PATH:
+			break;
+		default:
+			ERR("Invalide GL Override Option!!!\n");
+			break;
+	}
+}
+
+#define OVERRIDE(f) \
+	if (enable == 1) \
+	{ \
+		COREGL_OVERRIDE_API(_orig_fastpath_, f, ovr_); \
+		COREGL_OVERRIDE_API(ovr_, f, fastpath_); \
+	} \
+	else \
+	{ \
+		AST(ovr_##f != NULL); \
+		COREGL_OVERRIDE_API(ovr_, f, _orig_fastpath_); \
+		_orig_fastpath_##f = NULL; \
+	}
+
+void
+fastpath_apply_overrides_egl(int enable)
+{
+	// Fast-Path Core Functions
+	OVERRIDE(eglGetProcAddress);
+
+	OVERRIDE(eglBindAPI);
+	OVERRIDE(eglQueryAPI);
+
+	OVERRIDE(eglCreateContext);
+	OVERRIDE(eglCreateImageKHR);
+	OVERRIDE(eglMakeCurrent);
+	OVERRIDE(eglDestroyContext);
+	OVERRIDE(eglQueryContext);
+	OVERRIDE(eglGetCurrentContext);
+	OVERRIDE(eglReleaseThread);
+	OVERRIDE(eglGetCurrentSurface);
+	OVERRIDE(eglTerminate);
+
+}
+
+void
+fastpath_apply_overrides_gl(int enable)
+{
+	// Fast-Path Functions
+	if (debug_nofp != 1)
+	{
+		OVERRIDE(glGetError);
+
+		OVERRIDE(glGetIntegerv);
+		OVERRIDE(glGetFloatv);
+		OVERRIDE(glGetBooleanv);
+
+		OVERRIDE(glActiveTexture);
+		OVERRIDE(glGenTextures);
+		OVERRIDE(glBindTexture);
+		OVERRIDE(glIsTexture);
+		OVERRIDE(glDeleteTextures);
+		OVERRIDE(glFramebufferTexture2D);
+		OVERRIDE(glFramebufferTexture2DMultisampleEXT);
+
+		OVERRIDE(glGenBuffers);
+		OVERRIDE(glBindBuffer);
+		OVERRIDE(glIsBuffer);
+		OVERRIDE(glDeleteBuffers);
+
+		OVERRIDE(glGenFramebuffers);
+		OVERRIDE(glBindFramebuffer);
+		OVERRIDE(glIsFramebuffer);
+		OVERRIDE(glDeleteFramebuffers);
+
+		OVERRIDE(glGenRenderbuffers);
+		OVERRIDE(glBindRenderbuffer);
+		OVERRIDE(glFramebufferRenderbuffer);
+		OVERRIDE(glIsRenderbuffer);
+		OVERRIDE(glDeleteRenderbuffers);
+
+		OVERRIDE(glCreateShader);
+		OVERRIDE(glCreateProgram);
+		OVERRIDE(glAttachShader);
+		OVERRIDE(glCompileShader);
+		OVERRIDE(glShaderBinary);
+		OVERRIDE(glDeleteShader);
+		OVERRIDE(glDetachShader);
+		OVERRIDE(glGetShaderiv);
+		OVERRIDE(glGetShaderInfoLog);
+		OVERRIDE(glGetShaderSource);
+		OVERRIDE(glIsShader);
+		OVERRIDE(glShaderSource);
+		OVERRIDE(glBindAttribLocation);
+		OVERRIDE(glDeleteProgram);
+		OVERRIDE(glDetachShader);
+		OVERRIDE(glGetActiveAttrib);
+		OVERRIDE(glGetActiveUniform);
+		OVERRIDE(glGetAttachedShaders);
+		OVERRIDE(glGetAttribLocation);
+		OVERRIDE(glGetProgramiv);
+		OVERRIDE(glGetProgramInfoLog);
+		OVERRIDE(glGetUniformfv);
+		OVERRIDE(glGetUniformiv);
+		OVERRIDE(glGetUniformLocation);
+		OVERRIDE(glIsProgram);
+		OVERRIDE(glLinkProgram);
+		OVERRIDE(glUseProgram);
+		OVERRIDE(glValidateProgram);
+		OVERRIDE(glGetProgramBinary);
+		OVERRIDE(glProgramBinary);
+
+		OVERRIDE(glBlendColor);
+		OVERRIDE(glBlendEquation);
+		OVERRIDE(glBlendEquationSeparate);
+		OVERRIDE(glBlendFunc);
+		OVERRIDE(glBlendFuncSeparate);
+		OVERRIDE(glClearColor);
+		OVERRIDE(glClearDepthf);
+		OVERRIDE(glClearStencil);
+		OVERRIDE(glColorMask);
+		OVERRIDE(glCullFace);
+		OVERRIDE(glDepthFunc);
+		OVERRIDE(glDepthMask);
+		OVERRIDE(glDepthRangef);
+		OVERRIDE(glDisable);
+		OVERRIDE(glDisableVertexAttribArray);
+		OVERRIDE(glDrawArrays);
+		OVERRIDE(glDrawElements);
+		OVERRIDE(glEnable);
+		OVERRIDE(glEnableVertexAttribArray);
+		OVERRIDE(glFrontFace);
+		OVERRIDE(glGetVertexAttribfv);
+		OVERRIDE(glGetVertexAttribiv);
+		OVERRIDE(glGetVertexAttribPointerv);
+		OVERRIDE(glHint);
+		OVERRIDE(glLineWidth);
+		OVERRIDE(glPixelStorei);
+		OVERRIDE(glPolygonOffset);
+		OVERRIDE(glSampleCoverage);
+		OVERRIDE(glScissor);
+		OVERRIDE(glStencilFunc);
+		OVERRIDE(glStencilFuncSeparate);
+		OVERRIDE(glStencilMask);
+		OVERRIDE(glStencilMaskSeparate);
+		OVERRIDE(glStencilOp);
+		OVERRIDE(glStencilOpSeparate);
+		OVERRIDE(glVertexAttrib1f);
+		OVERRIDE(glVertexAttrib1fv);
+		OVERRIDE(glVertexAttrib2f);
+		OVERRIDE(glVertexAttrib2fv);
+		OVERRIDE(glVertexAttrib3f);
+		OVERRIDE(glVertexAttrib3fv);
+		OVERRIDE(glVertexAttrib4f);
+		OVERRIDE(glVertexAttrib4fv);
+		OVERRIDE(glVertexAttribPointer);
+		OVERRIDE(glViewport);
+
+		OVERRIDE(glEGLImageTargetTexture2DOES);
+
+	}
+	else
+	{
+		LOG("\E[0;35;1m[CoreGL] SKIP GL FASTPATH...\E[0m\n");
+	}
+}
+
+#undef OVERRIDE
 
 static GL_Object **
 _get_shared_object(GL_Shared_Object_State *sostate, GL_Object_Type type)
@@ -67,9 +334,150 @@ _get_shared_object(GL_Shared_Object_State *sostate, GL_Object_Type type)
 	}
 }
 
+int
+fastpath_add_context_state_to_list(const void *option, const int option_len, GLContextState *cstate, Mutex *mtx)
+{
+	int ret = 0;
+	int tid = 0;
+	GLContext_List *current = NULL;
+	GLContext_List *newitm = NULL;
+
+	if (mtx != NULL) AST(mutex_lock(mtx) == 1);
+
+	AST(cstate != NULL);
+
+	tid = get_current_thread();
+
+	current = glctx_list;
+	while (current != NULL)
+	{
+		if (current->option_len == option_len &&
+		    memcmp(current->option, option, option_len) == 0 &&
+		    current->thread_id == tid)
+		{
+			AST(current->cstate == cstate);
+			goto finish;
+		}
+		current = current->next;
+	}
+
+	newitm = (GLContext_List *)calloc(1, sizeof(GLContext_List));
+	if (newitm == NULL)
+	{
+		ERR("Failed to create context list.\n");
+		goto finish;
+	}
+
+	newitm->cstate = cstate;
+	newitm->thread_id = tid;
+	newitm->option_len = option_len;
+	newitm->option = (void *)malloc(option_len);
+	memcpy(newitm->option, option, option_len);
+
+	if (glctx_list != NULL)
+		newitm->next = glctx_list;
+
+	glctx_list = newitm;
+
+	ret = 1;
+	goto finish;
+
+finish:
+	if (ret != 1)
+	{
+		if (newitm != NULL)
+		{
+			free(newitm);
+			newitm = NULL;
+		}
+		if (cstate != NULL)
+		{
+			free(cstate);
+			cstate = NULL;
+		}
+	}
+	if (mtx != NULL) AST(mutex_unlock(mtx) == 1);
+
+	return ret;
+}
+
+GLContextState *
+fastpath_get_context_state_from_list(const void *option, const int option_len, Mutex *mtx)
+{
+	GLContextState *ret = NULL;
+	GLContext_List *current = NULL;
+	int tid = 0;
+
+	if (mtx != NULL) AST(mutex_lock(mtx) == 1);
+
+	tid = get_current_thread();
+
+	current = glctx_list;
+	while (current != NULL)
+	{
+		if (current->option_len == option_len &&
+		    memcmp(current->option, option, option_len) == 0 &&
+		    current->thread_id == tid)
+		{
+			ret = current->cstate;
+			goto finish;
+		}
+		current = current->next;
+	}
+	goto finish;
+
+finish:
+	if (mtx != NULL) AST(mutex_unlock(mtx) == 1);
+	return ret;
+}
+
+int
+fastpath_remove_context_states_from_list(GLContextState *cstate, Mutex *mtx)
+{
+	int ret = 0;
+	int tid = 0;
+	GLContext_List *olditm = NULL;
+	GLContext_List *current = NULL;
+
+	if (mtx != NULL) AST(mutex_lock(mtx) == 1);
+
+	AST(cstate != NULL);
+
+	tid = get_current_thread();
+	current = glctx_list;
+
+	while (current != NULL)
+	{
+		if (current->cstate == cstate)
+		{
+			GLContext_List *nextitm = NULL;
+			if (olditm != NULL)
+			{
+				olditm->next = current->next;
+				nextitm = olditm->next;
+			}
+			else
+			{
+				glctx_list = current->next;
+				nextitm = glctx_list;
+			}
+			free(current);
+			ret = 1;
+			current = nextitm;
+			continue;
+		}
+		olditm = current;
+		current = current->next;
+	}
+	goto finish;
+
+finish:
+	if (mtx != NULL) AST(mutex_unlock(mtx) == 1);
+	return ret;
+}
 
 GLuint
-sostate_create_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint real_name)
+fastpath_sostate_create_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint real_name)
 {
 	GL_Object **object = NULL;
 	GLuint ret = _COREGL_INT_INIT_VALUE;
@@ -96,7 +504,7 @@ finish:
 }
 
 GLuint
-sostate_remove_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint glue_name)
+fastpath_sostate_remove_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint glue_name)
 {
 	GL_Object **object = NULL;
 	GLuint ret = _COREGL_INT_INIT_VALUE;
@@ -124,7 +532,7 @@ finish:
 }
 
 GLuint
-sostate_get_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint glue_name)
+fastpath_sostate_get_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint glue_name)
 {
 	GL_Object **object = NULL;
 	GLuint ret = _COREGL_INT_INIT_VALUE;
@@ -149,7 +557,7 @@ finish:
 }
 
 GLuint
-sostate_find_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint real_name)
+fastpath_sostate_find_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint real_name)
 {
 	GL_Object **object = NULL;
 	GLuint ret = _COREGL_INT_INIT_VALUE;
@@ -173,7 +581,7 @@ finish:
 }
 
 void
-dump_context_states(GLGlueContext *ctx, int force_output)
+fastpath_dump_context_states(GLGlueContext *ctx, int force_output)
 {
 	static struct timeval tv_last = { 0, 0 };
 
@@ -243,7 +651,7 @@ finish:
 }
 
 int
-init_context_states(GLGlueContext *ctx)
+fastpath_init_context_states(GLGlueContext *ctx)
 {
 	int ret = 0;
 
@@ -385,8 +793,13 @@ finish:
 	return ret;
 }
 
+#ifdef COREGL_USE_MODULE_TRACEPATH
+extern void *tracepath_api_trace_begin(const char *name, void *hint, int trace_total_time);
+extern void *tracepath_api_trace_end(const char *name, void *hint, int trace_total_time);
+#endif
+
 void
-make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
+fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 {
 	unsigned char flag = 0;
 	int i = 0;
@@ -396,24 +809,28 @@ make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 	// Return if they're the same
 	if (oldctx == newctx) goto finish;
 
-#ifdef EVAS_GL_DEBUG
-#  define STATE_COMPARE(state)
-#  define STATES_COMPARE(state_ptr, bytes)
-#else
-#  define STATE_COMPARE(state) \
+#define STATE_COMPARE(state) \
    if ((oldctx->state) != (newctx->state))
-#  define STATES_COMPARE(state_ptr, bytes) \
+
+#define STATES_COMPARE(state_ptr, bytes) \
    if ((memcmp((oldctx->state_ptr), (newctx->state_ptr), (bytes))) != 0)
-#endif
 
+
+#ifdef COREGL_USE_MODULE_TRACEPATH
 	static void *trace_hint_glfinish = NULL;
-	trace_hint_glfinish = _COREGL_TRACE_API_BEGIN("eglMakeCurrent(FP glFinish)", trace_hint_glfinish, 0);
+	trace_hint_glfinish = tracepath_api_trace_begin("eglMakeCurrent(FP glFinish)", trace_hint_glfinish, 0);
+#endif // COREGL_USE_MODULE_TRACEPATH
+
 	_sym_glFlush();
-	_COREGL_TRACE_API_END("eglMakeCurrent(FP glFinish)", trace_hint_glfinish, 0);
 
+#ifdef COREGL_USE_MODULE_TRACEPATH
+	tracepath_api_trace_end("eglMakeCurrent(FP glFinish)", trace_hint_glfinish, 0);
+#endif // COREGL_USE_MODULE_TRACEPATH
 
+#ifdef COREGL_USE_MODULE_TRACEPATH
 	static void *trace_hint_bindbuffers = NULL;
-	trace_hint_bindbuffers = _COREGL_TRACE_API_BEGIN("eglMakeCurrent(FP bind buffers)", trace_hint_bindbuffers, 0);
+	trace_hint_bindbuffers = tracepath_api_trace_begin("eglMakeCurrent(FP bind buffers)", trace_hint_bindbuffers, 0);
+#endif // COREGL_USE_MODULE_TRACEPATH
 
 	//------------------//
 	// _bind_flag
@@ -438,14 +855,18 @@ make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 		}
 	}
 
-	_COREGL_TRACE_API_END("eglMakeCurrent(FP bind buffers)", trace_hint_bindbuffers, 0);
+#ifdef COREGL_USE_MODULE_TRACEPATH
+	tracepath_api_trace_end("eglMakeCurrent(FP bind buffers)", trace_hint_bindbuffers, 0);
+#endif // COREGL_USE_MODULE_TRACEPATH
 
 
 	//------------------//
 	// Enable States
 	// _enable_flag1
+#ifdef COREGL_USE_MODULE_TRACEPATH
 	static void *trace_hint_enable_states = NULL;
-	trace_hint_enable_states = _COREGL_TRACE_API_BEGIN("eglMakeCurrent(FP enable states)", trace_hint_enable_states, 0);
+	trace_hint_enable_states = tracepath_api_trace_begin("eglMakeCurrent(FP enable states)", trace_hint_enable_states, 0);
+#endif // COREGL_USE_MODULE_TRACEPATH
 
 	flag = oldctx->_enable_flag1 | newctx->_enable_flag1;
 	if (flag)
@@ -521,12 +942,16 @@ make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 		}
 	}
 
-	_COREGL_TRACE_API_END("eglMakeCurrent(FP enable states)", trace_hint_enable_states, 0);
+#ifdef COREGL_USE_MODULE_TRACEPATH
+	tracepath_api_trace_end("eglMakeCurrent(FP enable states)", trace_hint_enable_states, 0);
+#endif // COREGL_USE_MODULE_TRACEPATH
 
 	//------------------//
 	// _clear_flag1
+#ifdef COREGL_USE_MODULE_TRACEPATH
 	static void *trace_hint_clear_viewport = NULL;
-	trace_hint_clear_viewport = _COREGL_TRACE_API_BEGIN("eglMakeCurrent(FP clear/viewport)", trace_hint_clear_viewport, 0);
+	trace_hint_clear_viewport = tracepath_api_trace_begin("eglMakeCurrent(FP clear/viewport)", trace_hint_clear_viewport, 0);
+#endif // COREGL_USE_MODULE_TRACEPATH
 
 	flag = oldctx->_clear_flag1 | newctx->_clear_flag1;
 	if (flag)
@@ -589,12 +1014,16 @@ make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 
 	}
 
-	_COREGL_TRACE_API_END("eglMakeCurrent(FP clear/viewport)", trace_hint_clear_viewport, 0);
+#ifdef COREGL_USE_MODULE_TRACEPATH
+	tracepath_api_trace_end("eglMakeCurrent(FP clear/viewport)", trace_hint_clear_viewport, 0);
+#endif // COREGL_USE_MODULE_TRACEPATH
 
 	//------------------//
 	// Texture here...
+#ifdef COREGL_USE_MODULE_TRACEPATH
 	static void *trace_hint_bind_textures = NULL;
-	trace_hint_bind_textures = _COREGL_TRACE_API_BEGIN("eglMakeCurrent(FP bind textures)", trace_hint_bind_textures, 0);
+	trace_hint_bind_textures = tracepath_api_trace_begin("eglMakeCurrent(FP bind textures)", trace_hint_bind_textures, 0);
+#endif // COREGL_USE_MODULE_TRACEPATH
 
 	flag = oldctx->_tex_flag1 | newctx->_tex_flag1;
 	if (flag)
@@ -623,11 +1052,15 @@ make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 			_sym_glHint(GL_GENERATE_MIPMAP_HINT, newctx->gl_generate_mipmap_hint[0]);
 		}
 	}
-	_COREGL_TRACE_API_END("eglMakeCurrent(FP bind textures)", trace_hint_bind_textures, 0);
+#ifdef COREGL_USE_MODULE_TRACEPATH
+	tracepath_api_trace_end("eglMakeCurrent(FP bind textures)", trace_hint_bind_textures, 0);
+#endif // COREGL_USE_MODULE_TRACEPATH
 
 	//------------------//
+#ifdef COREGL_USE_MODULE_TRACEPATH
 	static void *trace_hint_etc = NULL;
-	trace_hint_etc = _COREGL_TRACE_API_BEGIN("eglMakeCurrent(FP etc.)", trace_hint_etc, 0);
+	trace_hint_etc = tracepath_api_trace_begin("eglMakeCurrent(FP etc.)", trace_hint_etc, 0);
+#endif // COREGL_USE_MODULE_TRACEPATH
 
 	flag = oldctx->_blend_flag | newctx->_blend_flag;
 	if (flag)
@@ -768,11 +1201,16 @@ make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 			_sym_glPixelStorei(GL_UNPACK_ALIGNMENT, newctx->gl_unpack_alignment[0]);
 		}
 	}
-	_COREGL_TRACE_API_END("eglMakeCurrent(FP etc.)", trace_hint_etc, 0);
+#ifdef COREGL_USE_MODULE_TRACEPATH
+	tracepath_api_trace_end("eglMakeCurrent(FP etc.)", trace_hint_etc, 0);
+#endif // COREGL_USE_MODULE_TRACEPATH
 
 	// _varray_flag
+#ifdef COREGL_USE_MODULE_TRACEPATH
 	static void *trace_hint_vertex_attrib = NULL;
-	trace_hint_vertex_attrib = _COREGL_TRACE_API_BEGIN("eglMakeCurrent(FP vertex attrib)", trace_hint_vertex_attrib, 0);
+	trace_hint_vertex_attrib = tracepath_api_trace_begin("eglMakeCurrent(FP vertex attrib)", trace_hint_vertex_attrib, 0);
+#endif // COREGL_USE_MODULE_TRACEPATH
+
 	flag = oldctx->_vattrib_flag | newctx->_vattrib_flag;
 	if (flag)
 	{
@@ -817,14 +1255,17 @@ make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 
 	}
 
-	_COREGL_TRACE_API_END("eglMakeCurrent(FP vertex attrib)", trace_hint_vertex_attrib, 0);
+#ifdef COREGL_USE_MODULE_TRACEPATH
+	tracepath_api_trace_end("eglMakeCurrent(FP vertex attrib)", trace_hint_vertex_attrib, 0);
+#endif // COREGL_USE_MODULE_TRACEPATH
+
 	goto finish;
 
 finish:
 
 #ifdef COREGL_TRACE_STATE_INFO
 	if (unlikely(trace_state_flag == 1))
-		dump_context_states(newctx, 0);
+		fastpath_dump_context_states(newctx, 0);
 #endif // COREGL_TRACE_STATE_INFO
 	return;
 #undef STATE_COMPARE
