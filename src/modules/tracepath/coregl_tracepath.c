@@ -19,6 +19,7 @@ struct _Trace_Data
 	int                          call_count;
 	int                          last_call_count;
 	struct timeval              elapsed_time;
+	struct timeval              elapsed_time_max;
 	struct timeval              last_elapsed_time;
 	struct timeval              total_elapsed_time;
 	struct timeval              last_total_elapsed_time;
@@ -451,6 +452,12 @@ tracepath_api_trace_end(const char *funcname, void *hint, int trace_total_time)
 
 		_add_timeval(&ftd->elapsed_time, elapsed_time);
 
+		if (elapsed_time.tv_sec >= ftd->elapsed_time_max.tv_sec &&
+			elapsed_time.tv_usec > ftd->elapsed_time_max.tv_usec)
+		{
+			ftd->elapsed_time_max.tv_sec = elapsed_time.tv_sec;
+			ftd->elapsed_time_max.tv_usec = elapsed_time.tv_usec;
+		}
 
 		ftd->last_time.tv_sec = 0;
 
@@ -572,6 +579,7 @@ tracepath_api_trace_output(int force_output)
 				if (current->call_count > current->last_call_count)
 				{
 					double elapsed_time_period = _get_timeval_period(current->elapsed_time, current->last_elapsed_time);
+					double elapsed_time_max = _get_timeval(current->elapsed_time_max);
 					double elapsed_time_per_call_period = elapsed_time_period / (current->call_count - current->last_call_count);
 					char *fname = current->name;
 
@@ -580,8 +588,8 @@ tracepath_api_trace_output(int force_output)
 
 					if (elapsed_time_per_call_period >= 0.01 || current->call_count - current->last_call_count > 1000)
 					{
-						TRACE("\E[40;37;1m %-42.42s : %10d call(s), %10.2f ms, %9.3f ms/API, %9.3f ms/API(P) \E[0m\n",
-						      fname, current->call_count, elapsed_time, elapsed_time_per_call, elapsed_time_per_call_period);
+						TRACE("\E[40;37;1m %-39.39s : %10d call(s), %9.3f ms/API, %9.2f ms(MAX), %9.3f ms/API(P)\E[0m\n",
+						      fname, current->call_count, elapsed_time_per_call, elapsed_time_max, elapsed_time_per_call_period);
 						current->traced = 1;
 					}
 				}
@@ -608,13 +616,14 @@ tracepath_api_trace_output(int force_output)
 						{
 							double elapsed_time = _get_timeval(current->elapsed_time);
 							double elapsed_time_per_call = elapsed_time / current->call_count;
+							double elapsed_time_max = _get_timeval(current->elapsed_time_max);
 							char *fname = current->name;
 
 							if (!strncmp(fname, "tracepath_", 10))
 								fname = &current->name[10];
 
-							TRACE(" %-42.42s : %10d call(s), %10.2f ms, %9.3f ms/API\n",
-							      fname, current->call_count, elapsed_time, elapsed_time_per_call);
+							TRACE(" %-39.39s : %10d call(s), %9.3f ms/API, %9.2f ms(MAX)\n",
+							      fname, current->call_count, elapsed_time_per_call, elapsed_time_max);
 						}
 						current = current->next;
 					}
@@ -625,7 +634,7 @@ tracepath_api_trace_output(int force_output)
 
 	TRACE("\E[40;34m========================================================================================================================\E[0m\n");
 
-	TRACE("\E[40;36;1m %-42.42s : %13.2f ms[%6.2f%%], %13.2f ms(P)[%6.2f%%]\E[0m\n",
+	TRACE("\E[40;36;1m %-39.39s : %13.2f ms[%6.2f%%], %13.2f ms(P)[%6.2f%%]\E[0m\n",
 	      "TOTAL elapsed Time",
 	      total_elapsed_time,
 	      100.0,
@@ -633,21 +642,21 @@ tracepath_api_trace_output(int force_output)
 	      100.0);
 
 
-	TRACE("\E[40;36;1m %-42.42s : %13.2f ms[%6.2f%%], %13.2f ms(P)[%6.2f%%]\E[0m\n",
+	TRACE("\E[40;36;1m %-39.39s : %13.2f ms[%6.2f%%], %13.2f ms(P)[%6.2f%%]\E[0m\n",
 	      "OpenGL elapsed Time",
 	      total_opengl_elapsed_time,
 	      total_opengl_elapsed_time * 100.0 / total_elapsed_time,
 	      total_opengl_elapsed_time_period,
 	      total_opengl_elapsed_time_period * 100.0 / total_elapsed_time_period);
 
-	TRACE("\E[40;36;1m %-42.42s : %13.2f ms[%6.2f%%], %13.2f ms(P)[%6.2f%%]\E[0m\n",
+	TRACE("\E[40;36;1m %-39.39s : %13.2f ms[%6.2f%%], %13.2f ms(P)[%6.2f%%]\E[0m\n",
 	      "Out of OpenGL elapsed time",
 	      total_other_elapsed_time,
 	      total_other_elapsed_time * 100.0 / total_elapsed_time,
 	      total_other_elapsed_time_period,
 	      total_other_elapsed_time_period * 100.0 / total_elapsed_time_period);
 
-	TRACE("\E[40;36;1m %-42.42s : %13.2f ms[%6.2f%%], %13.2f ms(P)[%6.2f%%]\E[0m\n",
+	TRACE("\E[40;36;1m %-39.39s : %13.2f ms[%6.2f%%], %13.2f ms(P)[%6.2f%%]\E[0m\n",
 	      "CoreGL API tracing overhead",
 	      total_elapsed_time - total_opengl_elapsed_time - total_other_elapsed_time,
 	      (total_elapsed_time - total_opengl_elapsed_time - total_other_elapsed_time) * 100.0 / total_elapsed_time,
