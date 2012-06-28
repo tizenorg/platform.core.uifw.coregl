@@ -3,7 +3,7 @@ CC = gcc
 CFLAGS = -g -O2 -fvisibility=hidden -fPIC -Wall -std=c99
 
 
-LDFLAGS = -g -O2 -fvisibility=hidden -Wall -std=c99 -lpthread
+LDFLAGS = -g -O2 -fvisibility=hidden -Wall -std=c99 -ldl -lpthread
 
 
 SOURCES = \
