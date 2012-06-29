@@ -27,7 +27,7 @@ SOURCES = \
 		src/modules/appopt/coregl_appopt_egl.c \
 		src/modules/appopt/coregl_appopt_gl.c
 
-BIN = libCOREGL.so
+BIN = libCOREGL.so.1.1
 
 OBJECTS = $(SOURCES:.c=.o)
 
