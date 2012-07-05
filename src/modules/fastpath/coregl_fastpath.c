@@ -1263,10 +1263,10 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 
 finish:
 
-#ifdef COREGL_TRACE_STATE_INFO
+#ifdef COREGL_FASTPATH_TRACE_STATE_INFO
 	if (unlikely(trace_state_flag == 1))
 		fastpath_dump_context_states(newctx, 0);
-#endif // COREGL_TRACE_STATE_INFO
+#endif // COREGL_FASTPATH_TRACE_STATE_INFO
 	return;
 #undef STATE_COMPARE
 #undef STATES_COMPARE

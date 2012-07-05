@@ -333,13 +333,13 @@ tracepath_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLCo
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
-#ifdef COREGL_TRACE_STATE_INFO
+#ifdef COREGL_TRACEPATH_TRACE_STATE_INFO
 	if (unlikely(trace_state_flag == 1))
 	{
 		if (_orig_tracepath_eglMakeCurrent == _sym_eglMakeCurrent)
 			tracepath_dump_context_states(0);
 	}
-#endif // COREGL_TRACE_STATE_INFO
+#endif // COREGL_TRACEPATH_TRACE_STATE_INFO
 	return ret;
 }
 

@@ -210,9 +210,9 @@ extern void                fastpath_apply_overrides_gl(int enable);
 extern int                 fastpath_init_context_states(GLGlueContext *ctx);
 extern void                fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx);
 
-#ifdef COREGL_TRACE_STATE_INFO
+#ifdef COREGL_FASTPATH_TRACE_STATE_INFO
 extern void                fastpath_dump_context_states(GLGlueContext *ctx, int force_output);
-#endif
+#endif // COREGL_FASTPATH_TRACE_STATE_INFO
 
 // Context state functions
 extern int                 fastpath_add_context_state_to_list(const void *data, const int datalen, GLContextState *cstate, Mutex *mtx);
