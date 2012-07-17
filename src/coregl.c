@@ -187,7 +187,7 @@ _gl_lib_deinit(void)
 }
 
 int
-init_gl()
+coregl_initialize()
 {
 	LOG("[CoreGL] Library initializing...");
 
@@ -204,7 +204,7 @@ init_gl()
 
 __attribute__((destructor))
 void
-free_gl()
+coregl_terminate()
 {
 	if (export_initialized != 0)
 	{

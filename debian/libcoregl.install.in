@@ -1,1 +1,3 @@
 @PREFIX@/lib/libCOREGL.so*
+@PREFIX@/lib/libEGL.so*
+@PREFIX@/lib/libGLESv2.so*

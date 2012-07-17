@@ -1,18 +1,46 @@
-#include "coregl_export.h"
+#include <stdio.h>
+#include <dlfcn.h>
 
-Mutex init_export_mutex = MUTEX_INITIALIZER;
+// Include GL/EGL/GLX types
+# include <EGL/eglplatform.h>
+# include "../headers/egl.h"
 
-#define INIT_EXPORT() \
-	if (unlikely(export_initialized == 0)) \
-	{ \
-		mutex_lock(&init_export_mutex); \
-		if (export_initialized == 0) \
-		{ \
-			coregl_initialize(); \
-			export_initialized = 1; \
-		} \
-		mutex_unlock(&init_export_mutex); \
+typedef void (*_eng_fn) (void);
+
+#define COREGL_API           __attribute__((visibility("default")))
+
+#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_API extern RET_TYPE FUNC_NAME PARAM_LIST;
+# include "../headers/sym_egl.h"
+#undef _COREGL_SYMBOL
+
+#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*ovr_##FUNC_NAME) PARAM_LIST = NULL;
+# include "../headers/sym_egl.h"
+#undef _COREGL_SYMBOL
+
+#define INIT_EXPORT()
+
+__attribute__((constructor))
+int
+coregl_glwrap_init()
+{
+	void *lib_handle = NULL;
+
+	lib_handle = dlopen("libCOREGL.so", RTLD_NOW);
+	if (!lib_handle)
+	{
+		fprintf(stderr, "\E[0;31;1mERROR : %s\E[0m\n\n", dlerror());
+		fprintf(stderr, "\E[0;31;1mERROR : Invalid library link! (Check linkage of libEGL -> libCOREGL)\E[0m\n");
+		return 0;
 	}
+
+#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) \
+   ovr_##FUNC_NAME = (__typeof__(ovr_##FUNC_NAME))dlsym(lib_handle, #FUNC_NAME);
+#include "../headers/sym_egl.h"
+#undef _COREGL_SYMBOL
+
+	return 1;
+}
+
 
 EGLint
 eglGetError(void)
@@ -301,4 +329,5 @@ eglUnlockSurfaceKHR(EGLDisplay display, EGLSurface surface)
 	INIT_EXPORT();
 	return ovr_eglUnlockSurfaceKHR(display, surface);
 }
+
 
