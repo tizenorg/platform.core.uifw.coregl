@@ -1,5 +1,304 @@
 #include "coregl_tracepath.h"
 
+#include <stdlib.h>
+#include <sys/time.h>
+
+#include <sys/types.h>
+#include <unistd.h>
+
+Mutex ctx_access_mutex = MUTEX_INITIALIZER;
+Ctx_Data *ctx_data = NULL;
+
+static Sostate_Data *
+_get_sostate(GLContext ctx)
+{
+	Sostate_Data *ret = NULL;
+
+	Ctx_Data *current = ctx_data;
+	while (current != NULL)
+	{
+		if (current->handle == ctx)
+		{
+			current->sostate->ref_count++;
+			ret = current->sostate;
+			break;
+		}
+		current = current->next;
+	}
+
+	return ret;
+}
+
+#ifdef COREGL_TRACEPATH_TRACE_CONTEXT_INFO
+
+static void
+_dump_context_info(const char *ment, int force_output)
+{
+	MY_MODULE_TSTATE *tstate = NULL;
+	static struct timeval tv_last = { 0, 0 };
+
+	if (trace_ctx_flag != 1) return;
+
+	AST(mutex_lock(&ctx_access_mutex) == 1);
+	AST(mutex_lock(&general_trace_lists_access_mutex) == 1);
+
+	if (!force_output && !trace_ctx_force_flag)
+	{
+		struct timeval tv_now = { 0, 0 };
+		AST(gettimeofday(&tv_now, NULL) == 0);
+		if (tv_now.tv_sec - tv_last.tv_sec < _COREGL_TRACE_OUTPUT_INTERVAL_SEC)
+		{
+			goto finish;
+		}
+		tv_last = tv_now;
+	}
+
+	GET_MY_TSTATE(tstate, get_current_thread_state());
+
+	TRACE("\n");
+	TRACE("\E[40;34m========================================================================================================================\E[0m\n");
+	TRACE("\E[40;32;1m  Context info \E[1;37;1m: <PID = %d> %s\E[0m\n", getpid(), ment);
+	TRACE("\E[40;34m========================================================================================================================\E[0m\n");
+
+
+	// Thread State List
+	{
+		General_Trace_List *current = NULL;
+		current = thread_trace_list;
+
+		while (current != NULL)
+		{
+			GLThreadState *cur_tstate = (GLThreadState *)current->value;
+			MY_MODULE_TSTATE *cur_tstate_tm = NULL;
+
+			GET_MY_TSTATE(cur_tstate_tm, cur_tstate);
+			AST(cur_tstate_tm != NULL);
+
+			TRACE(" %c Thread  [%12d] : Surf <D=[%12p] R=[%12p]>",
+			      (tstate == cur_tstate_tm) ? '*' : ' ',
+			      cur_tstate->thread_id,
+			      cur_tstate_tm->surf_draw,
+			      cur_tstate_tm->surf_read);
+
+			if (cur_tstate_tm->ctx != NULL)
+			{
+				TRACE(" EGLCTX=[%12p]\E[0m\n",
+				      cur_tstate_tm->ctx->handle);
+			}
+			else
+			{
+				TRACE(" (NOT BINDED TO THREAD)\E[0m\n");
+			}
+
+			// Binded Context State List
+			{
+				Ctx_Data *current = NULL;
+				current = ctx_data;
+
+				while (current != NULL)
+				{
+					if (cur_tstate_tm->ctx == current)
+					{
+						TRACE("   -> EGLCTX [%12p] : EGLDPY=[%12p] <MC count [%10d]> <Ref [%2d]>\E[0m\n",
+						      current->handle,
+						      current->dpy,
+						      current->mc_count,
+						      current->ref_count);
+					}
+
+					current = current->next;
+				}
+
+			}
+
+
+			current = current->next;
+		}
+	}
+
+	TRACE("\E[40;33m........................................................................................................................\E[0m\n");
+
+	// Not-binded Context State List
+	{
+		Ctx_Data *current = NULL;
+		current = ctx_data;
+
+		while (current != NULL)
+		{
+			int isbinded = 0;
+
+			General_Trace_List *current_t = NULL;
+			current_t = thread_trace_list;
+
+			while (current_t != NULL)
+			{
+				GLThreadState *cur_tstate = (GLThreadState *)current_t->value;
+				MY_MODULE_TSTATE *cur_tstate_tm = NULL;
+
+				GET_MY_TSTATE(cur_tstate_tm, cur_tstate);
+				AST(cur_tstate_tm != NULL);
+
+				if (cur_tstate_tm->ctx == current)
+				{
+					isbinded = 1;
+					break;
+				}
+				current_t = current_t->next;
+			}
+
+			if (isbinded == 0)
+			{
+				TRACE("   EGLCTX    [%12p] : EGLDPY=[%12p] <MC count [%10d]> <Ref [%2d]>\E[0m\n",
+				      current->handle,
+				      current->dpy,
+				      current->mc_count,
+				      current->ref_count);
+			}
+
+			current = current->next;
+		}
+
+	}
+
+	TRACE("\E[40;34m========================================================================================================================\E[0m\n");
+	TRACE("\n");
+
+	TRACE_END();
+
+	goto finish;
+
+finish:
+
+	AST(mutex_unlock(&general_trace_lists_access_mutex) == 1);
+	AST(mutex_unlock(&ctx_access_mutex) == 1);
+
+}
+
+#endif // COREGL_TRACEPATH_TRACE_CONTEXT_INFO
+
+
+void
+tracepath_add_context(GLContext ctx, GLDisplay dpy, GLContext share_ctx)
+{
+	Ctx_Data *current = NULL;
+	Ctx_Data *data = NULL;
+
+	AST(mutex_lock(&ctx_access_mutex) == 1);
+
+	current = ctx_data;
+
+	while (current != NULL)
+	{
+		if (current->handle == ctx)
+		{
+			data = current;
+			break;
+		}
+		current = current->next;
+	}
+
+	if (data == NULL)
+	{
+		data = (Ctx_Data *)calloc(1, sizeof(Ctx_Data));
+		data->ref_count = 1;
+		data->handle = ctx;
+		data->dpy = dpy;
+
+		data->sostate = _get_sostate(share_ctx);
+		if (data->sostate == NULL)
+		{
+			data->sostate = (Sostate_Data *)calloc(1, sizeof(Sostate_Data));
+			data->sostate->ref_count = 1;
+		}
+
+		if (ctx_data != NULL)
+			data->next = ctx_data;
+
+		ctx_data = data;
+	}
+	goto finish;
+
+finish:
+	AST(mutex_unlock(&ctx_access_mutex) == 1);
+	return;
+}
+
+Ctx_Data *
+tracepath_get_context(GLContext ctx)
+{
+	Ctx_Data *current = NULL;
+	Ctx_Data *data = NULL;
+
+	AST(mutex_lock(&ctx_access_mutex) == 1);
+
+	current = ctx_data;
+
+	while (current != NULL)
+	{
+		if (current->handle == ctx)
+		{
+			data = current;
+			break;
+		}
+		current = current->next;
+	}
+	if (data == NULL)
+	{
+		ERR("WARNING : Error making context [%p] current. (invalid EGL context)\n", ctx);
+		goto finish;
+	}
+	data->ref_count++;
+	goto finish;
+
+finish:
+	AST(mutex_unlock(&ctx_access_mutex) == 1);
+	return data;
+}
+
+void
+tracepath_remove_context(GLContext ctx)
+{
+	Ctx_Data *current = NULL;
+	Ctx_Data *prev = NULL;
+
+	AST(mutex_lock(&ctx_access_mutex) == 1);
+
+	current = ctx_data;
+
+	while (current != NULL)
+	{
+		if (current->handle == ctx)
+		{
+			if (--current->ref_count <= 0)
+			{
+				if (prev != NULL)
+					prev->next = current->next;
+				else
+					ctx_data = current->next;
+
+				if (--current->sostate->ref_count <= 0)
+				{
+					tracepath_glbuf_clear(current->sostate->glbuf_rb);
+					tracepath_glbuf_clear(current->sostate->glbuf_tex);
+					free(current->sostate);
+					current->sostate = NULL;
+				}
+
+				free(current);
+				current = NULL;
+			}
+			break;
+		}
+		prev = current;
+		current = current->next;
+	}
+	goto finish;
+
+finish:
+	AST(mutex_unlock(&ctx_access_mutex) == 1);
+	return;
+}
+
 EGLint
 tracepath_eglGetError(void)
 {
@@ -305,6 +604,23 @@ tracepath_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_co
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
+	{
+		if (ret != EGL_NO_CONTEXT)
+		{
+			tracepath_add_context(ret, dpy, share_context);
+		}
+	}
+#ifdef COREGL_TRACEPATH_TRACE_CONTEXT_INFO
+	if (unlikely(trace_ctx_flag == 1))
+	{
+		if (_orig_tracepath_eglCreateContext == _sym_eglCreateContext)
+		{
+			char ment[256];
+			sprintf(ment, "eglCreateContext completed (EGLCTX=[%12p])", ret);
+			_dump_context_info(ment, 1);
+		}
+	}
+#endif // COREGL_TRACEPATH_TRACE_CONTEXT_INFO
 	return ret;
 }
 
@@ -319,6 +635,22 @@ tracepath_eglDestroyContext(EGLDisplay dpy, EGLContext ctx)
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
+	{
+		AST(ctx != EGL_NO_CONTEXT);
+
+		tracepath_remove_context(ctx);
+	}
+#ifdef COREGL_TRACEPATH_TRACE_CONTEXT_INFO
+	if (unlikely(trace_ctx_flag == 1))
+	{
+		if (_orig_tracepath_eglDestroyContext == _sym_eglDestroyContext)
+		{
+			char ment[256];
+			sprintf(ment, "eglDestroyContext completed (EGLCTX=[%12p])", ctx);
+			_dump_context_info(ment, 1);
+		}
+	}
+#endif // COREGL_TRACEPATH_TRACE_CONTEXT_INFO
 	return ret;
 }
 
@@ -333,6 +665,37 @@ tracepath_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLCo
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
+	{
+		MY_MODULE_TSTATE *tstate = NULL;
+
+		GET_MY_TSTATE(tstate, get_current_thread_state());
+		if (tstate == NULL)
+		{
+			init_new_thread_state();
+
+			GET_MY_TSTATE(tstate, get_current_thread_state());
+			AST(tstate != NULL);
+		}
+
+		Ctx_Data *oldctx = tstate->ctx;
+
+		if (ctx != EGL_NO_CONTEXT)
+		{
+			tstate->ctx = tracepath_get_context(ctx);
+			if (tstate->ctx != NULL)
+				tstate->ctx->mc_count++;
+		}
+		else
+		{
+			tstate->ctx = NULL;
+		}
+
+		if (oldctx != NULL)
+			tracepath_remove_context(oldctx->handle);
+
+		tstate->surf_draw = draw;
+		tstate->surf_read = read;
+	}
 #ifdef COREGL_TRACEPATH_TRACE_STATE_INFO
 	if (unlikely(trace_state_flag == 1))
 	{
@@ -340,6 +703,17 @@ finish:
 			tracepath_dump_context_states(0);
 	}
 #endif // COREGL_TRACEPATH_TRACE_STATE_INFO
+#ifdef COREGL_TRACEPATH_TRACE_CONTEXT_INFO
+	if (unlikely(trace_ctx_flag == 1))
+	{
+		if (_orig_tracepath_eglMakeCurrent == _sym_eglMakeCurrent)
+		{
+			char ment[256];
+			sprintf(ment, "eglMakeCurrent finished (EGLCTX=[%12p] Surf=[D:%12p R:%12p])", ctx, draw, read);
+			_dump_context_info(ment, 0);
+		}
+	}
+#endif // COREGL_TRACEPATH_TRACE_CONTEXT_INFO
 	return ret;
 }
 
@@ -440,6 +814,7 @@ tracepath_eglSwapBuffers(EGLDisplay dpy, EGLSurface surface)
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
 	_COREGL_TRACE_API_OUTPUT(0);
+	_COREGL_TRACE_MEM_OUTPUT(0);
 	return ret;
 }
 

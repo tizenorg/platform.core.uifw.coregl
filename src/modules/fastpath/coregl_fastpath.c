@@ -4,6 +4,9 @@
 #include <string.h>
 #include <sys/time.h>
 
+#include <sys/types.h>
+#include <unistd.h>
+
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*_orig_fastpath_##FUNC_NAME) PARAM_LIST = NULL;
 #include "../../headers/sym.h"
 #undef _COREGL_SYMBOL
@@ -600,7 +603,7 @@ fastpath_dump_context_states(GLGlueContext *ctx, int force_output)
 
 	TRACE("\n");
 	TRACE("\E[0;40;34m========================================================================================================================\E[0m\n");
-	TRACE("\E[0;32;1m  State info \E[1;37;1m: GlueCTX = %p\E[0m\n", ctx);
+	TRACE("\E[0;32;1m  State info \E[1;37;1m: <PID = %d> GlueCTX = %p\E[0m\n", getpid(), ctx);
 	TRACE("\E[0;40;34m========================================================================================================================\E[0m\n");
 
 #define PRINTF_CHAR_GLenum "%10d"

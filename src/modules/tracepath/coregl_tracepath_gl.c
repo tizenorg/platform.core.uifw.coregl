@@ -1,5 +1,158 @@
 #include "coregl_tracepath.h"
 
+#include <stdlib.h>
+
+struct _Glbuf_Data
+{
+	int obj_idx;
+	int width;
+	int height;
+	int bpp;
+	char format[80];
+
+	struct _Glbuf_Data *next;
+};
+
+static void
+__addhash_glbuf_object(Glbuf_Data **glbuf, Glbuf_Data *target)
+{
+	Glbuf_Data *data = glbuf[target->obj_idx % MTD_GLBUF_HASH_ARRAY];
+	if (data == NULL)
+	{
+		glbuf[target->obj_idx % MTD_GLBUF_HASH_ARRAY] = target;
+	}
+	else
+	{
+		while (data->next != NULL)
+		{
+			AST(data->obj_idx != target->obj_idx);
+			data = data->next;
+		}
+		AST(data->obj_idx != target->obj_idx);
+		data->next = target;
+	}
+	goto finish;
+
+finish:
+	return;
+}
+
+static void
+__removehash_glbuf_object(Glbuf_Data **glbuf, Glbuf_Data **target)
+{
+	Glbuf_Data *data = glbuf[(*target)->obj_idx % MTD_GLBUF_HASH_ARRAY];
+	Glbuf_Data *prev = NULL;
+	while (data != NULL)
+	{
+		if (data->obj_idx == (*target)->obj_idx)
+		{
+			if (prev != NULL)
+				prev->next = data->next;
+			else
+				glbuf[(*target)->obj_idx % MTD_GLBUF_HASH_ARRAY] = data->next;
+
+			free(*target);
+			*target = NULL;
+			break;
+		}
+		data = data->next;
+	}
+	goto finish;
+
+finish:
+	return;
+}
+
+static Glbuf_Data *
+__findhash_glbuf_object(Glbuf_Data **glbuf, int obj_idx)
+{
+	Glbuf_Data *data = glbuf[obj_idx % MTD_GLBUF_HASH_ARRAY];
+	while (data != NULL)
+	{
+		if (data->obj_idx == obj_idx)
+			break;
+		data = data->next;
+	}
+	goto finish;
+
+finish:
+	return data;
+}
+
+void
+tracepath_glbuf_clear(Glbuf_Data **glbuf)
+{
+	int i;
+
+	for (i = 0; i < MTD_GLBUF_HASH_ARRAY; i++)
+	{
+		Glbuf_Data *data = glbuf[i];
+
+		while (data)
+		{
+			Glbuf_Data *delitm = data;
+			data = data->next;
+			free(delitm);
+			delitm = NULL;
+		}
+	}
+}
+
+static void
+_add_glbuf_object(Glbuf_Data **glbuf, int obj_idx, const char *obj_type, int width, int height, int bpp, const char *format)
+{
+	Glbuf_Data *data = __findhash_glbuf_object(glbuf, obj_idx);
+	if (data == NULL)
+	{
+		data = (Glbuf_Data *)calloc(1, sizeof(Glbuf_Data));
+		data->obj_idx = obj_idx;
+		__addhash_glbuf_object(glbuf, data);
+	}
+	else
+	{
+		// Update
+		{
+			char ment[MAX_TRACE_NAME_LENGTH];
+			sprintf(ment, "%s(%4dx%4d %s)", obj_type, data->width, data->height, data->format);
+			_COREGL_TRACE_MEM_REMOVE(ment, data->width * data->height * data->bpp);
+		}
+	}
+
+	data->width = width;
+	data->height = height;
+	data->bpp = bpp;
+	sprintf(data->format, "%s", format);
+
+	{
+		char ment[MAX_TRACE_NAME_LENGTH];
+		sprintf(ment, "%s(%4dx%4d %s)", obj_type, data->width, data->height, data->format);
+		_COREGL_TRACE_MEM_ADD(ment, data->width * data->height * data->bpp);
+	}
+	goto finish;
+
+finish:
+	return;
+}
+
+static void
+_remove_glbuf_object(Glbuf_Data **glbuf, int obj_idx, const char *obj_type)
+{
+	Glbuf_Data *data = __findhash_glbuf_object(glbuf, obj_idx);
+	AST(data != NULL);
+
+	{
+		char ment[MAX_TRACE_NAME_LENGTH];
+		sprintf(ment, "%s(%4dx%4d %s)", obj_type, data->width, data->height, data->format);
+		_COREGL_TRACE_MEM_REMOVE(ment, data->width * data->height * data->bpp);
+	}
+
+	__removehash_glbuf_object(glbuf, &data);
+	goto finish;
+
+finish:
+	return;
+}
+
 void
 tracepath_glActiveTexture(GLenum texture)
 {
@@ -391,6 +544,22 @@ tracepath_glDeleteRenderbuffers(GLsizei n, const GLuint* renderbuffers)
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
+#ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
+	if (trace_mem_flag == 1)
+	{
+		MY_MODULE_TSTATE *tstate = NULL;
+
+		GET_MY_TSTATE(tstate, get_current_thread_state());
+		AST(tstate != NULL);
+		AST(tstate->ctx != NULL);
+
+		for (int i = 0; i < n; i++)
+		{
+			if (renderbuffers[i] == 0) continue;
+			_remove_glbuf_object(tstate->ctx->sostate->glbuf_rb, renderbuffers[i], "Renderbuffer");
+		}
+	}
+#endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
 }
 
 void
@@ -415,6 +584,22 @@ tracepath_glDeleteTextures(GLsizei n, const GLuint* textures)
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
+#ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
+	if (trace_mem_flag == 1)
+	{
+		MY_MODULE_TSTATE *tstate = NULL;
+
+		GET_MY_TSTATE(tstate, get_current_thread_state());
+		AST(tstate != NULL);
+		AST(tstate->ctx != NULL);
+
+		for (int i = 0; i < n; i++)
+		{
+			if (textures[i] == 0) continue;
+			_remove_glbuf_object(tstate->ctx->sostate->glbuf_tex, textures[i], "Texture");
+		}
+	}
+#endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
 }
 
 void
@@ -548,6 +733,7 @@ tracepath_glFinish(void)
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
 	_COREGL_TRACE_API_OUTPUT(0);
+	_COREGL_TRACE_MEM_OUTPUT(0);
 }
 
 void
@@ -561,6 +747,7 @@ tracepath_glFlush(void)
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
 	_COREGL_TRACE_API_OUTPUT(0);
+	_COREGL_TRACE_MEM_OUTPUT(0);
 }
 
 void
@@ -697,6 +884,22 @@ tracepath_glGenRenderbuffers(GLsizei n, GLuint* renderbuffers)
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
+#ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
+	if (trace_mem_flag == 1)
+	{
+		MY_MODULE_TSTATE *tstate = NULL;
+
+		GET_MY_TSTATE(tstate, get_current_thread_state());
+		AST(tstate != NULL);
+		AST(tstate->ctx != NULL);
+
+		for (int i = 0; i < n; i++)
+		{
+			if (renderbuffers[i] == 0) continue;
+			_add_glbuf_object(tstate->ctx->sostate->glbuf_rb, renderbuffers[i], "Renderbuffer", 0, 0, 0, "Unknown");
+		}
+	}
+#endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
 }
 
 void
@@ -709,6 +912,22 @@ tracepath_glGenTextures(GLsizei n, GLuint* textures)
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
+#ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
+	if (trace_mem_flag == 1)
+	{
+		MY_MODULE_TSTATE *tstate = NULL;
+
+		GET_MY_TSTATE(tstate, get_current_thread_state());
+		AST(tstate != NULL);
+		AST(tstate->ctx != NULL);
+
+		for (int i = 0; i < n; i++)
+		{
+			if (textures[i] == 0) continue;
+			_add_glbuf_object(tstate->ctx->sostate->glbuf_tex, textures[i], "Texture", 0, 0, 0, "Unknown");
+		}
+	}
+#endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
 }
 
 void
@@ -1179,6 +1398,44 @@ tracepath_glRenderbufferStorage(GLenum target, GLenum internalformat, GLsizei wi
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
+#ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
+	if (trace_mem_flag == 1)
+	{
+		MY_MODULE_TSTATE *tstate = NULL;
+
+		GET_MY_TSTATE(tstate, get_current_thread_state());
+		AST(tstate != NULL);
+		AST(tstate->ctx != NULL);
+
+		int objidx = _COREGL_INT_INIT_VALUE;
+		_orig_tracepath_glGetIntegerv(GL_RENDERBUFFER_BINDING, &objidx);
+		AST(objidx != _COREGL_INT_INIT_VALUE);
+
+		// Detect byte per pixel
+		int bpp = 0;
+		char formatment[80];
+		switch (internalformat)
+		{
+			case GL_ALPHA: sprintf(formatment, "ALPHA"); bpp = 1; break;
+			case GL_LUMINANCE: sprintf(formatment, "LUMINANCE"); bpp = 1; break;
+			case GL_LUMINANCE_ALPHA: sprintf(formatment, "LUMINANCE_ALPHA"); bpp = 1; break;
+			case GL_RGB: sprintf(formatment, "RGB"); bpp = 2; break;
+			case GL_RGBA: sprintf(formatment, "RGBA"); bpp = 4; break;
+			case 0x80E1: sprintf(formatment, "BGRA_EXT"); bpp = 4; break;
+			case 0x84F9: sprintf(formatment, "DEPTH_STENCIL_OES"); bpp = 4; break;
+			case GL_DEPTH_COMPONENT : sprintf(formatment, "DEPTH_COMPONENT"); bpp = 1; break;
+			case 0x81A5: sprintf(formatment, "DEPTH_COMPONENT16_ARB"); bpp = 2; break;
+			case 0x81A6: sprintf(formatment, "DEPTH_COMPONENT24_ARB"); bpp = 3; break;
+			case 0x81A7: sprintf(formatment, "DEPTH_COMPONENT32_ARB"); bpp = 4; break;
+			case 0x8D46 : sprintf(formatment, "STENCIL_INDEX1_OES"); bpp = 1; break;
+			case 0x8D47 : sprintf(formatment, "STENCIL_INDEX4_OES"); bpp = 1; break;
+			case 0x8D48 : sprintf(formatment, "STENCIL_INDEX8_OES"); bpp = 1; break;
+			default: sprintf(formatment, "0x%X", internalformat); bpp = 0; break;
+		}
+
+		_add_glbuf_object(tstate->ctx->sostate->glbuf_rb, objidx, "Renderbuffer", width, height, bpp, formatment);
+	}
+#endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
 }
 
 void
@@ -1311,6 +1568,44 @@ tracepath_glTexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
+#ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
+	if (trace_mem_flag == 1)
+	{
+		MY_MODULE_TSTATE *tstate = NULL;
+
+		GET_MY_TSTATE(tstate, get_current_thread_state());
+		AST(tstate != NULL);
+		AST(tstate->ctx != NULL);
+
+		int objidx = _COREGL_INT_INIT_VALUE;
+		_orig_tracepath_glGetIntegerv(GL_TEXTURE_BINDING_2D, &objidx);
+		AST(objidx != _COREGL_INT_INIT_VALUE);
+
+		// Detect byte per pixel
+		int bpp = 0;
+		char formatment[80];
+		switch (internalformat)
+		{
+			case GL_ALPHA: sprintf(formatment, "ALPHA"); bpp = 1; break;
+			case GL_LUMINANCE: sprintf(formatment, "LUMINANCE"); bpp = 1; break;
+			case GL_LUMINANCE_ALPHA: sprintf(formatment, "LUMINANCE_ALPHA"); bpp = 1; break;
+			case GL_RGB: sprintf(formatment, "RGB"); bpp = 2; break;
+			case GL_RGBA: sprintf(formatment, "RGBA"); bpp = 4; break;
+			case 0x80E1: sprintf(formatment, "BGRA_EXT"); bpp = 4; break;
+			case 0x84F9: sprintf(formatment, "DEPTH_STENCIL_OES"); bpp = 4; break;
+			case GL_DEPTH_COMPONENT : sprintf(formatment, "DEPTH_COMPONENT"); bpp = 1; break;
+			case 0x81A5: sprintf(formatment, "DEPTH_COMPONENT16_ARB"); bpp = 2; break;
+			case 0x81A6: sprintf(formatment, "DEPTH_COMPONENT24_ARB"); bpp = 3; break;
+			case 0x81A7: sprintf(formatment, "DEPTH_COMPONENT32_ARB"); bpp = 4; break;
+			case 0x8D46 : sprintf(formatment, "STENCIL_INDEX1_OES"); bpp = 1; break;
+			case 0x8D47 : sprintf(formatment, "STENCIL_INDEX4_OES"); bpp = 1; break;
+			case 0x8D48 : sprintf(formatment, "STENCIL_INDEX8_OES"); bpp = 1; break;
+			default: sprintf(formatment, "0x%X", internalformat); bpp = 0; break;
+		}
+
+		_add_glbuf_object(tstate->ctx->sostate->glbuf_tex, objidx, "Texture", width, height, bpp, formatment);
+	}
+#endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
 }
 
 void
@@ -1756,6 +2051,22 @@ tracepath_glEGLImageTargetTexture2DOES(GLenum target, GLeglImageOES image)
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
+#ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
+	if (trace_mem_flag == 1)
+	{
+		MY_MODULE_TSTATE *tstate = NULL;
+
+		GET_MY_TSTATE(tstate, get_current_thread_state());
+		AST(tstate != NULL);
+		AST(tstate->ctx != NULL);
+
+		int objidx = _COREGL_INT_INIT_VALUE;
+		_orig_tracepath_glGetIntegerv(GL_TEXTURE_BINDING_2D, &objidx);
+		AST(objidx != _COREGL_INT_INIT_VALUE);
+
+		_add_glbuf_object(tstate->ctx->sostate->glbuf_tex, objidx, "Texture", 0, 0, 0, "Unknown");
+	}
+#endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
 }
 
 void
@@ -1767,6 +2078,22 @@ tracepath_glEGLImageTargetRenderbufferStorageOES(GLenum target, GLeglImageOES im
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
+#ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
+	if (trace_mem_flag == 1)
+	{
+		MY_MODULE_TSTATE *tstate = NULL;
+
+		GET_MY_TSTATE(tstate, get_current_thread_state());
+		AST(tstate != NULL);
+		AST(tstate->ctx != NULL);
+
+		int objidx = _COREGL_INT_INIT_VALUE;
+		_orig_tracepath_glGetIntegerv(GL_RENDERBUFFER_BINDING, &objidx);
+		AST(objidx != _COREGL_INT_INIT_VALUE);
+
+		_add_glbuf_object(tstate->ctx->sostate->glbuf_rb, objidx, "Renderbuffer", 0, 0, 0, "Unknown");
+	}
+#endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
 }
 
 void
@@ -1816,6 +2143,44 @@ tracepath_glRenderbufferStorageMultisampleEXT(GLenum target, GLsizei samples, GL
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
+#ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
+	if (trace_mem_flag == 1)
+	{
+		MY_MODULE_TSTATE *tstate = NULL;
+
+		GET_MY_TSTATE(tstate, get_current_thread_state());
+		AST(tstate != NULL);
+		AST(tstate->ctx != NULL);
+
+		int objidx = _COREGL_INT_INIT_VALUE;
+		_orig_tracepath_glGetIntegerv(GL_RENDERBUFFER_BINDING, &objidx);
+		AST(objidx != _COREGL_INT_INIT_VALUE);
+
+		// Detect byte per pixel
+		int bpp = 0;
+		char formatment[80];
+		switch (internalformat)
+		{
+			case GL_ALPHA: sprintf(formatment, "ALPHA"); bpp = 1; break;
+			case GL_LUMINANCE: sprintf(formatment, "LUMINANCE"); bpp = 1; break;
+			case GL_LUMINANCE_ALPHA: sprintf(formatment, "LUMINANCE_ALPHA"); bpp = 1; break;
+			case GL_RGB: sprintf(formatment, "RGB"); bpp = 2; break;
+			case GL_RGBA: sprintf(formatment, "RGBA"); bpp = 4; break;
+			case 0x80E1: sprintf(formatment, "BGRA_EXT"); bpp = 4; break;
+			case 0x84F9: sprintf(formatment, "DEPTH_STENCIL_OES"); bpp = 4; break;
+			case GL_DEPTH_COMPONENT : sprintf(formatment, "DEPTH_COMPONENT"); bpp = 1; break;
+			case 0x81A5: sprintf(formatment, "DEPTH_COMPONENT16_ARB"); bpp = 2; break;
+			case 0x81A6: sprintf(formatment, "DEPTH_COMPONENT24_ARB"); bpp = 3; break;
+			case 0x81A7: sprintf(formatment, "DEPTH_COMPONENT32_ARB"); bpp = 4; break;
+			case 0x8D46 : sprintf(formatment, "STENCIL_INDEX1_OES"); bpp = 1; break;
+			case 0x8D47 : sprintf(formatment, "STENCIL_INDEX4_OES"); bpp = 1; break;
+			case 0x8D48 : sprintf(formatment, "STENCIL_INDEX8_OES"); bpp = 1; break;
+			default: sprintf(formatment, "0x%X", internalformat); bpp = 0; break;
+		}
+
+		_add_glbuf_object(tstate->ctx->sostate->glbuf_rb, objidx, "Renderbuffer", width, height, bpp, formatment);
+	}
+#endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
 }
 
 void

@@ -4,18 +4,25 @@
 #include <string.h>
 #include <sys/time.h>
 
+#include <sys/types.h>
+#include <unistd.h>
+
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*_orig_tracepath_##FUNC_NAME) PARAM_LIST = NULL;
 #include "../../headers/sym.h"
 #undef _COREGL_SYMBOL
 
 #define TIMEVAL_INIT            { 0, 0 }
 
-#define MAX_TRACE_NAME_LENGTH  256
-#define MAX_TRACE_TABLE_SIZE   65536
-
 struct _Trace_Data
 {
 	char                         name[MAX_TRACE_NAME_LENGTH];
+	struct _Trace_Data          *next;
+};
+
+struct _Apicall_Data
+{
+	struct _Trace_Data          trace_data;
+
 	int                          call_count;
 	int                          last_call_count;
 	struct timeval              elapsed_time;
@@ -26,8 +33,15 @@ struct _Trace_Data
 	struct timeval              last_time;
 
 	int                          traced;
+};
 
-	struct _Trace_Data          *next;
+struct _Memuse_Data
+{
+	struct _Trace_Data          trace_data;
+
+	int                          memsize;
+	int                          alloc_count;
+	int                          remove_count;
 };
 
 typedef struct _GLGlueFakeContext
@@ -45,6 +59,9 @@ struct timeval     last_initial_time = TIMEVAL_INIT;
 struct timeval     last_trace_time = TIMEVAL_INIT;
 struct timeval     other_elapsed_time = TIMEVAL_INIT;
 struct timeval     traced_other_elapsed_time = TIMEVAL_INIT;
+
+Mutex               mtd_access_mutex = MUTEX_INITIALIZER;
+Memuse_Data       **mtd_table;
 
 static void
 _get_texture_states(GLenum pname, GLint *params)
@@ -81,6 +98,9 @@ init_modules_tracepath()
 	trace_api_flag = atoi(get_env_setting("COREGL_TRACE_API"));
 	trace_api_all_flag = atoi(get_env_setting("COREGL_TRACE_API_ALL"));
 #endif
+#ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
+	trace_mem_flag = atoi(get_env_setting("COREGL_TRACE_MEM"));
+#endif
 #ifdef COREGL_TRACEPATH_TRACE_CONTEXT_INFO
 	trace_ctx_flag = atoi(get_env_setting("COREGL_TRACE_CTX"));
 	trace_ctx_force_flag = atoi(get_env_setting("COREGL_TRACE_CTX_FORCE"));
@@ -91,20 +111,24 @@ init_modules_tracepath()
 
 	if (USE_TRACEPATH)
 	{
-		LOG("[CoreGL] <Trace> : ");
+		LOG("[CoreGL] \E[40;32;1m<Trace> \E[40;37;1m: ");
 
 		if (trace_api_flag == 1)
 		{
-			LOG("(API) ");
-			if (trace_api_all_flag == 1) LOG("(API-ALL) ");
+			LOG("\E[40;31;1m(API)\E[0m ");
+			if (trace_api_all_flag == 1) LOG("\E[40;31;1m(API-ALL)\E[0m ");
 		}
 		if (trace_ctx_flag == 1) {
-			LOG("(CONTEXT) ");
-			if (trace_ctx_force_flag == 1) LOG("(CONTEXT-FORCE) ");
+			LOG("\E[40;33;1m(CONTEXT)\E[0m ");
+			if (trace_ctx_force_flag == 1) LOG("\E[40;33;1m(CONTEXT-FORCE)\E[0m ");
 		}
-		if (trace_state_flag == 1) LOG("(STATE) ");
+		if (trace_state_flag == 1) LOG("\E[40;36;1m(STATE)\E[0m ");
+		if (trace_mem_flag == 1)
+		{
+			LOG("\E[40;35;1m(MEM)\E[0m ");
+		}
 
-		LOG("enabled\n");
+		LOG("\E[40;37;1menabled\E[0m\n");
 	}
 
 	tracepath_apply_overrides();
@@ -202,7 +226,7 @@ tracepath_dump_context_states(int force_output)
 
 	TRACE("\n");
 	TRACE("\E[0;40;34m===================================================================================================================\E[0m\n");
-	TRACE("\E[0;32;1m  State info \E[1;37;1m: (CURRENT BINDED CONTEXT)\E[0m\n");
+	TRACE("\E[0;32;1m  State info \E[1;37;1m: <PID = %d> (CURRENT BINDED CONTEXT)\E[0m\n", getpid());
 	TRACE("\E[0;40;34m===================================================================================================================\E[0m\n");
 
 #define PRINTF_CHAR_GLenum "%10d"
@@ -304,7 +328,7 @@ _generate_hash_short(const char *string)
 }
 
 static Trace_Data *
-_get_trace_data(Trace_Data **ftd_table, const char *name)
+_get_trace_data(Trace_Data **ftd_table, size_t td_size, const char *name)
 {
 	Trace_Data *ret = NULL;
 	Trace_Data *current = NULL;
@@ -332,7 +356,7 @@ _get_trace_data(Trace_Data **ftd_table, const char *name)
 	else
 	{
 		Trace_Data *newitm = NULL;
-		newitm = (Trace_Data *)calloc(1, sizeof(Trace_Data));
+		newitm = (Trace_Data *)calloc(1, td_size);
 		strcpy(newitm->name, name);
 		newitm->next = NULL;
 
@@ -353,17 +377,73 @@ finish:
 	return ret;
 }
 
+void
+tracepath_mem_trace_add(const char *desc, int alloc_size)
+{
+	Memuse_Data *mtd = NULL;
+
+	if (trace_mem_flag == 1)
+	{
+		AST(mutex_lock(&mtd_access_mutex) == 1);
+
+		if (mtd_table == NULL)
+		{
+			mtd_table = (Memuse_Data **)calloc(1, sizeof(Memuse_Data *) * MAX_TRACE_TABLE_SIZE);
+		}
+
+		mtd = (Memuse_Data *)_get_trace_data((Trace_Data **)mtd_table, sizeof(Memuse_Data), desc);
+
+		AST(mtd != NULL);
+
+		mtd->alloc_count++;
+
+		if (mtd->memsize == 0)
+			mtd->memsize = alloc_size;
+
+		AST(mtd->memsize == alloc_size);
+
+		AST(mutex_unlock(&mtd_access_mutex) == 1);
+	}
+
+}
+
+void
+tracepath_mem_trace_remove(const char *desc, int alloc_size)
+{
+	Memuse_Data *mtd = NULL;
+
+	if (trace_mem_flag == 1)
+	{
+		AST(mutex_lock(&mtd_access_mutex) == 1);
+
+		if (mtd_table == NULL)
+		{
+			mtd_table = (Memuse_Data **)calloc(1, sizeof(Memuse_Data *) * MAX_TRACE_TABLE_SIZE);
+		}
+
+		mtd = (Memuse_Data *)_get_trace_data((Trace_Data **)mtd_table, sizeof(Memuse_Data), desc);
+
+		AST(mtd != NULL);
+		AST(mtd->memsize == alloc_size);
+
+		AST(mtd->alloc_count > mtd->remove_count);
+		mtd->remove_count++;
+
+		AST(mutex_unlock(&mtd_access_mutex) == 1);
+	}
+}
+
 void *
 tracepath_api_trace_begin(const char *funcname, void *hint, int trace_total_time)
 {
-	Trace_Data *ftd = NULL;
+	Apicall_Data *ftd = NULL;
 	struct timeval t = TIMEVAL_INIT;
 
 	if (trace_api_flag == 1)
 	{
 		AST(gettimeofday(&t, NULL) == 0);
 
-		ftd = (Trace_Data *)hint;
+		ftd = (Apicall_Data *)hint;
 
 		if (ftd == NULL)
 		{
@@ -380,10 +460,10 @@ tracepath_api_trace_begin(const char *funcname, void *hint, int trace_total_time
 
 			if (tstate->ftd_table == NULL)
 			{
-				tstate->ftd_table = (Trace_Data **)calloc(1, sizeof(Trace_Data *) * MAX_TRACE_TABLE_SIZE);
+				tstate->ftd_table = (Apicall_Data **)calloc(1, sizeof(Apicall_Data *) * MAX_TRACE_TABLE_SIZE);
 			}
 
-			ftd = _get_trace_data(tstate->ftd_table, funcname);
+			ftd = (Apicall_Data *)_get_trace_data((Trace_Data **)tstate->ftd_table, sizeof(Apicall_Data), funcname);
 		}
 
 		AST(ftd != NULL);
@@ -416,7 +496,7 @@ tracepath_api_trace_begin(const char *funcname, void *hint, int trace_total_time
 void *
 tracepath_api_trace_end(const char *funcname, void *hint, int trace_total_time)
 {
-	Trace_Data *ftd = NULL;
+	Apicall_Data *ftd = NULL;
 	struct timeval t = TIMEVAL_INIT;
 
 	if (trace_api_flag == 1)
@@ -426,7 +506,7 @@ tracepath_api_trace_end(const char *funcname, void *hint, int trace_total_time)
 
 		AST(gettimeofday(&t, NULL) == 0);
 
-		ftd = (Trace_Data *)hint;
+		ftd = (Apicall_Data *)hint;
 
 		if (ftd == NULL)
 		{
@@ -443,7 +523,7 @@ tracepath_api_trace_end(const char *funcname, void *hint, int trace_total_time)
 			AST(tstate != NULL);
 			AST(tstate->ftd_table != NULL);
 
-			ftd = _get_trace_data(tstate->ftd_table, funcname);
+			ftd = (Apicall_Data *)_get_trace_data((Trace_Data **)tstate->ftd_table, sizeof(Apicall_Data), funcname);
 		}
 
 		AST(ftd != NULL);
@@ -487,7 +567,7 @@ tracepath_api_trace_output(int force_output)
 	struct timeval total_now = TIMEVAL_INIT;
 	GLThreadState *tstate = NULL;
 	MY_MODULE_TSTATE *tstate_tm = NULL;
-	Trace_Data **ftd_table = NULL;
+	Apicall_Data **ftd_table = NULL;
 
 	double total_elapsed_time = 0.0;
 	double total_elapsed_time_period = 0.0;
@@ -543,9 +623,9 @@ tracepath_api_trace_output(int force_output)
 	if (ftd_table == NULL) return;
 
 	{
-		static Trace_Data *trace_hint_swap = NULL;
+		static Apicall_Data *trace_hint_swap = NULL;
 		if (trace_hint_swap == NULL)
-			trace_hint_swap = _get_trace_data(ftd_table, "eglSwapBuffers");
+			trace_hint_swap = (Apicall_Data *)_get_trace_data((Trace_Data **)ftd_table, sizeof(Apicall_Data), "tracepath_eglSwapBuffers");
 
 		if (trace_hint_swap != NULL && total_elapsed_time_period > 0)
 		{
@@ -556,7 +636,7 @@ tracepath_api_trace_output(int force_output)
 
 	TRACE("\n");
 	TRACE("\E[40;34m========================================================================================================================\E[0m\n");
-	TRACE("\E[40;32;1m  API call info \E[1;37;1m: Thread ID = %d  [Swaps per Second(P) = %7.2f]\E[0m\n", tstate->thread_id, swaps_per_sec);
+	TRACE("\E[40;32;1m  API call info \E[1;37;1m: <PID = %d> Thread ID = %d  [Swaps per Second(P) = %7.2f]\E[0m\n", getpid(), tstate->thread_id, swaps_per_sec);
 	TRACE("\E[40;34m========================================================================================================================\E[0m\n");
 
 	// highlighted
@@ -564,7 +644,7 @@ tracepath_api_trace_output(int force_output)
 	{
 		if (ftd_table[i] != NULL)
 		{
-			Trace_Data *current = ftd_table[i];
+			Apicall_Data *current = ftd_table[i];
 
 			while (current != NULL)
 			{
@@ -581,10 +661,10 @@ tracepath_api_trace_output(int force_output)
 					double elapsed_time_period = _get_timeval_period(current->elapsed_time, current->last_elapsed_time);
 					double elapsed_time_max = _get_timeval(current->elapsed_time_max);
 					double elapsed_time_per_call_period = elapsed_time_period / (current->call_count - current->last_call_count);
-					char *fname = current->name;
+					char *fname = current->trace_data.name;
 
 					if (!strncmp(fname, "tracepath_", 10))
-						fname = &current->name[10];
+						fname = &current->trace_data.name[10];
 
 					if (elapsed_time_per_call_period >= 0.01 || current->call_count - current->last_call_count > 1000)
 					{
@@ -593,7 +673,7 @@ tracepath_api_trace_output(int force_output)
 						current->traced = 1;
 					}
 				}
-				current = current->next;
+				current = (Apicall_Data *)current->trace_data.next;
 			}
 		}
 	}
@@ -608,7 +688,7 @@ tracepath_api_trace_output(int force_output)
 			{
 				if (ftd_table[i] != NULL)
 				{
-					Trace_Data *current = ftd_table[i];
+					Apicall_Data *current = ftd_table[i];
 
 					while (current != NULL)
 					{
@@ -617,15 +697,15 @@ tracepath_api_trace_output(int force_output)
 							double elapsed_time = _get_timeval(current->elapsed_time);
 							double elapsed_time_per_call = elapsed_time / current->call_count;
 							double elapsed_time_max = _get_timeval(current->elapsed_time_max);
-							char *fname = current->name;
+							char *fname = current->trace_data.name;
 
 							if (!strncmp(fname, "tracepath_", 10))
-								fname = &current->name[10];
+								fname = &current->trace_data.name[10];
 
 							TRACE(" %-39.39s : %10d call(s), %9.3f ms/API, %9.2f ms(MAX)\n",
 							      fname, current->call_count, elapsed_time_per_call, elapsed_time_max);
 						}
-						current = current->next;
+						current = (Apicall_Data *)current->trace_data.next;
 					}
 				}
 			}
@@ -670,17 +750,97 @@ tracepath_api_trace_output(int force_output)
 	{
 		if (ftd_table[i] != NULL)
 		{
-			Trace_Data *current = ftd_table[i];
+			Apicall_Data *current = ftd_table[i];
 
 			while (current != NULL)
 			{
 				current->last_call_count = current->call_count;
 				current->last_elapsed_time = current->elapsed_time;
 				current->last_total_elapsed_time = current->total_elapsed_time;
-				current = current->next;
+				current = (Apicall_Data *)current->trace_data.next;
 			}
 		}
 	}
+
+	TRACE_END();
+
+	goto finish;
+
+finish:
+	return;
+}
+
+void
+tracepath_mem_trace_output(int force_output)
+{
+	static struct timeval tv_last = TIMEVAL_INIT;
+
+	int i;
+
+	if (trace_mem_flag != 1)
+	{
+		goto finish;
+	}
+
+	if (!force_output)
+	{
+		struct timeval tv_now = TIMEVAL_INIT;
+		AST(gettimeofday(&tv_now, NULL) == 0);
+		if (tv_now.tv_sec - tv_last.tv_sec < _COREGL_TRACE_OUTPUT_INTERVAL_SEC)
+		{
+			goto finish;
+		}
+		tv_last = tv_now;
+	}
+
+	TRACE("\n");
+	TRACE("\E[40;34m========================================================================================================================\E[0m\n");
+	TRACE("\E[40;32;1m  Memory usage info \E[1;37;1m: <PID = %d>\E[0m\n", getpid());
+	TRACE("\E[40;34m========================================================================================================================\E[0m\n");
+
+	if (mtd_table != NULL)
+	{
+		for (i = 0; i < MAX_TRACE_TABLE_SIZE; i++)
+		{
+			if (mtd_table[i] != NULL)
+			{
+				Memuse_Data *current = mtd_table[i];
+
+				while (current != NULL)
+				{
+					int obj_count = current->alloc_count - current->remove_count;
+					if (obj_count > 0)
+					{
+						TRACE("\E[40;37;1m %-46.46s : %12d byte(s)(E), %9d object(s) [%9d+/%9d-]\E[0m\n",
+						      current->trace_data.name, current->memsize, obj_count, current->alloc_count, current->remove_count);
+					}
+					current = (Memuse_Data *)current->trace_data.next;
+				}
+			}
+		}
+
+		for (i = 0; i < MAX_TRACE_TABLE_SIZE; i++)
+		{
+			if (mtd_table[i] != NULL)
+			{
+				Memuse_Data *current = mtd_table[i];
+
+				while (current != NULL)
+				{
+					int obj_count = current->alloc_count - current->remove_count;
+					if (obj_count == 0)
+					{
+						TRACE(" %-46.46s : %12d byte(s)(E), %9d object(s) [%9d+/%9d-]\n",
+						      current->trace_data.name, current->memsize, obj_count, current->alloc_count, current->remove_count);
+					}
+					current = (Memuse_Data *)current->trace_data.next;
+				}
+			}
+		}
+	}
+
+	TRACE("\E[40;34m========================================================================================================================\E[0m\n");
+	TRACE("\n");
 
 	TRACE_END();
 

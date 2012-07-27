@@ -1,7 +1,8 @@
 CC = gcc
 
-CFLAGS = -g -O2 -fvisibility=hidden -fPIC -Wall -std=c99
+COMPILE_DATE = "\"`git log -1 --pretty=format:%ci`\""
 
+CFLAGS = -g -O2 -fvisibility=hidden -fPIC -Wall -std=c99 -D_COREGL_COMPILE_DATE=$(COMPILE_DATE)
 
 LDFLAGS = -g -O2 -fvisibility=hidden -Wall -std=c99 -ldl -lpthread
 

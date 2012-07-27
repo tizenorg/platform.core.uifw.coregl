@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include <dlfcn.h>
 #include <string.h>
+
+#include <sys/types.h>
+#include <unistd.h>
+
 #include "coregl_internal.h"
 #include "coregl_export.h"
 
@@ -34,6 +38,7 @@ cleanup_current_thread_state()
 	{
 		LOG("[COREGL] de-init thread state \n");
 		deinit_modules_tstate(tstate);
+		remove_from_general_trace_list(&thread_trace_list, tstate);
 		free(tstate);
 		tstate = NULL;
 	}
@@ -52,14 +57,11 @@ init_new_thread_state()
 
 	tstate = (GLThreadState *)calloc(1, sizeof(GLThreadState));
 	tstate->thread_id = get_current_thread();
+	add_to_general_trace_list(&thread_trace_list, tstate);
 
 	init_modules_tstate(tstate);
-
 	set_current_thread_state(tstate);
 
-#ifdef COREGL_TRACE_CONTEXT_INFO
-	add_to_general_trace_list(&thread_trace_list, tstate);
-#endif // COREGL_TRACE_CONTEXT_INFO
 	ret = 1;
 	goto finish;
 
@@ -189,7 +191,7 @@ _gl_lib_deinit(void)
 int
 coregl_initialize()
 {
-	LOG("[CoreGL] Library initializing...");
+	LOG("[CoreGL] <%d> (%s) Library initializing...", getpid(), _COREGL_COMPILE_DATE);
 
 	if (!_gl_lib_init()) return 0;
 

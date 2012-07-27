@@ -55,14 +55,14 @@ typedef GLuint       GLuintmask;
 # define GLERR(fn, fl, ln, op)
 #endif
 
-typedef struct _Trace_Data Trace_Data;
-
 #define COREGL_OVERRIDE_API(mangle, func, prefix) \
    mangle##func = prefix##func
 
 typedef EGLSurface     GLSurface;
 typedef EGLDisplay     GLDisplay;
 typedef EGLContext     GLContext;
+
+#define COREGL_GL_NO_CONTEXT EGL_NO_CONTEXT
 
 typedef struct _GLThreadState
 {
@@ -88,11 +88,12 @@ extern FILE               *trace_fp;
 
 extern int                 trace_api_flag;
 extern int                 trace_api_all_flag;
+extern int                 trace_mem_flag;
 extern int                 trace_ctx_flag;
 extern int                 trace_ctx_force_flag;
 extern int                 trace_state_flag;
 
-#define USE_TRACEPATH		(trace_api_flag == 1 || trace_ctx_flag == 1 || trace_state_flag == 1)
+#define USE_TRACEPATH		(trace_api_flag == 1 || trace_ctx_flag == 1 || trace_state_flag == 1 || trace_mem_flag == 1)
 
 // Environment functions
 extern const char         *get_env_setting(const char *name);

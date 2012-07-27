@@ -5,6 +5,9 @@
 #include <sys/time.h>
 #include <execinfo.h>
 
+#include <sys/types.h>
+#include <unistd.h>
+
 #ifdef COREGL_FASTPATH_TRACE_CONTEXT_INFO
 
 General_Trace_List *glue_ctx_trace_list = NULL;
@@ -36,7 +39,7 @@ _dump_context_info(const char *ment, int force_output)
 
 	TRACE("\n");
 	TRACE("\E[40;34m========================================================================================================================\E[0m\n");
-	TRACE("\E[40;32;1m  Context info \E[1;37;1m: %s\E[0m\n", ment);
+	TRACE("\E[40;32;1m  Context info \E[1;37;1m: <PID = %d> %s\E[0m\n", getpid(), ment);
 	TRACE("\E[40;34m========================================================================================================================\E[0m\n");
 
 
