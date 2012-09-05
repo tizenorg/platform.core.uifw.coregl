@@ -57,10 +57,18 @@ void
 init_modules_fastpath()
 {
 	int fastpath_opt = 0;
+	int fastpath_force_off_opt = 0;
 
 	LOG("[CoreGL] <Fastpath> : ");
 
 	fastpath_opt = atoi(get_env_setting("COREGL_FASTPATH"));
+	fastpath_force_off_opt = atoi(get_env_setting("COREGL_FASTPATH_FORCE_OFF"));
+
+	if (fastpath_force_off_opt == 1)
+	{
+		LOG("\E[0;31;1m(DISABLED by force option)\E[0m ");
+		fastpath_opt = 0;
+	}
 
 	switch (fastpath_opt)
 	{

@@ -138,7 +138,11 @@ static void
 _remove_glbuf_object(Glbuf_Data **glbuf, int obj_idx, const char *obj_type)
 {
 	Glbuf_Data *data = __findhash_glbuf_object(glbuf, obj_idx);
-	AST(data != NULL);
+	if (data == NULL)
+	{
+		ERR("\E[40;31;1mWARNING : Error deleting %s object %d. (is not created)\E[0m\n", obj_type, obj_idx);
+		return;
+	}
 
 	{
 		char ment[MAX_TRACE_NAME_LENGTH];
@@ -551,12 +555,13 @@ finish:
 
 		GET_MY_TSTATE(tstate, get_current_thread_state());
 		AST(tstate != NULL);
-		AST(tstate->ctx != NULL);
-
-		for (int i = 0; i < n; i++)
+		if (tstate->ctx != NULL)
 		{
-			if (renderbuffers[i] == 0) continue;
-			_remove_glbuf_object(tstate->ctx->sostate->glbuf_rb, renderbuffers[i], "Renderbuffer");
+			for (int i = 0; i < n; i++)
+			{
+				if (renderbuffers[i] == 0) continue;
+				_remove_glbuf_object(tstate->ctx->sostate->glbuf_rb, renderbuffers[i], "Renderbuffer");
+			}
 		}
 	}
 #endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
@@ -591,12 +596,13 @@ finish:
 
 		GET_MY_TSTATE(tstate, get_current_thread_state());
 		AST(tstate != NULL);
-		AST(tstate->ctx != NULL);
-
-		for (int i = 0; i < n; i++)
+		if (tstate->ctx != NULL)
 		{
-			if (textures[i] == 0) continue;
-			_remove_glbuf_object(tstate->ctx->sostate->glbuf_tex, textures[i], "Texture");
+			for (int i = 0; i < n; i++)
+			{
+				if (textures[i] == 0) continue;
+				_remove_glbuf_object(tstate->ctx->sostate->glbuf_tex, textures[i], "Texture");
+			}
 		}
 	}
 #endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
@@ -891,12 +897,13 @@ finish:
 
 		GET_MY_TSTATE(tstate, get_current_thread_state());
 		AST(tstate != NULL);
-		AST(tstate->ctx != NULL);
-
-		for (int i = 0; i < n; i++)
+		if (tstate->ctx != NULL)
 		{
-			if (renderbuffers[i] == 0) continue;
-			_add_glbuf_object(tstate->ctx->sostate->glbuf_rb, renderbuffers[i], "Renderbuffer", 0, 0, 0, "Unknown");
+			for (int i = 0; i < n; i++)
+			{
+				if (renderbuffers[i] == 0) continue;
+				_add_glbuf_object(tstate->ctx->sostate->glbuf_rb, renderbuffers[i], "Renderbuffer", 0, 0, 0, "Unknown");
+			}
 		}
 	}
 #endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
@@ -919,12 +926,13 @@ finish:
 
 		GET_MY_TSTATE(tstate, get_current_thread_state());
 		AST(tstate != NULL);
-		AST(tstate->ctx != NULL);
-
-		for (int i = 0; i < n; i++)
+		if (tstate->ctx != NULL)
 		{
-			if (textures[i] == 0) continue;
-			_add_glbuf_object(tstate->ctx->sostate->glbuf_tex, textures[i], "Texture", 0, 0, 0, "Unknown");
+			for (int i = 0; i < n; i++)
+			{
+				if (textures[i] == 0) continue;
+				_add_glbuf_object(tstate->ctx->sostate->glbuf_tex, textures[i], "Texture", 0, 0, 0, "Unknown");
+			}
 		}
 	}
 #endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
@@ -1405,35 +1413,36 @@ finish:
 
 		GET_MY_TSTATE(tstate, get_current_thread_state());
 		AST(tstate != NULL);
-		AST(tstate->ctx != NULL);
-
-		int objidx = _COREGL_INT_INIT_VALUE;
-		_orig_tracepath_glGetIntegerv(GL_RENDERBUFFER_BINDING, &objidx);
-		AST(objidx != _COREGL_INT_INIT_VALUE);
-
-		// Detect byte per pixel
-		int bpp = 0;
-		char formatment[80];
-		switch (internalformat)
+		if (tstate->ctx != NULL)
 		{
-			case GL_ALPHA: sprintf(formatment, "ALPHA"); bpp = 1; break;
-			case GL_LUMINANCE: sprintf(formatment, "LUMINANCE"); bpp = 1; break;
-			case GL_LUMINANCE_ALPHA: sprintf(formatment, "LUMINANCE_ALPHA"); bpp = 1; break;
-			case GL_RGB: sprintf(formatment, "RGB"); bpp = 2; break;
-			case GL_RGBA: sprintf(formatment, "RGBA"); bpp = 4; break;
-			case 0x80E1: sprintf(formatment, "BGRA_EXT"); bpp = 4; break;
-			case 0x84F9: sprintf(formatment, "DEPTH_STENCIL_OES"); bpp = 4; break;
-			case GL_DEPTH_COMPONENT : sprintf(formatment, "DEPTH_COMPONENT"); bpp = 1; break;
-			case 0x81A5: sprintf(formatment, "DEPTH_COMPONENT16_ARB"); bpp = 2; break;
-			case 0x81A6: sprintf(formatment, "DEPTH_COMPONENT24_ARB"); bpp = 3; break;
-			case 0x81A7: sprintf(formatment, "DEPTH_COMPONENT32_ARB"); bpp = 4; break;
-			case 0x8D46 : sprintf(formatment, "STENCIL_INDEX1_OES"); bpp = 1; break;
-			case 0x8D47 : sprintf(formatment, "STENCIL_INDEX4_OES"); bpp = 1; break;
-			case 0x8D48 : sprintf(formatment, "STENCIL_INDEX8_OES"); bpp = 1; break;
-			default: sprintf(formatment, "0x%X", internalformat); bpp = 0; break;
-		}
+			int objidx = _COREGL_INT_INIT_VALUE;
+			_orig_tracepath_glGetIntegerv(GL_RENDERBUFFER_BINDING, &objidx);
+			AST(objidx != _COREGL_INT_INIT_VALUE);
 
-		_add_glbuf_object(tstate->ctx->sostate->glbuf_rb, objidx, "Renderbuffer", width, height, bpp, formatment);
+			// Detect byte per pixel
+			int bpp = 0;
+			char formatment[80];
+			switch (internalformat)
+			{
+				case GL_ALPHA: sprintf(formatment, "ALPHA"); bpp = 1; break;
+				case GL_LUMINANCE: sprintf(formatment, "LUMINANCE"); bpp = 1; break;
+				case GL_LUMINANCE_ALPHA: sprintf(formatment, "LUMINANCE_ALPHA"); bpp = 1; break;
+				case GL_RGB: sprintf(formatment, "RGB"); bpp = 2; break;
+				case GL_RGBA: sprintf(formatment, "RGBA"); bpp = 4; break;
+				case 0x80E1: sprintf(formatment, "BGRA_EXT"); bpp = 4; break;
+				case 0x84F9: sprintf(formatment, "DEPTH_STENCIL_OES"); bpp = 4; break;
+				case GL_DEPTH_COMPONENT : sprintf(formatment, "DEPTH_COMPONENT"); bpp = 1; break;
+				case 0x81A5: sprintf(formatment, "DEPTH_COMPONENT16_ARB"); bpp = 2; break;
+				case 0x81A6: sprintf(formatment, "DEPTH_COMPONENT24_ARB"); bpp = 3; break;
+				case 0x81A7: sprintf(formatment, "DEPTH_COMPONENT32_ARB"); bpp = 4; break;
+				case 0x8D46 : sprintf(formatment, "STENCIL_INDEX1_OES"); bpp = 1; break;
+				case 0x8D47 : sprintf(formatment, "STENCIL_INDEX4_OES"); bpp = 1; break;
+				case 0x8D48 : sprintf(formatment, "STENCIL_INDEX8_OES"); bpp = 1; break;
+				default: sprintf(formatment, "0x%X", internalformat); bpp = 0; break;
+			}
+
+			_add_glbuf_object(tstate->ctx->sostate->glbuf_rb, objidx, "Renderbuffer", width, height, bpp, formatment);
+		}
 	}
 #endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
 }
@@ -1575,35 +1584,36 @@ finish:
 
 		GET_MY_TSTATE(tstate, get_current_thread_state());
 		AST(tstate != NULL);
-		AST(tstate->ctx != NULL);
-
-		int objidx = _COREGL_INT_INIT_VALUE;
-		_orig_tracepath_glGetIntegerv(GL_TEXTURE_BINDING_2D, &objidx);
-		AST(objidx != _COREGL_INT_INIT_VALUE);
-
-		// Detect byte per pixel
-		int bpp = 0;
-		char formatment[80];
-		switch (internalformat)
+		if (tstate->ctx != NULL)
 		{
-			case GL_ALPHA: sprintf(formatment, "ALPHA"); bpp = 1; break;
-			case GL_LUMINANCE: sprintf(formatment, "LUMINANCE"); bpp = 1; break;
-			case GL_LUMINANCE_ALPHA: sprintf(formatment, "LUMINANCE_ALPHA"); bpp = 1; break;
-			case GL_RGB: sprintf(formatment, "RGB"); bpp = 2; break;
-			case GL_RGBA: sprintf(formatment, "RGBA"); bpp = 4; break;
-			case 0x80E1: sprintf(formatment, "BGRA_EXT"); bpp = 4; break;
-			case 0x84F9: sprintf(formatment, "DEPTH_STENCIL_OES"); bpp = 4; break;
-			case GL_DEPTH_COMPONENT : sprintf(formatment, "DEPTH_COMPONENT"); bpp = 1; break;
-			case 0x81A5: sprintf(formatment, "DEPTH_COMPONENT16_ARB"); bpp = 2; break;
-			case 0x81A6: sprintf(formatment, "DEPTH_COMPONENT24_ARB"); bpp = 3; break;
-			case 0x81A7: sprintf(formatment, "DEPTH_COMPONENT32_ARB"); bpp = 4; break;
-			case 0x8D46 : sprintf(formatment, "STENCIL_INDEX1_OES"); bpp = 1; break;
-			case 0x8D47 : sprintf(formatment, "STENCIL_INDEX4_OES"); bpp = 1; break;
-			case 0x8D48 : sprintf(formatment, "STENCIL_INDEX8_OES"); bpp = 1; break;
-			default: sprintf(formatment, "0x%X", internalformat); bpp = 0; break;
-		}
+			int objidx = _COREGL_INT_INIT_VALUE;
+			_orig_tracepath_glGetIntegerv(GL_TEXTURE_BINDING_2D, &objidx);
+			AST(objidx != _COREGL_INT_INIT_VALUE);
 
-		_add_glbuf_object(tstate->ctx->sostate->glbuf_tex, objidx, "Texture", width, height, bpp, formatment);
+			// Detect byte per pixel
+			int bpp = 0;
+			char formatment[80];
+			switch (internalformat)
+			{
+				case GL_ALPHA: sprintf(formatment, "ALPHA"); bpp = 1; break;
+				case GL_LUMINANCE: sprintf(formatment, "LUMINANCE"); bpp = 1; break;
+				case GL_LUMINANCE_ALPHA: sprintf(formatment, "LUMINANCE_ALPHA"); bpp = 1; break;
+				case GL_RGB: sprintf(formatment, "RGB"); bpp = 2; break;
+				case GL_RGBA: sprintf(formatment, "RGBA"); bpp = 4; break;
+				case 0x80E1: sprintf(formatment, "BGRA_EXT"); bpp = 4; break;
+				case 0x84F9: sprintf(formatment, "DEPTH_STENCIL_OES"); bpp = 4; break;
+				case GL_DEPTH_COMPONENT : sprintf(formatment, "DEPTH_COMPONENT"); bpp = 1; break;
+				case 0x81A5: sprintf(formatment, "DEPTH_COMPONENT16_ARB"); bpp = 2; break;
+				case 0x81A6: sprintf(formatment, "DEPTH_COMPONENT24_ARB"); bpp = 3; break;
+				case 0x81A7: sprintf(formatment, "DEPTH_COMPONENT32_ARB"); bpp = 4; break;
+				case 0x8D46 : sprintf(formatment, "STENCIL_INDEX1_OES"); bpp = 1; break;
+				case 0x8D47 : sprintf(formatment, "STENCIL_INDEX4_OES"); bpp = 1; break;
+				case 0x8D48 : sprintf(formatment, "STENCIL_INDEX8_OES"); bpp = 1; break;
+				default: sprintf(formatment, "0x%X", internalformat); bpp = 0; break;
+			}
+
+			_add_glbuf_object(tstate->ctx->sostate->glbuf_tex, objidx, "Texture", width, height, bpp, formatment);
+		}
 	}
 #endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
 }
@@ -2058,13 +2068,14 @@ finish:
 
 		GET_MY_TSTATE(tstate, get_current_thread_state());
 		AST(tstate != NULL);
-		AST(tstate->ctx != NULL);
+		if (tstate->ctx != NULL)
+		{
+			int objidx = _COREGL_INT_INIT_VALUE;
+			_orig_tracepath_glGetIntegerv(GL_TEXTURE_BINDING_2D, &objidx);
+			AST(objidx != _COREGL_INT_INIT_VALUE);
 
-		int objidx = _COREGL_INT_INIT_VALUE;
-		_orig_tracepath_glGetIntegerv(GL_TEXTURE_BINDING_2D, &objidx);
-		AST(objidx != _COREGL_INT_INIT_VALUE);
-
-		_add_glbuf_object(tstate->ctx->sostate->glbuf_tex, objidx, "Texture", 0, 0, 0, "Unknown");
+			_add_glbuf_object(tstate->ctx->sostate->glbuf_tex, objidx, "Texture", 0, 0, 0, "Unknown");
+		}
 	}
 #endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
 }
@@ -2085,13 +2096,14 @@ finish:
 
 		GET_MY_TSTATE(tstate, get_current_thread_state());
 		AST(tstate != NULL);
-		AST(tstate->ctx != NULL);
+		if (tstate->ctx != NULL)
+		{
+			int objidx = _COREGL_INT_INIT_VALUE;
+			_orig_tracepath_glGetIntegerv(GL_RENDERBUFFER_BINDING, &objidx);
+			AST(objidx != _COREGL_INT_INIT_VALUE);
 
-		int objidx = _COREGL_INT_INIT_VALUE;
-		_orig_tracepath_glGetIntegerv(GL_RENDERBUFFER_BINDING, &objidx);
-		AST(objidx != _COREGL_INT_INIT_VALUE);
-
-		_add_glbuf_object(tstate->ctx->sostate->glbuf_rb, objidx, "Renderbuffer", 0, 0, 0, "Unknown");
+			_add_glbuf_object(tstate->ctx->sostate->glbuf_rb, objidx, "Renderbuffer", 0, 0, 0, "Unknown");
+		}
 	}
 #endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
 }
@@ -2150,35 +2162,36 @@ finish:
 
 		GET_MY_TSTATE(tstate, get_current_thread_state());
 		AST(tstate != NULL);
-		AST(tstate->ctx != NULL);
-
-		int objidx = _COREGL_INT_INIT_VALUE;
-		_orig_tracepath_glGetIntegerv(GL_RENDERBUFFER_BINDING, &objidx);
-		AST(objidx != _COREGL_INT_INIT_VALUE);
-
-		// Detect byte per pixel
-		int bpp = 0;
-		char formatment[80];
-		switch (internalformat)
+		if (tstate->ctx != NULL)
 		{
-			case GL_ALPHA: sprintf(formatment, "ALPHA"); bpp = 1; break;
-			case GL_LUMINANCE: sprintf(formatment, "LUMINANCE"); bpp = 1; break;
-			case GL_LUMINANCE_ALPHA: sprintf(formatment, "LUMINANCE_ALPHA"); bpp = 1; break;
-			case GL_RGB: sprintf(formatment, "RGB"); bpp = 2; break;
-			case GL_RGBA: sprintf(formatment, "RGBA"); bpp = 4; break;
-			case 0x80E1: sprintf(formatment, "BGRA_EXT"); bpp = 4; break;
-			case 0x84F9: sprintf(formatment, "DEPTH_STENCIL_OES"); bpp = 4; break;
-			case GL_DEPTH_COMPONENT : sprintf(formatment, "DEPTH_COMPONENT"); bpp = 1; break;
-			case 0x81A5: sprintf(formatment, "DEPTH_COMPONENT16_ARB"); bpp = 2; break;
-			case 0x81A6: sprintf(formatment, "DEPTH_COMPONENT24_ARB"); bpp = 3; break;
-			case 0x81A7: sprintf(formatment, "DEPTH_COMPONENT32_ARB"); bpp = 4; break;
-			case 0x8D46 : sprintf(formatment, "STENCIL_INDEX1_OES"); bpp = 1; break;
-			case 0x8D47 : sprintf(formatment, "STENCIL_INDEX4_OES"); bpp = 1; break;
-			case 0x8D48 : sprintf(formatment, "STENCIL_INDEX8_OES"); bpp = 1; break;
-			default: sprintf(formatment, "0x%X", internalformat); bpp = 0; break;
-		}
+			int objidx = _COREGL_INT_INIT_VALUE;
+			_orig_tracepath_glGetIntegerv(GL_RENDERBUFFER_BINDING, &objidx);
+			AST(objidx != _COREGL_INT_INIT_VALUE);
 
-		_add_glbuf_object(tstate->ctx->sostate->glbuf_rb, objidx, "Renderbuffer", width, height, bpp, formatment);
+			// Detect byte per pixel
+			int bpp = 0;
+			char formatment[80];
+			switch (internalformat)
+			{
+				case GL_ALPHA: sprintf(formatment, "ALPHA"); bpp = 1; break;
+				case GL_LUMINANCE: sprintf(formatment, "LUMINANCE"); bpp = 1; break;
+				case GL_LUMINANCE_ALPHA: sprintf(formatment, "LUMINANCE_ALPHA"); bpp = 1; break;
+				case GL_RGB: sprintf(formatment, "RGB"); bpp = 2; break;
+				case GL_RGBA: sprintf(formatment, "RGBA"); bpp = 4; break;
+				case 0x80E1: sprintf(formatment, "BGRA_EXT"); bpp = 4; break;
+				case 0x84F9: sprintf(formatment, "DEPTH_STENCIL_OES"); bpp = 4; break;
+				case GL_DEPTH_COMPONENT : sprintf(formatment, "DEPTH_COMPONENT"); bpp = 1; break;
+				case 0x81A5: sprintf(formatment, "DEPTH_COMPONENT16_ARB"); bpp = 2; break;
+				case 0x81A6: sprintf(formatment, "DEPTH_COMPONENT24_ARB"); bpp = 3; break;
+				case 0x81A7: sprintf(formatment, "DEPTH_COMPONENT32_ARB"); bpp = 4; break;
+				case 0x8D46 : sprintf(formatment, "STENCIL_INDEX1_OES"); bpp = 1; break;
+				case 0x8D47 : sprintf(formatment, "STENCIL_INDEX4_OES"); bpp = 1; break;
+				case 0x8D48 : sprintf(formatment, "STENCIL_INDEX8_OES"); bpp = 1; break;
+				default: sprintf(formatment, "0x%X", internalformat); bpp = 0; break;
+			}
+
+			_add_glbuf_object(tstate->ctx->sostate->glbuf_rb, objidx, "Renderbuffer", width, height, bpp, formatment);
+		}
 	}
 #endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
 }
