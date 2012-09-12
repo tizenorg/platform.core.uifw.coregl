@@ -251,7 +251,6 @@ fastpath_apply_overrides_gl(int enable)
 		OVERRIDE(glShaderSource);
 		OVERRIDE(glBindAttribLocation);
 		OVERRIDE(glDeleteProgram);
-		OVERRIDE(glDetachShader);
 		OVERRIDE(glGetActiveAttrib);
 		OVERRIDE(glGetActiveUniform);
 		OVERRIDE(glGetAttachedShaders);
