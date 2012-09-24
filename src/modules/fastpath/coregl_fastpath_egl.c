@@ -258,7 +258,7 @@ typedef struct
 	EGLDisplay                    dpy;
 	EGLConfig                     cfg;
 	EGL_packed_attrib_list        attrib_list;
-	EGLint								debug;
+	EGLint								force_unique;
 } EGL_packed_option;
 
 typedef struct
@@ -268,13 +268,13 @@ typedef struct
 
 
 static int
-_pack_egl_context_option(EGL_packed_option *pack_data, EGLDisplay dpy, EGLConfig cfg, EGLint debug, const EGLint *attrib_list)
+_pack_egl_context_option(EGL_packed_option *pack_data, EGLDisplay dpy, EGLConfig cfg, EGLint force_unique, const EGLint *attrib_list)
 {
 	int ret = 0;
 
 	pack_data->dpy = dpy;
 	pack_data->cfg = cfg;
-	pack_data->debug = debug;
+	pack_data->force_unique = force_unique;
 
 	// Default context attributes
 	pack_data->attrib_list.context_client_version = EGL_DONT_CARE;
@@ -289,11 +289,19 @@ _pack_egl_context_option(EGL_packed_option *pack_data, EGLDisplay dpy, EGLConfig
 				pack_data->attrib_list.context_client_version = attrib[1];
 				break;
 			default:
-				ERR("Invalid context attribute.\n");
+				ERR("\E[40;31;1mWARNING : Invalid context attribute.\E[0m\n");
 				goto finish;
 		}
 		attrib += 2;
 	}
+
+	// Eject condition for context version
+	// Current : Support GLES 2.0 only
+	if (pack_data->attrib_list.context_client_version != 2)
+	{
+		pack_data->force_unique = 1;
+	}
+
 	ret = 1;
 	goto finish;
 
@@ -302,13 +310,13 @@ finish:
 }
 
 static int
-_unpack_egl_context_option(EGL_packed_option *pack_data, EGLDisplay *dpy, EGLConfig *cfg, EGLint *debug, EGLint *attrib_list, const int attrib_list_size)
+_unpack_egl_context_option(EGL_packed_option *pack_data, EGLDisplay *dpy, EGLConfig *cfg, EGLint *force_unique, EGLint *attrib_list, const int attrib_list_size)
 {
 	int ret = 0;
 
 	if (dpy != NULL) *dpy = pack_data->dpy;
 	if (cfg != NULL) *cfg = pack_data->cfg;
-	if (debug != NULL) *debug = pack_data->debug;
+	if (force_unique != NULL) *force_unique = pack_data->force_unique;
 
 	if (attrib_list != NULL && attrib_list_size > 0)
 	{
@@ -545,13 +553,14 @@ _egl_create_context(EGL_packed_option *real_ctx_option, GLContextState **cstate_
 
 	if (debug_nofp == 1)
 	{
-		static int debug_force_real = 100001;
-		AST(_pack_egl_context_option(real_ctx_option, dpy, config, debug_force_real, attrib_list) == 1);
-		debug_force_real++;
+		AST(_pack_egl_context_option(real_ctx_option, dpy, config, 1, attrib_list) == 1);
 	}
 
 	// Find context state
-	cstate = fastpath_get_context_state_from_list(real_ctx_option, sizeof(EGL_packed_option), &ctx_list_access_mutex);
+	if (real_ctx_option->force_unique == 0)
+	{
+		cstate = fastpath_get_context_state_from_list(real_ctx_option, sizeof(EGL_packed_option), &ctx_list_access_mutex);
+	}
 
 	// Create a real context if it hasn't been created
 	if (cstate == NULL)
@@ -582,14 +591,14 @@ _egl_create_context(EGL_packed_option *real_ctx_option, GLContextState **cstate_
 
 		if (*ctx == EGL_NO_CONTEXT)
 		{
-			ERR("Failed creating a egl real context for Fastpath.\n");
+			ERR("\E[40;31;1mWARNING : Failed creating a egl real context for Fastpath. (Invalid config?)\E[0m\n");
 			goto finish;
 		}
 
 		*cstate_new = (GLContextState *)calloc(1, sizeof(GLContextState));
 		if (*cstate_new == NULL)
 		{
-			ERR("Error creating a new context state.\n");
+			ERR("\E[40;31;1mERROR : Error creating a new context state. (Memory full)\E[0m\n");
 			goto finish;
 		}
 		(*cstate_new)->rctx = *ctx;
@@ -626,7 +635,7 @@ fastpath_eglBindAPI(EGLenum api)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	if (fp_opt == FP_UNKNOWN_PATH)
 	{
-		ERR("\E[0;31;1mERROR : Invalid library link! (CoreGL path option is invalid)\E[0m\n");
+		ERR("\E[40;31;1mERROR : Invalid library link! (CoreGL path option is invalid)\E[0m\n");
 		goto finish;
 	}
 
@@ -677,7 +686,7 @@ fastpath_eglQueryAPI(void)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	if (fp_opt == FP_UNKNOWN_PATH)
 	{
-		ERR("\E[0;31;1mERROR : Invalid library link! (CoreGL path option is invalid)\E[0m\n");
+		ERR("\E[40;31;1mERROR : Invalid library link! (CoreGL path option is invalid)\E[0m\n");
 		goto finish;
 	}
 
@@ -722,7 +731,7 @@ fastpath_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_con
 	real_ctx_option = (EGL_packed_option *)calloc(1, sizeof(EGL_packed_option));
 	if (real_ctx_option == NULL)
 	{
-		ERR("Error creating a new GLGlueContext(1)\n");
+		ERR("\E[40;31;1mERROR : Error creating a new GLGlueContext(Memory full 1)\E[0m\n");
 		goto finish;
 	}
 	cstate = _egl_create_context(real_ctx_option, &cstate_new, &ctx, dpy, config, attrib_list);
@@ -732,7 +741,7 @@ fastpath_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_con
 	real_ctx_sharable_option = (EGL_packed_sharable_option *)calloc(1, sizeof(EGL_packed_sharable_option));
 	if (real_ctx_sharable_option == NULL)
 	{
-		ERR("Error creating a new GLGlueContext(2)\n");
+		ERR("\E[40;31;1mERROR : Error creating a new GLGlueContext(Memory full 2)\E[0m\n");
 		goto finish;
 	}
 	AST(_pack_egl_context_sharable_option(real_ctx_sharable_option, share_context) == 1);
@@ -741,7 +750,7 @@ fastpath_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_con
 	gctx = (GLGlueContext *)calloc(1, sizeof(GLGlueContext));
 	if (gctx == NULL)
 	{
-		ERR("Error creating a new GLGlueContext(3)\n");
+		ERR("\E[40;31;1mERROR : Error creating a new GLGlueContext(Memory full 3)\E[0m\n");
 		goto finish;
 	}
 
@@ -762,7 +771,7 @@ fastpath_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_con
 		sostate_new = (GL_Shared_Object_State *)calloc(1, sizeof(GL_Shared_Object_State));
 		if (sostate_new == NULL)
 		{
-			ERR("Error creating a new GLGlueContext(4)\n");
+			ERR("\E[40;31;1mERROR : Error creating a new GLGlueContext(Memory full 4)\E[0m\n");
 			goto finish;
 		}
 		gctx->sostate = sostate_new;
@@ -782,7 +791,7 @@ fastpath_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_con
 		gctx_list_new = (GLGlueContext_List *)calloc(1, sizeof(GLGlueContext_List));
 		if (gctx_list_new == NULL)
 		{
-			ERR("Error creating a new GlGlueContext(5)\n");
+			ERR("\E[40;31;1mERROR : Error creating a new GlGlueContext(Memory full 5)\E[0m\n");
 			goto finish;
 		}
 
@@ -900,7 +909,7 @@ fastpath_eglDestroyContext(EGLDisplay dpy, EGLContext ctx)
 	}
 	else
 	{
-		ERR("Invalid Context.\n");
+		ERR("\E[40;31;1mWARNING : Invalid destroying context. (no exists)\E[0m\n");
 		ret = EGL_FALSE;
 		goto finish;
 	}
@@ -995,7 +1004,6 @@ fastpath_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLCon
 	GLGlueContext *gctx = NULL;
 
 	MY_MODULE_TSTATE *tstate = NULL;
-	GLContextState *cstate = NULL;
 
 	GET_MY_TSTATE(tstate, get_current_thread_state());
 
@@ -1046,7 +1054,7 @@ fastpath_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLCon
 
 	if (gctx->rdpy != dpy)
 	{
-		ERR("Invalid context (or invalid EGL display)\n");
+		ERR("\E[40;31;1mWARNING : Invalid context (or invalid EGL display)\E[0m\n");
 		ret = EGL_FALSE;
 		goto finish;
 	}
@@ -1089,26 +1097,10 @@ fastpath_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLCon
 	// Check if the object is correct
 	if (gctx->magic != MAGIC_GLFAST)
 	{
-		ERR("Glue-CTX Magic Check Failed!!!\n");
+		ERR("\E[40;31;1mERROR : Glue-CTX Magic Check Failed!!! (Memory broken?)\E[0m\n");
 		ret = EGL_FALSE;
 		goto finish;
 
-	}
-
-	cstate = tstate->cstate;
-
-	// If it's a first time or drawable changed, do a make current
-	if (cstate == NULL)
-	{
-		cstate = fastpath_get_context_state_from_list(gctx->real_ctx_option, gctx->real_ctx_option_len, &ctx_list_access_mutex);
-
-		if (cstate == NULL)
-		{
-			ERR("Error making context current because context not ready.\n");
-			ret = EGL_FALSE;
-			goto finish;
-		}
-		need_mc = EGL_TRUE;
 	}
 
 	// If drawable changed, do a make current
@@ -1119,7 +1111,7 @@ fastpath_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLCon
 	AST(gctx->cstate != NULL);
 
 	// If binded real context changed, do a make current
-	if (gctx->cstate->rctx != cstate->rctx)
+	if (tstate->cstate == NULL || tstate->cstate->rctx != gctx->cstate->rctx)
 		need_mc = EGL_TRUE;
 
 	if (need_mc == EGL_TRUE)
@@ -1127,7 +1119,7 @@ fastpath_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLCon
 		// BB : full makecurrent
 		if (_orig_fastpath_eglMakeCurrent(dpy, draw, read, gctx->cstate->rctx) != EGL_TRUE)
 		{
-			ERR("Error making context current with the drawable.\n");
+			ERR("\E[40;31;1mWARNING : Error making context current with the drawable. (Bad match?)\E[0m\n");
 			ret = EGL_FALSE;
 			goto finish;
 		}
@@ -1143,7 +1135,7 @@ fastpath_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLCon
 	{
 		if (fastpath_init_context_states(gctx) != 1)
 		{
-			ERR("Error intializing context\n");
+			ERR("\E[40;31;1mERROR : Error intializing context. (Check driver specification)\E[0m\n");
 			goto finish;
 		}
 	}
