@@ -49,12 +49,6 @@ typedef GLuint       GLuintmask;
 
 #define _COREGL_INT_INIT_VALUE -3
 
-#ifdef COREGL_ERRORS
-# define GLERR(fn, fl, ln, op)
-#else
-# define GLERR(fn, fl, ln, op)
-#endif
-
 #define COREGL_OVERRIDE_API(mangle, func, prefix) \
    mangle##func = prefix##func
 
@@ -116,6 +110,7 @@ extern void                deinit_export();
 // Module interfaces
 extern void                init_modules();
 extern void                deinit_modules();
+extern void                reset_modules_override();
 extern void                init_modules_tstate(GLThreadState *tstate);
 extern void                deinit_modules_tstate(GLThreadState *tstate);
 

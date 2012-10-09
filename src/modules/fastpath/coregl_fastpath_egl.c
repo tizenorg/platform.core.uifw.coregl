@@ -419,15 +419,21 @@ _unlink_context_state(GLGlueContext *gctx, Mutex *ctx_list_mtx)
 }
 
 static void
-_add_shared_obj_state_ref(GL_Shared_Object_State *sostate)
+_add_shared_obj_state_ref(GLGlueContext *gctx, GL_Shared_Object_State *sostate)
 {
 	AST(sostate->ref_count >= 0);
 	sostate->ref_count++;
+	add_to_general_trace_list(&sostate->using_gctxs, gctx);
 }
 
 static void
-_remove_shared_obj_state_ref(GL_Shared_Object_State *sostate)
+_remove_shared_obj_state_ref(GLGlueContext *gctx, GL_Shared_Object_State *sostate)
 {
+	remove_from_general_trace_list(&sostate->using_gctxs, gctx);
+
+	// Restore attached states
+	fastpath_release_gl_context(gctx);
+
 	AST(sostate->ref_count > 0);
 	sostate->ref_count--;
 	if (sostate->ref_count == 0)
@@ -462,7 +468,7 @@ _remove_context_ref(GLGlueContext *gctx, Mutex *ctx_list_mtx)
 		_unlink_context_state(gctx, ctx_list_mtx);
 
 		AST(gctx->sostate != NULL);
-		_remove_shared_obj_state_ref(gctx->sostate);
+		_remove_shared_obj_state_ref(gctx, gctx->sostate);
 		gctx->sostate = NULL;
 
 		if (gctx->real_ctx_option != NULL)
@@ -508,7 +514,7 @@ _remove_context_ref(GLGlueContext *gctx, Mutex *ctx_list_mtx)
 	}
 }
 
-static void
+static int
 _bind_context_state(GLGlueContext *gctx, GLContextState *cstate, Mutex *ctx_list_mtx)
 {
 	if (gctx != NULL)
@@ -530,11 +536,15 @@ _bind_context_state(GLGlueContext *gctx, GLContextState *cstate, Mutex *ctx_list
 		AST(newctx != NULL);
 		AST(curctx != NULL);
 
-		fastpath_make_context_current(curctx, newctx);
+		if (!fastpath_make_context_current(curctx, newctx))
+			return 0;
+
 		cstate->data = (void *)newctx;
 		_remove_context_ref(curctx, ctx_list_mtx);
 		_add_context_ref(newctx);
 	}
+
+	return 1;
 
 }
 
@@ -652,20 +662,8 @@ fastpath_eglBindAPI(EGLenum api)
 
 	{
 		EGLenum newapi = _orig_fastpath_eglQueryAPI();
-		if (tstate->binded_api != newapi)
+		if (tstate->binded_api != EGL_OPENGL_ES_API)
 		{
-			if (newapi != EGL_OPENGL_ES_API)
-			{
-				// Fallback when binding other API
-				// Fastpath restores when bind OPENGL_ES_API
-				fastpath_apply_overrides_egl(0);
-				ovr_eglBindAPI = fastpath_eglBindAPI;
-				ovr_eglQueryAPI = fastpath_eglQueryAPI;
-			}
-			else
-			{
-				fastpath_apply_overrides_egl(1);
-			}
 			tstate->binded_api = newapi;
 		}
 	}
@@ -774,9 +772,10 @@ fastpath_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_con
 			ERR("\E[40;31;1mERROR : Error creating a new GLGlueContext(Memory full 4)\E[0m\n");
 			goto finish;
 		}
+		sostate_new->using_gctxs = NULL;
 		gctx->sostate = sostate_new;
 	}
-	_add_shared_obj_state_ref(gctx->sostate);
+	_add_shared_obj_state_ref(gctx, gctx->sostate);
 	gctx->real_ctx_option = real_ctx_option;
 	gctx->real_ctx_option_len = sizeof(EGL_packed_option);
 	gctx->real_ctx_sharable_option = real_ctx_sharable_option;
@@ -1032,7 +1031,10 @@ fastpath_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLCon
 
 		if (tstate->cstate != NULL)
 		{
-			_bind_context_state(NULL, tstate->cstate, &ctx_list_access_mutex);
+			if (_bind_context_state(NULL, tstate->cstate, &ctx_list_access_mutex) != 1)
+			{
+				ERR("\E[40;31;1mWARNING : Error soft-makecurrent for context deletion\E[0m\n");
+			}
 			tstate->cstate = NULL;
 		}
 		if (_orig_fastpath_eglMakeCurrent(dpy, draw, read, ctx) != EGL_TRUE)
@@ -1081,7 +1083,14 @@ fastpath_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLCon
 
 		AST(cstate_new != NULL);
 
-		_bind_context_state(gctx, cstate_new, &ctx_list_access_mutex);
+		if (_bind_context_state(gctx, cstate_new, &ctx_list_access_mutex) != 1)
+		{
+			ERR("\E[40;31;1mWARNING : Error soft-makecurrent in Cross-thread usage!\E[0m\n");
+			free(cstate_new);
+			_orig_fastpath_eglDestroyContext(dpy, new_real_ctx);
+			ret = EGL_FALSE;
+			goto finish;
+		}
 
 		// TODO : Setup context state for new real ctx
 		ERR("\E[40;31;1mWARNING : Cross-thread usage(makecurrent) can cause a state-broken situation!\E[0m\n");
@@ -1170,7 +1179,11 @@ fastpath_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLCon
 		gctx->surface_attached = 1;
 	}
 
-	_bind_context_state(gctx, tstate->cstate, &ctx_list_access_mutex);
+	if (_bind_context_state(gctx, tstate->cstate, &ctx_list_access_mutex) != 1)
+	{
+		ret = EGL_FALSE;
+		goto finish;
+	}
 	gctx->used_count++;
 
 	ret = EGL_TRUE;

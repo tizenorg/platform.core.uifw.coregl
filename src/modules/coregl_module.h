@@ -21,5 +21,29 @@ typedef enum
 	else \
 		val = NULL
 
+#define COREGL_OVERRIDE_API(mangle, func, prefix) \
+   mangle##func = prefix##func
+
+#define COREGL_INIT_ORIGINAL(orig_prefix, f) \
+{ \
+	if (enable == 1) \
+	{ \
+		AST(orig_prefix##f == NULL); \
+		COREGL_OVERRIDE_API(orig_prefix, f, ovr_); \
+	} \
+	else \
+	{ \
+		AST(ovr_##f != NULL); \
+		COREGL_OVERRIDE_API(ovr_, f, orig_prefix); \
+		orig_prefix##f = NULL; \
+	} \
+}
+
+#define COREGL_OVERRIDE(prefix, f) \
+	if (enable == 1) \
+	{ \
+		COREGL_OVERRIDE_API(ovr_, f, prefix); \
+	}
+
 #endif // COREGL_MODULE_H
 

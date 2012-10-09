@@ -127,13 +127,16 @@ typedef struct _GL_Object
 {
 	GLuint                            id;
 	GLuint                            real_id;
+	GLint                             ref_count;
+	GLvoid                            *tag;
 
 	struct _GL_Shared_Object_State  *parent;
 } GL_Object;
 
 typedef struct _GL_Shared_Object_State
 {
-	int                    ref_count;
+	int                      ref_count;
+	General_Trace_List      *using_gctxs;
 
 	GL_Object              *texture[MAX_GL_OBJECT_SIZE];
 	GL_Object              *buffer[MAX_GL_OBJECT_SIZE];
@@ -208,7 +211,7 @@ extern void                fastpath_apply_overrides_egl(int enable);
 extern void                fastpath_apply_overrides_gl(int enable);
 
 extern int                 fastpath_init_context_states(GLGlueContext *ctx);
-extern void                fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx);
+extern int                 fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx);
 
 #ifdef COREGL_FASTPATH_TRACE_STATE_INFO
 extern void                fastpath_dump_context_states(GLGlueContext *ctx, int force_output);
@@ -224,7 +227,12 @@ extern GLuint              fastpath_sostate_create_object(GL_Shared_Object_State
 extern GLuint              fastpath_sostate_remove_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint glue_name);
 extern GLuint              fastpath_sostate_get_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint name);
 extern GLuint              fastpath_sostate_find_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint real_name);
+extern GLint               fastpath_sostate_use_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint glue_name);
+extern GLint               fastpath_sostate_set_object_tag(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint glue_name, GLvoid *tag);
+extern GLvoid             *fastpath_sostate_get_object_tag(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint glue_name);
 
+// GL context management functions
+extern void                fastpath_release_gl_context(GLGlueContext *gctx);
 
 #endif // COREGL_FASTPATH_H
 

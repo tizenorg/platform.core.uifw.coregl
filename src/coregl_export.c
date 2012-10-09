@@ -9,9 +9,6 @@
 
 #include <stdlib.h>
 
-#define COREGL_OVERRIDE_API(mangle, func, prefix) \
-   mangle##func = prefix##func
-
 int export_initialized = 0;
 
 static void
@@ -34,10 +31,5 @@ void
 init_export()
 {
 	_clean_overrides();
-}
-
-void
-deinit_export()
-{
 }
 

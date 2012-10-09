@@ -5,6 +5,11 @@
 #define CURR_STATE_COMPARE(curr_state, state ) \
    if ((current_ctx->curr_state[0]) != (state))
 
+#define IF_GL_SUCCESS(orig_gl_func) \
+	_get_gl_error(); \
+	orig_gl_func; \
+	if (_get_gl_error() == GL_NO_ERROR)
+
 #define DEFINE_FASTPAH_GL_FUNC() \
    MY_MODULE_TSTATE *tstate = NULL; \
    GLGlueContext *current_ctx = NULL;
@@ -58,8 +63,8 @@ _get_glue_obj(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint real_
 	return 1;
 }
 
-static void
-_set_gl_error(GLenum error)
+static inline GLenum
+_get_gl_error()
 {
 	GLenum glerror = GL_NONE;
 	DEFINE_FASTPAH_GL_FUNC();
@@ -67,9 +72,25 @@ _set_gl_error(GLenum error)
 
 	glerror = _orig_fastpath_glGetError();
 
-	if (current_ctx->gl_error == GL_NO_ERROR &&
-	    glerror == GL_NO_ERROR &&
-	    error != GL_NO_ERROR)
+	if (current_ctx->gl_error == GL_NO_ERROR && glerror != GL_NO_ERROR)
+	{
+		current_ctx->gl_error = glerror;
+	}
+	goto finish;
+
+finish:
+	return glerror;
+}
+
+static inline void
+_set_gl_error(GLenum error)
+{
+	DEFINE_FASTPAH_GL_FUNC();
+	INIT_FASTPATH_GL_FUNC();
+
+	_get_gl_error();
+
+	if (current_ctx->gl_error == GL_NO_ERROR && error != GL_NO_ERROR)
 	{
 		current_ctx->gl_error = error;
 	}
@@ -77,6 +98,134 @@ _set_gl_error(GLenum error)
 
 finish:
 	return;
+}
+
+typedef struct
+{
+	GLsizei shader_count;
+	GLuint shaders[10];
+	GLuint is_deleting;
+} Program_object_attached_tag;
+
+GLuint
+_create_program_object(GL_Shared_Object_State *sostate, int is_program, GLenum shader_type)
+{
+	GLuint ret = 0;
+	GLuint real_obj = 0;
+
+	if (is_program == 1)
+		real_obj = _orig_fastpath_glCreateProgram();
+	else
+		real_obj = _orig_fastpath_glCreateShader(shader_type);
+
+	if (real_obj != 0)
+	{
+		ret = fastpath_sostate_create_object(sostate, GL_OBJECT_TYPE_PROGRAM, real_obj);
+
+		Program_object_attached_tag *poat = NULL;
+		poat = (Program_object_attached_tag *)calloc(1, sizeof(Program_object_attached_tag));
+		AST(poat != NULL);
+
+		poat->is_deleting = 0;
+		poat->shader_count = 0;
+
+		fastpath_sostate_set_object_tag(sostate, GL_OBJECT_TYPE_PROGRAM, ret, poat);
+	}
+
+	return ret;
+}
+
+static void
+_update_program_attach_info(GL_Shared_Object_State *sostate, GLuint program)
+{
+	Program_object_attached_tag *poat = NULL;
+	GLuint real_program = _COREGL_INT_INIT_VALUE;
+
+	poat = (Program_object_attached_tag *)fastpath_sostate_get_object_tag(sostate, GL_OBJECT_TYPE_PROGRAM, program);
+	AST(poat != NULL);
+
+	real_program = fastpath_sostate_get_object(sostate, GL_OBJECT_TYPE_PROGRAM, program);
+	AST(real_program > 0);
+
+	_orig_fastpath_glGetAttachedShaders(real_program, 10, &poat->shader_count, poat->shaders);
+}
+
+static void
+_attach_program_object(GL_Shared_Object_State *sostate, GLuint object)
+{
+	if (object != 0)
+	{
+		fastpath_sostate_use_object(sostate, GL_OBJECT_TYPE_PROGRAM, object);
+	}
+}
+
+static int
+_is_deleted_program_object(GL_Shared_Object_State *sostate, GLuint glue_object)
+{
+	Program_object_attached_tag *poat = NULL;
+	poat = (Program_object_attached_tag *)fastpath_sostate_get_object_tag(sostate, GL_OBJECT_TYPE_PROGRAM, glue_object);
+	AST(poat != NULL);
+	return poat->is_deleting;
+}
+
+static void
+_detach_program_object(GL_Shared_Object_State *sostate, GLuint real_object, int is_program, int is_deleting)
+{
+	if (real_object != 0)
+	{
+		GLuint object = _COREGL_INT_INIT_VALUE;
+		Program_object_attached_tag *poat = NULL;
+
+		object = fastpath_sostate_find_object(sostate, GL_OBJECT_TYPE_PROGRAM, real_object);
+		AST(object != 0);
+
+		poat = (Program_object_attached_tag *)fastpath_sostate_get_object_tag(sostate, GL_OBJECT_TYPE_PROGRAM, object);
+		AST(poat != NULL);
+
+		if (is_deleting == 1)
+		{
+			if (poat->is_deleting == 0)
+			{
+				poat->is_deleting = 1;
+				fastpath_sostate_remove_object(sostate, GL_OBJECT_TYPE_PROGRAM, object);
+			}
+		}
+		else
+		{
+			fastpath_sostate_remove_object(sostate, GL_OBJECT_TYPE_PROGRAM, object);
+		}
+
+		if (fastpath_sostate_get_object(sostate, GL_OBJECT_TYPE_PROGRAM, object) == 0)
+		{
+			// Is completely removed. De-referencing attached shader objects
+			int i;
+			for (i = 0; i < poat->shader_count; i++)
+			{
+				GLuint glue_shader = fastpath_sostate_find_object(sostate, GL_OBJECT_TYPE_PROGRAM, poat->shaders[i]);
+				fastpath_sostate_remove_object(sostate, GL_OBJECT_TYPE_PROGRAM, glue_shader);
+			}
+
+			poat = NULL;
+			free(poat);
+
+			if (is_program == 1)
+				_orig_fastpath_glDeleteProgram(real_object);
+			else
+				_orig_fastpath_glDeleteShader(real_object);
+		}
+	}
+}
+
+
+void
+fastpath_release_gl_context(GLGlueContext *gctx)
+{
+	// Release program
+	if (gctx->gl_current_program[0] != 0)
+	{
+		_detach_program_object(gctx->sostate, gctx->gl_current_program[0], 1, 0);
+		gctx->gl_current_program[0] = 0;
+	}
 }
 
 GLenum
@@ -92,6 +241,7 @@ fastpath_glGetError(void)
 	{
 		ret = current_ctx->gl_error;
 		current_ctx->gl_error = GL_NO_ERROR;
+		_orig_fastpath_glGetError();
 	}
 	else
 	{
@@ -115,12 +265,11 @@ fastpath_glActiveTexture(GLenum texture)
 
 	CURR_STATE_COMPARE(gl_active_texture, texture)
 	{
-		_orig_fastpath_glActiveTexture(texture);
-
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		current_ctx->_tex_flag1 |= FLAG_BIT_1;
-		current_ctx->gl_active_texture[0] = texture;
+		IF_GL_SUCCESS(_orig_fastpath_glActiveTexture(texture))
+		{
+			current_ctx->_tex_flag1 |= FLAG_BIT_1;
+			current_ctx->gl_active_texture[0] = texture;
+		}
 	}
 	goto finish;
 
@@ -139,6 +288,12 @@ fastpath_glGenTextures(GLsizei n, GLuint* textures)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
+	if (n < 0)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+	if (n == 0) goto finish;
 	if (textures == NULL) goto finish;
 
 	AST(current_ctx->sostate != NULL);
@@ -186,27 +341,28 @@ fastpath_glBindTexture(GLenum target, GLuint texture)
 	{
 		if (current_ctx->gl_tex_2d_state[active_idx] != real_obj)
 		{
-			_orig_fastpath_glBindTexture(target, real_obj);
-
-			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-			current_ctx->_tex_flag1 |= FLAG_BIT_3;
-
-			current_ctx->gl_tex_2d_state[active_idx] = real_obj;
+			IF_GL_SUCCESS(_orig_fastpath_glBindTexture(target, real_obj))
+			{
+				current_ctx->_tex_flag1 |= FLAG_BIT_3;
+				current_ctx->gl_tex_2d_state[active_idx] = real_obj;
+			}
 		}
 	}
 	else if (target == GL_TEXTURE_CUBE_MAP)
 	{
 		if (current_ctx->gl_tex_cube_state[active_idx] != real_obj)
 		{
-			_orig_fastpath_glBindTexture(target, real_obj);
-
-			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-			current_ctx->_tex_flag1 |= FLAG_BIT_4;
-
-			current_ctx->gl_tex_cube_state[active_idx] = real_obj;
+			IF_GL_SUCCESS(_orig_fastpath_glBindTexture(target, real_obj))
+			{
+				current_ctx->_tex_flag1 |= FLAG_BIT_4;
+				current_ctx->gl_tex_cube_state[active_idx] = real_obj;
+			}
 		}
+	}
+	else
+	{
+		_set_gl_error(GL_INVALID_ENUM);
+		goto finish;
 	}
 	goto finish;
 
@@ -232,7 +388,6 @@ fastpath_glFramebufferTexture2D(GLenum target, GLenum attachment, GLenum textarg
 
 	_orig_fastpath_glFramebufferTexture2D(target, attachment, textarget, real_obj, level);
 
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
 finish:
@@ -256,7 +411,6 @@ fastpath_glFramebufferTexture2DMultisampleEXT(GLenum target, GLenum attachment, 
 
 	_orig_fastpath_glFramebufferTexture2DMultisampleEXT(target, attachment, textarget, real_obj, level, samples);
 
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
 finish:
@@ -281,8 +435,6 @@ fastpath_glIsTexture(GLuint texture)
 
 	ret = _orig_fastpath_glIsTexture(real_obj);
 
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
 	goto finish;
 
 finish:
@@ -301,6 +453,12 @@ fastpath_glDeleteTextures(GLsizei n, const GLuint* textures)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
+	if (n < 0)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+	if (n == 0) goto finish;
 	if (textures == NULL) goto finish;
 
 	AST(current_ctx->sostate != NULL);
@@ -317,21 +475,31 @@ fastpath_glDeleteTextures(GLsizei n, const GLuint* textures)
 			real_objid = fastpath_sostate_get_object(current_ctx->sostate, GL_OBJECT_TYPE_TEXTURE, textures[i]);
 			if (real_objid == 0) continue;
 
-			fastpath_sostate_remove_object(current_ctx->sostate, GL_OBJECT_TYPE_TEXTURE, textures[i]);
+			AST(fastpath_sostate_remove_object(current_ctx->sostate, GL_OBJECT_TYPE_TEXTURE, textures[i]) == 1);
 			objid_array[real_n++] = real_objid;
 		}
 
-		_orig_fastpath_glDeleteTextures(real_n, objid_array);
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		for (i = 0; i < real_n; i++)
+		IF_GL_SUCCESS(_orig_fastpath_glDeleteTextures(real_n, objid_array))
 		{
-			for (j = 0; j < current_ctx->gl_num_tex_units[0]; j++)
+			for (i = 0; i < real_n; i++)
 			{
-				if (current_ctx->gl_tex_2d_state[j] == objid_array[i])
-					current_ctx->gl_tex_2d_state[j] = 0;
-				if (current_ctx->gl_tex_cube_state[j] == objid_array[i])
-					current_ctx->gl_tex_cube_state[j] = 0;
+				General_Trace_List *current = NULL;
+				current = current_ctx->sostate->using_gctxs;
+
+				while (current != NULL)
+				{
+					GLGlueContext *cur_gctx = (GLGlueContext *)current->value;
+
+					for (j = 0; j < cur_gctx->gl_num_tex_units[0]; j++)
+					{
+						if (cur_gctx->gl_tex_2d_state[j] == objid_array[i])
+							cur_gctx->gl_tex_2d_state[j] = 0;
+						if (cur_gctx->gl_tex_cube_state[j] == objid_array[i])
+							cur_gctx->gl_tex_cube_state[j] = 0;
+					}
+
+					current = current->next;
+				}
 			}
 		}
 	}
@@ -359,17 +527,24 @@ fastpath_glGenBuffers(GLsizei n, GLuint* buffers)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
+	if (n < 0)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+	if (n == 0) goto finish;
 	if (buffers == NULL) goto finish;
 
 	AST(current_ctx->sostate != NULL);
 
 	objid_array = (GLuint *)calloc(1, sizeof(GLuint) * n);
 
-	_orig_fastpath_glGenBuffers(n, objid_array);
-
-	for (i = 0; i < n; i++)
+	IF_GL_SUCCESS(_orig_fastpath_glGenBuffers(n, objid_array))
 	{
-		buffers[i] = fastpath_sostate_create_object(current_ctx->sostate, GL_OBJECT_TYPE_BUFFER, objid_array[i]);
+		for (i = 0; i < n; i++)
+		{
+			buffers[i] = fastpath_sostate_create_object(current_ctx->sostate, GL_OBJECT_TYPE_BUFFER, objid_array[i]);
+		}
 	}
 
 	goto finish;
@@ -403,37 +578,38 @@ fastpath_glBindBuffer(GLenum target, GLuint buffer)
 	{
 		CURR_STATE_COMPARE(gl_array_buffer_binding, real_obj)
 		{
-			_orig_fastpath_glBindBuffer(target, real_obj);
+			IF_GL_SUCCESS(_orig_fastpath_glBindBuffer(target, real_obj))
+			{
+				if (real_obj == 0)
+					current_ctx->_bind_flag &= (~FLAG_BIT_0);
+				else
+					current_ctx->_bind_flag |= FLAG_BIT_0;
 
-			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-			if (real_obj == 0)
-				current_ctx->_bind_flag &= (~FLAG_BIT_0);
-			else
-				current_ctx->_bind_flag |= FLAG_BIT_0;
-			current_ctx->gl_array_buffer_binding[0] = real_obj;
+				current_ctx->gl_array_buffer_binding[0] = real_obj;
+			}
 		}
 	}
 	else if (target == GL_ELEMENT_ARRAY_BUFFER)
 	{
 		CURR_STATE_COMPARE(gl_element_array_buffer_binding, real_obj)
 		{
-			_orig_fastpath_glBindBuffer(target, real_obj);
-			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+			IF_GL_SUCCESS(_orig_fastpath_glBindBuffer(target, real_obj))
+			{
+				if (real_obj == 0)
+					current_ctx->_bind_flag &= (~FLAG_BIT_1);
+				else
+					current_ctx->_bind_flag |= FLAG_BIT_1;
 
-			if (real_obj == 0)
-				current_ctx->_bind_flag &= (~FLAG_BIT_1);
-			else
-				current_ctx->_bind_flag |= FLAG_BIT_1;
-			current_ctx->gl_element_array_buffer_binding[0] = real_obj;
+				current_ctx->gl_element_array_buffer_binding[0] = real_obj;
+			}
 		}
 	}
 	else
 	{
-		// For error recording
-		_orig_fastpath_glBindBuffer(target, real_obj);
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+		_set_gl_error(GL_INVALID_ENUM);
+		goto finish;
 	}
+
 	goto finish;
 
 finish:
@@ -458,8 +634,6 @@ fastpath_glIsBuffer(GLuint buffer)
 
 	ret = _orig_fastpath_glIsBuffer(real_obj);
 
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
 	goto finish;
 
 finish:
@@ -478,6 +652,12 @@ fastpath_glDeleteBuffers(GLsizei n, const GLuint* buffers)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
+	if (n < 0)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+	if (n == 0) goto finish;
 	if (buffers == NULL) goto finish;
 
 	AST(current_ctx->sostate != NULL);
@@ -494,24 +674,34 @@ fastpath_glDeleteBuffers(GLsizei n, const GLuint* buffers)
 			real_objid = fastpath_sostate_get_object(current_ctx->sostate, GL_OBJECT_TYPE_BUFFER, buffers[i]);
 			if (real_objid == 0) continue;
 
-			fastpath_sostate_remove_object(current_ctx->sostate, GL_OBJECT_TYPE_BUFFER, buffers[i]);
+			AST(fastpath_sostate_remove_object(current_ctx->sostate, GL_OBJECT_TYPE_BUFFER, buffers[i]) == 1);
 			objid_array[real_n++] = real_objid;
 		}
 
-		_orig_fastpath_glDeleteBuffers(real_n, objid_array);
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		for (i = 0; i < real_n; i++)
+		IF_GL_SUCCESS(_orig_fastpath_glDeleteBuffers(real_n, objid_array))
 		{
-			if (current_ctx->gl_array_buffer_binding[0] == objid_array[i])
+			for (i = 0; i < real_n; i++)
 			{
-				current_ctx->_bind_flag &= (~FLAG_BIT_0);
-				current_ctx->gl_array_buffer_binding[0] = 0;
-			}
-			if (current_ctx->gl_element_array_buffer_binding[0] == objid_array[i])
-			{
-				current_ctx->_bind_flag &= (~FLAG_BIT_1);
-				current_ctx->gl_element_array_buffer_binding[0] = 0;
+				General_Trace_List *current = NULL;
+				current = current_ctx->sostate->using_gctxs;
+
+				while (current != NULL)
+				{
+					GLGlueContext *cur_gctx = (GLGlueContext *)current->value;
+
+					if (cur_gctx->gl_array_buffer_binding[0] == objid_array[i])
+					{
+						cur_gctx->_bind_flag &= (~FLAG_BIT_0);
+						cur_gctx->gl_array_buffer_binding[0] = 0;
+					}
+					if (cur_gctx->gl_element_array_buffer_binding[0] == objid_array[i])
+					{
+						cur_gctx->_bind_flag &= (~FLAG_BIT_1);
+						cur_gctx->gl_element_array_buffer_binding[0] = 0;
+					}
+
+					current = current->next;
+				}
 			}
 		}
 	}
@@ -539,17 +729,24 @@ fastpath_glGenFramebuffers(GLsizei n, GLuint* framebuffers)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
+	if (n < 0)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+	if (n == 0) goto finish;
 	if (framebuffers == NULL) goto finish;
 
 	AST(current_ctx->sostate != NULL);
 
 	objid_array = (GLuint *)calloc(1, sizeof(GLuint) * n);
 
-	_orig_fastpath_glGenFramebuffers(n, objid_array);
-
-	for (i = 0; i < n; i++)
+	IF_GL_SUCCESS(_orig_fastpath_glGenFramebuffers(n, objid_array))
 	{
-		framebuffers[i] = fastpath_sostate_create_object(current_ctx->sostate, GL_OBJECT_TYPE_FRAMEBUFFER, objid_array[i]);
+		for (i = 0; i < n; i++)
+		{
+			framebuffers[i] = fastpath_sostate_create_object(current_ctx->sostate, GL_OBJECT_TYPE_FRAMEBUFFER, objid_array[i]);
+		}
 	}
 
 	goto finish;
@@ -583,22 +780,20 @@ fastpath_glBindFramebuffer(GLenum target, GLuint framebuffer)
 	{
 		CURR_STATE_COMPARE(gl_framebuffer_binding, real_obj)
 		{
-			_orig_fastpath_glBindFramebuffer(target, real_obj);
-			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-			if (real_obj == 0)
-				current_ctx->_bind_flag &= (~FLAG_BIT_2);
-			else
-				current_ctx->_bind_flag |= FLAG_BIT_2;
-			current_ctx->gl_framebuffer_binding[0] = real_obj;
+			IF_GL_SUCCESS(_orig_fastpath_glBindFramebuffer(target, real_obj))
+			{
+				if (real_obj == 0)
+					current_ctx->_bind_flag &= (~FLAG_BIT_2);
+				else
+					current_ctx->_bind_flag |= FLAG_BIT_2;
+				current_ctx->gl_framebuffer_binding[0] = real_obj;
+			}
 		}
 	}
 	else
 	{
-		// For error recording
-		_orig_fastpath_glBindFramebuffer(target, real_obj);
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
+		_set_gl_error(GL_INVALID_ENUM);
+		goto finish;
 	}
 	goto finish;
 
@@ -624,8 +819,6 @@ fastpath_glIsFramebuffer(GLuint framebuffer)
 
 	ret = _orig_fastpath_glIsFramebuffer(real_obj);
 
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
 	goto finish;
 
 finish:
@@ -644,6 +837,12 @@ fastpath_glDeleteFramebuffers(GLsizei n, const GLuint* framebuffers)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
+	if (n < 0)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+	if (n == 0) goto finish;
 	if (framebuffers == NULL) goto finish;
 
 	AST(current_ctx->sostate != NULL);
@@ -660,19 +859,29 @@ fastpath_glDeleteFramebuffers(GLsizei n, const GLuint* framebuffers)
 			real_objid = fastpath_sostate_get_object(current_ctx->sostate, GL_OBJECT_TYPE_FRAMEBUFFER, framebuffers[i]);
 			if (real_objid == 0) continue;
 
-			fastpath_sostate_remove_object(current_ctx->sostate, GL_OBJECT_TYPE_FRAMEBUFFER, framebuffers[i]);
+			AST(fastpath_sostate_remove_object(current_ctx->sostate, GL_OBJECT_TYPE_FRAMEBUFFER, framebuffers[i]) == 1);
 			objid_array[real_n++] = real_objid;
 		}
 
-		_orig_fastpath_glDeleteFramebuffers(real_n, objid_array);
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		for (i = 0; i < real_n; i++)
+		IF_GL_SUCCESS(_orig_fastpath_glDeleteFramebuffers(real_n, objid_array))
 		{
-			if (current_ctx->gl_framebuffer_binding[0] == framebuffers[i])
+			for (i = 0; i < real_n; i++)
 			{
-				current_ctx->_bind_flag &= (~FLAG_BIT_2);
-				current_ctx->gl_framebuffer_binding[0] = 0;
+				General_Trace_List *current = NULL;
+				current = current_ctx->sostate->using_gctxs;
+
+				while (current != NULL)
+				{
+					GLGlueContext *cur_gctx = (GLGlueContext *)current->value;
+
+					if (cur_gctx->gl_framebuffer_binding[0] == framebuffers[i])
+					{
+						cur_gctx->_bind_flag &= (~FLAG_BIT_2);
+						cur_gctx->gl_framebuffer_binding[0] = 0;
+					}
+
+					current = current->next;
+				}
 			}
 		}
 	}
@@ -700,17 +909,24 @@ fastpath_glGenRenderbuffers(GLsizei n, GLuint* renderbuffers)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
+	if (n < 0)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+	if (n == 0) goto finish;
 	if (renderbuffers == NULL) goto finish;
 
 	AST(current_ctx->sostate != NULL);
 
 	objid_array = (GLuint *)calloc(1, sizeof(GLuint) * n);
 
-	_orig_fastpath_glGenRenderbuffers(n, objid_array);
-
-	for (i = 0; i < n; i++)
+	IF_GL_SUCCESS(_orig_fastpath_glGenRenderbuffers(n, objid_array))
 	{
-		renderbuffers[i] = fastpath_sostate_create_object(current_ctx->sostate, GL_OBJECT_TYPE_RENDERBUFFER, objid_array[i]);
+		for (i = 0; i < n; i++)
+		{
+			renderbuffers[i] = fastpath_sostate_create_object(current_ctx->sostate, GL_OBJECT_TYPE_RENDERBUFFER, objid_array[i]);
+		}
 	}
 
 	goto finish;
@@ -744,22 +960,22 @@ fastpath_glBindRenderbuffer(GLenum target, GLuint renderbuffer)
 	{
 		CURR_STATE_COMPARE(gl_renderbuffer_binding, real_obj)
 		{
-			_orig_fastpath_glBindRenderbuffer(target, real_obj);
-			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-			if (real_obj == 0)
-				current_ctx->_bind_flag &= (~FLAG_BIT_3);
-			else
-				current_ctx->_bind_flag |= FLAG_BIT_3;
-			current_ctx->gl_renderbuffer_binding[0] = real_obj;
+			IF_GL_SUCCESS(_orig_fastpath_glBindRenderbuffer(target, real_obj))
+			{
+				if (real_obj == 0)
+					current_ctx->_bind_flag &= (~FLAG_BIT_3);
+				else
+					current_ctx->_bind_flag |= FLAG_BIT_3;
+				current_ctx->gl_renderbuffer_binding[0] = real_obj;
+			}
 		}
 	}
 	else
 	{
-		// For error recording
-		_orig_fastpath_glBindRenderbuffer(target, real_obj);
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+		_set_gl_error(GL_INVALID_ENUM);
+		goto finish;
 	}
+
 	goto finish;
 
 finish:
@@ -782,8 +998,6 @@ fastpath_glFramebufferRenderbuffer(GLenum target, GLenum attachment, GLenum rend
 	}
 
 	_orig_fastpath_glFramebufferRenderbuffer(target, attachment, renderbuffertarget, real_obj);
-
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 
 	goto finish;
 
@@ -809,8 +1023,6 @@ fastpath_glIsRenderbuffer(GLuint renderbuffer)
 
 	ret = _orig_fastpath_glIsRenderbuffer(real_obj);
 
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
 	goto finish;
 
 finish:
@@ -829,6 +1041,12 @@ fastpath_glDeleteRenderbuffers(GLsizei n, const GLuint* renderbuffers)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
+	if (n < 0)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+	if (n == 0) goto finish;
 	if (renderbuffers == NULL) goto finish;
 
 	AST(current_ctx->sostate != NULL);
@@ -845,19 +1063,29 @@ fastpath_glDeleteRenderbuffers(GLsizei n, const GLuint* renderbuffers)
 			real_objid = fastpath_sostate_get_object(current_ctx->sostate, GL_OBJECT_TYPE_RENDERBUFFER, renderbuffers[i]);
 			if (real_objid == 0) continue;
 
-			fastpath_sostate_remove_object(current_ctx->sostate, GL_OBJECT_TYPE_RENDERBUFFER, renderbuffers[i]);
+			AST(fastpath_sostate_remove_object(current_ctx->sostate, GL_OBJECT_TYPE_RENDERBUFFER, renderbuffers[i]) == 1);
 			objid_array[real_n++] = real_objid;
 		}
 
-		_orig_fastpath_glDeleteRenderbuffers(real_n, objid_array);
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		for (i = 0; i < real_n; i++)
+		IF_GL_SUCCESS(_orig_fastpath_glDeleteRenderbuffers(real_n, objid_array))
 		{
-			if (current_ctx->gl_renderbuffer_binding[0] == renderbuffers[i])
+			for (i = 0; i < real_n; i++)
 			{
-				current_ctx->_bind_flag &= (~FLAG_BIT_3);
-				current_ctx->gl_renderbuffer_binding[0] = 0;
+				General_Trace_List *current = NULL;
+				current = current_ctx->sostate->using_gctxs;
+
+				while (current != NULL)
+				{
+					GLGlueContext *cur_gctx = (GLGlueContext *)current->value;
+
+					if (cur_gctx->gl_renderbuffer_binding[0] == renderbuffers[i])
+					{
+						cur_gctx->_bind_flag &= (~FLAG_BIT_3);
+						cur_gctx->gl_renderbuffer_binding[0] = 0;
+					}
+
+					current = current->next;
+				}
 			}
 		}
 	}
@@ -878,8 +1106,7 @@ finish:
 GLuint
 fastpath_glCreateProgram(void)
 {
-	GLuint ret = _COREGL_INT_INIT_VALUE;
-	GLuint real_obj = _COREGL_INT_INIT_VALUE;
+	GLuint ret = 0;
 
 	DEFINE_FASTPAH_GL_FUNC();
 	_COREGL_FASTPATH_FUNC_BEGIN();
@@ -887,10 +1114,9 @@ fastpath_glCreateProgram(void)
 
 	AST(current_ctx->sostate != NULL);
 
-	real_obj = _orig_fastpath_glCreateProgram();
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	ret = _create_program_object(current_ctx->sostate, 1, GL_NONE);
 
-	ret = fastpath_sostate_create_object(current_ctx->sostate, GL_OBJECT_TYPE_PROGRAM, real_obj);
+	_attach_program_object(current_ctx->sostate, ret);
 
 	goto finish;
 
@@ -902,8 +1128,7 @@ finish:
 GLuint
 fastpath_glCreateShader(GLenum type)
 {
-	GLuint ret = _COREGL_INT_INIT_VALUE;
-	GLuint real_obj = _COREGL_INT_INIT_VALUE;
+	GLuint ret = 0;
 
 	DEFINE_FASTPAH_GL_FUNC();
 	_COREGL_FASTPATH_FUNC_BEGIN();
@@ -911,10 +1136,9 @@ fastpath_glCreateShader(GLenum type)
 
 	AST(current_ctx->sostate != NULL);
 
-	real_obj = _orig_fastpath_glCreateShader(type);
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	ret = _create_program_object(current_ctx->sostate, 0, type);
 
-	ret = fastpath_sostate_create_object(current_ctx->sostate, GL_OBJECT_TYPE_PROGRAM, real_obj);
+	_attach_program_object(current_ctx->sostate, ret);
 
 	goto finish;
 
@@ -938,7 +1162,7 @@ fastpath_glShaderSource(GLuint shader, GLsizei count, const char** string, const
 		goto finish;
 	}
 	_orig_fastpath_glShaderSource(real_obj, count, string, length);
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
 	goto finish;
 
 finish:
@@ -955,6 +1179,12 @@ fastpath_glShaderBinary(GLsizei n, const GLuint* shaders, GLenum binaryformat, c
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
+	if (n < 0)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+	if (n == 0) goto finish;
 	if (shaders == NULL) goto finish;
 
 	AST(current_ctx->sostate != NULL);
@@ -968,7 +1198,7 @@ fastpath_glShaderBinary(GLsizei n, const GLuint* shaders, GLenum binaryformat, c
 	}
 
 	_orig_fastpath_glShaderBinary(n, objid_array, binaryformat, binary, length);
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
 	goto finish;
 
 finish:
@@ -997,7 +1227,7 @@ fastpath_glCompileShader(GLuint shader)
 	}
 
 	_orig_fastpath_glCompileShader(real_obj);
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
 	goto finish;
 
 finish:
@@ -1020,7 +1250,7 @@ fastpath_glBindAttribLocation(GLuint program, GLuint index, const char* name)
 	}
 
 	_orig_fastpath_glBindAttribLocation(real_obj, index, name);
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
 	goto finish;
 
 finish:
@@ -1044,8 +1274,12 @@ fastpath_glAttachShader(GLuint program, GLuint shader)
 		goto finish;
 	}
 
-	_orig_fastpath_glAttachShader(real_obj_program, real_obj_shader);
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	IF_GL_SUCCESS(_orig_fastpath_glAttachShader(real_obj_program, real_obj_shader))
+	{
+		_update_program_attach_info(current_ctx->sostate, program);
+		_attach_program_object(current_ctx->sostate, shader);
+	}
+
 	goto finish;
 
 finish:
@@ -1069,8 +1303,12 @@ fastpath_glDetachShader(GLuint program, GLuint shader)
 		goto finish;
 	}
 
-	_orig_fastpath_glDetachShader(real_obj_program, real_obj_shader);
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	IF_GL_SUCCESS(_orig_fastpath_glDetachShader(real_obj_program, real_obj_shader))
+	{
+		_update_program_attach_info(current_ctx->sostate, program);
+		_detach_program_object(current_ctx->sostate, real_obj_shader, 0, 0);
+	}
+
 	goto finish;
 
 finish:
@@ -1094,7 +1332,7 @@ fastpath_glIsShader(GLuint shader)
 	}
 
 	ret = _orig_fastpath_glIsShader(real_obj);
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
 	goto finish;
 
 finish:
@@ -1119,7 +1357,7 @@ fastpath_glIsProgram(GLuint program)
 	}
 
 	ret = _orig_fastpath_glIsProgram(real_obj);
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
 	goto finish;
 
 finish:
@@ -1143,7 +1381,7 @@ fastpath_glLinkProgram(GLuint program)
 	}
 
 	_orig_fastpath_glLinkProgram(real_obj);
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
 	goto finish;
 
 finish:
@@ -1166,7 +1404,7 @@ fastpath_glValidateProgram(GLuint program)
 	}
 
 	_orig_fastpath_glValidateProgram(real_obj);
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
 	goto finish;
 
 finish:
@@ -1190,12 +1428,14 @@ fastpath_glUseProgram(GLuint program)
 
 	CURR_STATE_COMPARE(gl_current_program, real_obj)
 	{
-		_orig_fastpath_glUseProgram(real_obj);
+		IF_GL_SUCCESS(_orig_fastpath_glUseProgram(real_obj))
+		{
+			_attach_program_object(current_ctx->sostate, program);
+			_detach_program_object(current_ctx->sostate, current_ctx->gl_current_program[0], 1, 0);
 
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		current_ctx->_clear_flag1 |= FLAG_BIT_1;
-		current_ctx->gl_current_program[0] = real_obj;
+			current_ctx->_clear_flag1 |= FLAG_BIT_1;
+			current_ctx->gl_current_program[0] = real_obj;
+		}
 	}
 	goto finish;
 
@@ -1219,7 +1459,7 @@ fastpath_glGetActiveAttrib(GLuint program, GLuint index, GLsizei bufsize, GLsize
 	}
 
 	_orig_fastpath_glGetActiveAttrib(real_obj, index, bufsize, length, size, type, name);
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
 	goto finish;
 
 finish:
@@ -1242,7 +1482,7 @@ fastpath_glGetActiveUniform(GLuint program, GLuint index, GLsizei bufsize, GLsiz
 	}
 
 	_orig_fastpath_glGetActiveUniform(real_obj, index, bufsize, length, size, type, name);
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
 	goto finish;
 
 finish:
@@ -1266,16 +1506,16 @@ fastpath_glGetAttachedShaders(GLuint program, GLsizei maxcount, GLsizei* count, 
 		goto finish;
 	}
 
-	_orig_fastpath_glGetAttachedShaders(real_obj, maxcount, &real_count, shaders);
-
-	for (i = 0; i < real_count; i++)
+	IF_GL_SUCCESS(_orig_fastpath_glGetAttachedShaders(real_obj, maxcount, &real_count, shaders))
 	{
-		if (shaders[i] != 0)
-			shaders[i] = fastpath_sostate_find_object(current_ctx->sostate, GL_OBJECT_TYPE_PROGRAM, shaders[i]);
+		for (i = 0; i < real_count; i++)
+		{
+			if (shaders[i] != 0)
+				shaders[i] = fastpath_sostate_find_object(current_ctx->sostate, GL_OBJECT_TYPE_PROGRAM, shaders[i]);
+		}
+		if (count != NULL) *count = real_count;
 	}
-	if (count != NULL) *count = real_count;
 
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
 finish:
@@ -1299,7 +1539,7 @@ fastpath_glGetAttribLocation(GLuint program, const char* name)
 	}
 
 	ret = _orig_fastpath_glGetAttribLocation(real_obj, name);
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
 	goto finish;
 
 finish:
@@ -1322,8 +1562,18 @@ fastpath_glGetShaderiv(GLuint shader, GLenum pname, GLint* params)
 		goto finish;
 	}
 
-	_orig_fastpath_glGetShaderiv(real_obj, pname, params);
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	switch (pname)
+	{
+		case GL_DELETE_STATUS:
+			*params = GL_FALSE;
+			if (_is_deleted_program_object(current_ctx->sostate, shader) == 1)
+				*params = GL_TRUE;
+			break;
+		default:
+			_orig_fastpath_glGetShaderiv(real_obj, pname, params);
+			break;
+	}
+
 	goto finish;
 
 finish:
@@ -1346,7 +1596,7 @@ fastpath_glGetShaderInfoLog(GLuint shader, GLsizei bufsize, GLsizei* length, cha
 	}
 
 	_orig_fastpath_glGetShaderInfoLog(real_obj, bufsize, length, infolog);
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
 	goto finish;
 
 finish:
@@ -1368,8 +1618,18 @@ fastpath_glGetProgramiv(GLuint program, GLenum pname, GLint* params)
 		goto finish;
 	}
 
-	_orig_fastpath_glGetProgramiv(real_obj, pname, params);
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+	switch (pname)
+	{
+		case GL_DELETE_STATUS:
+			*params = GL_FALSE;
+			if (_is_deleted_program_object(current_ctx->sostate, program) == 1)
+				*params = GL_TRUE;
+			break;
+		default:
+			_orig_fastpath_glGetProgramiv(real_obj, pname, params);
+			break;
+	}
+
 	goto finish;
 
 finish:
@@ -1392,7 +1652,7 @@ fastpath_glGetProgramInfoLog(GLuint program, GLsizei bufsize, GLsizei* length, c
 	}
 
 	_orig_fastpath_glGetProgramInfoLog(real_obj, bufsize, length, infolog);
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
 	goto finish;
 
 finish:
@@ -1415,7 +1675,7 @@ fastpath_glGetShaderSource(GLuint shader, GLsizei bufsize, GLsizei* length, char
 	}
 
 	_orig_fastpath_glGetShaderSource(real_obj, bufsize, length, source);
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
 	goto finish;
 
 finish:
@@ -1438,7 +1698,7 @@ fastpath_glGetUniformfv(GLuint program, GLint location, GLfloat* params)
 	}
 
 	_orig_fastpath_glGetUniformfv(real_obj, location, params);
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
 	goto finish;
 
 finish:
@@ -1461,7 +1721,7 @@ fastpath_glGetUniformiv(GLuint program, GLint location, GLint* params)
 	}
 
 	_orig_fastpath_glGetUniformiv(real_obj, location, params);
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
 	goto finish;
 
 finish:
@@ -1484,7 +1744,7 @@ fastpath_glGetProgramBinary(GLuint program, GLsizei bufsize, GLsizei* length, GL
 	}
 
 	_orig_fastpath_glGetProgramBinary(real_obj, bufsize, length, binaryFormat, binary);
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
 	goto finish;
 
 finish:
@@ -1507,7 +1767,7 @@ fastpath_glProgramBinary(GLuint program, GLenum binaryFormat, const void* binary
 	}
 
 	_orig_fastpath_glProgramBinary(real_obj, binaryFormat, binary, length);
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
 	goto finish;
 
 finish:
@@ -1531,7 +1791,7 @@ fastpath_glProgramParameteri(GLuint program, GLuint pname, GLint value)
 	}
 
 	_orig_fastpath_glProgramParameteri(real_obj, pname, value);
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
 	goto finish;
 
 finish:
@@ -1556,7 +1816,7 @@ fastpath_glGetUniformLocation(GLuint program, const char* name)
 	}
 
 	ret = _orig_fastpath_glGetUniformLocation(real_obj, name);
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+
 	goto finish;
 
 finish:
@@ -1579,13 +1839,8 @@ fastpath_glDeleteShader(GLuint shader)
 		goto finish;
 	}
 
-	_orig_fastpath_glDeleteShader(real_obj);
-	if (real_obj != 0)
-	{
-		AST(fastpath_sostate_remove_object(current_ctx->sostate, GL_OBJECT_TYPE_PROGRAM, shader) == 1);
-	}
+	_detach_program_object(current_ctx->sostate, real_obj, 0, 1);
 
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
 finish:
@@ -1607,13 +1862,8 @@ fastpath_glDeleteProgram(GLuint program)
 		goto finish;
 	}
 
-	_orig_fastpath_glDeleteProgram(real_obj);
-	if (real_obj != 0)
-	{
-		AST(fastpath_sostate_remove_object(current_ctx->sostate, GL_OBJECT_TYPE_PROGRAM, program) == 1);
-	}
+	_detach_program_object(current_ctx->sostate, real_obj, 1, 1);
 
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	goto finish;
 
 finish:
@@ -1636,15 +1886,14 @@ fastpath_glBlendColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alph
 	    (current_ctx->gl_blend_color[2] != blue) ||
 	    (current_ctx->gl_blend_color[3] != alpha))
 	{
-		_orig_fastpath_glBlendColor(red, green, blue, alpha);
-
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		current_ctx->_blend_flag |= FLAG_BIT_0;
-		current_ctx->gl_blend_color[0] = red;
-		current_ctx->gl_blend_color[1] = green;
-		current_ctx->gl_blend_color[2] = blue;
-		current_ctx->gl_blend_color[3] = alpha;
+		IF_GL_SUCCESS(_orig_fastpath_glBlendColor(red, green, blue, alpha))
+		{
+			current_ctx->_blend_flag |= FLAG_BIT_0;
+			current_ctx->gl_blend_color[0] = red;
+			current_ctx->gl_blend_color[1] = green;
+			current_ctx->gl_blend_color[2] = blue;
+			current_ctx->gl_blend_color[3] = alpha;
+		}
 	}
 	goto finish;
 
@@ -1661,13 +1910,12 @@ fastpath_glBlendEquation(GLenum mode)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	_orig_fastpath_glBlendEquation(mode);
-
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-	current_ctx->_blend_flag |= (FLAG_BIT_5 | FLAG_BIT_6);
-	_orig_fastpath_glGetIntegerv(GL_BLEND_EQUATION_RGB, (GLint*) & (current_ctx->gl_blend_equation_rgb));
-	_orig_fastpath_glGetIntegerv(GL_BLEND_EQUATION_ALPHA, (GLint*) & (current_ctx->gl_blend_equation_alpha));
+	IF_GL_SUCCESS(_orig_fastpath_glBlendEquation(mode))
+	{
+		current_ctx->_blend_flag |= (FLAG_BIT_5 | FLAG_BIT_6);
+		_orig_fastpath_glGetIntegerv(GL_BLEND_EQUATION_RGB, (GLint*) & (current_ctx->gl_blend_equation_rgb));
+		_orig_fastpath_glGetIntegerv(GL_BLEND_EQUATION_ALPHA, (GLint*) & (current_ctx->gl_blend_equation_alpha));
+	}
 	goto finish;
 
 finish:
@@ -1685,13 +1933,12 @@ fastpath_glBlendEquationSeparate(GLenum modeRGB, GLenum modeAlpha)
 	if ((current_ctx->gl_blend_equation_rgb[0] != modeRGB) ||
 	    (current_ctx->gl_blend_equation_alpha[0] != modeAlpha))
 	{
-		_orig_fastpath_glBlendEquationSeparate(modeRGB, modeAlpha);
-
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		current_ctx->_blend_flag |= (FLAG_BIT_5 | FLAG_BIT_6);
-		current_ctx->gl_blend_equation_rgb[0]    = modeRGB;
-		current_ctx->gl_blend_equation_alpha[0]  = modeAlpha;
+		IF_GL_SUCCESS(_orig_fastpath_glBlendEquationSeparate(modeRGB, modeAlpha))
+		{
+			current_ctx->_blend_flag |= (FLAG_BIT_5 | FLAG_BIT_6);
+			current_ctx->gl_blend_equation_rgb[0]    = modeRGB;
+			current_ctx->gl_blend_equation_alpha[0]  = modeAlpha;
+		}
 	}
 	goto finish;
 
@@ -1708,15 +1955,14 @@ fastpath_glBlendFunc(GLenum sfactor, GLenum dfactor)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	_orig_fastpath_glBlendFunc(sfactor, dfactor);
-
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-	current_ctx->_blend_flag |= (FLAG_BIT_1 | FLAG_BIT_2 | FLAG_BIT_3 | FLAG_BIT_4);
-	_orig_fastpath_glGetIntegerv(GL_BLEND_SRC_RGB, (GLint*) & (current_ctx->gl_blend_src_rgb));
-	_orig_fastpath_glGetIntegerv(GL_BLEND_SRC_ALPHA, (GLint*) & (current_ctx->gl_blend_src_alpha));
-	_orig_fastpath_glGetIntegerv(GL_BLEND_DST_RGB, (GLint*) & (current_ctx->gl_blend_dst_rgb));
-	_orig_fastpath_glGetIntegerv(GL_BLEND_DST_ALPHA, (GLint*) & (current_ctx->gl_blend_dst_alpha));
+	IF_GL_SUCCESS(_orig_fastpath_glBlendFunc(sfactor, dfactor))
+	{
+		current_ctx->_blend_flag |= (FLAG_BIT_1 | FLAG_BIT_2 | FLAG_BIT_3 | FLAG_BIT_4);
+		_orig_fastpath_glGetIntegerv(GL_BLEND_SRC_RGB, (GLint*) & (current_ctx->gl_blend_src_rgb));
+		_orig_fastpath_glGetIntegerv(GL_BLEND_SRC_ALPHA, (GLint*) & (current_ctx->gl_blend_src_alpha));
+		_orig_fastpath_glGetIntegerv(GL_BLEND_DST_RGB, (GLint*) & (current_ctx->gl_blend_dst_rgb));
+		_orig_fastpath_glGetIntegerv(GL_BLEND_DST_ALPHA, (GLint*) & (current_ctx->gl_blend_dst_alpha));
+	}
 	goto finish;
 
 finish:
@@ -1736,15 +1982,14 @@ fastpath_glBlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLen
 	    (current_ctx->gl_blend_src_alpha[0] != srcAlpha) ||
 	    (current_ctx->gl_blend_dst_alpha[0] != dstAlpha))
 	{
-		_orig_fastpath_glBlendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha);
-
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		current_ctx->_blend_flag |= (FLAG_BIT_1 | FLAG_BIT_2 | FLAG_BIT_3 | FLAG_BIT_4);
-		current_ctx->gl_blend_src_rgb[0]   = srcRGB;
-		current_ctx->gl_blend_dst_rgb[0]   = dstRGB;
-		current_ctx->gl_blend_src_alpha[0] = srcAlpha;
-		current_ctx->gl_blend_dst_alpha[0] = dstAlpha;
+		IF_GL_SUCCESS(_orig_fastpath_glBlendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha))
+		{
+			current_ctx->_blend_flag |= (FLAG_BIT_1 | FLAG_BIT_2 | FLAG_BIT_3 | FLAG_BIT_4);
+			current_ctx->gl_blend_src_rgb[0]   = srcRGB;
+			current_ctx->gl_blend_dst_rgb[0]   = dstRGB;
+			current_ctx->gl_blend_src_alpha[0] = srcAlpha;
+			current_ctx->gl_blend_dst_alpha[0] = dstAlpha;
+		}
 	}
 	goto finish;
 
@@ -1765,15 +2010,14 @@ fastpath_glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alph
 	    (current_ctx->gl_color_clear_value[2] != blue) ||
 	    (current_ctx->gl_color_clear_value[3] != alpha))
 	{
-		_orig_fastpath_glClearColor(red, green, blue, alpha);
-
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		current_ctx->_clear_flag1 |= (FLAG_BIT_2);
-		current_ctx->gl_color_clear_value[0] = red;
-		current_ctx->gl_color_clear_value[1] = green;
-		current_ctx->gl_color_clear_value[2] = blue;
-		current_ctx->gl_color_clear_value[3] = alpha;
+		IF_GL_SUCCESS(_orig_fastpath_glClearColor(red, green, blue, alpha))
+		{
+			current_ctx->_clear_flag1 |= (FLAG_BIT_2);
+			current_ctx->gl_color_clear_value[0] = red;
+			current_ctx->gl_color_clear_value[1] = green;
+			current_ctx->gl_color_clear_value[2] = blue;
+			current_ctx->gl_color_clear_value[3] = alpha;
+		}
 	}
 	goto finish;
 
@@ -1791,12 +2035,11 @@ fastpath_glClearDepthf(GLclampf depth)
 
 	CURR_STATE_COMPARE(gl_depth_clear_value, depth)
 	{
-		_orig_fastpath_glClearDepthf(depth);
-
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		current_ctx->_clear_flag2 |= FLAG_BIT_2;
-		current_ctx->gl_depth_clear_value[0] = depth;
+		IF_GL_SUCCESS(_orig_fastpath_glClearDepthf(depth))
+		{
+			current_ctx->_clear_flag2 |= FLAG_BIT_2;
+			current_ctx->gl_depth_clear_value[0] = depth;
+		}
 	}
 	goto finish;
 
@@ -1814,12 +2057,11 @@ fastpath_glClearStencil(GLint s)
 
 	CURR_STATE_COMPARE(gl_stencil_clear_value, s)
 	{
-		_orig_fastpath_glClearStencil(s);
-
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		current_ctx->_stencil_flag2 |= FLAG_BIT_7;
-		current_ctx->gl_stencil_clear_value[0] = s;
+		IF_GL_SUCCESS(_orig_fastpath_glClearStencil(s))
+		{
+			current_ctx->_stencil_flag2 |= FLAG_BIT_7;
+			current_ctx->gl_stencil_clear_value[0] = s;
+		}
 	}
 	goto finish;
 
@@ -1840,15 +2082,14 @@ fastpath_glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean a
 	    (current_ctx->gl_color_writemask[2] != blue) ||
 	    (current_ctx->gl_color_writemask[3] != alpha))
 	{
-		_orig_fastpath_glColorMask(red, green, blue, alpha);
-
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		current_ctx->_clear_flag2 |= FLAG_BIT_0;
-		current_ctx->gl_color_writemask[0] = red;
-		current_ctx->gl_color_writemask[1] = green;
-		current_ctx->gl_color_writemask[2] = blue;
-		current_ctx->gl_color_writemask[3] = alpha;
+		IF_GL_SUCCESS(_orig_fastpath_glColorMask(red, green, blue, alpha))
+		{
+			current_ctx->_clear_flag2 |= FLAG_BIT_0;
+			current_ctx->gl_color_writemask[0] = red;
+			current_ctx->gl_color_writemask[1] = green;
+			current_ctx->gl_color_writemask[2] = blue;
+			current_ctx->gl_color_writemask[3] = alpha;
+		}
 	}
 	goto finish;
 
@@ -1866,12 +2107,11 @@ fastpath_glCullFace(GLenum mode)
 
 	CURR_STATE_COMPARE(gl_cull_face_mode, mode)
 	{
-		_orig_fastpath_glCullFace(mode);
-
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		current_ctx->_clear_flag2 |= FLAG_BIT_5;
-		current_ctx->gl_cull_face_mode[0] = mode;
+		IF_GL_SUCCESS(_orig_fastpath_glCullFace(mode))
+		{
+			current_ctx->_clear_flag2 |= FLAG_BIT_5;
+			current_ctx->gl_cull_face_mode[0] = mode;
+		}
 	}
 	goto finish;
 
@@ -1889,12 +2129,11 @@ fastpath_glDepthFunc(GLenum func)
 
 	CURR_STATE_COMPARE(gl_depth_func, func)
 	{
-		_orig_fastpath_glDepthFunc(func);
-
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		current_ctx->_clear_flag2 |= FLAG_BIT_3;
-		current_ctx->gl_depth_func[0] = func;
+		IF_GL_SUCCESS(_orig_fastpath_glDepthFunc(func))
+		{
+			current_ctx->_clear_flag2 |= FLAG_BIT_3;
+			current_ctx->gl_depth_func[0] = func;
+		}
 	}
 	goto finish;
 
@@ -1912,12 +2151,11 @@ fastpath_glDepthMask(GLboolean flag)
 
 	CURR_STATE_COMPARE(gl_depth_writemask, flag)
 	{
-		_orig_fastpath_glDepthMask(flag);
-
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		current_ctx->_clear_flag2 |= FLAG_BIT_4;
-		current_ctx->gl_depth_writemask[0] = flag;
+		IF_GL_SUCCESS(_orig_fastpath_glDepthMask(flag))
+		{
+			current_ctx->_clear_flag2 |= FLAG_BIT_4;
+			current_ctx->gl_depth_writemask[0] = flag;
+		}
 	}
 	goto finish;
 
@@ -1936,13 +2174,12 @@ fastpath_glDepthRangef(GLclampf zNear, GLclampf zFar)
 	if ((current_ctx->gl_depth_range[0] != zNear) ||
 	    (current_ctx->gl_depth_range[1] != zFar))
 	{
-		_orig_fastpath_glDepthRangef(zNear, zFar);
-
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		current_ctx->_clear_flag2 |= FLAG_BIT_1;
-		current_ctx->gl_depth_range[0] = zNear;
-		current_ctx->gl_depth_range[1] = zFar;
+		IF_GL_SUCCESS(_orig_fastpath_glDepthRangef(zNear, zFar))
+		{
+			current_ctx->_clear_flag2 |= FLAG_BIT_1;
+			current_ctx->gl_depth_range[0] = zNear;
+			current_ctx->gl_depth_range[1] = zFar;
+		}
 	}
 	goto finish;
 
@@ -1964,7 +2201,6 @@ fastpath_glDisable(GLenum cap)
 			CURR_STATE_COMPARE(gl_blend, GL_FALSE)
 			{
 				_orig_fastpath_glDisable(cap);
-				GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 				current_ctx->_enable_flag1 &= (~FLAG_BIT_0);
 				current_ctx->gl_blend[0] = GL_FALSE;
 			}
@@ -1973,7 +2209,6 @@ fastpath_glDisable(GLenum cap)
 			CURR_STATE_COMPARE(gl_cull_face, GL_FALSE)
 			{
 				_orig_fastpath_glDisable(cap);
-				GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 				current_ctx->_enable_flag1 &= (~FLAG_BIT_1);
 				current_ctx->gl_cull_face[0] = GL_FALSE;
 			}
@@ -1982,7 +2217,6 @@ fastpath_glDisable(GLenum cap)
 			CURR_STATE_COMPARE(gl_depth_test, GL_FALSE)
 			{
 				_orig_fastpath_glDisable(cap);
-				GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 				current_ctx->_enable_flag1 &= (~FLAG_BIT_2);
 				current_ctx->gl_depth_test[0] = GL_FALSE;
 			}
@@ -1991,7 +2225,6 @@ fastpath_glDisable(GLenum cap)
 			CURR_STATE_COMPARE(gl_dither, GL_FALSE)
 			{
 				_orig_fastpath_glDisable(cap);
-				GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 				current_ctx->_enable_flag1 &= (~FLAG_BIT_3);
 				current_ctx->gl_dither[0] = GL_FALSE;
 			}
@@ -2000,7 +2233,6 @@ fastpath_glDisable(GLenum cap)
 			CURR_STATE_COMPARE(gl_polygon_offset_fill, GL_FALSE)
 			{
 				_orig_fastpath_glDisable(cap);
-				GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 				current_ctx->_enable_flag2 &= (~FLAG_BIT_0);
 				current_ctx->gl_polygon_offset_fill[0] = GL_FALSE;
 			}
@@ -2009,7 +2241,6 @@ fastpath_glDisable(GLenum cap)
 			CURR_STATE_COMPARE(gl_sample_alpha_to_coverage, GL_FALSE)
 			{
 				_orig_fastpath_glDisable(cap);
-				GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 				current_ctx->_enable_flag2 &= (~FLAG_BIT_1);
 				current_ctx->gl_sample_alpha_to_coverage[0] = GL_FALSE;
 			}
@@ -2018,7 +2249,6 @@ fastpath_glDisable(GLenum cap)
 			CURR_STATE_COMPARE(gl_sample_coverage, GL_FALSE)
 			{
 				_orig_fastpath_glDisable(cap);
-				GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 				current_ctx->_enable_flag2 &= (~FLAG_BIT_2);
 				current_ctx->gl_sample_coverage[0] = GL_FALSE;
 			}
@@ -2027,7 +2257,6 @@ fastpath_glDisable(GLenum cap)
 			CURR_STATE_COMPARE(gl_scissor_test, GL_FALSE)
 			{
 				_orig_fastpath_glDisable(cap);
-				GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 				current_ctx->_enable_flag2 &= (~FLAG_BIT_3);
 				current_ctx->gl_scissor_test[0] = GL_FALSE;
 			}
@@ -2036,7 +2265,6 @@ fastpath_glDisable(GLenum cap)
 			CURR_STATE_COMPARE(gl_stencil_test, GL_FALSE)
 			{
 				_orig_fastpath_glDisable(cap);
-				GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 				current_ctx->_enable_flag2 &= (~FLAG_BIT_4);
 				current_ctx->gl_stencil_test[0] = GL_FALSE;
 			}
@@ -2056,47 +2284,17 @@ fastpath_glDisableVertexAttribArray(GLuint index)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	_orig_fastpath_glDisableVertexAttribArray(index);
-
-	current_ctx->_vattrib_flag |= FLAG_BIT_1;
-	current_ctx->gl_vertex_array_enabled[index]    = GL_FALSE;
+	IF_GL_SUCCESS(_orig_fastpath_glDisableVertexAttribArray(index))
+	{
+		current_ctx->_vattrib_flag |= FLAG_BIT_1;
+		current_ctx->gl_vertex_array_enabled[index] = GL_FALSE;
+	}
 
 	goto finish;
 
 finish:
 	_COREGL_FASTPATH_FUNC_END();
 }
-
-
-void
-fastpath_glDrawArrays(GLenum mode, GLint first, GLsizei count)
-{
-	DEFINE_FASTPAH_GL_FUNC();
-	_COREGL_FASTPATH_FUNC_BEGIN();
-	INIT_FASTPATH_GL_FUNC();
-
-	_orig_fastpath_glDrawArrays(mode, first, count);
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-}
-
-
-void
-fastpath_glDrawElements(GLenum mode, GLsizei count, GLenum type, const void* indices)
-{
-	DEFINE_FASTPAH_GL_FUNC();
-	_COREGL_FASTPATH_FUNC_BEGIN();
-	INIT_FASTPATH_GL_FUNC();
-
-	_orig_fastpath_glDrawElements(mode, count, type, indices);
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-}
-
 
 void
 fastpath_glEnable(GLenum cap)
@@ -2111,8 +2309,6 @@ fastpath_glEnable(GLenum cap)
 			CURR_STATE_COMPARE(gl_blend, GL_TRUE)
 			{
 				_orig_fastpath_glEnable(cap);
-				GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
 				current_ctx->_enable_flag1 |= FLAG_BIT_0;
 				current_ctx->gl_blend[0] = GL_TRUE;
 			}
@@ -2121,9 +2317,6 @@ fastpath_glEnable(GLenum cap)
 			CURR_STATE_COMPARE(gl_cull_face, GL_TRUE)
 			{
 				_orig_fastpath_glEnable(cap);
-				GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-
 				current_ctx->_enable_flag1 |= FLAG_BIT_1;
 				current_ctx->gl_cull_face[0] = GL_TRUE;
 			}
@@ -2132,9 +2325,6 @@ fastpath_glEnable(GLenum cap)
 			CURR_STATE_COMPARE(gl_depth_test, GL_TRUE)
 			{
 				_orig_fastpath_glEnable(cap);
-				GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-
 				current_ctx->_enable_flag1 |= FLAG_BIT_2;
 				current_ctx->gl_depth_test[0] = GL_TRUE;
 			}
@@ -2143,9 +2333,6 @@ fastpath_glEnable(GLenum cap)
 			CURR_STATE_COMPARE(gl_dither, GL_TRUE)
 			{
 				_orig_fastpath_glEnable(cap);
-				GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-
 				current_ctx->_enable_flag1 |= FLAG_BIT_3;
 				current_ctx->gl_dither[0] = GL_TRUE;
 			}
@@ -2154,9 +2341,6 @@ fastpath_glEnable(GLenum cap)
 			CURR_STATE_COMPARE(gl_polygon_offset_fill, GL_TRUE)
 			{
 				_orig_fastpath_glEnable(cap);
-				GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-
 				current_ctx->_enable_flag2 |= FLAG_BIT_0;
 				current_ctx->gl_polygon_offset_fill[0] = GL_TRUE;
 			}
@@ -2165,9 +2349,6 @@ fastpath_glEnable(GLenum cap)
 			CURR_STATE_COMPARE(gl_sample_alpha_to_coverage, GL_TRUE)
 			{
 				_orig_fastpath_glEnable(cap);
-				GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-
 				current_ctx->_enable_flag2 |= FLAG_BIT_1;
 				current_ctx->gl_sample_alpha_to_coverage[0] = GL_TRUE;
 			}
@@ -2176,9 +2357,6 @@ fastpath_glEnable(GLenum cap)
 			CURR_STATE_COMPARE(gl_sample_coverage, GL_TRUE)
 			{
 				_orig_fastpath_glEnable(cap);
-				GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-
 				current_ctx->_enable_flag2 |= FLAG_BIT_2;
 				current_ctx->gl_sample_coverage[0] = GL_TRUE;
 			}
@@ -2187,9 +2365,6 @@ fastpath_glEnable(GLenum cap)
 			CURR_STATE_COMPARE(gl_scissor_test, GL_TRUE)
 			{
 				_orig_fastpath_glEnable(cap);
-				GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-
 				current_ctx->_enable_flag2 |= FLAG_BIT_3;
 				current_ctx->gl_scissor_test[0] = GL_TRUE;
 			}
@@ -2198,9 +2373,6 @@ fastpath_glEnable(GLenum cap)
 			CURR_STATE_COMPARE(gl_stencil_test, GL_TRUE)
 			{
 				_orig_fastpath_glEnable(cap);
-				GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-
 				current_ctx->_enable_flag2 |= FLAG_BIT_4;
 				current_ctx->gl_stencil_test[0] = GL_TRUE;
 			}
@@ -2221,12 +2393,11 @@ fastpath_glEnableVertexAttribArray(GLuint index)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	_orig_fastpath_glEnableVertexAttribArray(index);
-
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-	current_ctx->_vattrib_flag |= FLAG_BIT_1;
-	current_ctx->gl_vertex_array_enabled[index]    = GL_TRUE;
+	IF_GL_SUCCESS(_orig_fastpath_glEnableVertexAttribArray(index))
+	{
+		current_ctx->_vattrib_flag |= FLAG_BIT_1;
+		current_ctx->gl_vertex_array_enabled[index] = GL_TRUE;
+	}
 
 	goto finish;
 
@@ -2244,65 +2415,12 @@ fastpath_glFrontFace(GLenum mode)
 
 	CURR_STATE_COMPARE(gl_front_face, mode)
 	{
-		_orig_fastpath_glFrontFace(mode);
-
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		current_ctx->_misc_flag1 |= FLAG_BIT_0;
-		current_ctx->gl_front_face[0] = mode;
+		IF_GL_SUCCESS(_orig_fastpath_glFrontFace(mode))
+		{
+			current_ctx->_misc_flag1 |= FLAG_BIT_0;
+			current_ctx->gl_front_face[0] = mode;
+		}
 	}
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-}
-
-
-void
-fastpath_glGetVertexAttribfv(GLuint index, GLenum pname, GLfloat* params)
-{
-	DEFINE_FASTPAH_GL_FUNC();
-	_COREGL_FASTPATH_FUNC_BEGIN();
-	INIT_FASTPATH_GL_FUNC();
-
-	_orig_fastpath_glGetVertexAttribfv(index, pname, params);
-
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-}
-
-
-void
-fastpath_glGetVertexAttribiv(GLuint index, GLenum pname, GLint* params)
-{
-	DEFINE_FASTPAH_GL_FUNC();
-	_COREGL_FASTPATH_FUNC_BEGIN();
-	INIT_FASTPATH_GL_FUNC();
-
-	_orig_fastpath_glGetVertexAttribiv(index, pname, params);
-
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-}
-
-
-void
-fastpath_glGetVertexAttribPointerv(GLuint index, GLenum pname, void** pointer)
-{
-	DEFINE_FASTPAH_GL_FUNC();
-	_COREGL_FASTPATH_FUNC_BEGIN();
-	INIT_FASTPATH_GL_FUNC();
-
-	_orig_fastpath_glGetVertexAttribPointerv(index, pname, pointer);
-
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
 	goto finish;
 
 finish:
@@ -2321,19 +2439,17 @@ fastpath_glHint(GLenum target, GLenum mode)
 	{
 		CURR_STATE_COMPARE(gl_generate_mipmap_hint, mode)
 		{
-			_orig_fastpath_glHint(target, mode);
-
-			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-			current_ctx->_tex_flag1 |= FLAG_BIT_2;
-			current_ctx->gl_generate_mipmap_hint[0] = mode;
+			IF_GL_SUCCESS(_orig_fastpath_glHint(target, mode))
+			{
+				current_ctx->_tex_flag1 |= FLAG_BIT_2;
+				current_ctx->gl_generate_mipmap_hint[0] = mode;
+			}
 		}
 	}
 	else
 	{
-		// For GL Error to be picked up
-		_orig_fastpath_glHint(target, mode);
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+		_set_gl_error(GL_INVALID_ENUM);
+		goto finish;
 	}
 	goto finish;
 
@@ -2351,12 +2467,11 @@ fastpath_glLineWidth(GLfloat width)
 
 	CURR_STATE_COMPARE(gl_line_width, width)
 	{
-		_orig_fastpath_glLineWidth(width);
-
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		current_ctx->_misc_flag1 |= FLAG_BIT_1;
-		current_ctx->gl_line_width[0] = width;
+		IF_GL_SUCCESS(_orig_fastpath_glLineWidth(width))
+		{
+			current_ctx->_misc_flag1 |= FLAG_BIT_1;
+			current_ctx->gl_line_width[0] = width;
+		}
 	}
 	goto finish;
 
@@ -2376,31 +2491,28 @@ fastpath_glPixelStorei(GLenum pname, GLint param)
 	{
 		CURR_STATE_COMPARE(gl_pack_alignment, param)
 		{
-			_orig_fastpath_glPixelStorei(pname, param);
-
-			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-			current_ctx->_misc_flag2 |= FLAG_BIT_1;
-			current_ctx->gl_pack_alignment[0] = param;
+			IF_GL_SUCCESS(_orig_fastpath_glPixelStorei(pname, param))
+			{
+				current_ctx->_misc_flag2 |= FLAG_BIT_1;
+				current_ctx->gl_pack_alignment[0] = param;
+			}
 		}
 	}
 	else if (pname == GL_UNPACK_ALIGNMENT)
 	{
 		CURR_STATE_COMPARE(gl_unpack_alignment, param)
 		{
-			_orig_fastpath_glPixelStorei(pname, param);
-
-			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-			current_ctx->_misc_flag2 |= FLAG_BIT_2;
-			current_ctx->gl_unpack_alignment[0] = param;
+			IF_GL_SUCCESS(_orig_fastpath_glPixelStorei(pname, param))
+			{
+				current_ctx->_misc_flag2 |= FLAG_BIT_2;
+				current_ctx->gl_unpack_alignment[0] = param;
+			}
 		}
 	}
 	else
 	{
-		// For GL Error to be picked up
-		_orig_fastpath_glPixelStorei(pname, param);
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+		_set_gl_error(GL_INVALID_ENUM);
+		goto finish;
 	}
 	goto finish;
 
@@ -2419,13 +2531,12 @@ fastpath_glPolygonOffset(GLfloat factor, GLfloat units)
 	if ((current_ctx->gl_polygon_offset_factor[0] != factor) ||
 	    (current_ctx->gl_polygon_offset_units[0] != units))
 	{
-		_orig_fastpath_glPolygonOffset(factor, units);
-
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		current_ctx->_misc_flag1 |= (FLAG_BIT_2 | FLAG_BIT_3);
-		current_ctx->gl_polygon_offset_factor[0] = factor;
-		current_ctx->gl_polygon_offset_units[0]  = units;
+		IF_GL_SUCCESS(_orig_fastpath_glPolygonOffset(factor, units))
+		{
+			current_ctx->_misc_flag1 |= (FLAG_BIT_2 | FLAG_BIT_3);
+			current_ctx->gl_polygon_offset_factor[0] = factor;
+			current_ctx->gl_polygon_offset_units[0]  = units;
+		}
 	}
 	goto finish;
 
@@ -2444,13 +2555,12 @@ fastpath_glSampleCoverage(GLclampf value, GLboolean invert)
 	if ((current_ctx->gl_sample_coverage_value[0] != value) ||
 	    (current_ctx->gl_sample_coverage_invert[0] != invert))
 	{
-		_orig_fastpath_glSampleCoverage(value, invert);
-
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		current_ctx->_misc_flag1 |= (FLAG_BIT_4 | FLAG_BIT_5);
-		current_ctx->gl_sample_coverage_value[0]  = value;
-		current_ctx->gl_sample_coverage_invert[0] = invert;
+		IF_GL_SUCCESS(_orig_fastpath_glSampleCoverage(value, invert))
+		{
+			current_ctx->_misc_flag1 |= (FLAG_BIT_4 | FLAG_BIT_5);
+			current_ctx->gl_sample_coverage_value[0]  = value;
+			current_ctx->gl_sample_coverage_invert[0] = invert;
+		}
 	}
 	goto finish;
 
@@ -2471,15 +2581,14 @@ fastpath_glScissor(GLint x, GLint y, GLsizei width, GLsizei height)
 	    (current_ctx->gl_scissor_box[2] != width) ||
 	    (current_ctx->gl_scissor_box[3] != height))
 	{
-		_orig_fastpath_glScissor(x, y, width, height);
-
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		current_ctx->_misc_flag2 |= FLAG_BIT_0;
-		current_ctx->gl_scissor_box[0] = x;
-		current_ctx->gl_scissor_box[1] = y;
-		current_ctx->gl_scissor_box[2] = width;
-		current_ctx->gl_scissor_box[3] = height;
+		IF_GL_SUCCESS(_orig_fastpath_glScissor(x, y, width, height))
+		{
+			current_ctx->_misc_flag2 |= FLAG_BIT_0;
+			current_ctx->gl_scissor_box[0] = x;
+			current_ctx->gl_scissor_box[1] = y;
+			current_ctx->gl_scissor_box[2] = width;
+			current_ctx->gl_scissor_box[3] = height;
+		}
 	}
 	goto finish;
 
@@ -2502,19 +2611,18 @@ fastpath_glStencilFunc(GLenum func, GLint ref, GLuint mask)
 	    (current_ctx->gl_stencil_back_ref[0] != ref) ||
 	    (current_ctx->gl_stencil_back_value_mask[0] != mask))
 	{
-		_orig_fastpath_glStencilFunc(func, ref, mask);
+		IF_GL_SUCCESS(_orig_fastpath_glStencilFunc(func, ref, mask))
+		{
+			current_ctx->_stencil_flag1 |= (FLAG_BIT_0 | FLAG_BIT_1 | FLAG_BIT_2);
+			current_ctx->gl_stencil_func[0]             = func;
+			current_ctx->gl_stencil_ref[0]              = ref;
+			current_ctx->gl_stencil_value_mask[0]       = mask;
 
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		current_ctx->_stencil_flag1 |= (FLAG_BIT_0 | FLAG_BIT_1 | FLAG_BIT_2);
-		current_ctx->gl_stencil_func[0]             = func;
-		current_ctx->gl_stencil_ref[0]              = ref;
-		current_ctx->gl_stencil_value_mask[0]       = mask;
-
-		current_ctx->_stencil_flag2 |= (FLAG_BIT_0 | FLAG_BIT_1 | FLAG_BIT_2);
-		current_ctx->gl_stencil_back_func[0]        = func;
-		current_ctx->gl_stencil_back_ref[0]         = ref;
-		current_ctx->gl_stencil_back_value_mask[0]  = mask;
+			current_ctx->_stencil_flag2 |= (FLAG_BIT_0 | FLAG_BIT_1 | FLAG_BIT_2);
+			current_ctx->gl_stencil_back_func[0]        = func;
+			current_ctx->gl_stencil_back_ref[0]         = ref;
+			current_ctx->gl_stencil_back_value_mask[0]  = mask;
+		}
 	}
 	goto finish;
 
@@ -2536,15 +2644,14 @@ fastpath_glStencilFuncSeparate(GLenum face, GLenum func, GLint ref, GLuint mask)
 		    (current_ctx->gl_stencil_ref[0] != ref) ||
 		    (current_ctx->gl_stencil_value_mask[0] != mask))
 		{
-			_orig_fastpath_glStencilFuncSeparate(face, func, ref, mask);
+			IF_GL_SUCCESS(_orig_fastpath_glStencilFuncSeparate(face, func, ref, mask))
+			{
+				current_ctx->_stencil_flag1 |= (FLAG_BIT_0 | FLAG_BIT_1 | FLAG_BIT_2);
 
-			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-			current_ctx->_stencil_flag1 |= (FLAG_BIT_0 | FLAG_BIT_1 | FLAG_BIT_2);
-
-			current_ctx->gl_stencil_func[0]             = func;
-			current_ctx->gl_stencil_ref[0]              = ref;
-			current_ctx->gl_stencil_value_mask[0]       = mask;
+				current_ctx->gl_stencil_func[0]             = func;
+				current_ctx->gl_stencil_ref[0]              = ref;
+				current_ctx->gl_stencil_value_mask[0]       = mask;
+			}
 		}
 	}
 	else if ((face == GL_BACK) || (face == GL_FRONT_AND_BACK))
@@ -2553,23 +2660,20 @@ fastpath_glStencilFuncSeparate(GLenum face, GLenum func, GLint ref, GLuint mask)
 		    (current_ctx->gl_stencil_back_ref[0] != ref) ||
 		    (current_ctx->gl_stencil_back_value_mask[0] != mask))
 		{
-			_orig_fastpath_glStencilFuncSeparate(face, func, ref, mask);
+			IF_GL_SUCCESS(_orig_fastpath_glStencilFuncSeparate(face, func, ref, mask))
+			{
+				current_ctx->_stencil_flag2 |= (FLAG_BIT_0 | FLAG_BIT_1 | FLAG_BIT_2);
 
-			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-			current_ctx->_stencil_flag2 |= (FLAG_BIT_0 | FLAG_BIT_1 | FLAG_BIT_2);
-
-			current_ctx->gl_stencil_back_func[0]        = func;
-			current_ctx->gl_stencil_back_ref[0]         = ref;
-			current_ctx->gl_stencil_back_value_mask[0]  = mask;
+				current_ctx->gl_stencil_back_func[0]        = func;
+				current_ctx->gl_stencil_back_ref[0]         = ref;
+				current_ctx->gl_stencil_back_value_mask[0]  = mask;
+			}
 		}
 	}
 	else
 	{
-		// Have GL pick up the error
-		_orig_fastpath_glStencilFuncSeparate(face, func, ref, mask);
-
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+		_set_gl_error(GL_INVALID_ENUM);
+		goto finish;
 	}
 	goto finish;
 
@@ -2588,15 +2692,14 @@ fastpath_glStencilMask(GLuint mask)
 	if ((current_ctx->gl_stencil_writemask[0] != mask) ||
 	    (current_ctx->gl_stencil_back_writemask[0] != mask))
 	{
-		_orig_fastpath_glStencilMask(mask);
+		IF_GL_SUCCESS(_orig_fastpath_glStencilMask(mask))
+		{
+			current_ctx->_stencil_flag1 |= (FLAG_BIT_6);
+			current_ctx->_stencil_flag2 |= (FLAG_BIT_6);
 
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		current_ctx->_stencil_flag1 |= (FLAG_BIT_6);
-		current_ctx->_stencil_flag2 |= (FLAG_BIT_6);
-
-		current_ctx->gl_stencil_writemask[0]        = mask;
-		current_ctx->gl_stencil_back_writemask[0]   = mask;
+			current_ctx->gl_stencil_writemask[0]        = mask;
+			current_ctx->gl_stencil_back_writemask[0]   = mask;
+		}
 	}
 	goto finish;
 
@@ -2616,31 +2719,28 @@ fastpath_glStencilMaskSeparate(GLenum face, GLuint mask)
 	{
 		if (current_ctx->gl_stencil_writemask[0] != mask)
 		{
-			_orig_fastpath_glStencilMaskSeparate(face, mask);
-
-			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-			current_ctx->_stencil_flag1 |= (FLAG_BIT_6);
-			current_ctx->gl_stencil_writemask[0] = mask;
+			IF_GL_SUCCESS(_orig_fastpath_glStencilMaskSeparate(face, mask))
+			{
+				current_ctx->_stencil_flag1 |= (FLAG_BIT_6);
+				current_ctx->gl_stencil_writemask[0] = mask;
+			}
 		}
 	}
 	else if ((face == GL_BACK) || (face == GL_FRONT_AND_BACK))
 	{
 		if (current_ctx->gl_stencil_back_writemask[0] != mask)
 		{
-			_orig_fastpath_glStencilMaskSeparate(face, mask);
-
-			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-			current_ctx->_stencil_flag2 |= (FLAG_BIT_6);
-			current_ctx->gl_stencil_back_writemask[0]   = mask;
+			IF_GL_SUCCESS(_orig_fastpath_glStencilMaskSeparate(face, mask))
+			{
+				current_ctx->_stencil_flag2 |= (FLAG_BIT_6);
+				current_ctx->gl_stencil_back_writemask[0]   = mask;
+			}
 		}
 	}
 	else
 	{
-		// Have GL pick up the error
-		_orig_fastpath_glStencilMaskSeparate(face, mask);
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+		_set_gl_error(GL_INVALID_ENUM);
+		goto finish;
 	}
 	goto finish;
 
@@ -2663,19 +2763,18 @@ fastpath_glStencilOp(GLenum fail, GLenum zfail, GLenum zpass)
 	    (current_ctx->gl_stencil_back_pass_depth_fail[0] != zfail) ||
 	    (current_ctx->gl_stencil_back_pass_depth_pass[0] != zpass))
 	{
-		_orig_fastpath_glStencilOp(fail, zfail, zpass);
+		IF_GL_SUCCESS(_orig_fastpath_glStencilOp(fail, zfail, zpass))
+		{
+			current_ctx->_stencil_flag1 |= (FLAG_BIT_3 | FLAG_BIT_4 | FLAG_BIT_5);
+			current_ctx->gl_stencil_fail[0]              = fail;
+			current_ctx->gl_stencil_pass_depth_fail[0]   = zfail;
+			current_ctx->gl_stencil_pass_depth_pass[0]   = zpass;
 
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		current_ctx->_stencil_flag1 |= (FLAG_BIT_3 | FLAG_BIT_4 | FLAG_BIT_5);
-		current_ctx->gl_stencil_fail[0]              = fail;
-		current_ctx->gl_stencil_pass_depth_fail[0]   = zfail;
-		current_ctx->gl_stencil_pass_depth_pass[0]   = zpass;
-
-		current_ctx->_stencil_flag2 |= (FLAG_BIT_3 | FLAG_BIT_4 | FLAG_BIT_5);
-		current_ctx->gl_stencil_back_fail[0]         = fail;
-		current_ctx->gl_stencil_back_pass_depth_fail[0]   = zfail;
-		current_ctx->gl_stencil_back_pass_depth_pass[0]   = zpass;
+			current_ctx->_stencil_flag2 |= (FLAG_BIT_3 | FLAG_BIT_4 | FLAG_BIT_5);
+			current_ctx->gl_stencil_back_fail[0]         = fail;
+			current_ctx->gl_stencil_back_pass_depth_fail[0]   = zfail;
+			current_ctx->gl_stencil_back_pass_depth_pass[0]   = zpass;
+		}
 	}
 	goto finish;
 
@@ -2697,13 +2796,13 @@ fastpath_glStencilOpSeparate(GLenum face, GLenum fail, GLenum zfail, GLenum zpas
 		    (current_ctx->gl_stencil_pass_depth_fail[0] != zfail) ||
 		    (current_ctx->gl_stencil_pass_depth_pass[0] != zpass))
 		{
-			_orig_fastpath_glStencilOpSeparate(face, fail, zfail, zpass);
-			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-			current_ctx->_stencil_flag1 |= (FLAG_BIT_3 | FLAG_BIT_4 | FLAG_BIT_5);
-			current_ctx->gl_stencil_fail[0]              = fail;
-			current_ctx->gl_stencil_pass_depth_fail[0]   = zfail;
-			current_ctx->gl_stencil_pass_depth_pass[0]   = zpass;
+			IF_GL_SUCCESS(_orig_fastpath_glStencilOpSeparate(face, fail, zfail, zpass))
+			{
+				current_ctx->_stencil_flag1 |= (FLAG_BIT_3 | FLAG_BIT_4 | FLAG_BIT_5);
+				current_ctx->gl_stencil_fail[0]              = fail;
+				current_ctx->gl_stencil_pass_depth_fail[0]   = zfail;
+				current_ctx->gl_stencil_pass_depth_pass[0]   = zpass;
+			}
 		}
 	}
 	else if ((face == GL_BACK) || (face == GL_FRONT_AND_BACK))
@@ -2712,20 +2811,19 @@ fastpath_glStencilOpSeparate(GLenum face, GLenum fail, GLenum zfail, GLenum zpas
 		    (current_ctx->gl_stencil_back_pass_depth_fail[0] != zfail) ||
 		    (current_ctx->gl_stencil_back_pass_depth_pass[0] != zpass))
 		{
-			_orig_fastpath_glStencilOpSeparate(face, fail, zfail, zpass);
-			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-			current_ctx->_stencil_flag2 |= (FLAG_BIT_3 | FLAG_BIT_4 | FLAG_BIT_5);
-			current_ctx->gl_stencil_back_fail[0]         = fail;
-			current_ctx->gl_stencil_back_pass_depth_fail[0]   = zfail;
-			current_ctx->gl_stencil_back_pass_depth_pass[0]   = zpass;
+			IF_GL_SUCCESS(_orig_fastpath_glStencilOpSeparate(face, fail, zfail, zpass))
+			{
+				current_ctx->_stencil_flag2 |= (FLAG_BIT_3 | FLAG_BIT_4 | FLAG_BIT_5);
+				current_ctx->gl_stencil_back_fail[0]              = fail;
+				current_ctx->gl_stencil_back_pass_depth_fail[0]   = zfail;
+				current_ctx->gl_stencil_back_pass_depth_pass[0]   = zpass;
+			}
 		}
 	}
 	else
 	{
-		// For picking up error purpose
-		_orig_fastpath_glStencilOpSeparate(face, fail, zfail, zpass);
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+		_set_gl_error(GL_INVALID_ENUM);
+		goto finish;
 	}
 	goto finish;
 
@@ -2741,15 +2839,14 @@ fastpath_glVertexAttrib1f(GLuint indx, GLfloat x)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	_orig_fastpath_glVertexAttrib1f(indx, x);
-
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-	current_ctx->_vattrib_flag |= FLAG_BIT_0;
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 0] = x;
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 1] = 0;
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 2] = 0;
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 3] = 1;
+	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib1f(indx, x))
+	{
+		current_ctx->_vattrib_flag |= FLAG_BIT_0;
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 0] = x;
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 1] = 0;
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 2] = 0;
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 3] = 1;
+	}
 	goto finish;
 
 finish:
@@ -2765,15 +2862,14 @@ fastpath_glVertexAttrib1fv(GLuint indx, const GLfloat* values)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	_orig_fastpath_glVertexAttrib1fv(indx, values);
-
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-	current_ctx->_vattrib_flag |= FLAG_BIT_0;
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 0] = values[0];
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 1] = 0;
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 2] = 0;
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 3] = 1;
+	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib1fv(indx, values))
+	{
+		current_ctx->_vattrib_flag |= FLAG_BIT_0;
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 0] = values[0];
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 1] = 0;
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 2] = 0;
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 3] = 1;
+	}
 	goto finish;
 
 finish:
@@ -2789,15 +2885,14 @@ fastpath_glVertexAttrib2f(GLuint indx, GLfloat x, GLfloat y)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	_orig_fastpath_glVertexAttrib2f(indx, x, y);
-
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-	current_ctx->_vattrib_flag |= FLAG_BIT_0;
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 0] = x;
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 1] = y;
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 2] = 0;
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 3] = 1;
+	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib2f(indx, x, y))
+	{
+		current_ctx->_vattrib_flag |= FLAG_BIT_0;
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 0] = x;
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 1] = y;
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 2] = 0;
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 3] = 1;
+	}
 	goto finish;
 
 finish:
@@ -2813,15 +2908,14 @@ fastpath_glVertexAttrib2fv(GLuint indx, const GLfloat* values)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	_orig_fastpath_glVertexAttrib2fv(indx, values);
-
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-	current_ctx->_vattrib_flag |= FLAG_BIT_0;
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 0] = values[0];
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 1] = values[1];
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 2] = 0;
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 3] = 1;
+	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib2fv(indx, values))
+	{
+		current_ctx->_vattrib_flag |= FLAG_BIT_0;
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 0] = values[0];
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 1] = values[1];
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 2] = 0;
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 3] = 1;
+	}
 	goto finish;
 
 finish:
@@ -2837,15 +2931,14 @@ fastpath_glVertexAttrib3f(GLuint indx, GLfloat x, GLfloat y, GLfloat z)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	_orig_fastpath_glVertexAttrib3f(indx, x, y, z);
-
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-	current_ctx->_vattrib_flag |= FLAG_BIT_0;
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 0] = x;
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 1] = y;
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 2] = z;
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 3] = 1;
+	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib3f(indx, x, y, z))
+	{
+		current_ctx->_vattrib_flag |= FLAG_BIT_0;
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 0] = x;
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 1] = y;
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 2] = z;
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 3] = 1;
+	}
 	goto finish;
 
 finish:
@@ -2861,15 +2954,14 @@ fastpath_glVertexAttrib3fv(GLuint indx, const GLfloat* values)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	_orig_fastpath_glVertexAttrib3fv(indx, values);
-
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-	current_ctx->_vattrib_flag |= FLAG_BIT_0;
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 0] = values[0];
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 1] = values[1];
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 2] = values[2];
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 3] = 1;
+	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib3fv(indx, values))
+	{
+		current_ctx->_vattrib_flag |= FLAG_BIT_0;
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 0] = values[0];
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 1] = values[1];
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 2] = values[2];
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 3] = 1;
+	}
 	goto finish;
 
 finish:
@@ -2885,15 +2977,14 @@ fastpath_glVertexAttrib4f(GLuint indx, GLfloat x, GLfloat y, GLfloat z, GLfloat 
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	_orig_fastpath_glVertexAttrib4f(indx, x, y, z, w);
-
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-	current_ctx->_vattrib_flag |= FLAG_BIT_0;
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 0] = x;
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 1] = y;
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 2] = z;
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 3] = w;
+	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib4f(indx, x, y, z, w))
+	{
+		current_ctx->_vattrib_flag |= FLAG_BIT_0;
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 0] = x;
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 1] = y;
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 2] = z;
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 3] = w;
+	}
 	goto finish;
 
 finish:
@@ -2909,15 +3000,14 @@ fastpath_glVertexAttrib4fv(GLuint indx, const GLfloat* values)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	_orig_fastpath_glVertexAttrib4fv(indx, values);
-
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-	current_ctx->_vattrib_flag |= FLAG_BIT_0;
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 0] = values[0];
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 1] = values[1];
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 2] = values[2];
-	current_ctx->gl_vertex_attrib_value[indx * 4 + 3] = values[3];
+	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib4fv(indx, values))
+	{
+		current_ctx->_vattrib_flag |= FLAG_BIT_0;
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 0] = values[0];
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 1] = values[1];
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 2] = values[2];
+		current_ctx->gl_vertex_attrib_value[indx * 4 + 3] = values[3];
+	}
 	goto finish;
 
 finish:
@@ -2934,18 +3024,17 @@ fastpath_glVertexAttribPointer(GLuint indx, GLint size, GLenum type, GLboolean n
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	_orig_fastpath_glVertexAttribPointer(indx, size, type, normalized, stride, ptr);
+	IF_GL_SUCCESS(_orig_fastpath_glVertexAttribPointer(indx, size, type, normalized, stride, ptr))
+	{
+		current_ctx->_vattrib_flag |= FLAG_BIT_1;
 
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-	current_ctx->_vattrib_flag |= FLAG_BIT_1;
-
-	current_ctx->gl_vertex_array_buf_id[indx]     = current_ctx->gl_array_buffer_binding[0];
-	current_ctx->gl_vertex_array_size[indx]       = size;
-	current_ctx->gl_vertex_array_type[indx]       = type;
-	current_ctx->gl_vertex_array_normalized[indx] = normalized;
-	current_ctx->gl_vertex_array_stride[indx]     = stride;
-	current_ctx->gl_vertex_array_pointer[indx]    = (GLvoid *)ptr;
+		current_ctx->gl_vertex_array_buf_id[indx]     = current_ctx->gl_array_buffer_binding[0];
+		current_ctx->gl_vertex_array_size[indx]       = size;
+		current_ctx->gl_vertex_array_type[indx]       = type;
+		current_ctx->gl_vertex_array_normalized[indx] = normalized;
+		current_ctx->gl_vertex_array_stride[indx]     = stride;
+		current_ctx->gl_vertex_array_pointer[indx]    = (GLvoid *)ptr;
+	}
 	goto finish;
 
 finish:
@@ -2965,15 +3054,14 @@ fastpath_glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 	    (current_ctx->gl_viewport[2] != width) ||
 	    (current_ctx->gl_viewport[3] != height))
 	{
-		_orig_fastpath_glViewport(x, y, width, height);
-
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-
-		current_ctx->_clear_flag1 |= FLAG_BIT_0;
-		current_ctx->gl_viewport[0] = x;
-		current_ctx->gl_viewport[1] = y;
-		current_ctx->gl_viewport[2] = width;
-		current_ctx->gl_viewport[3] = height;
+		IF_GL_SUCCESS(_orig_fastpath_glViewport(x, y, width, height))
+		{
+			current_ctx->_clear_flag1 |= FLAG_BIT_0;
+			current_ctx->gl_viewport[0] = x;
+			current_ctx->gl_viewport[1] = y;
+			current_ctx->gl_viewport[2] = width;
+			current_ctx->gl_viewport[3] = height;
+		}
 	}
 	goto finish;
 
@@ -3003,8 +3091,6 @@ fastpath_glEGLImageTargetTexture2DOES(GLenum target, GLeglImageOES image)
 	}
 
 	_orig_fastpath_glEGLImageTargetTexture2DOES(target, image);
-
-	GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 
 	goto finish;
 
@@ -3043,9 +3129,8 @@ _process_getfunc(GLenum pname, GLvoid *ptr, GLenum get_type)
 			GLint real_obj_id = _COREGL_INT_INIT_VALUE;
 			GLuint glue_obj_id = _COREGL_INT_INIT_VALUE;
 			GL_Object_Type obj_type = GL_OBJECT_TYPE_UNKNOWN;
-			_orig_fastpath_glGetIntegerv(pname, (GLint *)&real_obj_id);
 
-			GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+			_orig_fastpath_glGetIntegerv(pname, (GLint *)&real_obj_id);
 
 			switch(pname)
 			{
@@ -3092,7 +3177,6 @@ fastpath_glGetBooleanv(GLenum pname, GLboolean* params)
 	if (_process_getfunc(pname, params, GL_BOOL) != GL_TRUE)
 	{
 		_orig_fastpath_glGetBooleanv(pname, params);
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	}
 	goto finish;
 
@@ -3110,7 +3194,6 @@ fastpath_glGetFloatv(GLenum pname, GLfloat* params)
 	if (_process_getfunc(pname, params, GL_FLOAT) != GL_TRUE)
 	{
 		_orig_fastpath_glGetFloatv(pname, params);
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	}
 	goto finish;
 
@@ -3128,7 +3211,6 @@ fastpath_glGetIntegerv(GLenum pname, GLint* params)
 	if (_process_getfunc(pname, params, GL_INT) != GL_TRUE)
 	{
 		_orig_fastpath_glGetIntegerv(pname, params);
-		GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 	}
 	goto finish;
 

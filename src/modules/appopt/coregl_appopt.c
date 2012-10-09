@@ -51,29 +51,20 @@ appopt_apply_overrides()
 	//appopt_apply_overrides_gl(1);
 }
 
-#define OVERRIDE(f) \
-	if (enable == 1) \
-	{ \
-		COREGL_OVERRIDE_API(_orig_appopt_, f, ovr_); \
-		COREGL_OVERRIDE_API(ovr_, f, appopt_); \
-	} \
-	else \
-	{ \
-		AST(ovr_##f != NULL); \
-		COREGL_OVERRIDE_API(ovr_, f, _orig_appopt_); \
-		_orig_appopt_##f = NULL; \
-	}
-
 void
 appopt_apply_overrides_egl(int enable)
 {
-	// Fast-Path Core Functions
+#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_INIT_ORIGINAL(_orig_appopt_, FUNC_NAME);
+# include "../../headers/sym_egl.h"
+#undef _COREGL_SYMBOL
 }
 
 void
 appopt_apply_overrides_gl(int enable)
 {
-	// Fast-Path Functions
+#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_INIT_ORIGINAL(_orig_appopt_, FUNC_NAME);
+# include "../../headers/sym_gl.h"
+#undef _COREGL_SYMBOL
 }
 
 #undef A_ORD

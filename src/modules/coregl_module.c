@@ -18,29 +18,33 @@
 void
 init_modules()
 {
-	// Step 1 : Initialization
-	init_export();
-
-	// Step 2 : User Define Modules : Sequence is important! (Last module's API is called first)
 	init_modules_fastpath();
 	init_modules_appopt();
-
-	// Step 3 : Common Wrapping Modules
 	init_modules_tracepath();
+
+	reset_modules_override();
 }
 
 void
 deinit_modules()
 {
-	// Step 1(rollback init 3) : Common Wrapping Modules
 	deinit_modules_tracepath();
-
-	// Step 2(rollback init 2) : User Define Modules : Sequence is important!
 	deinit_modules_appopt();
 	deinit_modules_fastpath();
+}
 
-	// Step 3(rollback init 1) : De-Initialization
-	deinit_export();
+void
+reset_modules_override()
+{
+	// Step 1 : Initialization
+	init_export();
+
+	// Step 2 : User Define Modules : Sequence is important! (Last module's API is called first)
+	fastpath_apply_overrides();
+	appopt_apply_overrides();
+
+	// Step 3 : Common Wrapping Modules
+	tracepath_apply_overrides();
 }
 
 void

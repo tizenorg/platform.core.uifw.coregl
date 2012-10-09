@@ -3,9 +3,6 @@
 
 #include <stdlib.h>
 
-#define COREGL_OVERRIDE_API(mangle, func, prefix) \
-   mangle##func = prefix##func
-
 void
 init_overrides()
 {
