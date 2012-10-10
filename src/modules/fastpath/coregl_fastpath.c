@@ -885,7 +885,7 @@ extern void *tracepath_api_trace_end(const char *name, void *hint, int trace_tot
 		int err = _orig_fastpath_glGetError(); \
 		if (err != GL_NO_ERROR) \
 		{ \
-			printf("\E[0;31;1mERROR(GL %p) : %s returns GL error 0x%X\E[0m\n", oldctx->cstate, #func, err); \
+			ERR("\E[0;31;1mERROR(GL %p) : %s returns GL error 0x%X\E[0m\n", oldctx->cstate, #func, err); \
 			goto finish; \
 		} \
 	}
