@@ -24,7 +24,7 @@ SET(CMAKE_SKIP_BUILD_RPATH TRUE)
 SET(COREGL "COREGL")
 SET(SRCS_common
 		src/coregl.c
-		src/coregl_thread_pthread_and_gcc_tlv.c
+		src/coregl_thread_pthread.c
 		src/coregl_trace.c
 		src/coregl_export.c
 		src/coregl_export_egl.c

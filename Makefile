@@ -9,7 +9,7 @@ LDFLAGS = -g -O2 -fvisibility=hidden -Wall -std=c99 -ldl -lpthread
 
 SOURCES = \
 		src/coregl.c \
-		src/coregl_thread_pthread_and_gcc_tlv.c \
+		src/coregl_thread_pthread.c \
 		src/coregl_trace.c \
 		src/coregl_export.c \
 		src/coregl_export_egl.c \
