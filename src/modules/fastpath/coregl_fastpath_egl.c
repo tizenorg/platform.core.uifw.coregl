@@ -438,6 +438,7 @@ _remove_shared_obj_state_ref(GLGlueContext *gctx, GL_Shared_Object_State *sostat
 	sostate->ref_count--;
 	if (sostate->ref_count == 0)
 	{
+		fastpath_sostate_deinit(sostate);
 		free(sostate);
 	}
 }
@@ -772,7 +773,7 @@ fastpath_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_con
 			ERR("\E[40;31;1mERROR : Error creating a new GLGlueContext(Memory full 4)\E[0m\n");
 			goto finish;
 		}
-		sostate_new->using_gctxs = NULL;
+		fastpath_sostate_init(sostate_new);
 		gctx->sostate = sostate_new;
 	}
 	_add_shared_obj_state_ref(gctx, gctx->sostate);

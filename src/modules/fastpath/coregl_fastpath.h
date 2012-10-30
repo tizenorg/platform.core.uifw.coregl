@@ -111,7 +111,9 @@ typedef struct
 
 
 #define MAGIC_GLFAST                0x73777770
-#define MAX_GL_OBJECT_SIZE         100000
+#define GL_OBJECT_HASH_BASE        (1 << 10)
+
+#define GL_OBJECT_ID_LIMIT         0xFFFFFF
 
 typedef enum
 {
@@ -133,16 +135,38 @@ typedef struct _GL_Object
 	struct _GL_Shared_Object_State  *parent;
 } GL_Object;
 
+typedef struct _GL_Object_Hash
+{
+	GLuint                           hash_key;
+	GL_Object                        *item;
+	struct _GL_Object_Hash          *next;
+} GL_Object_Hash;
+
+typedef struct _GL_Object_Hash_Base
+{
+	GLuint                            hash_size;
+	GLuint                            item_size;
+	GLuint                            last_id;
+	GLuint                            is_looped;
+	GL_Object_Hash                  **hash_field;
+} GL_Object_Hash_Base;
+
 typedef struct _GL_Shared_Object_State
 {
 	int                      ref_count;
 	General_Trace_List      *using_gctxs;
 
-	GL_Object              *texture[MAX_GL_OBJECT_SIZE];
-	GL_Object              *buffer[MAX_GL_OBJECT_SIZE];
-	GL_Object              *framebuffer[MAX_GL_OBJECT_SIZE];
-	GL_Object              *renderbuffer[MAX_GL_OBJECT_SIZE];
-	GL_Object              *program[MAX_GL_OBJECT_SIZE];
+	GL_Object_Hash_Base      texture;
+	GL_Object_Hash_Base      buffer;
+	GL_Object_Hash_Base      framebuffer;
+	GL_Object_Hash_Base      renderbuffer;
+	GL_Object_Hash_Base      program;
+
+	GL_Object_Hash_Base      texture_real;
+	GL_Object_Hash_Base      buffer_real;
+	GL_Object_Hash_Base      framebuffer_real;
+	GL_Object_Hash_Base      renderbuffer_real;
+	GL_Object_Hash_Base      program_real;
 } GL_Shared_Object_State;
 
 typedef struct _GLGlueContext
@@ -223,6 +247,8 @@ extern int                 fastpath_remove_context_states_from_list(GLContextSta
 extern GLContextState     *fastpath_get_context_state_from_list(const void *data, const int datalen, Mutex *mtx);
 
 // Shared object state functions
+extern void                fastpath_sostate_init(GL_Shared_Object_State *sostate);
+extern void                fastpath_sostate_deinit(GL_Shared_Object_State *sostate);
 extern GLuint              fastpath_sostate_create_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint name);
 extern GLuint              fastpath_sostate_remove_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint glue_name);
 extern GLuint              fastpath_sostate_get_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint name);
