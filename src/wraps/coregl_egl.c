@@ -10,7 +10,9 @@ typedef void (*_eng_fn) (void);
 #define COREGL_API           __attribute__((visibility("default")))
 
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_API extern RET_TYPE FUNC_NAME PARAM_LIST;
+#define _COREGL_EXT_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)
 # include "../headers/sym_egl.h"
+#undef _COREGL_EXT_SYMBOL
 #undef _COREGL_SYMBOL
 
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*ovr_##FUNC_NAME) PARAM_LIST = NULL;
@@ -35,7 +37,9 @@ coregl_glwrap_init()
 
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) \
    ovr_##FUNC_NAME = (__typeof__(ovr_##FUNC_NAME))dlsym(lib_handle, #FUNC_NAME);
+#define _COREGL_EXT_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)
 #include "../headers/sym_egl.h"
+#undef _COREGL_EXT_SYMBOL
 #undef _COREGL_SYMBOL
 
 	return 1;
@@ -280,54 +284,4 @@ eglQueryString(EGLDisplay dpy, EGLint name)
 	INIT_EXPORT();
 	return ovr_eglQueryString(dpy, name);
 }
-
-EGLImageKHR
-eglCreateImageKHR (EGLDisplay dpy, EGLContext ctx, EGLenum target, EGLClientBuffer buffer, const EGLint *attrib_list)
-{
-	INIT_EXPORT();
-	return ovr_eglCreateImageKHR(dpy, ctx, target, buffer, attrib_list);
-}
-
-EGLBoolean
-eglDestroyImageKHR(EGLDisplay dpy, EGLImageKHR image)
-{
-	INIT_EXPORT();
-	return ovr_eglDestroyImageKHR(dpy, image);
-}
-
-void *
-eglMapImageSEC(EGLDisplay dpy, EGLImageKHR image)
-{
-	INIT_EXPORT();
-	return ovr_eglMapImageSEC(dpy, image);
-}
-
-EGLBoolean
-eglUnmapImageSEC(EGLDisplay dpy, EGLImageKHR image)
-{
-	INIT_EXPORT();
-	return ovr_eglUnmapImageSEC(dpy, image);
-}
-
-EGLBoolean
-eglGetImageAttribSEC(EGLDisplay dpy, EGLImageKHR image, EGLint attribute, EGLint *value)
-{
-	INIT_EXPORT();
-	return ovr_eglGetImageAttribSEC(dpy, image, attribute, value);
-}
-
-EGLBoolean
-eglLockSurfaceKHR(EGLDisplay display, EGLSurface surface, const EGLint *attrib_list)
-{
-	INIT_EXPORT();
-	return ovr_eglLockSurfaceKHR(display, surface, attrib_list);
-}
-
-EGLBoolean
-eglUnlockSurfaceKHR(EGLDisplay display, EGLSurface surface)
-{
-	INIT_EXPORT();
-	return ovr_eglUnlockSurfaceKHR(display, surface);
-}
-
 

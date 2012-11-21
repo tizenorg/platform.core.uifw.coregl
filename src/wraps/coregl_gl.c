@@ -7,7 +7,9 @@
 #define COREGL_API           __attribute__((visibility("default")))
 
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_API extern RET_TYPE FUNC_NAME PARAM_LIST;
+#define _COREGL_EXT_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)
 # include "../headers/sym_gl.h"
+#undef _COREGL_EXT_SYMBOL
 #undef _COREGL_SYMBOL
 
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*ovr_##FUNC_NAME) PARAM_LIST = NULL;
@@ -889,57 +891,4 @@ glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 {
 	ovr_glViewport(x, y, width, height);
 }
-
-
-// GLES Extensions...
-void
-glEGLImageTargetTexture2DOES(GLenum target, GLeglImageOES image)
-{
-	ovr_glEGLImageTargetTexture2DOES(target, image);
-}
-
-void
-glEGLImageTargetRenderbufferStorageOES(GLenum target, GLeglImageOES image)
-{
-	ovr_glEGLImageTargetRenderbufferStorageOES(target, image);
-}
-
-void
-glGetProgramBinary(GLuint program, GLsizei bufsize, GLsizei* length, GLenum* binaryFormat, void* binary)
-{
-	ovr_glGetProgramBinary(program, bufsize, length, binaryFormat, binary);
-}
-
-void
-glProgramBinary(GLuint program, GLenum binaryFormat, const void* binary, GLint length)
-{
-	ovr_glProgramBinary(program, binaryFormat, binary, length);
-}
-
-
-void
-glProgramParameteri(GLuint program, GLuint pname, GLint value)
-{
-	ovr_glProgramParameteri(program, pname, value);
-}
-
-void
-glRenderbufferStorageMultisampleEXT(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height)
-{
-	ovr_glRenderbufferStorageMultisampleEXT(target, samples, internalformat, width, height);
-}
-
-void
-glFramebufferTexture2DMultisampleEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLsizei samples)
-{
-	ovr_glFramebufferTexture2DMultisampleEXT(target, attachment, textarget, texture, level, samples);
-}
-
-void
-glDiscardFramebufferEXT(GLenum target, GLsizei numAttachments, const GLenum *attachments)
-{
-	ovr_glDiscardFramebufferEXT(target, numAttachments, attachments);
-}
-
-
 

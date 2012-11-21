@@ -3,6 +3,10 @@
 #define _COREGL_SYMBOL_NOT_DEFINED
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_API extern RET_TYPE FUNC_NAME PARAM_LIST;
 #endif
+#ifndef _COREGL_EXT_SYMBOL
+#define _COREGL_EXT_SYMBOL_NOT_DEFINED
+#define _COREGL_EXT_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)  _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)
+#endif
 
 /* version 1: */
 _COREGL_SYMBOL(GL_FALSE, void, glActiveTexture, (GLenum texture))
@@ -149,14 +153,19 @@ _COREGL_SYMBOL(GL_FALSE, void, glVertexAttribPointer, (GLuint indx, GLint size, 
 _COREGL_SYMBOL(GL_FALSE, void, glViewport, (GLint x, GLint y, GLsizei width, GLsizei height))
 
 /* Extensions */
-_COREGL_SYMBOL(GL_TRUE, void, glEGLImageTargetTexture2DOES, (GLenum target, GLeglImageOES image))
-_COREGL_SYMBOL(GL_TRUE, void, glEGLImageTargetRenderbufferStorageOES, (GLenum target, GLeglImageOES image))
-_COREGL_SYMBOL(GL_TRUE, void, glGetProgramBinary, (GLuint program, GLsizei bufsize, GLsizei *length, GLenum *binaryFormat, void *binary))
-_COREGL_SYMBOL(GL_TRUE, void, glProgramBinary, (GLuint program, GLenum binaryFormat, const void *binary, GLint length))
-_COREGL_SYMBOL(GL_TRUE, void, glProgramParameteri, (GLuint a, GLuint b, GLint d))
-_COREGL_SYMBOL(GL_TRUE, void, glRenderbufferStorageMultisampleEXT, (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height))
-_COREGL_SYMBOL(GL_TRUE, void, glFramebufferTexture2DMultisampleEXT, (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLsizei samples))
-_COREGL_SYMBOL(GL_TRUE, void, glDiscardFramebufferEXT, (GLenum target, GLsizei numAttachments, const GLenum *attachments))
+_COREGL_EXT_SYMBOL(GL_TRUE, void, glEGLImageTargetTexture2DOES, (GLenum target, GLeglImageOES image))
+_COREGL_EXT_SYMBOL(GL_TRUE, void, glEGLImageTargetRenderbufferStorageOES, (GLenum target, GLeglImageOES image))
+_COREGL_EXT_SYMBOL(GL_TRUE, void, glGetProgramBinary, (GLuint program, GLsizei bufsize, GLsizei *length, GLenum *binaryFormat, void *binary))
+_COREGL_EXT_SYMBOL(GL_TRUE, void, glProgramBinary, (GLuint program, GLenum binaryFormat, const void *binary, GLint length))
+_COREGL_EXT_SYMBOL(GL_TRUE, void, glProgramParameteri, (GLuint a, GLuint b, GLint d))
+_COREGL_EXT_SYMBOL(GL_TRUE, void, glRenderbufferStorageMultisampleEXT, (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height))
+_COREGL_EXT_SYMBOL(GL_TRUE, void, glFramebufferTexture2DMultisampleEXT, (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLsizei samples))
+_COREGL_EXT_SYMBOL(GL_TRUE, void, glDiscardFramebufferEXT, (GLenum target, GLsizei numAttachments, const GLenum *attachments))
+
+#ifdef _COREGL_EXT_SYMBOL_NOT_DEFINED
+#undef _COREGL_EXT_SYMBOL_NOT_DEFINED
+#undef _COREGL_EXT_SYMBOL
+#endif
 
 #ifdef _COREGL_SYMBOL_NOT_DEFINED
 #undef _COREGL_SYMBOL_NOT_DEFINED

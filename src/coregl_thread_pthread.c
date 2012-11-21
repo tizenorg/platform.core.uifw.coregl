@@ -83,6 +83,7 @@ GLThreadState *
 get_current_thread_state()
 {
 	GLThreadState *ret = NULL;
+
 	if (thread_key_inited)
 	{
 		ret = (GLThreadState *)pthread_getspecific(thread_key);

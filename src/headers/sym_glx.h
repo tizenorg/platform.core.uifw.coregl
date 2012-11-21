@@ -3,6 +3,10 @@
 #define _COREGL_SYMBOL_NOT_DEFINED
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     extern RET_TYPE (*_COREGL_NAME_MANGLE(FUNC_NAME)) PARAM_LIST;
 #endif
+#ifndef _COREGL_EXT_SYMBOL
+#define _COREGL_EXT_SYMBOL_NOT_DEFINED
+#define _COREGL_EXT_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)  _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)
+#endif
 
 _COREGL_SYMBOL(GL_FALSE, _eng_fn, glXGetProcAddress, (const char* procName))
 
@@ -35,6 +39,11 @@ _COREGL_SYMBOL(GL_FALSE, void, glXDestroyPixmap, (Display* dpy, XID pixmap))
 _COREGL_SYMBOL(GL_FALSE, void, glXQueryDrawable, (Display* dpy, XID draw, int attribute, unsigned int* value))
 _COREGL_SYMBOL(GL_FALSE, int, glXSwapIntervalSGI, (int interval))
 _COREGL_SYMBOL(GL_FALSE, void, glXSwapIntervalEXT, (Display* dpy, GLXDrawable draw, int interval))
+
+#ifdef _COREGL_EXT_SYMBOL_NOT_DEFINED
+#undef _COREGL_EXT_SYMBOL_NOT_DEFINED
+#undef _COREGL_EXT_SYMBOL
+#endif
 
 #ifdef _COREGL_SYMBOL_NOT_DEFINED
 #undef _COREGL_SYMBOL_NOT_DEFINED

@@ -5,7 +5,9 @@
 #include <sys/time.h>
 
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*_orig_appopt_##FUNC_NAME) PARAM_LIST = NULL;
-#include "../../headers/sym.h"
+#define _COREGL_EXT_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)
+# include "../../headers/sym.h"
+#undef _COREGL_EXT_SYMBOL
 #undef _COREGL_SYMBOL
 
 void
@@ -55,7 +57,9 @@ void
 appopt_apply_overrides_egl(int enable)
 {
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_INIT_ORIGINAL(_orig_appopt_, FUNC_NAME);
+#define _COREGL_EXT_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)
 # include "../../headers/sym_egl.h"
+#undef _COREGL_EXT_SYMBOL
 #undef _COREGL_SYMBOL
 }
 
@@ -63,7 +67,9 @@ void
 appopt_apply_overrides_gl(int enable)
 {
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_INIT_ORIGINAL(_orig_appopt_, FUNC_NAME);
+#define _COREGL_EXT_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)
 # include "../../headers/sym_gl.h"
+#undef _COREGL_EXT_SYMBOL
 #undef _COREGL_SYMBOL
 }
 

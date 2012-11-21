@@ -1315,9 +1315,13 @@ fastpath_eglGetProcAddress(const char* procname)
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) \
 	if (strcmp(procname, #FUNC_NAME) == 0) \
 	{ \
-		ret = (_eng_fn)FUNC_NAME; \
+		_eng_fn ret_orig = NULL; \
+		ret_orig = _orig_fastpath_eglGetProcAddress(procname); \
+		if (ret_orig != NULL) \
+			ret = (_eng_fn)ovr_##FUNC_NAME; \
 		goto finish; \
 	}
+
 #include "../../headers/sym_egl.h"
 #include "../../headers/sym_gl.h"
 #undef _COREGL_SYMBOL
