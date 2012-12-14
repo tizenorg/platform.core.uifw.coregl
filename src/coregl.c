@@ -141,34 +141,34 @@ _gl_lib_init(void)
 
 	//------------------------------------------------//
 	// Open EGL Library as EGL is separate
-	egl_lib_handle = dlopen("libEGL_drv.so", RTLD_NOW);
+	egl_lib_handle = dlopen("/usr/lib/driver/libEGL.so.1.4", RTLD_NOW);
 	if (!egl_lib_handle)
 	{
 		ERR("\E[0;31;1mERROR : %s\E[0m\n\n", dlerror());
-		ERR("\E[0;31;1mERROR : Invalid library link! (Check linkage of libCOREGL -> libEGL_drv)\E[0m\n");
+		ERR("\E[0;31;1mERROR : Invalid library link! (Check linkage of libCOREGL -> /usr/lib/driver/libEGL.so.1.4)\E[0m\n");
 		return 0;
 	}
 
 	// test for invalid linking egl
 	if (dlsym(egl_lib_handle, "coregl_symbol_exported"))
 	{
-		ERR("\E[0;31;1mERROR : Invalid library link! (Check linkage of libCOREGL -> libEGL_drv)\E[0m\n");
+		ERR("\E[0;31;1mERROR : Invalid library link! (Check linkage of libCOREGL -> /usr/lib/driver/libEGL.so.1.4)\E[0m\n");
 		return 0;
 	}
 
 	// use gl_lib handle for GL symbols
-	gl_lib_handle = dlopen("libGLESv2_drv.so", RTLD_NOW);
+	gl_lib_handle = dlopen("/usr/lib/driver/libGLESv2.so.2.0", RTLD_NOW);
 	if (!gl_lib_handle)
 	{
 		ERR("\E[0;31;1mERROR : %s\E[0m\n\n", dlerror());
-		ERR("\E[0;31;1mERROR : Invalid library link! (Check linkage of libCOREGL -> libGLESv2_drv)\E[0m\n");
+		ERR("\E[0;31;1mERROR : Invalid library link! (Check linkage of libCOREGL -> /usr/lib/driver/libGLESv2.so.2.0)\E[0m\n");
 		return 0;
 	}
 
 	// test for invalid linking gl
 	if (dlsym(gl_lib_handle, "coregl_symbol_exported"))
 	{
-		ERR("\E[0;31;1mERROR : Invalid library link! (Check linkage of libCOREGL -> libGLESv2_drv)\E[0m\n");
+		ERR("\E[0;31;1mERROR : Invalid library link! (Check linkage of libCOREGL -> /usr/lib/driver/libGLESv2.so.2.0)\E[0m\n");
 		return 0;
 	}
 	//------------------------------------------------//

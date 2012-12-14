@@ -3,10 +3,10 @@ Version: 0.1.1
 Release: 1
 ExclusiveArch:  %arm
 Summary: coregl
-Group: TO_BE/FILLED_IN
+Group: Graphics
 License: TO_BE/FILLED_IN
-URL: http://www.enlightenment.org
-Source0: %{name}-%{version}.tar.bz2
+URL: http://www.tizen.org
+Source0: %{name}-%{version}.tar.gz
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 #Patch1: patchfile.patch
@@ -22,7 +22,7 @@ BuildRequires:  pkgconfig(x11)
 BuildRequires:  cmake
 
 %description
-This package contains the ….
+This package contains the GLESv2.0/EGL 
 
 %prep
 %setup -q -n %{name}-%{version}
@@ -37,7 +37,9 @@ make %{?jobs:-j%jobs}
 mkdir -p %{buildroot}/usr/lib
 mkdir -p %{buildroot}/usr/include/EGL
 mkdir -p %{buildroot}/usr/include/GLES2
-cp %{_builddir}/%{name}-%{version}/libCOREGL.so %{buildroot}%{_libdir}/libCOREGL.so
+cp %{_builddir}/%{name}-%{version}/libCOREGL.so.3.0 %{buildroot}%{_libdir}/libCOREGL.so.3.0
+cp %{_builddir}/%{name}-%{version}/libEGL.so.3.0 %{buildroot}%{_libdir}/libEGL.so.1.4
+cp %{_builddir}/%{name}-%{version}/libGLESv2.so.3.0 %{buildroot}%{_libdir}/libGLESv2.so.2.0
 
 %clean
 rm -rf %{buildroot}
@@ -50,16 +52,18 @@ init_coregl()
 
 #    file="./libEGL.so"
 #    if [ -e $file ]; then
-            rm -f ./libEGL.*
-            rm -f ./libGLESv2.*
-
-            ln -s libCOREGL.so libGLESv2.so.2.0
-            ln -s libCOREGL.so libGLESv2.so.2
-            ln -s libCOREGL.so libGLESv2.so
-
-            ln -s libCOREGL.so libEGL.so.1.4
-            ln -s libCOREGL.so libEGL.so.1
-            ln -s libCOREGL.so libEGL.so
+            rm -f ./libEGL.so
+            rm -f ./libEGL.so.1
+            rm -f ./libGLESv2.so
+            rm -f ./libGLESv2.so.2
+            rm -f ./libCOREGL.so
+            rm -f ./libCOREGL.so.3
+            ln -s libCOREGL.so.3.0 libCOREGL.so.3
+            ln -s libCOREGL.so.3 libCOREGL.so
+            ln -s libEGL.so.1.4 libEGL.so.1
+            ln -s libEGL.so.1 libEGL.so
+            ln -s libGLESv2.so.2.0 libGLESv2.so.2
+            ln -s libGLESv2.so.2 libGLESv2.so
 #    fi
 
     cd -
@@ -70,9 +74,6 @@ init_coregl
 
 %files
 %defattr(-,root,root,-)
-%{_libdir}/libCOREGL.so
-
-%doc
-%changelog
-Wed Feb 01 2012 MB lee <mb1.lee@ppk.com> 0.0.1-10
-- Resolves #438610
+%{_libdir}/libCOREGL.so*
+%{_libdir}/libEGL.so*
+%{_libdir}/libGLESv2.so*
