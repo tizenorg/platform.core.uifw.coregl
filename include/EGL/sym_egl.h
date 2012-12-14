@@ -3,6 +3,10 @@
 #define _COREGL_SYMBOL_NOT_DEFINED
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_API extern RET_TYPE FUNC_NAME PARAM_LIST;
 #endif
+#ifndef _COREGL_EXT_SYMBOL
+#define _COREGL_EXT_SYMBOL_NOT_DEFINED
+#define _COREGL_EXT_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)   _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)
+#endif
 
 // Standard EGL APIs
 
@@ -49,15 +53,20 @@ _COREGL_SYMBOL(GL_FALSE, _eng_fn, eglGetProcAddress, (const char* procname))
 
 
 // Extensions
-_COREGL_SYMBOL(GL_TRUE, EGLImageKHR, eglCreateImageKHR, (EGLDisplay dpy, EGLContext ctx, EGLenum target, EGLClientBuffer buffer, const EGLint *attrib_list))
-_COREGL_SYMBOL(GL_TRUE, EGLBoolean, eglDestroyImageKHR, (EGLDisplay dpy, EGLImageKHR image))
+_COREGL_EXT_SYMBOL(GL_TRUE, EGLImageKHR, eglCreateImageKHR, (EGLDisplay dpy, EGLContext ctx, EGLenum target, EGLClientBuffer buffer, const EGLint *attrib_list))
+_COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglDestroyImageKHR, (EGLDisplay dpy, EGLImageKHR image))
 
-_COREGL_SYMBOL(GL_TRUE, void*, eglMapImageSEC, (EGLDisplay dpy, EGLImageKHR image))
-_COREGL_SYMBOL(GL_TRUE, EGLBoolean, eglUnmapImageSEC, (EGLDisplay dpy, EGLImageKHR image))
-_COREGL_SYMBOL(GL_TRUE, EGLBoolean, eglGetImageAttribSEC, (EGLDisplay dpy, EGLImageKHR image, EGLint attribute, EGLint *value))
+_COREGL_EXT_SYMBOL(GL_TRUE, void*, eglMapImageSEC, (EGLDisplay dpy, EGLImageKHR image))
+_COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglUnmapImageSEC, (EGLDisplay dpy, EGLImageKHR image))
+_COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglGetImageAttribSEC, (EGLDisplay dpy, EGLImageKHR image, EGLint attribute, EGLint *value))
 
-_COREGL_SYMBOL(GL_TRUE, EGLBoolean, eglLockSurfaceKHR, (EGLDisplay display, EGLSurface surface, const EGLint *attrib_list))
-_COREGL_SYMBOL(GL_TRUE, EGLBoolean, eglUnlockSurfaceKHR, (EGLDisplay display, EGLSurface surface))
+_COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglLockSurfaceKHR, (EGLDisplay display, EGLSurface surface, const EGLint *attrib_list))
+_COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglUnlockSurfaceKHR, (EGLDisplay display, EGLSurface surface))
+
+#ifdef _COREGL_EXT_SYMBOL_NOT_DEFINED
+#undef _COREGL_EXT_SYMBOL_NOT_DEFINED
+#undef _COREGL_EXT_SYMBOL
+#endif
 
 #ifdef _COREGL_SYMBOL_NOT_DEFINED
 #undef _COREGL_SYMBOL_NOT_DEFINED

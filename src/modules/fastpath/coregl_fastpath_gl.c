@@ -1729,7 +1729,7 @@ finish:
 }
 
 void
-fastpath_glGetProgramBinary(GLuint program, GLsizei bufsize, GLsizei* length, GLenum* binaryFormat, void* binary)
+fastpath_glGetProgramBinaryOES(GLuint program, GLsizei bufsize, GLsizei* length, GLenum* binaryFormat, void* binary)
 {
 	GLuint real_obj;
 
@@ -1743,7 +1743,7 @@ fastpath_glGetProgramBinary(GLuint program, GLsizei bufsize, GLsizei* length, GL
 		goto finish;
 	}
 
-	_orig_fastpath_glGetProgramBinary(real_obj, bufsize, length, binaryFormat, binary);
+	_orig_fastpath_glGetProgramBinaryOES(real_obj, bufsize, length, binaryFormat, binary);
 
 	goto finish;
 
@@ -1752,7 +1752,7 @@ finish:
 }
 
 void
-fastpath_glProgramBinary(GLuint program, GLenum binaryFormat, const void* binary, GLint length)
+fastpath_glProgramBinaryOES(GLuint program, GLenum binaryFormat, const void* binary, GLint length)
 {
 	GLuint real_obj;
 
@@ -1766,17 +1766,16 @@ fastpath_glProgramBinary(GLuint program, GLenum binaryFormat, const void* binary
 		goto finish;
 	}
 
-	_orig_fastpath_glProgramBinary(real_obj, binaryFormat, binary, length);
+	_orig_fastpath_glProgramBinaryOES(real_obj, binaryFormat, binary, length);
 
 	goto finish;
 
 finish:
 	_COREGL_FASTPATH_FUNC_END();
 }
-
 
 void
-fastpath_glProgramParameteri(GLuint program, GLuint pname, GLint value)
+fastpath_glUseProgramStagesEXT(GLuint pipeline, GLbitfield stages, GLuint program)
 {
 	GLuint real_obj;
 
@@ -1790,13 +1789,599 @@ fastpath_glProgramParameteri(GLuint program, GLuint pname, GLint value)
 		goto finish;
 	}
 
-	_orig_fastpath_glProgramParameteri(real_obj, pname, value);
+	_orig_fastpath_glUseProgramStagesEXT(pipeline, stages, real_obj);
 
 	goto finish;
 
 finish:
 	_COREGL_FASTPATH_FUNC_END();
 }
+
+void
+fastpath_glActiveShaderProgramEXT(GLuint pipeline, GLuint program)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glActiveShaderProgramEXT(pipeline, real_obj);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+GLuint
+fastpath_glCreateShaderProgramvEXT(GLenum type, GLsizei count, const char **strings)
+{
+	GLuint ret = _COREGL_INT_INIT_VALUE;
+
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	ret = _orig_fastpath_glCreateShaderProgramvEXT(type, count, strings);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+   return ret;
+}
+
+void
+fastpath_glBindProgramPipelineEXT(GLuint pipeline)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	_orig_fastpath_glBindProgramPipelineEXT(pipeline);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glDeleteProgramPipelinesEXT(GLsizei n, const GLuint *pipelines)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	_orig_fastpath_glDeleteProgramPipelinesEXT(n, pipelines);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glGenProgramPipelinesEXT(GLsizei n, GLuint *pipelines)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	_orig_fastpath_glGenProgramPipelinesEXT(n, pipelines);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+GLboolean
+fastpath_glIsProgramPipelineEXT(GLuint pipeline)
+{
+	GLboolean ret = _COREGL_INT_INIT_VALUE;
+
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	ret = _orig_fastpath_glIsProgramPipelineEXT(pipeline);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+   return ret;
+}
+
+void
+fastpath_glProgramParameteriEXT(GLuint program, GLenum pname, GLint value)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glProgramParameteriEXT(real_obj, pname, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glGetProgramPipelineivEXT(GLuint pipeline, GLenum pname, GLint *params)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	_orig_fastpath_glGetProgramPipelineivEXT(pipeline, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glProgramUniform1iEXT(GLuint program, GLint location, GLint x)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glProgramUniform1iEXT(real_obj, location, x);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glProgramUniform2iEXT(GLuint program, GLint location, GLint x, GLint y)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glProgramUniform2iEXT(real_obj, location, x, y);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glProgramUniform3iEXT(GLuint program, GLint location, GLint x, GLint y, GLint z)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glProgramUniform3iEXT(real_obj, location, x, y, z);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glProgramUniform4iEXT(GLuint program, GLint location, GLint x, GLint y, GLint z, GLint w)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glProgramUniform4iEXT(real_obj, location, x, y, z, w);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glProgramUniform1fEXT(GLuint program, GLint location, GLfloat x)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glProgramUniform1fEXT(real_obj, location, x);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glProgramUniform2fEXT(GLuint program, GLint location, GLfloat x, GLfloat y)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glProgramUniform2fEXT(real_obj, location, x, y);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glProgramUniform3fEXT(GLuint program, GLint location, GLfloat x, GLfloat y, GLfloat z)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glProgramUniform3fEXT(real_obj, location, x, y, z);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glProgramUniform4fEXT(GLuint program, GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glProgramUniform4fEXT(real_obj, location, x, y, z, w);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glProgramUniform1ivEXT(GLuint program, GLint location, GLsizei count, const GLint *value)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glProgramUniform1ivEXT(real_obj, location, count, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glProgramUniform2ivEXT(GLuint program, GLint location, GLsizei count, const GLint *value)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glProgramUniform2ivEXT(real_obj, location, count, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glProgramUniform3ivEXT(GLuint program, GLint location, GLsizei count, const GLint *value)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glProgramUniform3ivEXT(real_obj, location, count, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glProgramUniform4ivEXT(GLuint program, GLint location, GLsizei count, const GLint *value)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glProgramUniform4ivEXT(real_obj, location, count, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glProgramUniform1fvEXT(GLuint program, GLint location, GLsizei count, const GLfloat *value)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glProgramUniform1fvEXT(real_obj, location, count, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glProgramUniform2fvEXT(GLuint program, GLint location, GLsizei count, const GLfloat *value)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glProgramUniform2fvEXT(real_obj, location, count, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glProgramUniform3fvEXT(GLuint program, GLint location, GLsizei count, const GLfloat *value)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glProgramUniform3fvEXT(real_obj, location, count, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glProgramUniform4fvEXT(GLuint program, GLint location, GLsizei count, const GLfloat *value)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glProgramUniform4fvEXT(real_obj, location, count, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glProgramUniformMatrix2fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glProgramUniformMatrix2fvEXT(real_obj, location, count, transpose, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glProgramUniformMatrix3fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glProgramUniformMatrix3fvEXT(real_obj, location, count, transpose, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glProgramUniformMatrix4fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glProgramUniformMatrix4fvEXT(real_obj, location, count, transpose, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glValidateProgramPipelineEXT(GLuint pipeline)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	_orig_fastpath_glValidateProgramPipelineEXT(pipeline);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glGetProgramPipelineInfoLogEXT(GLuint pipeline, GLsizei bufSize, GLsizei *length, char *infoLog)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	_orig_fastpath_glGetProgramPipelineInfoLogEXT(pipeline, bufSize, length, infoLog);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
 
 int
 fastpath_glGetUniformLocation(GLuint program, const char* name)

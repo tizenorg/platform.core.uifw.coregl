@@ -1,6 +1,7 @@
 #include "coregl_tracepath.h"
 
 #include <stdlib.h>
+#include <string.h>
 #include <sys/time.h>
 
 #include <sys/types.h>
@@ -838,7 +839,27 @@ tracepath_eglGetProcAddress(const char* procname)
 	_eng_fn ret = NULL;
 
 	_COREGL_TRACEPATH_FUNC_BEGIN();
+
+#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) \
+	if (strcmp(procname, #FUNC_NAME) == 0) \
+	{ \
+		_eng_fn ret_orig = NULL; \
+		ret_orig = _orig_tracepath_eglGetProcAddress(procname); \
+		if (ret_orig != NULL) \
+			ret = (_eng_fn)ovr_##FUNC_NAME; \
+		goto finish; \
+	}
+
+#include "../../headers/sym_egl.h"
+#include "../../headers/sym_gl.h"
+#undef _COREGL_SYMBOL
+
 	ret = _orig_tracepath_eglGetProcAddress(procname);
+	if (ret != NULL)
+	{
+		LOG("\E[40;31;1mWARNING : COREGL can't support '%s' (tracing for this function will be ignored)\E[0m\n", procname);
+	}
+
 	goto finish;
 
 finish:

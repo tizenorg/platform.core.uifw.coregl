@@ -211,7 +211,6 @@ fastpath_apply_overrides_gl(int enable)
 		COREGL_OVERRIDE(fastpath_, glIsTexture);
 		COREGL_OVERRIDE(fastpath_, glDeleteTextures);
 		COREGL_OVERRIDE(fastpath_, glFramebufferTexture2D);
-		COREGL_OVERRIDE(fastpath_, glFramebufferTexture2DMultisampleEXT);
 
 		COREGL_OVERRIDE(fastpath_, glGenBuffers);
 		COREGL_OVERRIDE(fastpath_, glBindBuffer);
@@ -256,8 +255,6 @@ fastpath_apply_overrides_gl(int enable)
 		COREGL_OVERRIDE(fastpath_, glLinkProgram);
 		COREGL_OVERRIDE(fastpath_, glUseProgram);
 		COREGL_OVERRIDE(fastpath_, glValidateProgram);
-		COREGL_OVERRIDE(fastpath_, glGetProgramBinary);
-		COREGL_OVERRIDE(fastpath_, glProgramBinary);
 
 		COREGL_OVERRIDE(fastpath_, glBlendColor);
 		COREGL_OVERRIDE(fastpath_, glBlendEquation);
@@ -300,6 +297,10 @@ fastpath_apply_overrides_gl(int enable)
 		COREGL_OVERRIDE(fastpath_, glVertexAttribPointer);
 		COREGL_OVERRIDE(fastpath_, glViewport);
 
+		COREGL_OVERRIDE(fastpath_, glFramebufferTexture2DMultisampleEXT);
+		COREGL_OVERRIDE(fastpath_, glGetProgramBinaryOES);
+		COREGL_OVERRIDE(fastpath_, glProgramBinaryOES);
+		COREGL_OVERRIDE(fastpath_, glProgramParameteriEXT);
 		COREGL_OVERRIDE(fastpath_, glEGLImageTargetTexture2DOES);
 
 	}
