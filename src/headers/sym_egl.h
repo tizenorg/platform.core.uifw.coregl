@@ -56,8 +56,8 @@ _COREGL_SYMBOL(GL_FALSE, _eng_fn, eglGetProcAddress, (const char* procname))
 _COREGL_EXT_SYMBOL(GL_TRUE, EGLImageKHR, eglCreateImageKHR, (EGLDisplay dpy, EGLContext ctx, EGLenum target, EGLClientBuffer buffer, const EGLint *attrib_list))
 _COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglDestroyImageKHR, (EGLDisplay dpy, EGLImageKHR image))
 
-_COREGL_EXT_SYMBOL(GL_TRUE, void*, eglMapImageSEC, (EGLDisplay dpy, EGLImageKHR image))
-_COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglUnmapImageSEC, (EGLDisplay dpy, EGLImageKHR image))
+_COREGL_EXT_SYMBOL(GL_TRUE, void*, eglMapImageSEC, (EGLDisplay dpy, EGLImageKHR image, EGLint device_type, EGLint access_option))
+_COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglUnmapImageSEC, (EGLDisplay dpy, EGLImageKHR image, EGLint device_type))
 _COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglGetImageAttribSEC, (EGLDisplay dpy, EGLImageKHR image, EGLint attribute, EGLint *value))
 
 _COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglLockSurfaceKHR, (EGLDisplay display, EGLSurface surface, const EGLint *attrib_list))

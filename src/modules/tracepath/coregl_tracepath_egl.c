@@ -910,12 +910,12 @@ finish:
 }
 
 void *
-tracepath_eglMapImageSEC(EGLDisplay dpy, EGLImageKHR image)
+tracepath_eglMapImageSEC(EGLDisplay dpy, EGLImageKHR image, EGLint device_type, EGLint access_option)
 {
 	void *ret = NULL;
 
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	ret = _orig_tracepath_eglMapImageSEC(dpy, image);
+	ret = _orig_tracepath_eglMapImageSEC(dpy, image, device_type, access_option);
 	goto finish;
 
 finish:
@@ -924,12 +924,12 @@ finish:
 }
 
 EGLBoolean
-tracepath_eglUnmapImageSEC(EGLDisplay dpy, EGLImageKHR image)
+tracepath_eglUnmapImageSEC(EGLDisplay dpy, EGLImageKHR image, EGLint device_type)
 {
 	EGLBoolean ret = EGL_FALSE;
 
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	ret = _orig_tracepath_eglUnmapImageSEC(dpy, image);
+	ret = _orig_tracepath_eglUnmapImageSEC(dpy, image, device_type);
 	goto finish;
 
 finish:

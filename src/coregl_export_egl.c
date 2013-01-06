@@ -268,17 +268,17 @@ eglDestroyImageKHR(EGLDisplay dpy, EGLImageKHR image)
 }
 
 void *
-eglMapImageSEC(EGLDisplay dpy, EGLImageKHR image)
+eglMapImageSEC(EGLDisplay dpy, EGLImageKHR image, EGLint device_type, EGLint access_option)
 {
 	INIT_EXPORT();
-	return ovr_eglMapImageSEC(dpy, image);
+	return ovr_eglMapImageSEC(dpy, image, device_type, access_option);
 }
 
 EGLBoolean
-eglUnmapImageSEC(EGLDisplay dpy, EGLImageKHR image)
+eglUnmapImageSEC(EGLDisplay dpy, EGLImageKHR image, EGLint device_type)
 {
 	INIT_EXPORT();
-	return ovr_eglUnmapImageSEC(dpy, image);
+	return ovr_eglUnmapImageSEC(dpy, image, device_type);
 }
 
 EGLBoolean
