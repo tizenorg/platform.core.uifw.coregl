@@ -559,6 +559,7 @@ _remove_hash(GL_Object_Hash_Base *hash_base, GLuint hash)
 			ret = 1;
 			break;
 		}
+		prev = current;
 		current = current->next;
 	}
 
@@ -633,7 +634,7 @@ fastpath_sostate_deinit(GL_Shared_Object_State *sostate)
 void
 _sostate_hash_check(GL_Object_Hash_Base *hash_base)
 {
-	if (hash_base->item_size < hash_base->hash_size)
+	if (hash_base->item_size + 1 < hash_base->hash_size)
 		return;
 
 	int oldsize = hash_base->hash_size;
@@ -675,7 +676,7 @@ fastpath_sostate_create_object(GL_Shared_Object_State *sostate, GL_Object_Type t
 	hash_base_real = _get_shared_object_hash_real(sostate, type);
 
 	newid = hash_base->last_id + 1;
-	if (newid >= GL_OBJECT_ID_LIMIT)
+	if (newid >= hash_base->hash_size)
 	{
 		hash_base->is_looped = 1;
 		newid = 1;
@@ -687,7 +688,7 @@ fastpath_sostate_create_object(GL_Shared_Object_State *sostate, GL_Object_Type t
 		int i;
 		int findingid = newid;
 		newid = -1;
-		for (i = 0; i < GL_OBJECT_ID_LIMIT; i++)
+		for (i = 0; i < hash_base->hash_size; i++)
 		{
 			GL_Object_Hash *exist_hash = NULL;
 			FIND_HASH(hash_base, findingid, exist_hash);
@@ -697,7 +698,7 @@ fastpath_sostate_create_object(GL_Shared_Object_State *sostate, GL_Object_Type t
 				break;
 			}
 			findingid++;
-			if (findingid >= GL_OBJECT_ID_LIMIT) findingid = 1;
+			if (findingid >= hash_base->hash_size) findingid = 1;
 		}
 		AST(newid != -1);
 	}
@@ -734,7 +735,7 @@ finish:
 }
 
 #define FIND_OBJ_FROM_HASH_WITH_VERIFY(hash_base, hash, object) \
-	if ((hash) < 0 || (hash) > GL_OBJECT_ID_LIMIT) { ret = 0; goto finish; } \
+	if ((hash) < 0) { ret = 0; goto finish; } \
 	{ \
 		GL_Object_Hash *object_hash = NULL; \
 		FIND_HASH((hash_base), (hash), object_hash); \
