@@ -50,21 +50,18 @@ init_coregl()
 {
     cd /usr/lib/
 
-#    file="./libEGL.so"
-#    if [ -e $file ]; then
-            rm -f ./libEGL.so
-            rm -f ./libEGL.so.1
-            rm -f ./libGLESv2.so
-            rm -f ./libGLESv2.so.2
-            rm -f ./libCOREGL.so
-            rm -f ./libCOREGL.so.3
-            ln -s libCOREGL.so.3.0 libCOREGL.so.3
-            ln -s libCOREGL.so.3 libCOREGL.so
-            ln -s libEGL.so.1.4 libEGL.so.1
-            ln -s libEGL.so.1 libEGL.so
-            ln -s libGLESv2.so.2.0 libGLESv2.so.2
-            ln -s libGLESv2.so.2 libGLESv2.so
-#    fi
+    rm -f ./libEGL.so
+    rm -f ./libEGL.so.1
+    rm -f ./libGLESv2.so
+    rm -f ./libGLESv2.so.2
+    rm -f ./libCOREGL.so
+    rm -f ./libCOREGL.so.3
+    ln -s libCOREGL.so.3.0 libCOREGL.so.3
+    ln -s libCOREGL.so.3 libCOREGL.so
+    ln -s libEGL.so.1.4 libEGL.so.1
+    ln -s libEGL.so.1 libEGL.so
+    ln -s libGLESv2.so.2.0 libGLESv2.so.2
+    ln -s libGLESv2.so.2 libGLESv2.so
 
     cd -
 }
