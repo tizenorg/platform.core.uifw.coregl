@@ -1,5 +1,5 @@
 Name: coregl
-Version: 0.1.1
+Version: 0.1.5
 Release: 1
 ExclusiveArch:  %arm
 Summary: coregl
