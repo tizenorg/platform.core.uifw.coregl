@@ -55,6 +55,7 @@ __removehash_glbuf_object(Glbuf_Data **glbuf, Glbuf_Data **target)
 			*target = NULL;
 			break;
 		}
+		prev = data;
 		data = data->next;
 	}
 	goto finish;

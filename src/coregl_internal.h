@@ -83,6 +83,7 @@ extern FILE               *trace_fp;
 extern int                 trace_api_flag;
 extern int                 trace_api_all_flag;
 extern int                 trace_mem_flag;
+extern int                 trace_mem_all_flag;
 extern int                 trace_ctx_flag;
 extern int                 trace_ctx_force_flag;
 extern int                 trace_state_flag;

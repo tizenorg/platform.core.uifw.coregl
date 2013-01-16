@@ -100,6 +100,7 @@ init_modules_tracepath()
 #endif
 #ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
 	trace_mem_flag = atoi(get_env_setting("COREGL_TRACE_MEM"));
+	trace_mem_all_flag = atoi(get_env_setting("COREGL_TRACE_MEM_ALL"));
 #endif
 #ifdef COREGL_TRACEPATH_TRACE_CONTEXT_INFO
 	trace_ctx_flag = atoi(get_env_setting("COREGL_TRACE_CTX"));
@@ -126,6 +127,7 @@ init_modules_tracepath()
 		if (trace_mem_flag == 1)
 		{
 			LOG("\E[40;35;1m(MEM)\E[0m ");
+			if (trace_mem_all_flag == 1) LOG("\E[40;35;1m(MEM-ALL)\E[0m ");
 		}
 
 		LOG("\E[40;37;1menabled\E[0m\n");
@@ -398,6 +400,9 @@ tracepath_mem_trace_add(const char *desc, int alloc_size)
 		AST(mtd->memsize == alloc_size);
 
 		AST(mutex_unlock(&mtd_access_mutex) == 1);
+
+		if (trace_mem_all_flag == 1)
+			_COREGL_TRACE_MEM_OUTPUT(1);
 	}
 
 }
@@ -425,6 +430,9 @@ tracepath_mem_trace_remove(const char *desc, int alloc_size)
 		mtd->remove_count++;
 
 		AST(mutex_unlock(&mtd_access_mutex) == 1);
+
+		if (trace_mem_all_flag == 1)
+			_COREGL_TRACE_MEM_OUTPUT(1);
 	}
 }
 
@@ -528,7 +536,7 @@ tracepath_api_trace_end(const char *funcname, void *hint, int trace_total_time)
 		_add_timeval(&ftd->elapsed_time, elapsed_time);
 
 		if (elapsed_time.tv_sec >= ftd->elapsed_time_max.tv_sec &&
-			elapsed_time.tv_usec > ftd->elapsed_time_max.tv_usec)
+		    elapsed_time.tv_usec > ftd->elapsed_time_max.tv_usec)
 		{
 			ftd->elapsed_time_max.tv_sec = elapsed_time.tv_sec;
 			ftd->elapsed_time_max.tv_usec = elapsed_time.tv_usec;

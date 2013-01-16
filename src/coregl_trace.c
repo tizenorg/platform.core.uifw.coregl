@@ -9,6 +9,7 @@ int                 trace_api_all_flag = 0;
 int                 trace_ctx_flag = 0;
 int                 trace_ctx_force_flag = 0;
 int                 trace_mem_flag = 0;
+int                 trace_mem_all_flag = 0;
 int                 trace_state_flag = 0;
 
 General_Trace_List *thread_trace_list = NULL;
