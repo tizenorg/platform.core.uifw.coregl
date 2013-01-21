@@ -132,9 +132,6 @@ init_modules_tracepath()
 
 		LOG("\E[40;37;1menabled\E[0m\n");
 	}
-
-	tracepath_apply_overrides();
-
 }
 
 void

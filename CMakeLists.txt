@@ -57,7 +57,7 @@ SET(EGL_SRCS_common
 # ------------------------------
 SET(GLES2 "GLESv2")
 SET(GLES2_SRCS_common
-		src/wraps/coregl_egl.c
+		src/wraps/coregl_gl.c
 )
 
 
