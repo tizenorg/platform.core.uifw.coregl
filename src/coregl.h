@@ -11,9 +11,11 @@
 
 typedef void (*_eng_fn) (void);
 
+#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_API extern RET_TYPE coregl_api_##FUNC_NAME PARAM_LIST;
 #define _COREGL_EXT_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)
 #include "headers/sym.h"
 #undef _COREGL_EXT_SYMBOL
+#undef _COREGL_SYMBOL
 
 extern int  coregl_initialize();
 extern void coregl_terminate();

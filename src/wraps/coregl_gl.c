@@ -33,7 +33,7 @@ coregl_glwrap_init()
 	}
 
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) \
-   ovr_##FUNC_NAME = (__typeof__(ovr_##FUNC_NAME))dlsym(lib_handle, #FUNC_NAME);
+   ovr_##FUNC_NAME = (__typeof__(ovr_##FUNC_NAME))dlsym(lib_handle, "coregl_api_"#FUNC_NAME);
 #include "../headers/sym_gl.h"
 #undef _COREGL_SYMBOL
 
