@@ -18,12 +18,12 @@
 
 #define INIT_EXPORT()
 
+void *lib_handle = NULL;
+
 __attribute__((constructor))
 int
 coregl_glwrap_init()
 {
-	void *lib_handle = NULL;
-
 	lib_handle = dlopen("libCOREGL.so", RTLD_NOW);
 	if (!lib_handle)
 	{
