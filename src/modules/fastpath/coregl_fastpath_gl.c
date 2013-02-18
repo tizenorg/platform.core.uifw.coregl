@@ -3012,7 +3012,6 @@ finish:
 	_COREGL_FASTPATH_FUNC_END();
 }
 
-// Fix Maybe?
 void
 fastpath_glHint(GLenum target, GLenum mode)
 {
@@ -3020,21 +3019,32 @@ fastpath_glHint(GLenum target, GLenum mode)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	if (target == GL_GENERATE_MIPMAP_HINT)
+	switch (target)
 	{
-		CURR_STATE_COMPARE(gl_generate_mipmap_hint, mode)
-		{
-			IF_GL_SUCCESS(_orig_fastpath_glHint(target, mode))
+		case GL_GENERATE_MIPMAP_HINT:
+			CURR_STATE_COMPARE(gl_generate_mipmap_hint, mode)
 			{
-				current_ctx->_tex_flag1 |= FLAG_BIT_2;
-				current_ctx->gl_generate_mipmap_hint[0] = mode;
+				IF_GL_SUCCESS(_orig_fastpath_glHint(target, mode))
+				{
+					current_ctx->_tex_flag1 |= FLAG_BIT_2;
+					current_ctx->gl_generate_mipmap_hint[0] = mode;
+				}
 			}
-		}
-	}
-	else
-	{
-		_set_gl_error(GL_INVALID_ENUM);
-		goto finish;
+			break;
+		case GL_FRAGMENT_SHADER_DERIVATIVE_HINT_OES:
+			CURR_STATE_COMPARE(gl_fragment_shader_derivative_hint, mode)
+			{
+				IF_GL_SUCCESS(_orig_fastpath_glHint(target, mode))
+				{
+					current_ctx->_misc_flag1 |= FLAG_BIT_6;
+					current_ctx->gl_fragment_shader_derivative_hint[0] = mode;
+				}
+			}
+			break;
+		default:
+			ERR("\E[0;31;1mERROR : Invalid (or not supported) hint target is specified!\E[0m\n");
+			_set_gl_error(GL_INVALID_ENUM);
+			break;
 	}
 	goto finish;
 

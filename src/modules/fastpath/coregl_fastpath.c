@@ -1531,6 +1531,10 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 			CHECK_GL_ERROR(_orig_fastpath_glSampleCoverage(newctx->gl_sample_coverage_value[0],
 			               newctx->gl_sample_coverage_invert[0]))
 		}
+		STATE_COMPARE(gl_fragment_shader_derivative_hint[0])
+		{
+			CHECK_GL_ERROR(_orig_fastpath_glHint(GL_FRAGMENT_SHADER_DERIVATIVE_HINT_OES, newctx->gl_fragment_shader_derivative_hint[0]))
+		}
 	}
 
 	// _misc_flag2

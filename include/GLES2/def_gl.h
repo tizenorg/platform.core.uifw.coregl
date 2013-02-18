@@ -515,5 +515,10 @@ typedef void* GLeglImageOES;
 #define GL_BGRA_EXT                                             0x80E1
 #endif
 
+/* GL_OES_standard_derivatives */
+#ifndef GL_OES_standard_derivatives
+#define GL_FRAGMENT_SHADER_DERIVATIVE_HINT_OES               0x8B8B
+#endif
+
 #endif
 

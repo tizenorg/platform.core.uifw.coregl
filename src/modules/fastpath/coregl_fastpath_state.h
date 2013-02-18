@@ -98,6 +98,7 @@ GLUE_STATE(GLfloat, gl_polygon_offset_factor, 1, 1, SET_1(0.0f), _sym_glGetFloat
 GLUE_STATE(GLfloat, gl_polygon_offset_units, 1, 1, SET_1(0.0f), _sym_glGetFloatv(GL_POLYGON_OFFSET_UNITS, (GLfloat *)value);)
 GLUE_STATE(GLclampf, gl_sample_coverage_value, 1, 1, SET_1(1.0f), _sym_glGetFloatv(GL_SAMPLE_COVERAGE_VALUE, (GLfloat *)value);)
 GLUE_STATE(GLboolean, gl_sample_coverage_invert, 1, 1, SET_1(GL_FALSE), _sym_glGetBooleanv(GL_SAMPLE_COVERAGE_INVERT, (GLboolean *)value);)
+GLUE_STATE(GLenum, gl_fragment_shader_derivative_hint, 1, 1, SET_1(GL_DONT_CARE), _sym_glGetIntegerv(GL_FRAGMENT_SHADER_DERIVATIVE_HINT_OES, (GLint *)value);)
 
 // MISC FLAG 2
 GLUE_STATE(GLint, gl_scissor_box, 4, 4,
