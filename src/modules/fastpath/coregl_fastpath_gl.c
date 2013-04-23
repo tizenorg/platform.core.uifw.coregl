@@ -874,7 +874,7 @@ fastpath_glDeleteFramebuffers(GLsizei n, const GLuint* framebuffers)
 				{
 					GLGlueContext *cur_gctx = (GLGlueContext *)current->value;
 
-					if (cur_gctx->gl_framebuffer_binding[0] == framebuffers[i])
+					if (cur_gctx->gl_framebuffer_binding[0] == objid_array[i])
 					{
 						cur_gctx->_bind_flag &= (~FLAG_BIT_2);
 						cur_gctx->gl_framebuffer_binding[0] = 0;
@@ -1078,7 +1078,7 @@ fastpath_glDeleteRenderbuffers(GLsizei n, const GLuint* renderbuffers)
 				{
 					GLGlueContext *cur_gctx = (GLGlueContext *)current->value;
 
-					if (cur_gctx->gl_renderbuffer_binding[0] == renderbuffers[i])
+					if (cur_gctx->gl_renderbuffer_binding[0] == objid_array[i])
 					{
 						cur_gctx->_bind_flag &= (~FLAG_BIT_3);
 						cur_gctx->gl_renderbuffer_binding[0] = 0;
