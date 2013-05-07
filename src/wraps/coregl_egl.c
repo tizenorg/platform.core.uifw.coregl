@@ -7,6 +7,9 @@
 
 typedef void (*_eng_fn) (void);
 
+#define LOG_TAG "CoreGL_EGL"
+#include <dlog.h>
+
 #define COREGL_API           __attribute__((visibility("default")))
 
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_API extern RET_TYPE FUNC_NAME PARAM_LIST;
@@ -30,8 +33,8 @@ coregl_glwrap_init()
 	lib_handle = dlopen("libCOREGL.so", RTLD_NOW);
 	if (!lib_handle)
 	{
-		fprintf(stderr, "\E[0;31;1mERROR : %s\E[0m\n\n", dlerror());
-		fprintf(stderr, "\E[0;31;1mERROR : Invalid library link! (Check linkage of libEGL -> libCOREGL)\E[0m\n");
+		LOGE(" \E[40;31;1m%s\E[0m\n\n", dlerror());
+		LOGE(" \E[40;31;1mInvalid library link! (Check linkage of libEGL -> libCOREGL)\E[0m\n");
 		return 0;
 	}
 

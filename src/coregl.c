@@ -36,7 +36,7 @@ cleanup_current_thread_state()
 
 	if (tstate != NULL)
 	{
-		LOG("[COREGL] de-init thread state \n");
+		COREGL_LOG("[COREGL] de-init thread state \n");
 		deinit_modules_tstate(tstate);
 		remove_from_general_trace_list(&thread_trace_list, tstate);
 		free(tstate);
@@ -72,7 +72,7 @@ finish:
 static void
 _sym_missing()
 {
-	ERR("GL symbol missing!\n");
+	COREGL_ERR("GL symbol missing!\n");
 }
 
 static int
@@ -84,7 +84,7 @@ _glue_sym_init(void)
    if (!dst) dst = (__typeof__(dst))dlsym(libhandle, sym);
 
 #define FALLBAK(dst) \
-   if (!dst) { dst = (__typeof__(dst))_sym_missing; ERR("WARNING : symbol '"#dst"' missing!\n"); }
+   if (!dst) { dst = (__typeof__(dst))_sym_missing; COREGL_WRN("symbol '"#dst"' missing!\n"); }
 
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) \
     FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME); \
@@ -111,7 +111,7 @@ _gl_sym_init(void)
    if ((!dst) && (getproc)) dst = (__typeof__(dst))getproc(sym); \
    if (!dst) dst = (__typeof__(dst))dlsym(gl_lib_handle, sym);
 #define FALLBAK(dst) \
-   if (!dst) { dst = (__typeof__(dst))_sym_missing; ERR("WARNING : symbol '"#dst"' missing!\n"); }
+   if (!dst) { dst = (__typeof__(dst))_sym_missing; COREGL_WRN("symbol '"#dst"' missing!\n"); }
 
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) \
     FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME); \
@@ -132,7 +132,7 @@ _gl_sym_init(void)
 
 COREGL_API void coregl_symbol_exported()
 {
-	LOG("\E[0;31;1mERROR : Invalid library link! (Check linkage of libCOREGL)\E[0m\n");
+	COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL)\E[0m\n");
 }
 
 static int
@@ -144,15 +144,15 @@ _gl_lib_init(void)
 	egl_lib_handle = dlopen("/usr/lib/driver/libEGL.so.1.4", RTLD_NOW);
 	if (!egl_lib_handle)
 	{
-		ERR("\E[0;31;1mERROR : %s\E[0m\n\n", dlerror());
-		ERR("\E[0;31;1mERROR : Invalid library link! (Check linkage of libCOREGL -> /usr/lib/driver/libEGL.so.1.4)\E[0m\n");
+		COREGL_ERR("\E[40;31;1m%s\E[0m\n\n", dlerror());
+		COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> /usr/lib/driver/libEGL.so.1.4)\E[0m\n");
 		return 0;
 	}
 
 	// test for invalid linking egl
 	if (dlsym(egl_lib_handle, "coregl_symbol_exported"))
 	{
-		ERR("\E[0;31;1mERROR : Invalid library link! (Check linkage of libCOREGL -> /usr/lib/driver/libEGL.so.1.4)\E[0m\n");
+		COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> /usr/lib/driver/libEGL.so.1.4)\E[0m\n");
 		return 0;
 	}
 
@@ -160,15 +160,15 @@ _gl_lib_init(void)
 	gl_lib_handle = dlopen("/usr/lib/driver/libGLESv2.so.2.0", RTLD_NOW);
 	if (!gl_lib_handle)
 	{
-		ERR("\E[0;31;1mERROR : %s\E[0m\n\n", dlerror());
-		ERR("\E[0;31;1mERROR : Invalid library link! (Check linkage of libCOREGL -> /usr/lib/driver/libGLESv2.so.2.0)\E[0m\n");
+		COREGL_ERR("\E[40;31;1m%s\E[0m\n\n", dlerror());
+		COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> /usr/lib/driver/libGLESv2.so.2.0)\E[0m\n");
 		return 0;
 	}
 
 	// test for invalid linking gl
 	if (dlsym(gl_lib_handle, "coregl_symbol_exported"))
 	{
-		ERR("\E[0;31;1mERROR : Invalid library link! (Check linkage of libCOREGL -> /usr/lib/driver/libGLESv2.so.2.0)\E[0m\n");
+		COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> /usr/lib/driver/libGLESv2.so.2.0)\E[0m\n");
 		return 0;
 	}
 	//------------------------------------------------//
@@ -191,13 +191,13 @@ _gl_lib_deinit(void)
 int
 coregl_initialize()
 {
-	LOG("[CoreGL] <%d> (%s) Library initializing...", getpid(), _COREGL_COMPILE_DATE);
+	COREGL_LOG("[CoreGL] <%d> (%s) Library initializing...", getpid(), _COREGL_COMPILE_DATE);
 
 	if (!_gl_lib_init()) return 0;
 
 	init_export();
 
-	LOG(" -> Completed\n");
+	COREGL_LOG(" -> Completed\n");
 
 	init_modules();
 

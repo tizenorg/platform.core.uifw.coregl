@@ -18,7 +18,7 @@
    GET_MY_TSTATE(tstate, get_current_thread_state()); \
    if (tstate == NULL || tstate->cstate == NULL) \
    { \
-		ERR("\E[0;31;1mWARNING : '%s' called when GLES2 context is not binded (Check MakeCurrent)!\E[0m\n", __func__); \
+		COREGL_WRN("\E[40;31;1m'%s' called when GLES2 context is not binded (Check MakeCurrent)!\E[0m\n", __func__); \
 		goto finish; \
    } \
    current_ctx = (GLGlueContext *)tstate->cstate->data; \
@@ -3042,7 +3042,7 @@ fastpath_glHint(GLenum target, GLenum mode)
 			}
 			break;
 		default:
-			ERR("\E[0;31;1mERROR : Invalid (or not supported) hint target is specified!\E[0m\n");
+			COREGL_ERR("\E[40;31;1mInvalid (or not supported) hint target is specified!\E[0m\n");
 			_set_gl_error(GL_INVALID_ENUM);
 			break;
 	}

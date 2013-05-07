@@ -141,7 +141,7 @@ _remove_glbuf_object(Glbuf_Data **glbuf, int obj_idx, const char *obj_type)
 	Glbuf_Data *data = __findhash_glbuf_object(glbuf, obj_idx);
 	if (data == NULL)
 	{
-		ERR("\E[40;31;1mWARNING : Error deleting %s object %d. (is not created)\E[0m\n", obj_type, obj_idx);
+		COREGL_WRN("\E[40;31;1mError deleting %s object %d. (is not created)\E[0m\n", obj_type, obj_idx);
 		return;
 	}
 

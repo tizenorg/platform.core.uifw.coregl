@@ -59,25 +59,25 @@ init_modules_fastpath()
 	int fastpath_opt = 0;
 	int fastpath_force_off_opt = 0;
 
-	LOG("[CoreGL] <Fastpath> : ");
+	COREGL_LOG("[CoreGL] <Fastpath> : ");
 
 	fastpath_opt = atoi(get_env_setting("COREGL_FASTPATH"));
 	fastpath_force_off_opt = atoi(get_env_setting("COREGL_FASTPATH_FORCE_OFF"));
 
 	if (fastpath_force_off_opt == 1)
 	{
-		LOG("\E[0;31;1m(DISABLED by force option)\E[0m ");
+		COREGL_LOG("\E[40;31;1m(DISABLED by force option)\E[0m ");
 		fastpath_opt = 0;
 	}
 
 	switch (fastpath_opt)
 	{
 		case 1:
-			LOG("(%d) Fastpath enabled...\n", fastpath_opt);
+			COREGL_LOG("(%d) Fastpath enabled...\n", fastpath_opt);
 			fp_opt = FP_FAST_PATH;
 			break;
 		default:
-			LOG("(%d) Default API path enabled...\n", fastpath_opt);
+			COREGL_LOG("(%d) Default API path enabled...\n", fastpath_opt);
 			fp_opt = FP_NORMAL_PATH;
 			break;
 	}
@@ -104,7 +104,7 @@ deinit_modules_fastpath()
 		{
 			if (current->cstate != NULL)
 			{
-				ERR("\E[0;31;1mWARNING : Context attached to [dpy=%p|rctx=%p] has not been completely destroyed.(leak)\E[0m\n", current->cstate->rdpy, current->cstate->rctx);
+				COREGL_WRN("\E[40;31;1mContext attached to [dpy=%p|rctx=%p] has not been completely destroyed.(leak)\E[0m\n", current->cstate->rdpy, current->cstate->rctx);
 
 				_orig_fastpath_eglMakeCurrent(current->cstate->rdpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 				_orig_fastpath_eglDestroyContext(current->cstate->rdpy, current->cstate->rctx);
@@ -160,7 +160,7 @@ fastpath_apply_overrides()
 		case FP_NORMAL_PATH:
 			break;
 		default:
-			ERR("Invalide GL Override Option!!!\n");
+			COREGL_ERR("Invalide GL Override Option!!!\n");
 			break;
 	}
 }
@@ -306,7 +306,7 @@ fastpath_apply_overrides_gl(int enable)
 	}
 	else
 	{
-		LOG("\E[0;35;1m[CoreGL] SKIP GL FASTPATH...\E[0m\n");
+		COREGL_LOG("\E[40;35;1m[CoreGL] SKIP GL FASTPATH...\E[0m\n");
 	}
 }
 
@@ -382,7 +382,7 @@ fastpath_add_context_state_to_list(const void *option, const int option_len, GLC
 	newitm = (GLContext_List *)calloc(1, sizeof(GLContext_List));
 	if (newitm == NULL)
 	{
-		ERR("Failed to create context list.\n");
+		COREGL_ERR("Failed to create context list.\n");
 		goto finish;
 	}
 
@@ -907,7 +907,7 @@ fastpath_dump_context_states(GLGlueContext *ctx, int force_output)
 
 	TRACE("\n");
 	TRACE("\E[0;40;34m========================================================================================================================\E[0m\n");
-	TRACE("\E[0;32;1m  State info \E[1;37;1m: <PID = %d> GlueCTX = %p\E[0m\n", getpid(), ctx);
+	TRACE("\E[40;32;1m  State info \E[1;37;1m: <PID = %d> GlueCTX = %p\E[0m\n", getpid(), ctx);
 	TRACE("\E[0;40;34m========================================================================================================================\E[0m\n");
 
 #define PRINTF_CHAR_GLenum "%10d"
@@ -930,7 +930,7 @@ fastpath_dump_context_states(GLGlueContext *ctx, int force_output)
       TYPE valuedata[SIZE]; \
       TYPE *value = NULL; \
       value = valuedata; GET_STMT; value = valuedata; \
-      TRACE("\E[0;37;1m %-30.30s : (\E[0m ", #NAME); \
+      TRACE("\E[40;37;1m %-30.30s : (\E[0m ", #NAME); \
       for (int i = 0; i < SIZE; i++) \
       { \
          if (i > 0) { \
@@ -942,7 +942,7 @@ fastpath_dump_context_states(GLGlueContext *ctx, int force_output)
          TRACE(PRINTF_CHAR(TYPE), ctx->NAME[i]); \
          TRACE("["PRINTF_CHAR(TYPE)"]", value[i]); \
       } \
-      TRACE(" \E[0;37;1m)\E[0m\n"); \
+      TRACE(" \E[40;37;1m)\E[0m\n"); \
    }
 # include "coregl_fastpath_state.h"
 #undef GLUE_STATE
@@ -966,7 +966,7 @@ fastpath_init_context_states(GLGlueContext *ctx)
 
 	if (ctx == NULL)
 	{
-		ERR("Context NULL\n");
+		COREGL_ERR("Context NULL\n");
 		ret = 0;
 		goto finish;
 	}
@@ -997,7 +997,7 @@ fastpath_init_context_states(GLGlueContext *ctx)
                value = valuedata; DEFAULT_STMT; value = valuedata; \
                if (*((char *)(&value[i])) == 0xaa) \
                { \
-                  ERR("\E[0;31;1mWARNING : GL-state '"#NAME"' cannot be retrieved\E[0m\n"); \
+                  COREGL_WRN("\E[40;31;1mGL-state '"#NAME"' cannot be retrieved\E[0m\n"); \
                   break; \
                } \
             } \
@@ -1040,7 +1040,7 @@ fastpath_init_context_states(GLGlueContext *ctx)
                      try_step++; \
                      if (try_step == 2) \
                      { \
-                        ERR("\E[0;31;1mWARNING : GL-state '"#NAME"' cannot be retrieved\E[0m\n"); \
+                        COREGL_WRN("\E[40;31;1mGL-state '"#NAME"' cannot be retrieved\E[0m\n"); \
                      } \
                      break; \
                   } \
@@ -1054,7 +1054,7 @@ fastpath_init_context_states(GLGlueContext *ctx)
                { \
                   if (initial_ctx->NAME[i] != value[i]) \
                   { \
-                     ERR("WARNING : GL-state '"#NAME"'[%d] value ["PRINTF_CHAR(TYPE)"] is different from SPEC-DEFAULT ["PRINTF_CHAR(TYPE)"]\n", i, ctx->NAME[i], value[i]); \
+                     COREGL_WRN("GL-state '"#NAME"'[%d] value ["PRINTF_CHAR(TYPE)"] is different from SPEC-DEFAULT ["PRINTF_CHAR(TYPE)"]\n", i, ctx->NAME[i], value[i]); \
                   } \
                } \
             } \
@@ -1069,11 +1069,11 @@ fastpath_init_context_states(GLGlueContext *ctx)
 
 		if (initial_ctx->gl_num_vertex_attribs[0] > MAX_VERTEX_ATTRIBS)
 		{
-			ERR("\E[0;31;1mWARNING : Number of vertex attrib is too big! (%d-%d)\E[0m\n", MAX_VERTEX_ATTRIBS, initial_ctx->gl_num_vertex_attribs[0]);
+			COREGL_WRN("\E[40;31;1mNumber of vertex attrib is too big! (%d-%d)\E[0m\n", MAX_VERTEX_ATTRIBS, initial_ctx->gl_num_vertex_attribs[0]);
 		}
 		if (initial_ctx->gl_num_tex_units[0] > MAX_TEXTURE_UNITS)
 		{
-			ERR("\E[0;31;1mWARNING : Number of texture unit is too big! (%d-%d)\E[0m\n", MAX_TEXTURE_UNITS, initial_ctx->gl_num_tex_units[0]);
+			COREGL_WRN("\E[40;31;1mNumber of texture unit is too big! (%d-%d)\E[0m\n", MAX_TEXTURE_UNITS, initial_ctx->gl_num_tex_units[0]);
 		}
 	}
 
@@ -1111,7 +1111,7 @@ extern void *tracepath_api_trace_end(const char *name, void *hint, int trace_tot
 		int err = _orig_fastpath_glGetError(); \
 		if (err != GL_NO_ERROR) \
 		{ \
-			ERR("\E[0;31;1mERROR(GL %p) : %s returns GL error 0x%X\E[0m\n", oldctx->cstate, #func, err); \
+			COREGL_ERR("\E[40;31;1m(GL %p) : %s returns GL error 0x%X\E[0m\n", oldctx->cstate, #func, err); \
 			goto finish; \
 		} \
 	}

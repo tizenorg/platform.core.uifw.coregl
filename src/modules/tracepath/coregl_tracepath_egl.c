@@ -245,7 +245,7 @@ tracepath_get_context(GLContext ctx)
 	}
 	if (data == NULL)
 	{
-		ERR("WARNING : Error making context [%p] current. (invalid EGL context)\n", ctx);
+		COREGL_WRN("Error making context [%p] current. (invalid EGL context)\n", ctx);
 		goto finish;
 	}
 	data->ref_count++;
@@ -857,7 +857,7 @@ tracepath_eglGetProcAddress(const char* procname)
 	ret = _orig_tracepath_eglGetProcAddress(procname);
 	if (ret != NULL)
 	{
-		LOG("\E[40;31;1mWARNING : COREGL can't support '%s' (tracing for this function will be ignored)\E[0m\n", procname);
+		COREGL_WRN("\E[40;31;1mCOREGL can't support '%s' (tracing for this function will be ignored)\E[0m\n", procname);
 	}
 
 	goto finish;

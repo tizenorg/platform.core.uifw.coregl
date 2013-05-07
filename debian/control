@@ -3,7 +3,7 @@ Section: libs
 Priority: extra
 Maintainer: Wonsik Jung(sidein@samsung.com)
 Uploaders: Wonsik Jung(sidein@samsung.com)
-Build-Depends: libx11-dev, opengl-es-dev
+Build-Depends: dlog-dev, libx11-dev, opengl-es-dev
 Standards-Version: 3.8.1
 
 Package: libcoregl-dev

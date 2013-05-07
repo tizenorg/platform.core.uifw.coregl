@@ -16,29 +16,39 @@
 
 #define COREGL_DEBUG
 
-# define ERR(...) \
-     fprintf(stderr, __VA_ARGS__)
+#define LOG_TAG "CoreGL"
+#include <dlog.h>
+
+# define COREGL_ERR(...) \
+     LOGE(" "__VA_ARGS__)
+# define COREGL_WRN(...) \
+     LOGW(" "__VA_ARGS__)
 # ifdef COREGL_DEBUG
-#  define DBG(...) \
-     fprintf(stderr, __VA_ARGS__)
+#  define COREGL_DBG(...) \
+     LOGD(" "__VA_ARGS__)
 # else
-#  define DBG(...)
+#  define COREGL_DBG(...)
 # endif
 
-# define LOG(...) \
-     fprintf(stderr, __VA_ARGS__)
+# define COREGL_LOG(...) \
+     LOGD(" "__VA_ARGS__)
 
 
 # define TRACE(...) \
-     fprintf(trace_fp, __VA_ARGS__)
+     if (trace_fp != NULL) \
+       fprintf(trace_fp, __VA_ARGS__); \
+     else \
+       LOGD(" "__VA_ARGS__)
+
 # define TRACE_END() \
-     fflush(trace_fp)
+     if (trace_fp != NULL) \
+       fflush(trace_fp)
 #define _COREGL_TRACE_OUTPUT_INTERVAL_SEC 5
 
 
 #ifdef COREGL_DEBUG
 # define AST(expr) \
-     if (!(expr)) { fprintf(stderr, "\E[0;31;1m%s(%d) error. '"#expr"'\E[0m\n", __func__, __LINE__); }
+     if (!(expr)) { LOGE("\E[40;31;1m%s(%d) error. '"#expr"'\E[0m\n", __func__, __LINE__); }
 #else
 # define AST(expr) \
      if (expr)

@@ -20,6 +20,7 @@ BuildRequires:  opengl-es-devel
 %endif
 BuildRequires:  pkgconfig(x11)
 BuildRequires:  cmake
+BuildRequires:  pkgconfig(dlog)
 
 %description
 This package contains the GLESv2.0/EGL 

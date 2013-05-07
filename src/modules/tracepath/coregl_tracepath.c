@@ -90,8 +90,6 @@ init_modules_tracepath()
 		{
 			trace_fp = fopen(output_file, "w");
 		}
-		if (trace_fp == NULL)
-			trace_fp = stderr;
 	}
 
 #ifdef COREGL_TRACEPATH_TRACE_APICALL_INFO
@@ -112,25 +110,25 @@ init_modules_tracepath()
 
 	if (USE_TRACEPATH)
 	{
-		LOG("[CoreGL] \E[40;32;1m<Trace> \E[40;37;1m: ");
+		COREGL_LOG("[CoreGL] \E[40;32;1m<Trace> \E[40;37;1m: ");
 
 		if (trace_api_flag == 1)
 		{
-			LOG("\E[40;31;1m(API)\E[0m ");
-			if (trace_api_all_flag == 1) LOG("\E[40;31;1m(API-ALL)\E[0m ");
+			COREGL_LOG("\E[40;31;1m(API)\E[0m ");
+			if (trace_api_all_flag == 1) COREGL_LOG("\E[40;31;1m(API-ALL)\E[0m ");
 		}
 		if (trace_ctx_flag == 1) {
-			LOG("\E[40;33;1m(CONTEXT)\E[0m ");
-			if (trace_ctx_force_flag == 1) LOG("\E[40;33;1m(CONTEXT-FORCE)\E[0m ");
+			COREGL_LOG("\E[40;33;1m(CONTEXT)\E[0m ");
+			if (trace_ctx_force_flag == 1) COREGL_LOG("\E[40;33;1m(CONTEXT-FORCE)\E[0m ");
 		}
-		if (trace_state_flag == 1) LOG("\E[40;36;1m(STATE)\E[0m ");
+		if (trace_state_flag == 1) COREGL_LOG("\E[40;36;1m(STATE)\E[0m ");
 		if (trace_mem_flag == 1)
 		{
-			LOG("\E[40;35;1m(MEM)\E[0m ");
-			if (trace_mem_all_flag == 1) LOG("\E[40;35;1m(MEM-ALL)\E[0m ");
+			COREGL_LOG("\E[40;35;1m(MEM)\E[0m ");
+			if (trace_mem_all_flag == 1) COREGL_LOG("\E[40;35;1m(MEM-ALL)\E[0m ");
 		}
 
-		LOG("\E[40;37;1menabled\E[0m\n");
+		COREGL_LOG("\E[40;37;1menabled\E[0m\n");
 	}
 }
 
@@ -220,7 +218,7 @@ tracepath_dump_context_states(int force_output)
 
 	TRACE("\n");
 	TRACE("\E[0;40;34m===================================================================================================================\E[0m\n");
-	TRACE("\E[0;32;1m  State info \E[1;37;1m: <PID = %d> (CURRENT BINDED CONTEXT)\E[0m\n", getpid());
+	TRACE("\E[40;32;1m  State info \E[1;37;1m: <PID = %d> (CURRENT BINDED CONTEXT)\E[0m\n", getpid());
 	TRACE("\E[0;40;34m===================================================================================================================\E[0m\n");
 
 #define PRINTF_CHAR_GLenum "%10d"
@@ -244,7 +242,7 @@ tracepath_dump_context_states(int force_output)
       TYPE valuedata[SIZE]; \
       TYPE *value = NULL; \
       value = valuedata; GET_STMT; value = valuedata; \
-      TRACE("\E[0;37;1m %-30.30s : (\E[0m ", #NAME); \
+      TRACE("\E[40;37;1m %-30.30s : (\E[0m ", #NAME); \
       for (int i = 0; i < SIZE; i++) \
       { \
          if (i > 0) { \
@@ -255,7 +253,7 @@ tracepath_dump_context_states(int force_output)
          } \
          TRACE("["PRINTF_CHAR(TYPE)"]", value[i]); \
       } \
-      TRACE(" \E[0;37;1m)\E[0m\n"); \
+      TRACE(" \E[40;37;1m)\E[0m\n"); \
    }
 # include "../fastpath/coregl_fastpath_state.h"
 #undef GLUE_STATE
