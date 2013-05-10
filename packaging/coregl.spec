@@ -39,8 +39,8 @@ mkdir -p %{buildroot}/usr/lib
 mkdir -p %{buildroot}/usr/include/EGL
 mkdir -p %{buildroot}/usr/include/GLES2
 cp %{_builddir}/%{name}-%{version}/libCOREGL.so.3.0 %{buildroot}%{_libdir}/libCOREGL.so.3.0
-cp %{_builddir}/%{name}-%{version}/libEGL.so.3.0 %{buildroot}%{_libdir}/libEGL.so.1.4
-cp %{_builddir}/%{name}-%{version}/libGLESv2.so.3.0 %{buildroot}%{_libdir}/libGLESv2.so.2.0
+cp %{_builddir}/%{name}-%{version}/libEGL.so.1.4 %{buildroot}%{_libdir}/libEGL.so.1.4
+cp %{_builddir}/%{name}-%{version}/libGLESv2.so.2.0 %{buildroot}%{_libdir}/libGLESv2.so.2.0
 
 %clean
 rm -rf %{buildroot}
