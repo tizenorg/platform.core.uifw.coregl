@@ -1121,11 +1121,13 @@ fastpath_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLCon
 	AST(gctx->cstate != NULL);
 
 	// If binded real context changed, do a make current
-	if (tstate->cstate == NULL || tstate->cstate->rctx != gctx->cstate->rctx)
+	if (tstate->cstate == NULL || tstate->cstate != gctx->cstate)
 		need_mc = EGL_TRUE;
 
 	if (need_mc == EGL_TRUE)
 	{
+		AST(dpy == gctx->cstate->rdpy);
+
 		// BB : full makecurrent
 		if (_orig_fastpath_eglMakeCurrent(dpy, draw, read, gctx->cstate->rctx) != EGL_TRUE)
 		{
