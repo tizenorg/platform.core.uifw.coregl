@@ -27,7 +27,7 @@ __attribute__((constructor))
 int
 coregl_glwrap_init()
 {
-	lib_handle = dlopen("libCOREGL.so", RTLD_NOW);
+	lib_handle = dlopen("/usr/lib/driver/libCOREGL.so", RTLD_NOW);
 	if (!lib_handle)
 	{
 		LOGE(" \E[40;31;1m%s\E[0m\n\n", dlerror());

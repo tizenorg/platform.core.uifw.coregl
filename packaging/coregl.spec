@@ -36,11 +36,12 @@ make %{?jobs:-j%jobs}
 %install
 
 mkdir -p %{buildroot}/usr/lib
+mkdir -p %{buildroot}/usr/lib/driver
 mkdir -p %{buildroot}/usr/include/EGL
 mkdir -p %{buildroot}/usr/include/GLES2
-cp %{_builddir}/%{name}-%{version}/libCOREGL.so.3.0 %{buildroot}%{_libdir}/libCOREGL.so.3.0
-cp %{_builddir}/%{name}-%{version}/libEGL.so.1.4 %{buildroot}%{_libdir}/libEGL.so.1.4
-cp %{_builddir}/%{name}-%{version}/libGLESv2.so.2.0 %{buildroot}%{_libdir}/libGLESv2.so.2.0
+cp %{_builddir}/%{name}-%{version}/libCOREGL.so.3.0 %{buildroot}%{_libdir}/driver/libCOREGL.so.3.0
+cp %{_builddir}/%{name}-%{version}/libEGL.so.1.4 %{buildroot}%{_libdir}/driver/libEGL.so.1.4
+cp %{_builddir}/%{name}-%{version}/libGLESv2.so.2.0 %{buildroot}%{_libdir}/driver/libGLESv2.so.2.0
 
 %clean
 rm -rf %{buildroot}
@@ -49,7 +50,7 @@ rm -rf %{buildroot}
 
 init_coregl()
 {
-    cd /usr/lib/
+    cd /usr/lib/driver
 
     rm -f ./libEGL.so
     rm -f ./libEGL.so.1
@@ -72,6 +73,6 @@ init_coregl
 
 %files
 %defattr(-,root,root,-)
-%{_libdir}/libCOREGL.so*
-%{_libdir}/libEGL.so*
-%{_libdir}/libGLESv2.so*
+%{_libdir}/driver/libCOREGL.so*
+%{_libdir}/driver/libEGL.so*
+%{_libdir}/driver/libGLESv2.so*
