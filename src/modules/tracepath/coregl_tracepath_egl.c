@@ -451,6 +451,13 @@ tracepath_eglDestroySurface(EGLDisplay dpy, EGLSurface surface)
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+   {
+      char name[256];
+      sprintf(name, "EGLSURFACE_%p", surface);
+      tracepath_surface_trace_remove(name);
+   }
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 	return ret;
 }
 
@@ -694,7 +701,7 @@ finish:
 		if (oldctx != NULL)
 			tracepath_remove_context(oldctx->handle);
 
-		tstate->surf_draw = draw;
+      tstate->surf_draw = draw;
 		tstate->surf_read = read;
 	}
 #ifdef COREGL_TRACEPATH_TRACE_STATE_INFO
@@ -715,6 +722,13 @@ finish:
 		}
 	}
 #endif // COREGL_TRACEPATH_TRACE_CONTEXT_INFO
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+   {
+      char name[256];
+      sprintf(name, "EGLSURFACE_%p", draw);
+      tracepath_surface_trace_add(name, dpy, draw, ctx);
+   }
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 	return ret;
 }
 
@@ -816,6 +830,7 @@ finish:
 	_COREGL_TRACEPATH_FUNC_END();
 	_COREGL_TRACE_API_OUTPUT(0);
 	_COREGL_TRACE_MEM_OUTPUT(0);
+	_COREGL_TRACE_SURFACE(0, "SWAPBUFFERS");
 	return ret;
 }
 
@@ -850,14 +865,25 @@ tracepath_eglGetProcAddress(const char* procname)
 		goto finish; \
 	}
 
+#define _COREGL_EXT_SYMBOL_ALIAS(FUNC_NAME, ALIAS_NAME) \
+   if (strcmp(procname, #ALIAS_NAME) == 0) \
+   { \
+		_eng_fn ret_orig = NULL; \
+		ret_orig = _orig_tracepath_eglGetProcAddress(#FUNC_NAME); \
+		if (ret_orig != NULL) \
+			ret = (_eng_fn)ovr_##FUNC_NAME; \
+		goto finish; \
+   }
+
 #include "../../headers/sym_egl.h"
 #include "../../headers/sym_gl.h"
 #undef _COREGL_SYMBOL
+#undef _COREGL_EXT_SYMBOL_ALIAS
 
 	ret = _orig_tracepath_eglGetProcAddress(procname);
 	if (ret != NULL)
 	{
-		COREGL_WRN("\E[40;31;1mCOREGL can't support '%s' (tracing for this function will be ignored)\E[0m\n", procname);
+		COREGL_WRN("\E[40;31;1mTRACEPATH can't support '%s' (tracing for this function will be ignored)\E[0m\n", procname);
 	}
 
 	goto finish;

@@ -7,6 +7,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <dlfcn.h>
+
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*_orig_tracepath_##FUNC_NAME) PARAM_LIST = NULL;
 #include "../../headers/sym.h"
 #undef _COREGL_SYMBOL
@@ -44,6 +46,16 @@ struct _Memuse_Data
 	int                          remove_count;
 };
 
+struct _Surface_Data
+{
+	struct _Trace_Data          trace_data;
+
+	GLDisplay                    display;
+	GLSurface                    surface;
+	GLContext                    context;
+	int                          dump_count;
+};
+
 typedef struct _GLGlueFakeContext
 {
 	GLuint gl_num_tex_units[1];
@@ -62,6 +74,9 @@ struct timeval     traced_other_elapsed_time = TIMEVAL_INIT;
 
 Mutex               mtd_access_mutex = MUTEX_INITIALIZER;
 Memuse_Data       **mtd_table;
+
+Mutex               std_access_mutex = MUTEX_INITIALIZER;
+Surface_Data      **std_table;
 
 static void
 _get_texture_states(GLenum pname, GLint *params)
@@ -100,6 +115,10 @@ init_modules_tracepath()
 	trace_mem_flag = atoi(get_env_setting("COREGL_TRACE_MEM"));
 	trace_mem_all_flag = atoi(get_env_setting("COREGL_TRACE_MEM_ALL"));
 #endif
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	trace_surface_flag = atoi(get_env_setting("COREGL_TRACE_SURFACE"));
+	trace_surface_all_flag = atoi(get_env_setting("COREGL_TRACE_SURFACE_ALL"));
+#endif
 #ifdef COREGL_TRACEPATH_TRACE_CONTEXT_INFO
 	trace_ctx_flag = atoi(get_env_setting("COREGL_TRACE_CTX"));
 	trace_ctx_force_flag = atoi(get_env_setting("COREGL_TRACE_CTX_FORCE"));
@@ -126,6 +145,10 @@ init_modules_tracepath()
 		{
 			COREGL_LOG("\E[40;35;1m(MEM)\E[0m ");
 			if (trace_mem_all_flag == 1) COREGL_LOG("\E[40;35;1m(MEM-ALL)\E[0m ");
+		}
+		if (trace_surface_flag == 1) {
+			COREGL_LOG("\E[40;36;1m(SURFACE)\E[0m ");
+			if (trace_surface_all_flag == 1) COREGL_LOG("\E[40;36;1m(SURFACE-ALL)\E[0m ");
 		}
 
 		COREGL_LOG("\E[40;37;1menabled\E[0m\n");
@@ -846,5 +869,288 @@ tracepath_mem_trace_output(int force_output)
 
 finish:
 	return;
+}
+
+#include "png.h"
+
+void *png_lib_handle = NULL;
+
+png_structp (*dl_png_create_write_struct) (png_const_charp user_png_ver,
+                                              png_voidp error_ptr,
+                                              png_error_ptr error_fn,
+                                              png_error_ptr warn_fn);
+
+
+void (*dl_png_destroy_write_struct) (png_structpp png_ptr_ptr,
+                                        png_infopp info_ptr_ptr);
+
+
+png_infop (*dl_png_create_info_struct) (png_structp png_ptr);
+
+void (*dl_png_init_io) (png_structp png_ptr,
+                          png_FILE_p fp);
+
+
+void (*dl_png_set_IHDR) (png_structp png_ptr,
+                           png_infop info_ptr,
+                           png_uint_32 width,
+                           png_uint_32 height,
+                           int bit_depth,
+                           int color_type,
+                           int interlace_method,
+                           int compression_method,
+                           int filter_method);
+
+void (*dl_png_set_bKGD) (png_structp png_ptr,
+                           png_infop info_ptr,
+                           png_color_16p background);
+
+void (*dl_png_set_bgr) (png_structp png_ptr);
+
+void (*dl_png_write_info) (png_structp png_ptr,
+                             png_infop info_ptr);
+
+void (*dl_png_write_image) (png_structp png_ptr,
+                              png_bytepp image);
+
+void (*dl_png_write_end) (png_structp png_ptr,
+                            png_infop info_ptr);
+
+void
+tracepath_surface_trace_add(const char *desc, GLDisplay dpy, GLSurface surf, GLContext ctx)
+{
+	Surface_Data *std = NULL;
+
+	if (trace_surface_flag == 1)
+	{
+		AST(mutex_lock(&std_access_mutex) == 1);
+
+		if (std_table == NULL)
+		{
+			std_table = (Surface_Data **)calloc(1, sizeof(Surface_Data *) * MAX_TRACE_TABLE_SIZE);
+		}
+
+		std = (Surface_Data *)_get_trace_data((Trace_Data **)std_table, sizeof(Surface_Data), desc);
+
+		AST(std != NULL);
+
+      std->display = dpy;
+      std->surface = surf;
+      std->context = ctx;
+
+		AST(mutex_unlock(&std_access_mutex) == 1);
+
+	}
+
+}
+
+void
+tracepath_surface_trace_remove(const char *desc)
+{
+	Surface_Data *std = NULL;
+
+	if (trace_surface_flag == 1)
+	{
+		AST(mutex_lock(&std_access_mutex) == 1);
+
+		if (std_table == NULL)
+		{
+			std_table = (Surface_Data **)calloc(1, sizeof(Surface_Data *) * MAX_TRACE_TABLE_SIZE);
+		}
+
+		std = (Surface_Data *)_get_trace_data((Trace_Data **)std_table, sizeof(Surface_Data), desc);
+
+		AST(std != NULL);
+
+		AST(mutex_unlock(&std_access_mutex) == 1);
+
+	}
+}
+
+static void
+_dump_surface(Surface_Data *sdata)
+{
+   if (!png_lib_handle)
+	{
+      png_lib_handle = dlopen("libpng.so.3", RTLD_NOW);
+
+
+      dl_png_create_write_struct = dlsym(png_lib_handle, "png_create_write_struct");
+      dl_png_destroy_write_struct = dlsym(png_lib_handle, "png_destroy_write_struct");
+      dl_png_create_info_struct = dlsym(png_lib_handle, "png_create_info_struct");
+
+      dl_png_init_io = dlsym(png_lib_handle, "png_init_io");
+
+      dl_png_set_IHDR = dlsym(png_lib_handle, "png_set_IHDR");
+      dl_png_set_bKGD = dlsym(png_lib_handle, "png_set_bKGD");
+      dl_png_set_bgr = dlsym(png_lib_handle, "png_set_bgr");
+
+      dl_png_write_info = dlsym(png_lib_handle, "png_write_info");
+      dl_png_write_image = dlsym(png_lib_handle, "png_write_image");
+      dl_png_write_end = dlsym(png_lib_handle, "png_write_end");
+	}
+
+   {
+      png_struct *png;
+      png_info *info;
+      png_byte **rows;
+      png_color_16 black;
+      char name[200];
+
+      if (!png_lib_handle ||
+         dl_png_create_write_struct == NULL ||
+         dl_png_destroy_write_struct == NULL ||
+         dl_png_create_info_struct == NULL ||
+         dl_png_init_io == NULL ||
+         dl_png_set_IHDR == NULL ||
+         dl_png_set_bKGD == NULL ||
+         dl_png_set_bgr == NULL ||
+         dl_png_write_info == NULL ||
+         dl_png_write_image == NULL ||
+         dl_png_write_end == NULL)
+      {
+         COREGL_ERR("Can't trace surface : Failed to use libpng (recommend : 1.2.50-3.4)");
+         return;
+      }
+
+      EGLint width, height;
+      _orig_tracepath_eglQuerySurface(sdata->display, sdata->surface, EGL_WIDTH, &width);
+      _orig_tracepath_eglQuerySurface(sdata->display, sdata->surface, EGL_HEIGHT, &height);
+
+      unsigned char *data;
+      data = (unsigned char *)malloc(width * height * 4 * sizeof(unsigned char));
+      _orig_tracepath_glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+      sprintf(name, "%s_%d.png", sdata->trace_data.name, sdata->dump_count);
+      sdata->dump_count++;
+
+      FILE *file = fopen (name, "wb");
+
+      if (file == NULL)
+      {
+         COREGL_ERR("Can't trace surface : Failed to create png file");
+         return;
+      }
+
+      rows = malloc(height * sizeof(png_byte *));
+      if (rows == NULL)
+      {
+         COREGL_ERR("Can't trace surface : Failed to allocate memory");
+         return;
+      }
+
+      for (int i = 0; i < height; i++)
+      {
+          rows[i] = data + (height - i - 1) * (width * 4);
+      }
+
+      png = dl_png_create_write_struct(PNG_LIBPNG_VER_STRING,
+                                       NULL,
+                                       NULL,
+                                       NULL);
+      if (png == NULL)
+      {
+         COREGL_ERR("Can't trace surface : Failed to create write structure of png file");
+         return;
+      }
+
+      info = dl_png_create_info_struct(png);
+      if (info == NULL)
+      {
+         fclose (file);
+         dl_png_destroy_write_struct (&png, NULL);
+         COREGL_ERR("Can't trace surface : Failed to create info structure of png file");
+         return;
+      }
+
+      dl_png_init_io(png, file);
+
+      dl_png_set_IHDR(png, info,
+          width, height, 8,
+          PNG_COLOR_TYPE_RGBA,
+          PNG_INTERLACE_NONE,
+          PNG_COMPRESSION_TYPE_DEFAULT,
+          PNG_FILTER_TYPE_DEFAULT);
+
+      black.red = 0x00;
+      black.green = 0x00;
+      black.blue = 0x00;
+      dl_png_set_bKGD(png, info, &black);
+
+      //dl_png_set_bgr(png);
+
+      dl_png_write_info(png, info);
+
+      dl_png_write_image(png, rows);
+
+      dl_png_write_end(png, info);
+
+      dl_png_destroy_write_struct(&png, &info);
+
+      free(rows);
+      fclose(file);
+   }
+
+}
+
+
+void
+tracepath_surface_trace(int force_output, const char *position)
+{
+	GLThreadState *tstate = NULL;
+	MY_MODULE_TSTATE *tstate_tm = NULL;
+   int i;
+
+	if (trace_surface_flag != 1)
+	{
+		goto finish;
+	}
+
+	tstate = get_current_thread_state();
+
+	if (tstate == NULL)
+	{
+		init_new_thread_state();
+
+		tstate = get_current_thread_state();
+		AST(tstate != NULL);
+	}
+
+	GET_MY_TSTATE(tstate_tm, tstate);
+	if (tstate_tm == NULL) return;
+
+	if (std_table != NULL)
+	{
+		for (i = 0; i < MAX_TRACE_TABLE_SIZE; i++)
+		{
+			if (std_table[i] != NULL)
+			{
+				Surface_Data *current = std_table[i];
+
+				while (current != NULL)
+				{
+               {
+                  if (current->surface != EGL_NO_SURFACE && current->display != EGL_NO_DISPLAY && current->context != EGL_NO_CONTEXT)
+                  {
+                     _orig_tracepath_eglMakeCurrent(current->display, current->surface, current->surface, current->context);
+
+                     _dump_surface(current);
+//                     printf("THE PNG dumped SURF=%p (dpy=%p, surf=%p)\n", current->surface, current->display, current->context);
+                  }
+               }
+
+					current = (Surface_Data *)current->trace_data.next;
+				}
+			}
+		}
+
+      _orig_tracepath_eglMakeCurrent(tstate_tm->ctx->dpy, tstate_tm->surf_draw, tstate_tm->surf_read, tstate_tm->ctx->handle);
+
+	}
+
+   goto finish;
+
+   finish:
+      return;
 }
 

@@ -1324,14 +1324,42 @@ fastpath_eglGetProcAddress(const char* procname)
 		goto finish; \
 	}
 
+#define _COREGL_EXT_SYMBOL_ALIAS(FUNC_NAME, ALIAS_NAME) \
+   if (strcmp(procname, #ALIAS_NAME) == 0) \
+   { \
+		_eng_fn ret_orig = NULL; \
+		ret_orig = _orig_fastpath_eglGetProcAddress(#FUNC_NAME); \
+		if (ret_orig != NULL) \
+			ret = (_eng_fn)ovr_##FUNC_NAME; \
+		goto finish; \
+   }
+
 #include "../../headers/sym_egl.h"
 #include "../../headers/sym_gl.h"
 #undef _COREGL_SYMBOL
+#undef _COREGL_EXT_SYMBOL_ALIAS
 
 	ret = _orig_fastpath_eglGetProcAddress(procname);
 	if (ret != NULL)
 	{
-		COREGL_WRN("\E[40;31;1mCOREGL can't support '%s' (unmanaged situation may occur)\E[0m\n", procname);
+
+#define _COREGL_EXT_SYMBOL_FASTPATH_PASS(FUNC_NAME) \
+   if (strcmp(procname, #FUNC_NAME) == 0) \
+      goto finish;
+
+#define _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(FUNC_NAME) \
+   if (strcmp(procname, #FUNC_NAME) == 0) \
+   { \
+      ret = NULL; \
+      goto finish; \
+   }
+
+#include "../../headers/sym_egl.h"
+#include "../../headers/sym_gl.h"
+#undef _COREGL_EXT_SYMBOL_FASTPATH_PASS
+#undef _COREGL_EXT_SYMBOL_FASTPATH_BLOCK
+
+		COREGL_WRN("\E[40;31;1mFASTPATH can't support '%s' (unmanaged situation will be occur!)\E[0m\n", procname);
 	}
 
 	goto finish;

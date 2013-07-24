@@ -44,15 +44,6 @@ _get_texture_states(GLenum pname, GLint *params)
 	_orig_fastpath_glActiveTexture(cur_active_tex);
 }
 
-static GLuint
-_get_stencil_max_mask()
-{
-	GLuint stencil_bit = 0;
-
-	_orig_fastpath_glGetIntegerv(GL_STENCIL_BITS, (GLint *)&stencil_bit);
-	return (1 << stencil_bit) - 1;
-}
-
 void
 init_modules_fastpath()
 {
@@ -302,6 +293,7 @@ fastpath_apply_overrides_gl(int enable)
 		COREGL_OVERRIDE(fastpath_, glProgramBinaryOES);
 		COREGL_OVERRIDE(fastpath_, glProgramParameteriEXT);
 		COREGL_OVERRIDE(fastpath_, glEGLImageTargetTexture2DOES);
+		COREGL_OVERRIDE(fastpath_, glFramebufferTexture3DOES);
 
 	}
 	else
@@ -1054,7 +1046,7 @@ fastpath_init_context_states(GLGlueContext *ctx)
                { \
                   if (initial_ctx->NAME[i] != value[i]) \
                   { \
-                     COREGL_WRN("GL-state '"#NAME"'[%d] value ["PRINTF_CHAR(TYPE)"] is different from SPEC-DEFAULT ["PRINTF_CHAR(TYPE)"]\n", i, ctx->NAME[i], value[i]); \
+                     COREGL_WRN("GL-state '"#NAME"'[%d] value ["PRINTF_CHAR(TYPE)"] is different from SPEC-DEFAULT ["PRINTF_CHAR(TYPE)"]\n", i, initial_ctx->NAME[i], value[i]); \
                   } \
                } \
             } \

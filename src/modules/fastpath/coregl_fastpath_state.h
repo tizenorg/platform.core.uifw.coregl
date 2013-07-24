@@ -75,19 +75,27 @@ GLUE_STATE(GLenum, gl_blend_equation_alpha, 1, 1, SET_1(GL_FUNC_ADD), _sym_glGet
 
 GLUE_STATE(GLenum, gl_stencil_func, 1, 1, SET_1(GL_ALWAYS), _sym_glGetIntegerv(GL_STENCIL_FUNC, (GLint *)value);)
 GLUE_STATE(GLint, gl_stencil_ref, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_STENCIL_REF, (GLint *)value);)
-GLUE_STATE(GLuintmask, gl_stencil_value_mask, 1, 1, SET_1(_get_stencil_max_mask()), _sym_glGetIntegerv(GL_STENCIL_VALUE_MASK, (GLint *)value);)
+GLUE_STATE(GLuintmask, gl_stencil_value_mask, 1, 1,
+           _sym_glGetIntegerv(GL_STENCIL_VALUE_MASK, (GLint *)value); /* DEFAULT NOT EFFECT */,
+           _sym_glGetIntegerv(GL_STENCIL_VALUE_MASK, (GLint *)value);)
 GLUE_STATE(GLenum, gl_stencil_fail, 1, 1, SET_1(GL_KEEP), _sym_glGetIntegerv(GL_STENCIL_FAIL, (GLint *)value);)
 GLUE_STATE(GLenum, gl_stencil_pass_depth_fail, 1, 1, SET_1(GL_KEEP), _sym_glGetIntegerv(GL_STENCIL_PASS_DEPTH_FAIL, (GLint *)value);)
 GLUE_STATE(GLenum, gl_stencil_pass_depth_pass, 1, 1, SET_1(GL_KEEP), _sym_glGetIntegerv(GL_STENCIL_PASS_DEPTH_PASS, (GLint *)value);)
-GLUE_STATE(GLuintmask, gl_stencil_writemask, 1, 1, SET_1(_get_stencil_max_mask()), _sym_glGetIntegerv(GL_STENCIL_WRITEMASK, (GLint *)value);)
+GLUE_STATE(GLuintmask, gl_stencil_writemask, 1, 1,
+           _sym_glGetIntegerv(GL_STENCIL_WRITEMASK, (GLint *)value); /* DEFAULT NOT EFFECT */,
+           _sym_glGetIntegerv(GL_STENCIL_WRITEMASK, (GLint *)value);)
 
 GLUE_STATE(GLenum, gl_stencil_back_func, 1, 1, SET_1(GL_ALWAYS), _sym_glGetIntegerv(GL_STENCIL_BACK_FUNC, (GLint *)value);)
 GLUE_STATE(GLint, gl_stencil_back_ref, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_STENCIL_BACK_REF, (GLint *)value);)
-GLUE_STATE(GLuintmask, gl_stencil_back_value_mask, 1, 1, SET_1(_get_stencil_max_mask()), _sym_glGetIntegerv(GL_STENCIL_BACK_VALUE_MASK, (GLint *)value);)
+GLUE_STATE(GLuintmask, gl_stencil_back_value_mask, 1, 1,
+           _sym_glGetIntegerv(GL_STENCIL_BACK_VALUE_MASK, (GLint *)value); /* DEFAULT NOT EFFECT */,
+           _sym_glGetIntegerv(GL_STENCIL_BACK_VALUE_MASK, (GLint *)value);)
 GLUE_STATE(GLenum, gl_stencil_back_fail, 1, 1, SET_1(GL_KEEP), _sym_glGetIntegerv(GL_STENCIL_BACK_FAIL, (GLint *)value);)
 GLUE_STATE(GLenum, gl_stencil_back_pass_depth_fail, 1, 1, SET_1(GL_KEEP), _sym_glGetIntegerv(GL_STENCIL_BACK_PASS_DEPTH_FAIL, (GLint *)value);)
 GLUE_STATE(GLenum, gl_stencil_back_pass_depth_pass, 1, 1, SET_1(GL_KEEP), _sym_glGetIntegerv(GL_STENCIL_BACK_PASS_DEPTH_PASS, (GLint *)value);)
-GLUE_STATE(GLuintmask, gl_stencil_back_writemask, 1, 1, SET_1(_get_stencil_max_mask()), _sym_glGetIntegerv(GL_STENCIL_BACK_WRITEMASK, (GLint *)value);)
+GLUE_STATE(GLuintmask, gl_stencil_back_writemask, 1, 1,
+           _sym_glGetIntegerv(GL_STENCIL_BACK_WRITEMASK, (GLint *)value); /* DEFAULT NOT EFFECT */,
+           _sym_glGetIntegerv(GL_STENCIL_BACK_WRITEMASK, (GLint *)value);)
 
 GLUE_STATE(GLint, gl_stencil_clear_value, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_STENCIL_CLEAR_VALUE, (GLint *)value);)
 
