@@ -7,6 +7,18 @@
 #define _COREGL_EXT_SYMBOL_NOT_DEFINED
 #define _COREGL_EXT_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)   _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)
 #endif
+#ifndef _COREGL_EXT_SYMBOL_ALIAS
+#define _COREGL_EXT_SYMBOL_ALIAS_NOT_DEFINED
+#define _COREGL_EXT_SYMBOL_ALIAS(FUNC_NAME, ALIAS_NAME)
+#endif
+#ifndef _COREGL_EXT_SYMBOL_FASTPATH_PASS
+#define _COREGL_EXT_SYMBOL_FASTPATH_PASS_NOT_DEFINED
+#define _COREGL_EXT_SYMBOL_FASTPATH_PASS(FUNC_NAME)
+#endif
+#ifndef _COREGL_EXT_SYMBOL_FASTPATH_BLOCK
+#define _COREGL_EXT_SYMBOL_FASTPATH_BLOCK_NOT_DEFINED
+#define _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(FUNC_NAME)
+#endif
 
 // Standard EGL APIs
 
@@ -54,14 +66,27 @@ _COREGL_SYMBOL(GL_FALSE, _eng_fn, eglGetProcAddress, (const char* procname))
 
 // Extensions
 _COREGL_EXT_SYMBOL(GL_TRUE, EGLImageKHR, eglCreateImageKHR, (EGLDisplay dpy, EGLContext ctx, EGLenum target, EGLClientBuffer buffer, const EGLint *attrib_list))
+_COREGL_EXT_SYMBOL_ALIAS(eglCreateImageKHR, eglCreateImage)
 _COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglDestroyImageKHR, (EGLDisplay dpy, EGLImageKHR image))
+_COREGL_EXT_SYMBOL_ALIAS(eglDestroyImageKHR, eglDestroyImage)
 
 _COREGL_EXT_SYMBOL(GL_TRUE, void*, eglMapImageSEC, (EGLDisplay dpy, EGLImageKHR image, EGLint device_type, EGLint access_option))
+_COREGL_EXT_SYMBOL_ALIAS(eglMapImageSEC, eglMapImage)
 _COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglUnmapImageSEC, (EGLDisplay dpy, EGLImageKHR image, EGLint device_type))
+_COREGL_EXT_SYMBOL_ALIAS(eglUnmapImageSEC, eglUnmapImage)
 _COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglGetImageAttribSEC, (EGLDisplay dpy, EGLImageKHR image, EGLint attribute, EGLint *value))
+_COREGL_EXT_SYMBOL_ALIAS(eglGetImageAttribSEC, eglGetImageAttrib)
 
 _COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglLockSurfaceKHR, (EGLDisplay display, EGLSurface surface, const EGLint *attrib_list))
+_COREGL_EXT_SYMBOL_ALIAS(eglLockSurfaceKHR, eglLockSurface)
 _COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglUnlockSurfaceKHR, (EGLDisplay display, EGLSurface surface))
+_COREGL_EXT_SYMBOL_ALIAS(eglUnlockSurfaceKHR, eglUnlockSurface)
+
+// Verified extensions
+_COREGL_EXT_SYMBOL_FASTPATH_PASS(eglSwapBuffersRegionSEC)
+
+// Blocked extensions
+//_COREGL_EXT_SYMBOL_FASTPATH_BLOCK()
 
 #ifdef _COREGL_EXT_SYMBOL_NOT_DEFINED
 #undef _COREGL_EXT_SYMBOL_NOT_DEFINED
@@ -72,3 +97,19 @@ _COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglUnlockSurfaceKHR, (EGLDisplay display
 #undef _COREGL_SYMBOL_NOT_DEFINED
 #undef _COREGL_SYMBOL
 #endif
+
+#ifdef _COREGL_EXT_SYMBOL_ALIAS_NOT_DEFINED
+#undef _COREGL_EXT_SYMBOL_ALIAS_NOT_DEFINED
+#undef _COREGL_EXT_SYMBOL_ALIAS
+#endif
+
+#ifdef _COREGL_EXT_SYMBOL_FASTPATH_PASS_NOT_DEFINED
+#undef _COREGL_EXT_SYMBOL_FASTPATH_PASS_NOT_DEFINED
+#undef _COREGL_EXT_SYMBOL_FASTPATH_PASS
+#endif
+
+#ifdef _COREGL_EXT_SYMBOL_FASTPATH_BLOCK_NOT_DEFINED
+#undef _COREGL_EXT_SYMBOL_FASTPATH_BLOCK_NOT_DEFINED
+#undef _COREGL_EXT_SYMBOL_FASTPATH_BLOCK
+#endif
+

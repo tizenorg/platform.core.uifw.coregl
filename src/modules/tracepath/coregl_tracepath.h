@@ -32,6 +32,7 @@
 #define COREGL_TRACEPATH_TRACE_STATE_INFO     // Glue-context state info
 #define COREGL_TRACEPATH_TRACE_APICALL_INFO   // API call frequency info
 #define COREGL_TRACEPATH_TRACE_MEMUSE_INFO   // Memory usage info
+#define COREGL_TRACEPATH_TRACE_SURFACE_INFO  // Surface dump info
 #endif
 
 #ifdef COREGL_TRACEPATH_TRACE_APICALL_INFO
@@ -60,6 +61,13 @@
 # define _COREGL_TRACE_MEM_OUTPUT(force_output)
 #endif
 
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+# define _COREGL_TRACE_SURFACE(force_output, position) \
+   tracepath_surface_trace(force_output, position);
+#else
+# define _COREGL_TRACE_SURFACE(force_output, position)
+#endif
+
 #define _COREGL_TRACEPATH_FUNC_BEGIN() \
 	if (unlikely(trace_api_flag == 1)) \
 		_COREGL_TRACE_API_BEGIN(__func__, NULL, 1);
@@ -71,6 +79,7 @@
 typedef struct _Trace_Data Trace_Data;
 typedef struct _Apicall_Data Apicall_Data;
 typedef struct _Memuse_Data Memuse_Data;
+typedef struct _Surface_Data Surface_Data;
 
 #define MTD_GLBUF_HASH_ARRAY 10000
 
@@ -127,6 +136,10 @@ extern void                tracepath_api_trace_output(int force_output);
 extern void                tracepath_mem_trace_add(const char *desc, int alloc_size);
 extern void                tracepath_mem_trace_remove(const char *desc, int alloc_size);
 extern void                tracepath_mem_trace_output(int force_output);
+
+extern void                tracepath_surface_trace_add(const char *desc, GLDisplay dpy, GLSurface surf, GLContext ctx);
+extern void                tracepath_surface_trace_remove(const char *desc);
+extern void                tracepath_surface_trace(int force_output, const char *position);
 
 extern void                tracepath_glbuf_clear(Glbuf_Data **glbuf);
 

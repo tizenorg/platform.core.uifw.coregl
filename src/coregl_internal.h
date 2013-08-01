@@ -94,11 +94,13 @@ extern int                 trace_api_flag;
 extern int                 trace_api_all_flag;
 extern int                 trace_mem_flag;
 extern int                 trace_mem_all_flag;
+extern int                 trace_surface_flag;
+extern int                 trace_surface_all_flag;
 extern int                 trace_ctx_flag;
 extern int                 trace_ctx_force_flag;
 extern int                 trace_state_flag;
 
-#define USE_TRACEPATH		(trace_api_flag == 1 || trace_ctx_flag == 1 || trace_state_flag == 1 || trace_mem_flag == 1)
+#define USE_TRACEPATH		(trace_api_flag == 1 || trace_ctx_flag == 1 || trace_state_flag == 1 || trace_mem_flag == 1 || trace_surface_flag == 1)
 
 // Environment functions
 extern const char         *get_env_setting(const char *name);
