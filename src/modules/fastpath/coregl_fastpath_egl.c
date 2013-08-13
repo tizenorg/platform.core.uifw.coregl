@@ -7,6 +7,8 @@
 
 #include <sys/types.h>
 #include <unistd.h>
+#include <signal.h>
+int kill(pid_t pid, int sig);
 
 #ifdef COREGL_FASTPATH_TRACE_CONTEXT_INFO
 
@@ -1325,14 +1327,14 @@ fastpath_eglGetProcAddress(const char* procname)
 	}
 
 #define _COREGL_EXT_SYMBOL_ALIAS(FUNC_NAME, ALIAS_NAME) \
-   if (strcmp(procname, #ALIAS_NAME) == 0) \
-   { \
+	if (strcmp(procname, #ALIAS_NAME) == 0) \
+	{ \
 		_eng_fn ret_orig = NULL; \
 		ret_orig = _orig_fastpath_eglGetProcAddress(#FUNC_NAME); \
 		if (ret_orig != NULL) \
 			ret = (_eng_fn)ovr_##FUNC_NAME; \
 		goto finish; \
-   }
+	}
 
 #include "../../headers/sym_egl.h"
 #include "../../headers/sym_gl.h"
@@ -1344,22 +1346,23 @@ fastpath_eglGetProcAddress(const char* procname)
 	{
 
 #define _COREGL_EXT_SYMBOL_FASTPATH_PASS(FUNC_NAME) \
-   if (strcmp(procname, #FUNC_NAME) == 0) \
-      goto finish;
+	if (strcmp(procname, #FUNC_NAME) == 0) \
+		goto finish;
 
 #define _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(FUNC_NAME) \
-   if (strcmp(procname, #FUNC_NAME) == 0) \
-   { \
-      ret = NULL; \
-      goto finish; \
-   }
+	if (strcmp(procname, #FUNC_NAME) == 0) \
+	{ \
+		ret = NULL; \
+		goto finish; \
+	}
 
 #include "../../headers/sym_egl.h"
 #include "../../headers/sym_gl.h"
 #undef _COREGL_EXT_SYMBOL_FASTPATH_PASS
 #undef _COREGL_EXT_SYMBOL_FASTPATH_BLOCK
 
-		COREGL_WRN("\E[40;31;1mFASTPATH can't support '%s' (unmanaged situation will be occur!)\E[0m\n", procname);
+		COREGL_ERR("\E[40;31;1mFASTPATH can't support '%s' (will be terminated with Illegal instruction!)\E[0m\n", procname);
+		kill(getpid(), SIGILL);
 	}
 
 	goto finish;

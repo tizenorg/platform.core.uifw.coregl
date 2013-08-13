@@ -83,7 +83,7 @@ _COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglUnlockSurfaceKHR, (EGLDisplay display
 _COREGL_EXT_SYMBOL_ALIAS(eglUnlockSurfaceKHR, eglUnlockSurface)
 
 // Verified extensions
-_COREGL_EXT_SYMBOL_FASTPATH_PASS(eglSwapBuffersRegionSEC)
+_COREGL_EXT_SYMBOL_FASTPATH_PASS(eglSwapBuffersRegionEXT)
 
 // Blocked extensions
 //_COREGL_EXT_SYMBOL_FASTPATH_BLOCK()
