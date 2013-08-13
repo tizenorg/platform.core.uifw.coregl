@@ -2,11 +2,17 @@ CC = gcc
 
 COMPILE_DATE = "\"`git log -1 --pretty=format:%ci`\""
 
-CFLAGS = -g -O2 -fvisibility=hidden -fPIC -Wall -std=c99 -D_COREGL_COMPILE_DATE=$(COMPILE_DATE)
+CFLAGS = -O2 -fvisibility=hidden -fPIC -Wall -std=c99 -D_COREGL_COMPILE_DATE=$(COMPILE_DATE)
 CFLAGS += `pkg-config --cflags dlog`
 
-LDFLAGS = -g -O2 -fvisibility=hidden -Wall -std=c99 -ldl -lpthread
+CFLAGS_DEBUG = -g -fvisibility=hidden -fPIC -Wall -std=c99 -D_COREGL_COMPILE_DATE=$(COMPILE_DATE)
+CFLAGS_DEBUG += `pkg-config --cflags dlog`
+
+LDFLAGS = -O2 -fvisibility=hidden -Wall -std=c99 -ldl -lpthread
 LDFLAGS += `pkg-config --libs dlog`
+
+LDFLAGS_DEBUG = -g -fvisibility=hidden -Wall -std=c99 -ldl -lpthread
+LDFLAGS_DEBUG += `pkg-config --libs dlog`
 
 
 SOURCES = \
@@ -45,12 +51,24 @@ WRAP_EGL = libEGL.so
 WRAP_GLES2 = libGLESv2.so
 
 OUTPUT_BIN = $(BIN).$(COREGL_MAJOR).$(COREGL_MINOR)
+OUTPUT_BIN_DEBUG = $(BIN).$(COREGL_MAJOR).$(COREGL_MINOR).debug
 OUTPUT_WRAP_EGL = $(WRAP_EGL).$(EGL_MAJOR).$(EGL_MINOR)
+OUTPUT_WRAP_EGL_DEBUG = $(WRAP_EGL).$(EGL_MAJOR).$(EGL_MINOR).debug
 OUTPUT_WRAP_GLES2 = $(WRAP_GLES2).$(GLESv2_MAJOR).$(GLESv2_MINOR)
+OUTPUT_WRAP_GLES2_DEBUG = $(WRAP_GLES2).$(GLESv2_MAJOR).$(GLESv2_MINOR).debug
 
 OBJECTS = $(SOURCES:.c=.o)
+OBJECTS_DEBUG = $(SOURCES:.c=.od)
 
-all : $(OUTPUT_BIN) $(OUTPUT_WRAP_EGL) $(OUTPUT_WRAP_GLES2)
+all : opt dbg
+
+opt : $(OUTPUT_BIN) $(OUTPUT_WRAP_EGL) $(OUTPUT_WRAP_GLES2)
+	cp src/headers/egl.h include/EGL/def_egl.h
+	cp src/headers/gl.h include/GLES2/def_gl.h
+	cp src/headers/sym_egl.h include/EGL/sym_egl.h
+	cp src/headers/sym_gl.h include/GLES2/sym_gl.h
+
+dbg : $(OUTPUT_BIN_DEBUG) $(OUTPUT_WRAP_EGL_DEBUG) $(OUTPUT_WRAP_GLES2_DEBUG)
 	cp src/headers/egl.h include/EGL/def_egl.h
 	cp src/headers/gl.h include/GLES2/def_gl.h
 	cp src/headers/sym_egl.h include/EGL/sym_egl.h
@@ -62,11 +80,23 @@ $(OUTPUT_BIN) : $(OBJECTS)
 	ln -sf $(OUTPUT_BIN) lib/$(BIN).$(COREGL_MAJOR)
 	ln -sf $(BIN).$(COREGL_MAJOR) lib/$(BIN)
 
+$(OUTPUT_BIN_DEBUG) : $(OBJECTS_DEBUG)
+	@mkdir -p lib_dbg
+	$(CC) -shared -o lib_dbg/$(OUTPUT_BIN) $(OBJECTS_DEBUG) $(LDFLAGS_DEBUG)
+	ln -sf $(OUTPUT_BIN) lib_dbg/$(BIN).$(COREGL_MAJOR)
+	ln -sf $(BIN).$(COREGL_MAJOR) lib_dbg/$(BIN)
+
 $(OUTPUT_WRAP_EGL) :
 	@mkdir -p lib
 	$(CC) -shared -o lib/$(OUTPUT_WRAP_EGL) src/wraps/coregl_egl.c $(CFLAGS) $(LDFLAGS)
 	ln -sf $(OUTPUT_WRAP_EGL) lib/$(WRAP_EGL).$(EGL_MAJOR)
 	ln -sf $(WRAP_EGL).$(EGL_MAJOR) lib/$(WRAP_EGL)
+
+$(OUTPUT_WRAP_EGL_DEBUG) :
+	@mkdir -p lib_dbg
+	$(CC) -shared -o lib_dbg/$(OUTPUT_WRAP_EGL) src/wraps/coregl_egl.c $(CFLAGS_DEBUG) $(LDFLAGS_DEBUG)
+	ln -sf $(OUTPUT_WRAP_EGL) lib_dbg/$(WRAP_EGL).$(EGL_MAJOR)
+	ln -sf $(WRAP_EGL).$(EGL_MAJOR) lib_dbg/$(WRAP_EGL)
 
 $(OUTPUT_WRAP_GLES2) :
 	@mkdir -p lib
@@ -74,9 +104,19 @@ $(OUTPUT_WRAP_GLES2) :
 	ln -sf $(OUTPUT_WRAP_GLES2) lib/$(WRAP_GLES2).$(GLESv2_MAJOR)
 	ln -sf $(WRAP_GLES2).$(GLESv2_MAJOR) lib/$(WRAP_GLES2)
 
+$(OUTPUT_WRAP_GLES2_DEBUG) :
+	@mkdir -p lib_dbg
+	$(CC) -shared -o lib_dbg/$(OUTPUT_WRAP_GLES2) src/wraps/coregl_gl.c $(CFLAGS_DEBUG) $(LDFLAGS_DEBUG)
+	ln -sf $(OUTPUT_WRAP_GLES2) lib_dbg/$(WRAP_GLES2).$(GLESv2_MAJOR)
+	ln -sf $(WRAP_GLES2).$(GLESv2_MAJOR) lib_dbg/$(WRAP_GLES2)
+
 %.o : %.c
 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
 
+%.od : %.c
+	$(CC) $(CFLAGS_DEBUG) $(INCLUDE) -c $< -o $@
+
 clean :
 	rm -f $(OBJECTS) lib/*
+	rm -f $(OBJECTS_DEBUG) lib_dbg/*
 
