@@ -53,7 +53,13 @@ struct _Surface_Data
 	GLDisplay                    display;
 	GLSurface                    surface;
 	GLContext                    context;
+	GLint                        fbo;
+	GLint                        tex;
+	GLint                        rb;
 	int                          dump_count;
+	GLint                        tex_w;
+	GLint                        tex_h;
+	GLint                        tex_format;
 };
 
 typedef struct _GLGlueFakeContext
@@ -117,7 +123,83 @@ init_modules_tracepath()
 #endif
 #ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
 	trace_surface_flag = atoi(get_env_setting("COREGL_TRACE_SURFACE"));
-	trace_surface_all_flag = atoi(get_env_setting("COREGL_TRACE_SURFACE_ALL"));
+	trace_surface_sequence_sort_flag = atoi(get_env_setting("COREGL_TRACE_SURFACE_SEQUENCE_SORT"));
+	trace_surface_print_only_flag = atoi(get_env_setting("COREGL_TRACE_SURFACE_PRINT_ONLY"));
+
+	{ // COREGL_TRACE_SURFACE_FILTER_PERIOD=40~60
+		char tmp[64] = { 0 }, *tmpp = NULL;
+		strncpy(tmp, get_env_setting("COREGL_TRACE_SURFACE_FILTER_PERIOD"), 64);
+		for (tmpp = &tmp[0]; ; tmpp++)
+		{
+			if (*tmpp == 0x00) break;
+			if (*tmpp == '~')
+			{
+				*tmpp = 0x00;
+				trace_surface_filter_period_begin = atoi(tmp);
+				trace_surface_filter_period_end = atoi(tmpp + 1);
+				break;
+			}
+		}
+	}
+
+	{ // COREGL_TRACE_SURFACE_FILTER_TYPE=EGL|FBO
+		char tmp[64] = { 0 };
+		strncpy(tmp, get_env_setting("COREGL_TRACE_SURFACE_FILTER_TYPE"), 64);
+		if (strcmp(tmp, "EGL") == 0) trace_surface_filter_type = 1;
+		if (strcmp(tmp, "FBO") == 0) trace_surface_filter_type = 2;
+	}
+
+	{ // COREGL_TRACE_SURFACE_FILTER_HANDLE=0x3234
+		char tmp[64] = { 0 }, *tmpp = NULL;
+		strncpy(tmp, get_env_setting("COREGL_TRACE_SURFACE_FILTER_HANDLE"), 64);
+		if (tmp[0] == '0' && tmp[1] == 'x')
+		{
+			for (tmpp = &tmp[2]; ; tmpp++)
+			{
+				if (*tmpp == 0x00) break;
+				trace_surface_filter_handle *= 16;
+				switch (*tmpp)
+				{
+					case '1' : trace_surface_filter_handle += 1; break;
+					case '2' : trace_surface_filter_handle += 2; break;
+					case '3' : trace_surface_filter_handle += 3; break;
+					case '4' : trace_surface_filter_handle += 4; break;
+					case '5' : trace_surface_filter_handle += 5; break;
+					case '6' : trace_surface_filter_handle += 6; break;
+					case '7' : trace_surface_filter_handle += 7; break;
+					case '8' : trace_surface_filter_handle += 8; break;
+					case '9' : trace_surface_filter_handle += 9; break;
+					case 'A' : case 'a' : trace_surface_filter_handle += 10; break;
+					case 'B' : case 'b' : trace_surface_filter_handle += 11; break;
+					case 'C' : case 'c' : trace_surface_filter_handle += 12; break;
+					case 'D' : case 'd' : trace_surface_filter_handle += 13; break;
+					case 'E' : case 'e' : trace_surface_filter_handle += 14; break;
+					case 'F' : case 'f' : trace_surface_filter_handle += 15; break;
+				}
+			}
+		}
+		else
+		{
+			trace_surface_filter_handle = atoi(tmp);
+		}
+	}
+
+	{ // COREGL_TRACE_SURFACE_FILTER_SIZE=640x480
+		char tmp[64] = { 0 }, *tmpp = NULL;
+		strncpy(tmp, get_env_setting("COREGL_TRACE_SURFACE_FILTER_SIZE"), 64);
+		for (tmpp = &tmp[0]; ; tmpp++)
+		{
+			if (*tmpp == 0x00) break;
+			if (*tmpp == 'x')
+			{
+				*tmpp = 0x00;
+				trace_surface_filter_size_w = atoi(tmp);
+				trace_surface_filter_size_h = atoi(tmpp + 1);
+				break;
+			}
+		}
+	}
+
 #endif
 #ifdef COREGL_TRACEPATH_TRACE_CONTEXT_INFO
 	trace_ctx_flag = atoi(get_env_setting("COREGL_TRACE_CTX"));
@@ -148,7 +230,15 @@ init_modules_tracepath()
 		}
 		if (trace_surface_flag == 1) {
 			COREGL_LOG("\E[40;36;1m(SURFACE)\E[0m ");
-			if (trace_surface_all_flag == 1) COREGL_LOG("\E[40;36;1m(SURFACE-ALL)\E[0m ");
+			if (trace_surface_sequence_sort_flag == 1) COREGL_LOG("\E[40;36;1m(SURFACE-SEQUENCE SORT)\E[0m ");
+			if (trace_surface_print_only_flag == 1) COREGL_LOG("\E[40;36;1m(PRINT ONLY)\E[0m ");
+			if (trace_surface_filter_period_begin != 0 || trace_surface_filter_period_end != 0)
+				COREGL_LOG("\E[40;36;1m(SURFACE-PERIOD:%d~%d)\E[0m ", trace_surface_filter_period_begin, trace_surface_filter_period_end);
+			if (trace_surface_filter_type == 1) COREGL_LOG("\E[40;36;1m(SURFACE-TYPE:EGL)\E[0m ");
+			if (trace_surface_filter_type == 2) COREGL_LOG("\E[40;36;1m(SURFACE-TYPE:FBO)\E[0m ");
+			if (trace_surface_filter_handle != 0) COREGL_LOG("\E[40;36;1m(SURFACE-HANDLE:%p(%d))\E[0m ", trace_surface_filter_handle, trace_surface_filter_handle);
+			if (trace_surface_filter_size_w > 0 && trace_surface_filter_size_h > 0)
+				COREGL_LOG("\E[40;36;1m(SURFACE-SIZE:%dx%d)\E[0m ", trace_surface_filter_size_w, trace_surface_filter_size_h);
 		}
 
 		COREGL_LOG("\E[40;37;1menabled\E[0m\n");
@@ -917,7 +1007,7 @@ void (*dl_png_write_end) (png_structp png_ptr,
                             png_infop info_ptr);
 
 void
-tracepath_surface_trace_add(const char *desc, GLDisplay dpy, GLSurface surf, GLContext ctx)
+tracepath_surface_trace_add(const char *desc, GLDisplay dpy, GLContext ctx, GLSurface surf, GLint fbo, GLint tex, GLint rb, GLint tex_w, GLint tex_h, GLint tex_format)
 {
 	Surface_Data *std = NULL;
 
@@ -934,162 +1024,275 @@ tracepath_surface_trace_add(const char *desc, GLDisplay dpy, GLSurface surf, GLC
 
 		AST(std != NULL);
 
-      std->display = dpy;
-      std->surface = surf;
-      std->context = ctx;
+		std->display = dpy;
+		std->surface = surf;
+		std->context = ctx;
+		if (fbo >= 0) std->fbo = fbo;
+		std->tex = tex;
+		std->rb = rb;
+		if (tex_w >= 0) std->tex_w = tex_w;
+		if (tex_h >= 0) std->tex_h = tex_h;
+		if (tex_format >= 0) std->tex_format = tex_format;
 
 		AST(mutex_unlock(&std_access_mutex) == 1);
 
 	}
 
-}
-
-void
-tracepath_surface_trace_remove(const char *desc)
-{
-	Surface_Data *std = NULL;
-
-	if (trace_surface_flag == 1)
-	{
-		AST(mutex_lock(&std_access_mutex) == 1);
-
-		if (std_table == NULL)
-		{
-			std_table = (Surface_Data **)calloc(1, sizeof(Surface_Data *) * MAX_TRACE_TABLE_SIZE);
-		}
-
-		std = (Surface_Data *)_get_trace_data((Trace_Data **)std_table, sizeof(Surface_Data), desc);
-
-		AST(std != NULL);
-
-		AST(mutex_unlock(&std_access_mutex) == 1);
-
-	}
 }
 
 static void
-_dump_surface(Surface_Data *sdata)
+_dump_surface(int force_output, const char *position, Surface_Data *sdata)
 {
-   if (!png_lib_handle)
+	static int alldumpcount = 0;
+
+	if (!png_lib_handle)
 	{
-      png_lib_handle = dlopen("libpng.so.3", RTLD_NOW);
+		png_lib_handle = dlopen("libpng.so.3", RTLD_NOW);
 
+		dl_png_create_write_struct = dlsym(png_lib_handle, "png_create_write_struct");
+		dl_png_destroy_write_struct = dlsym(png_lib_handle, "png_destroy_write_struct");
+		dl_png_create_info_struct = dlsym(png_lib_handle, "png_create_info_struct");
 
-      dl_png_create_write_struct = dlsym(png_lib_handle, "png_create_write_struct");
-      dl_png_destroy_write_struct = dlsym(png_lib_handle, "png_destroy_write_struct");
-      dl_png_create_info_struct = dlsym(png_lib_handle, "png_create_info_struct");
+		dl_png_init_io = dlsym(png_lib_handle, "png_init_io");
 
-      dl_png_init_io = dlsym(png_lib_handle, "png_init_io");
+		dl_png_set_IHDR = dlsym(png_lib_handle, "png_set_IHDR");
+		dl_png_set_bKGD = dlsym(png_lib_handle, "png_set_bKGD");
+		dl_png_set_bgr = dlsym(png_lib_handle, "png_set_bgr");
 
-      dl_png_set_IHDR = dlsym(png_lib_handle, "png_set_IHDR");
-      dl_png_set_bKGD = dlsym(png_lib_handle, "png_set_bKGD");
-      dl_png_set_bgr = dlsym(png_lib_handle, "png_set_bgr");
-
-      dl_png_write_info = dlsym(png_lib_handle, "png_write_info");
-      dl_png_write_image = dlsym(png_lib_handle, "png_write_image");
-      dl_png_write_end = dlsym(png_lib_handle, "png_write_end");
+		dl_png_write_info = dlsym(png_lib_handle, "png_write_info");
+		dl_png_write_image = dlsym(png_lib_handle, "png_write_image");
+		dl_png_write_end = dlsym(png_lib_handle, "png_write_end");
 	}
 
-   {
-      png_struct *png;
-      png_info *info;
-      png_byte **rows;
-      png_color_16 black;
-      char name[200];
+	{
+		png_struct *png;
+		png_info *info;
+		png_byte **rows;
+		png_color_16 black;
 
-      if (!png_lib_handle ||
-         dl_png_create_write_struct == NULL ||
-         dl_png_destroy_write_struct == NULL ||
-         dl_png_create_info_struct == NULL ||
-         dl_png_init_io == NULL ||
-         dl_png_set_IHDR == NULL ||
-         dl_png_set_bKGD == NULL ||
-         dl_png_set_bgr == NULL ||
-         dl_png_write_info == NULL ||
-         dl_png_write_image == NULL ||
-         dl_png_write_end == NULL)
-      {
-         COREGL_ERR("Can't trace surface : Failed to use libpng (recommend : 1.2.50-3.4)");
-         return;
-      }
+		if (!png_lib_handle ||
+		    dl_png_create_write_struct == NULL ||
+		    dl_png_destroy_write_struct == NULL ||
+		    dl_png_create_info_struct == NULL ||
+		    dl_png_init_io == NULL ||
+		    dl_png_set_IHDR == NULL ||
+		    dl_png_set_bKGD == NULL ||
+		    dl_png_set_bgr == NULL ||
+		    dl_png_write_info == NULL ||
+		    dl_png_write_image == NULL ||
+		    dl_png_write_end == NULL)
+		{
+			COREGL_ERR("Can't trace surface : Failed to use libpng (recommend : 1.2.50-3.4)");
+			return;
+		}
 
-      EGLint width, height;
-      _orig_tracepath_eglQuerySurface(sdata->display, sdata->surface, EGL_WIDTH, &width);
-      _orig_tracepath_eglQuerySurface(sdata->display, sdata->surface, EGL_HEIGHT, &height);
+		EGLint width = -1, height = -1, channel = -1;
+		unsigned char *data = NULL;
+		char name[200];
 
-      unsigned char *data;
-      data = (unsigned char *)malloc(width * height * 4 * sizeof(unsigned char));
-      _orig_tracepath_glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		if (trace_surface_sequence_sort_flag == 1)
+			sprintf(name, "[%d (%06d)%p-%p] %s %04d (%s).png", getpid(), alldumpcount, sdata->display, sdata->context, sdata->trace_data.name, sdata->dump_count, position);
+		else
+			sprintf(name, "[%d %p-%p] %s %04d (%s).png", getpid(), sdata->display, sdata->context, sdata->trace_data.name, sdata->dump_count, position);
 
-      sprintf(name, "%s_%d.png", sdata->trace_data.name, sdata->dump_count);
-      sdata->dump_count++;
+		if (sdata->fbo == 0 && sdata->tex == 0 && sdata->rb == 0)
+		{ // EGL
+			if (trace_surface_filter_type != 0 &&
+			    trace_surface_filter_type != 1) return;
 
-      FILE *file = fopen (name, "wb");
+			if (trace_surface_filter_handle != 0 &&
+			    trace_surface_filter_handle != (int)sdata->surface) return;
 
-      if (file == NULL)
-      {
-         COREGL_ERR("Can't trace surface : Failed to create png file");
-         return;
-      }
+			EGLConfig eglconfig;
+			GLint asize, rsize, gsize, bsize;
+			_orig_tracepath_eglQuerySurface(sdata->display, sdata->surface, EGL_WIDTH, &width);
+			_orig_tracepath_eglQuerySurface(sdata->display, sdata->surface, EGL_HEIGHT, &height);
+			_orig_tracepath_eglQuerySurface(sdata->display, sdata->surface, EGL_CONFIG_ID, (GLint *)&eglconfig);
+			_orig_tracepath_eglGetConfigAttrib(sdata->display, eglconfig, EGL_ALPHA_SIZE, &asize);
+			_orig_tracepath_eglGetConfigAttrib(sdata->display, eglconfig, EGL_RED_SIZE, &rsize);
+			_orig_tracepath_eglGetConfigAttrib(sdata->display, eglconfig, EGL_GREEN_SIZE, &gsize);
+			_orig_tracepath_eglGetConfigAttrib(sdata->display, eglconfig, EGL_BLUE_SIZE, &bsize);
+			channel = 4;
+			if (asize == 0) channel = 3;
+			if (bsize == 0) channel = 2;
+			if (gsize == 0) channel = 1;
+			if (rsize == 0) channel = 0;
 
-      rows = malloc(height * sizeof(png_byte *));
-      if (rows == NULL)
-      {
-         COREGL_ERR("Can't trace surface : Failed to allocate memory");
-         return;
-      }
+			if (channel == 2) channel = 3;
+			if (width <= 0 || height <= 0 || channel <= 0) return;
+			if (trace_surface_filter_size_w > 0 && trace_surface_filter_size_h > 0 &&
+			    (trace_surface_filter_size_w != width || trace_surface_filter_size_h != height))
+				return;
 
-      for (int i = 0; i < height; i++)
-      {
-          rows[i] = data + (height - i - 1) * (width * 4);
-      }
+			if ((trace_surface_filter_period_begin > 0 || trace_surface_filter_period_end > 0) &&
+			    (trace_surface_filter_period_begin > alldumpcount || trace_surface_filter_period_end < alldumpcount))
+			{
+				alldumpcount++;
+				sdata->dump_count++;
+				return;
+			}
 
-      png = dl_png_create_write_struct(PNG_LIBPNG_VER_STRING,
-                                       NULL,
-                                       NULL,
-                                       NULL);
-      if (png == NULL)
-      {
-         COREGL_ERR("Can't trace surface : Failed to create write structure of png file");
-         return;
-      }
+			TRACE("\E[40;31;1m[[TRACE SURFACE]] : '%s' is dumped (%dx%d).\E[0m\n", name, width, height);
+			if (trace_surface_print_only_flag == 1 && force_output == 0)
+			{
+				alldumpcount++;
+				sdata->dump_count++;
+				return;
+			}
 
-      info = dl_png_create_info_struct(png);
-      if (info == NULL)
-      {
-         fclose (file);
-         dl_png_destroy_write_struct (&png, NULL);
-         COREGL_ERR("Can't trace surface : Failed to create info structure of png file");
-         return;
-      }
+			data = (unsigned char *)malloc(width * height * channel * sizeof(unsigned char));
+			if (data == NULL)
+			{
+				COREGL_ERR("Can't trace surface : Failed to allocate memory");
+				return;
+			}
 
-      dl_png_init_io(png, file);
+			GLint oldfb;
+			_orig_tracepath_glGetIntegerv(GL_FRAMEBUFFER_BINDING, &oldfb);
+			_orig_tracepath_glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-      dl_png_set_IHDR(png, info,
-          width, height, 8,
-          PNG_COLOR_TYPE_RGBA,
-          PNG_INTERLACE_NONE,
-          PNG_COMPRESSION_TYPE_DEFAULT,
-          PNG_FILTER_TYPE_DEFAULT);
+			switch(channel)
+			{
+				case 4: _orig_tracepath_glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data); break;
+				case 3: _orig_tracepath_glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data); break;
+				case 1: _orig_tracepath_glReadPixels(0, 0, width, height, GL_ALPHA, GL_UNSIGNED_BYTE, data); break;
+			}
 
-      black.red = 0x00;
-      black.green = 0x00;
-      black.blue = 0x00;
-      dl_png_set_bKGD(png, info, &black);
+			_orig_tracepath_glBindFramebuffer(GL_FRAMEBUFFER, oldfb);
+		}
+		if (sdata->fbo != 0)
+		{ // FBO
+			if (trace_surface_filter_type != 0 &&
+			    trace_surface_filter_type != 2) return;
 
-      //dl_png_set_bgr(png);
+			if (trace_surface_filter_handle != 0 &&
+			    trace_surface_filter_handle != sdata->tex &&
+			    trace_surface_filter_handle != sdata->rb) return;
 
-      dl_png_write_info(png, info);
+			GLint oldfb;
+			_orig_tracepath_glGetIntegerv(GL_FRAMEBUFFER_BINDING, &oldfb);
+			_orig_tracepath_glBindFramebuffer(GL_FRAMEBUFFER, sdata->fbo);
 
-      dl_png_write_image(png, rows);
+			if (_orig_tracepath_glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE)
+			{
+				_orig_tracepath_glBindFramebuffer(GL_FRAMEBUFFER, oldfb);
+				width = sdata->tex_w;
+				height = sdata->tex_h;
+				channel = sdata->tex_format;
 
-      dl_png_write_end(png, info);
+				if (channel == 2) channel = 3;
+				if (width <= 0 || height <= 0 || channel <= 0) return;
+				if (trace_surface_filter_size_w > 0 && trace_surface_filter_size_h > 0 &&
+				    (trace_surface_filter_size_w != width || trace_surface_filter_size_h != height))
+					return;
 
-      dl_png_destroy_write_struct(&png, &info);
+				if ((trace_surface_filter_period_begin > 0 || trace_surface_filter_period_end > 0) &&
+				    (trace_surface_filter_period_begin > alldumpcount || trace_surface_filter_period_end < alldumpcount))
+				{
+					alldumpcount++;
+					sdata->dump_count++;
+					return;
+				}
 
-      free(rows);
-      fclose(file);
-   }
+				TRACE("\E[40;31;1m[[TRACE SURFACE]] : '%s' is dumped (%dx%d).\E[0m\n", name, width, height);
+				if (trace_surface_print_only_flag == 1 && force_output == 0)
+				{
+					alldumpcount++;
+					sdata->dump_count++;
+					return;
+				}
+
+				data = (unsigned char *)malloc(width * height * channel * sizeof(unsigned char));
+				if (data == NULL)
+				{
+					COREGL_ERR("Can't trace surface : Failed to allocate memory");
+					return;
+				}
+
+				_orig_tracepath_glBindFramebuffer(GL_FRAMEBUFFER, sdata->fbo);
+				switch(channel)
+				{
+					case 4: _orig_tracepath_glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data); break;
+					case 3: _orig_tracepath_glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data); break;
+					case 1: _orig_tracepath_glReadPixels(0, 0, width, height, GL_ALPHA, GL_UNSIGNED_BYTE, data); break;
+				}
+			}
+			_orig_tracepath_glBindFramebuffer(GL_FRAMEBUFFER, oldfb);
+		}
+
+		if (data == NULL) return;
+
+		unlink(name);
+		FILE *file = fopen (name, "wb");
+
+		if (file == NULL)
+		{
+			COREGL_ERR("Can't trace surface : Failed to create png file");
+			return;
+		}
+
+		rows = malloc(height * sizeof(png_byte *));
+		if (rows == NULL)
+		{
+			COREGL_ERR("Can't trace surface : Failed to allocate memory");
+			return;
+		}
+
+		for (int i = 0; i < height; i++)
+		{
+			rows[i] = data + (height - i - 1) * (width * channel);
+		}
+
+		png = dl_png_create_write_struct(PNG_LIBPNG_VER_STRING,
+		                                 NULL,
+		                                 NULL,
+		                                 NULL);
+		if (png == NULL)
+		{
+			COREGL_ERR("Can't trace surface : Failed to create write structure of png file");
+			return;
+		}
+
+		info = dl_png_create_info_struct(png);
+		if (info == NULL)
+		{
+			fclose (file);
+			dl_png_destroy_write_struct (&png, NULL);
+			COREGL_ERR("Can't trace surface : Failed to create info structure of png file");
+			return;
+		}
+
+		dl_png_init_io(png, file);
+
+		switch(channel)
+		{
+			case 4: dl_png_set_IHDR(png, info, width, height, 8, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT); break;
+			case 3: dl_png_set_IHDR(png, info, width, height, 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT); break;
+			case 1: dl_png_set_IHDR(png, info, width, height, 8, PNG_COLOR_TYPE_GRAY, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT); break;
+		}
+
+		black.red = 0x00;
+		black.green = 0x00;
+		black.blue = 0x00;
+		dl_png_set_bKGD(png, info, &black);
+
+		//dl_png_set_bgr(png);
+
+		dl_png_write_info(png, info);
+
+		dl_png_write_image(png, rows);
+
+		dl_png_write_end(png, info);
+
+		dl_png_destroy_write_struct(&png, &info);
+
+		free(rows);
+		free(data);
+		fclose(file);
+
+		alldumpcount++;
+		sdata->dump_count++;
+	}
 
 }
 
@@ -1099,7 +1302,7 @@ tracepath_surface_trace(int force_output, const char *position)
 {
 	GLThreadState *tstate = NULL;
 	MY_MODULE_TSTATE *tstate_tm = NULL;
-   int i;
+	int i;
 
 	if (trace_surface_flag != 1)
 	{
@@ -1129,28 +1332,33 @@ tracepath_surface_trace(int force_output, const char *position)
 
 				while (current != NULL)
 				{
-               {
-                  if (current->surface != EGL_NO_SURFACE && current->display != EGL_NO_DISPLAY && current->context != EGL_NO_CONTEXT)
-                  {
-                     _orig_tracepath_eglMakeCurrent(current->display, current->surface, current->surface, current->context);
-
-                     _dump_surface(current);
-//                     printf("THE PNG dumped SURF=%p (dpy=%p, surf=%p)\n", current->surface, current->display, current->context);
-                  }
-               }
+					if (current->surface != EGL_NO_SURFACE && current->display != EGL_NO_DISPLAY && current->context != EGL_NO_CONTEXT)
+					{
+						if (_orig_tracepath_eglMakeCurrent(current->display, current->surface, current->surface, current->context) == EGL_TRUE)
+						{
+							_dump_surface(force_output, position, current);
+						}
+					}
 
 					current = (Surface_Data *)current->trace_data.next;
 				}
 			}
 		}
 
-      _orig_tracepath_eglMakeCurrent(tstate_tm->ctx->dpy, tstate_tm->surf_draw, tstate_tm->surf_read, tstate_tm->ctx->handle);
+		_orig_tracepath_eglMakeCurrent(tstate_tm->ctx->dpy, tstate_tm->surf_draw, tstate_tm->surf_read, tstate_tm->ctx->handle);
 
 	}
 
-   goto finish;
+	goto finish;
 
-   finish:
-      return;
+	finish:
+		return;
+}
+
+
+COREGL_API void
+coregl_dump_surface()
+{
+	_COREGL_TRACE_SURFACE(1, "USER CALL");
 }
 

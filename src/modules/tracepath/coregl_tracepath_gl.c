@@ -158,6 +158,89 @@ finish:
 	return;
 }
 
+
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+void
+_surface_trace_set(int set, GLint fbname, GLenum attachment, MY_MODULE_TSTATE *tstate)
+{
+	int atttype = _COREGL_INT_INIT_VALUE;
+   _orig_tracepath_glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, attachment, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &atttype);
+	AST(atttype != _COREGL_INT_INIT_VALUE);
+	int attname = _COREGL_INT_INIT_VALUE;
+   _orig_tracepath_glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, attachment, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &attname);
+	AST(attname != _COREGL_INT_INIT_VALUE);
+	if (set == 1)
+	{
+		switch (atttype)
+		{
+			case GL_TEXTURE:
+				//COREGL_LOG("FBO DUMPING BEGIN = (TEX)%d\n", attname);
+				{
+					char name[256];
+					sprintf(name, "FBOTEX_%d", attname);
+					tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, fbname, attname, 0, -1, -1, -1);
+				}
+				break;
+			case GL_RENDERBUFFER:
+				//COREGL_LOG("FBO DUMPING BEGIN = (RB)%d\n", attname);
+				{
+					char name[256];
+					sprintf(name, "FBORB_%d", attname);
+					tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, fbname, 0, attname, -1, -1, -1);
+				}
+				break;
+		}
+	}
+	else
+	{
+		switch (atttype)
+		{
+			case GL_TEXTURE:
+				//COREGL_LOG("FBO DUMPING END = (TEX)%d\n", attname);
+				{
+					char name[256];
+					sprintf(name, "FBOTEX_%d", attname);
+					tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, 0, attname, 0, -1, -1, -1);
+				}
+				break;
+			case GL_RENDERBUFFER:
+				//COREGL_LOG("FBO DUMPING END = (RB)%d\n", attname);
+				{
+					char name[256];
+					sprintf(name, "FBORB_%d", attname);
+					tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, 0, 0, attname, -1, -1, -1);
+				}
+				break;
+		}
+	}
+}
+
+void
+tracepath_fbdump_update(GLint set)
+{
+	if (trace_surface_flag == 1)
+	{
+		GLint fbname = _COREGL_INT_INIT_VALUE;
+		_orig_tracepath_glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbname);
+		AST(fbname != _COREGL_INT_INIT_VALUE);
+		if (fbname != 0)
+		{
+			MY_MODULE_TSTATE *tstate = NULL;
+
+			GET_MY_TSTATE(tstate, get_current_thread_state());
+			AST(tstate != NULL);
+			if (tstate->ctx != NULL)
+			{
+				_surface_trace_set(set, fbname, GL_COLOR_ATTACHMENT0, tstate);
+				_surface_trace_set(set, fbname, GL_DEPTH_ATTACHMENT, tstate);
+				_surface_trace_set(set, fbname, GL_STENCIL_ATTACHMENT, tstate);
+			}
+		}
+	}
+}
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
+
+
 void
 tracepath_glActiveTexture(GLenum texture)
 {
@@ -210,8 +293,16 @@ void
 tracepath_glBindFramebuffer(GLenum target, GLuint framebuffer)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
+
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	tracepath_fbdump_update(0);
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
+
 	_orig_tracepath_glBindFramebuffer(target, framebuffer);
 
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	tracepath_fbdump_update(1);
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 
 	goto finish;
 
@@ -519,7 +610,16 @@ void
 tracepath_glDeleteFramebuffers(GLsizei n, const GLuint* framebuffers)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
+
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	tracepath_fbdump_update(0);
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
+
 	_orig_tracepath_glDeleteFramebuffers(n, framebuffers);
+
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	tracepath_fbdump_update(1);
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 
 	goto finish;
 
@@ -543,7 +643,16 @@ void
 tracepath_glDeleteRenderbuffers(GLsizei n, const GLuint* renderbuffers)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
+
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	tracepath_fbdump_update(0);
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
+
 	_orig_tracepath_glDeleteRenderbuffers(n, renderbuffers);
+
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	tracepath_fbdump_update(1);
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 
 	goto finish;
 
@@ -584,7 +693,16 @@ void
 tracepath_glDeleteTextures(GLsizei n, const GLuint* textures)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
+
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	tracepath_fbdump_update(0);
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
+
 	_orig_tracepath_glDeleteTextures(n, textures);
+
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	tracepath_fbdump_update(1);
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 
 	goto finish;
 
@@ -691,6 +809,20 @@ tracepath_glDrawArrays(GLenum mode, GLint first, GLsizei count)
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	if (trace_surface_flag == 1)
+	{
+		GLint fbname = _COREGL_INT_INIT_VALUE;
+		_orig_tracepath_glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbname);
+		AST(fbname != _COREGL_INT_INIT_VALUE);
+		if (fbname == 0)
+		{
+			char name[256];
+			sprintf(name, "EGLSURFACE_%p", _orig_tracepath_eglGetCurrentSurface(EGL_DRAW));
+			tracepath_surface_trace_add(name, _orig_tracepath_eglGetCurrentDisplay(), _orig_tracepath_eglGetCurrentContext(), _orig_tracepath_eglGetCurrentSurface(EGL_DRAW), 0, 0, 0, 0, 0, 0);
+		}
+   }
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 }
 
 void
@@ -703,6 +835,20 @@ tracepath_glDrawElements(GLenum mode, GLsizei count, GLenum type, const void* in
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	if (trace_surface_flag == 1)
+	{
+		GLint fbname = _COREGL_INT_INIT_VALUE;
+		_orig_tracepath_glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbname);
+		AST(fbname != _COREGL_INT_INIT_VALUE);
+		if (fbname == 0)
+		{
+			char name[256];
+			sprintf(name, "EGLSURFACE_%p", _orig_tracepath_eglGetCurrentSurface(EGL_DRAW));
+			tracepath_surface_trace_add(name, _orig_tracepath_eglGetCurrentDisplay(), _orig_tracepath_eglGetCurrentContext(), _orig_tracepath_eglGetCurrentSurface(EGL_DRAW), 0, 0, 0, 0, 0, 0);
+		}
+   }
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 }
 
 void
@@ -761,7 +907,16 @@ void
 tracepath_glFramebufferRenderbuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
+
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	tracepath_fbdump_update(0);
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
+
 	_orig_tracepath_glFramebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer);
+
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	tracepath_fbdump_update(1);
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 
 	goto finish;
 
@@ -773,7 +928,16 @@ void
 tracepath_glFramebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
+
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	tracepath_fbdump_update(0);
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
+
 	_orig_tracepath_glFramebufferTexture2D(target, attachment, textarget, texture, level);
+
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	tracepath_fbdump_update(1);
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 
 	goto finish;
 
@@ -1401,6 +1565,7 @@ void
 tracepath_glRenderbufferStorage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
+
 	_orig_tracepath_glRenderbufferStorage(target, internalformat, width, height);
 
 	goto finish;
@@ -1446,6 +1611,46 @@ finish:
 		}
 	}
 #endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	if (trace_surface_flag == 1)
+	{
+		MY_MODULE_TSTATE *tstate = NULL;
+
+		GET_MY_TSTATE(tstate, get_current_thread_state());
+		AST(tstate != NULL);
+		if (tstate->ctx != NULL)
+		{
+			int objidx = _COREGL_INT_INIT_VALUE;
+			_orig_tracepath_glGetIntegerv(GL_RENDERBUFFER_BINDING, &objidx);
+			AST(objidx != _COREGL_INT_INIT_VALUE);
+
+			{
+				int channel = 0;
+				switch (internalformat)
+				{
+					case GL_ALPHA:
+					case GL_LUMINANCE:
+					case GL_DEPTH_COMPONENT :
+					case 0x81A5:
+					case 0x81A6:
+					case 0x81A7:
+					case 0x8D46 :
+					case 0x8D47 :
+					case 0x8D48 : channel = 1; break;
+					case GL_LUMINANCE_ALPHA:
+					case 0x84F9: channel = 2; break;
+					case GL_RGB: channel = 3; break;
+					case GL_RGBA:
+					case 0x80E1: channel = 4; break;
+				}
+
+				char name[256];
+				sprintf(name, "FBORB_%d", objidx);
+				tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, -1, 0, objidx, width, height, channel);
+			}
+		}
+	}
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 }
 
 void
@@ -1617,6 +1822,46 @@ finish:
 		}
 	}
 #endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	if (trace_surface_flag == 1)
+	{
+		MY_MODULE_TSTATE *tstate = NULL;
+
+		GET_MY_TSTATE(tstate, get_current_thread_state());
+		AST(tstate != NULL);
+		if (tstate->ctx != NULL)
+		{
+			int objidx = _COREGL_INT_INIT_VALUE;
+			_orig_tracepath_glGetIntegerv(GL_TEXTURE_BINDING_2D, &objidx);
+			AST(objidx != _COREGL_INT_INIT_VALUE);
+
+			{
+				int channel = 0;
+				switch (internalformat)
+				{
+					case GL_ALPHA:
+					case GL_LUMINANCE:
+					case GL_DEPTH_COMPONENT :
+					case 0x81A5:
+					case 0x81A6:
+					case 0x81A7:
+					case 0x8D46 :
+					case 0x8D47 :
+					case 0x8D48 : channel = 1; break;
+					case GL_LUMINANCE_ALPHA:
+					case 0x84F9: channel = 2; break;
+					case GL_RGB: channel = 3; break;
+					case GL_RGBA:
+					case 0x80E1: channel = 4; break;
+				}
+
+				char name[256];
+				sprintf(name, "FBOTEX_%d", objidx);
+				tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, -1, objidx, 0, width, height, channel);
+			}
+		}
+	}
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 }
 
 void
@@ -2549,13 +2794,62 @@ finish:
 		}
 	}
 #endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	if (trace_surface_flag == 1)
+	{
+		MY_MODULE_TSTATE *tstate = NULL;
+
+		GET_MY_TSTATE(tstate, get_current_thread_state());
+		AST(tstate != NULL);
+		if (tstate->ctx != NULL)
+		{
+			int objidx = _COREGL_INT_INIT_VALUE;
+			_orig_tracepath_glGetIntegerv(GL_RENDERBUFFER_BINDING, &objidx);
+			AST(objidx != _COREGL_INT_INIT_VALUE);
+
+			{
+				int channel = 0;
+				switch (internalformat)
+				{
+					case GL_ALPHA:
+					case GL_LUMINANCE:
+					case GL_DEPTH_COMPONENT :
+					case 0x81A5:
+					case 0x81A6:
+					case 0x81A7:
+					case 0x8D46 :
+					case 0x8D47 :
+					case 0x8D48 : channel = 1; break;
+					case GL_LUMINANCE_ALPHA:
+					case 0x84F9: channel = 2; break;
+					case GL_RGB: channel = 3; break;
+					case GL_RGBA:
+					case 0x80E1: channel = 4; break;
+				}
+
+				char name[256];
+				sprintf(name, "FBORB_%d", objidx);
+				tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, -1, 0, objidx, width, height, channel);
+			}
+		}
+	}
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 }
 
 void
 tracepath_glFramebufferTexture2DMultisampleEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLsizei samples)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
+
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	tracepath_fbdump_update(0);
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
+
 	_orig_tracepath_glFramebufferTexture2DMultisampleEXT(target, attachment, textarget, texture, level, samples);
+
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	tracepath_fbdump_update(1);
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 
 	goto finish;
 

@@ -813,6 +813,7 @@ fastpath_sostate_set_object_tag(GL_Shared_Object_State *sostate, GL_Object_Type 
 
 	FIND_OBJ_FROM_HASH_WITH_VERIFY(hash_base, hash, object);
 
+	AST(object->tag == NULL);
 	object->tag = tag;
 	ret = 1;
 	goto finish;
