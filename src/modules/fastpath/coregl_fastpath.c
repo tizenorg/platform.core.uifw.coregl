@@ -471,6 +471,13 @@ fastpath_remove_context_states_from_list(GLContextState *cstate, Mutex *mtx)
 				glctx_list = current->next;
 				nextitm = glctx_list;
 			}
+			if (current->option != NULL)
+			{
+				AST(current->option_len > 0);
+				free(current->option);
+				current->option = NULL;
+				current->option_len = 0;
+			}
 			free(current);
 			ret = 1;
 			current = nextitm;
