@@ -212,6 +212,7 @@ fastpath_apply_overrides_gl(int enable)
 		COREGL_OVERRIDE(fastpath_, glBindFramebuffer);
 		COREGL_OVERRIDE(fastpath_, glIsFramebuffer);
 		COREGL_OVERRIDE(fastpath_, glDeleteFramebuffers);
+		COREGL_OVERRIDE(fastpath_, glGetFramebufferAttachmentParameteriv);
 
 		COREGL_OVERRIDE(fastpath_, glGenRenderbuffers);
 		COREGL_OVERRIDE(fastpath_, glBindRenderbuffer);

@@ -455,7 +455,7 @@ finish:
    {
       char name[256];
       sprintf(name, "EGLSURFACE_%p", surface);
-      tracepath_surface_trace_add(name, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+      tracepath_surface_trace_add(name, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL);
    }
 #endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 	return ret;
@@ -788,6 +788,9 @@ tracepath_eglWaitGL(void)
 
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	ret = _orig_tracepath_eglWaitGL();
+
+	_COREGL_TRACE_SURFACE(0, 1, "EGLWAITGL");
+
 	goto finish;
 
 finish:
@@ -814,7 +817,7 @@ tracepath_eglSwapBuffers(EGLDisplay dpy, EGLSurface surface)
 {
 	EGLBoolean ret = EGL_FALSE;
 
-	_COREGL_TRACE_SURFACE(0, "SWAPBUFFERS");
+	_COREGL_TRACE_SURFACE(0, 1, "SWAPBUFFERS");
 
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	ret = _orig_tracepath_eglSwapBuffers(dpy, surface);

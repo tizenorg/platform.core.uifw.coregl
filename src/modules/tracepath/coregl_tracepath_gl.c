@@ -174,19 +174,19 @@ _surface_trace_set(int set, GLint fbname, GLenum attachment, MY_MODULE_TSTATE *t
 		switch (atttype)
 		{
 			case GL_TEXTURE:
-				//COREGL_LOG("FBO DUMPING BEGIN = (TEX)%d\n", attname);
+				//COREGL_LOG("FBO DUMPING BEGIN = (TEX)0x%X\n", attname);
 				{
 					char name[256];
-					sprintf(name, "FBOTEX_%d", attname);
-					tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, fbname, attname, 0, -1, -1, -1);
+					sprintf(name, "FBOTEX_0x%X", attname);
+					tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, fbname, attname, 0, -1, -1, -1, NULL);
 				}
 				break;
 			case GL_RENDERBUFFER:
-				//COREGL_LOG("FBO DUMPING BEGIN = (RB)%d\n", attname);
+				//COREGL_LOG("FBO DUMPING BEGIN = (RB)0x%X\n", attname);
 				{
 					char name[256];
-					sprintf(name, "FBORB_%d", attname);
-					tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, fbname, 0, attname, -1, -1, -1);
+					sprintf(name, "FBORB_0x%X", attname);
+					tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, fbname, 0, attname, -1, -1, -1, NULL);
 				}
 				break;
 		}
@@ -196,19 +196,19 @@ _surface_trace_set(int set, GLint fbname, GLenum attachment, MY_MODULE_TSTATE *t
 		switch (atttype)
 		{
 			case GL_TEXTURE:
-				//COREGL_LOG("FBO DUMPING END = (TEX)%d\n", attname);
+				//COREGL_LOG("FBO DUMPING END = (TEX)0x%X\n", attname);
 				{
 					char name[256];
-					sprintf(name, "FBOTEX_%d", attname);
-					tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, 0, attname, 0, -1, -1, -1);
+					sprintf(name, "FBOTEX_0x%X", attname);
+					tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, 0, attname, 0, -1, -1, -1, NULL);
 				}
 				break;
 			case GL_RENDERBUFFER:
-				//COREGL_LOG("FBO DUMPING END = (RB)%d\n", attname);
+				//COREGL_LOG("FBO DUMPING END = (RB)0x%X\n", attname);
 				{
 					char name[256];
-					sprintf(name, "FBORB_%d", attname);
-					tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, 0, 0, attname, -1, -1, -1);
+					sprintf(name, "FBORB_0x%X", attname);
+					tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, 0, 0, attname, -1, -1, -1, NULL);
 				}
 				break;
 		}
@@ -232,8 +232,8 @@ tracepath_fbdump_update(GLint set)
 			if (tstate->ctx != NULL)
 			{
 				_surface_trace_set(set, fbname, GL_COLOR_ATTACHMENT0, tstate);
-				_surface_trace_set(set, fbname, GL_DEPTH_ATTACHMENT, tstate);
-				_surface_trace_set(set, fbname, GL_STENCIL_ATTACHMENT, tstate);
+//				_surface_trace_set(set, fbname, GL_DEPTH_ATTACHMENT, tstate);
+//				_surface_trace_set(set, fbname, GL_STENCIL_ATTACHMENT, tstate);
 			}
 		}
 	}
@@ -295,6 +295,13 @@ tracepath_glBindFramebuffer(GLenum target, GLuint framebuffer)
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 
 #ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	GLint oldfb;
+	_orig_tracepath_glGetIntegerv(GL_FRAMEBUFFER_BINDING, &oldfb);
+	if (oldfb != 0)
+	{
+		_COREGL_TRACE_SURFACE(0, 2, "GLBINDFBO");
+	}
+
 	tracepath_fbdump_update(0);
 #endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 
@@ -818,8 +825,13 @@ finish:
 		if (fbname == 0)
 		{
 			char name[256];
-			sprintf(name, "EGLSURFACE_%p", _orig_tracepath_eglGetCurrentSurface(EGL_DRAW));
-			tracepath_surface_trace_add(name, _orig_tracepath_eglGetCurrentDisplay(), _orig_tracepath_eglGetCurrentContext(), _orig_tracepath_eglGetCurrentSurface(EGL_DRAW), 0, 0, 0, 0, 0, 0);
+			EGLint btype;
+			_orig_tracepath_eglQuerySurface(_orig_tracepath_eglGetCurrentDisplay(), _orig_tracepath_eglGetCurrentSurface(EGL_DRAW), EGL_RENDER_BUFFER, &btype);
+			if (btype == EGL_SINGLE_BUFFER)
+				sprintf(name, "EGLPIXMAP_%p", _orig_tracepath_eglGetCurrentSurface(EGL_DRAW));
+			else
+				sprintf(name, "EGLWINDOW_%p", _orig_tracepath_eglGetCurrentSurface(EGL_DRAW));
+			tracepath_surface_trace_add(name, _orig_tracepath_eglGetCurrentDisplay(), _orig_tracepath_eglGetCurrentContext(), _orig_tracepath_eglGetCurrentSurface(EGL_DRAW), 0, 0, 0, 0, 0, 0, NULL);
 		}
    }
 #endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
@@ -844,8 +856,13 @@ finish:
 		if (fbname == 0)
 		{
 			char name[256];
-			sprintf(name, "EGLSURFACE_%p", _orig_tracepath_eglGetCurrentSurface(EGL_DRAW));
-			tracepath_surface_trace_add(name, _orig_tracepath_eglGetCurrentDisplay(), _orig_tracepath_eglGetCurrentContext(), _orig_tracepath_eglGetCurrentSurface(EGL_DRAW), 0, 0, 0, 0, 0, 0);
+			EGLint btype;
+			_orig_tracepath_eglQuerySurface(_orig_tracepath_eglGetCurrentDisplay(), _orig_tracepath_eglGetCurrentSurface(EGL_DRAW), EGL_RENDER_BUFFER, &btype);
+			if (btype == EGL_SINGLE_BUFFER)
+				sprintf(name, "EGLPIXMAP_%p", _orig_tracepath_eglGetCurrentSurface(EGL_DRAW));
+			else
+				sprintf(name, "EGLWINDOW_%p", _orig_tracepath_eglGetCurrentSurface(EGL_DRAW));
+			tracepath_surface_trace_add(name, _orig_tracepath_eglGetCurrentDisplay(), _orig_tracepath_eglGetCurrentContext(), _orig_tracepath_eglGetCurrentSurface(EGL_DRAW), 0, 0, 0, 0, 0, 0, NULL);
 		}
    }
 #endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
@@ -881,6 +898,8 @@ tracepath_glFinish(void)
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glFinish();
 
+	_COREGL_TRACE_SURFACE(0, 0, "GLFINISH");
+
 	goto finish;
 
 finish:
@@ -894,6 +913,8 @@ tracepath_glFlush(void)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glFlush();
+
+	_COREGL_TRACE_SURFACE(0, 0, "GLFLUSH");
 
 	goto finish;
 
@@ -1646,7 +1667,7 @@ finish:
 
 				char name[256];
 				sprintf(name, "FBORB_%d", objidx);
-				tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, -1, 0, objidx, width, height, channel);
+				tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, -1, 0, objidx, width, height, channel, NULL);
 			}
 		}
 	}
@@ -1856,8 +1877,8 @@ finish:
 				}
 
 				char name[256];
-				sprintf(name, "FBOTEX_%d", objidx);
-				tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, -1, objidx, 0, width, height, channel);
+				sprintf(name, "FBOTEX_0x%X", objidx);
+				tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, -1, objidx, 0, width, height, channel, NULL);
 			}
 		}
 	}
@@ -2828,8 +2849,8 @@ finish:
 				}
 
 				char name[256];
-				sprintf(name, "FBORB_%d", objidx);
-				tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, -1, 0, objidx, width, height, channel);
+				sprintf(name, "FBORB_0x%X", objidx);
+				tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, -1, 0, objidx, width, height, channel, NULL);
 			}
 		}
 	}
