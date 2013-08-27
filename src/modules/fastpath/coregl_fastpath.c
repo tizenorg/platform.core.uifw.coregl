@@ -471,6 +471,13 @@ fastpath_remove_context_states_from_list(GLContextState *cstate, Mutex *mtx)
 				glctx_list = current->next;
 				nextitm = glctx_list;
 			}
+			if (current->option != NULL)
+			{
+				AST(current->option_len > 0);
+				free(current->option);
+				current->option = NULL;
+				current->option_len = 0;
+			}
 			free(current);
 			ret = 1;
 			current = nextitm;
@@ -813,6 +820,7 @@ fastpath_sostate_set_object_tag(GL_Shared_Object_State *sostate, GL_Object_Type 
 
 	FIND_OBJ_FROM_HASH_WITH_VERIFY(hash_base, hash, object);
 
+	AST(object->tag == NULL);
 	object->tag = tag;
 	ret = 1;
 	goto finish;

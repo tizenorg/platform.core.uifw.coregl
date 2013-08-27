@@ -201,12 +201,12 @@ _detach_program_object(GL_Shared_Object_State *sostate, GLuint real_object, int 
 			int i;
 			for (i = 0; i < poat->shader_count; i++)
 			{
-				GLuint glue_shader = fastpath_sostate_find_object(sostate, GL_OBJECT_TYPE_PROGRAM, poat->shaders[i]);
-				fastpath_sostate_remove_object(sostate, GL_OBJECT_TYPE_PROGRAM, glue_shader);
+				AST(is_program == 1);
+				_detach_program_object(sostate, poat->shaders[i], 0, 0);
 			}
 
-			poat = NULL;
 			free(poat);
+			poat = NULL;
 
 			if (is_program == 1)
 				_orig_fastpath_glDeleteProgram(real_object);

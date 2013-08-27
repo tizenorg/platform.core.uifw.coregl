@@ -94,11 +94,18 @@ extern int                 trace_api_flag;
 extern int                 trace_api_all_flag;
 extern int                 trace_mem_flag;
 extern int                 trace_mem_all_flag;
-extern int                 trace_surface_flag;
-extern int                 trace_surface_all_flag;
 extern int                 trace_ctx_flag;
 extern int                 trace_ctx_force_flag;
 extern int                 trace_state_flag;
+extern int                 trace_surface_flag;
+extern int                 trace_surface_sequence_sort_flag;
+extern int                 trace_surface_filter_period_begin;
+extern int                 trace_surface_filter_period_end;
+extern int                 trace_surface_filter_type;
+extern int                 trace_surface_filter_handle;
+extern int                 trace_surface_filter_size_w;
+extern int                 trace_surface_filter_size_h;
+extern int                 trace_surface_print_only_flag;
 
 #define USE_TRACEPATH		(trace_api_flag == 1 || trace_ctx_flag == 1 || trace_state_flag == 1 || trace_mem_flag == 1 || trace_surface_flag == 1)
 

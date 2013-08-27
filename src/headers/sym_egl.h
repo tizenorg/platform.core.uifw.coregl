@@ -84,6 +84,7 @@ _COREGL_EXT_SYMBOL_ALIAS(eglUnlockSurfaceKHR, eglUnlockSurface)
 
 // Verified extensions
 _COREGL_EXT_SYMBOL_FASTPATH_PASS(eglSwapBuffersRegionEXT)
+_COREGL_EXT_SYMBOL_FASTPATH_PASS(eglSwapBuffersRegionSEC)
 
 // Blocked extensions
 //_COREGL_EXT_SYMBOL_FASTPATH_BLOCK()
