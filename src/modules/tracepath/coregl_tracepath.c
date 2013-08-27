@@ -1006,42 +1006,8 @@ void (*dl_png_write_image) (png_structp png_ptr,
 void (*dl_png_write_end) (png_structp png_ptr,
                             png_infop info_ptr);
 
-void
-tracepath_surface_trace_add(const char *desc, GLDisplay dpy, GLContext ctx, GLSurface surf, GLint fbo, GLint tex, GLint rb, GLint tex_w, GLint tex_h, GLint tex_format)
-{
-	Surface_Data *std = NULL;
-
-	if (trace_surface_flag == 1)
-	{
-		AST(mutex_lock(&std_access_mutex) == 1);
-
-		if (std_table == NULL)
-		{
-			std_table = (Surface_Data **)calloc(1, sizeof(Surface_Data *) * MAX_TRACE_TABLE_SIZE);
-		}
-
-		std = (Surface_Data *)_get_trace_data((Trace_Data **)std_table, sizeof(Surface_Data), desc);
-
-		AST(std != NULL);
-
-		std->display = dpy;
-		std->surface = surf;
-		std->context = ctx;
-		if (fbo >= 0) std->fbo = fbo;
-		std->tex = tex;
-		std->rb = rb;
-		if (tex_w >= 0) std->tex_w = tex_w;
-		if (tex_h >= 0) std->tex_h = tex_h;
-		if (tex_format >= 0) std->tex_format = tex_format;
-
-		AST(mutex_unlock(&std_access_mutex) == 1);
-
-	}
-
-}
-
 static void
-_dump_surface(int force_output, const char *position, Surface_Data *sdata)
+_dump_surface(int force_output, int type, const char *position, Surface_Data *sdata)
 {
 	static int alldumpcount = 0;
 
@@ -1068,7 +1034,6 @@ _dump_surface(int force_output, const char *position, Surface_Data *sdata)
 		png_struct *png;
 		png_info *info;
 		png_byte **rows;
-		png_color_16 black;
 
 		if (!png_lib_handle ||
 		    dl_png_create_write_struct == NULL ||
@@ -1095,7 +1060,7 @@ _dump_surface(int force_output, const char *position, Surface_Data *sdata)
 		else
 			sprintf(name, "[%d %p-%p] %s %04d (%s).png", getpid(), sdata->display, sdata->context, sdata->trace_data.name, sdata->dump_count, position);
 
-		if (sdata->fbo == 0 && sdata->tex == 0 && sdata->rb == 0)
+		if (!strncmp(sdata->trace_data.name, "EGL", 3) && type != 2)
 		{ // EGL
 			if (trace_surface_filter_type != 0 &&
 			    trace_surface_filter_type != 1) return;
@@ -1132,7 +1097,9 @@ _dump_surface(int force_output, const char *position, Surface_Data *sdata)
 				return;
 			}
 
-			TRACE("\E[40;31;1m[[TRACE SURFACE]] : '%s' is dumped (%dx%d).\E[0m\n", name, width, height);
+			if (channel == 3) channel = 4;
+
+			TRACE("\E[40;31;1m[[TRACE SURFACE]] : '%s' is dumped (%dx%dx%d).\E[0m\n", name, width, height, channel);
 			if (trace_surface_print_only_flag == 1 && force_output == 0)
 			{
 				alldumpcount++;
@@ -1140,7 +1107,7 @@ _dump_surface(int force_output, const char *position, Surface_Data *sdata)
 				return;
 			}
 
-			data = (unsigned char *)malloc(width * height * channel * sizeof(unsigned char));
+			data = (unsigned char *)calloc(1, width * height * channel * sizeof(unsigned char));
 			if (data == NULL)
 			{
 				COREGL_ERR("Can't trace surface : Failed to allocate memory");
@@ -1160,8 +1127,10 @@ _dump_surface(int force_output, const char *position, Surface_Data *sdata)
 
 			_orig_tracepath_glBindFramebuffer(GL_FRAMEBUFFER, oldfb);
 		}
-		if (sdata->fbo != 0)
+		if (!strncmp(sdata->trace_data.name, "FBO", 3) && type != 1)
 		{ // FBO
+			if (sdata->fbo == 0) return;
+
 			if (trace_surface_filter_type != 0 &&
 			    trace_surface_filter_type != 2) return;
 
@@ -1194,7 +1163,7 @@ _dump_surface(int force_output, const char *position, Surface_Data *sdata)
 					return;
 				}
 
-				TRACE("\E[40;31;1m[[TRACE SURFACE]] : '%s' is dumped (%dx%d).\E[0m\n", name, width, height);
+				TRACE("\E[40;31;1m[[TRACE SURFACE]] : '%s' is dumped (%dx%dx%d).\E[0m\n", name, width, height, channel);
 				if (trace_surface_print_only_flag == 1 && force_output == 0)
 				{
 					alldumpcount++;
@@ -1202,7 +1171,9 @@ _dump_surface(int force_output, const char *position, Surface_Data *sdata)
 					return;
 				}
 
-				data = (unsigned char *)malloc(width * height * channel * sizeof(unsigned char));
+				if (channel == 3) channel = 4;
+
+				data = (unsigned char *)calloc(1, width * height * channel * sizeof(unsigned char));
 				if (data == NULL)
 				{
 					COREGL_ERR("Can't trace surface : Failed to allocate memory");
@@ -1210,6 +1181,21 @@ _dump_surface(int force_output, const char *position, Surface_Data *sdata)
 				}
 
 				_orig_tracepath_glBindFramebuffer(GL_FRAMEBUFFER, sdata->fbo);
+				int atttype = _COREGL_INT_INIT_VALUE;
+			   _orig_tracepath_glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &atttype);
+				AST(atttype != sdata->tex);
+				int attname = _COREGL_INT_INIT_VALUE;
+			   _orig_tracepath_glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &attname);
+				switch (atttype)
+				{
+					case GL_TEXTURE:
+						AST(attname == sdata->tex);
+						break;
+					case GL_RENDERBUFFER:
+						AST(attname == sdata->rb);
+						break;
+				}
+
 				switch(channel)
 				{
 					case 4: _orig_tracepath_glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data); break;
@@ -1271,13 +1257,6 @@ _dump_surface(int force_output, const char *position, Surface_Data *sdata)
 			case 1: dl_png_set_IHDR(png, info, width, height, 8, PNG_COLOR_TYPE_GRAY, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT); break;
 		}
 
-		black.red = 0x00;
-		black.green = 0x00;
-		black.blue = 0x00;
-		dl_png_set_bKGD(png, info, &black);
-
-		//dl_png_set_bgr(png);
-
 		dl_png_write_info(png, info);
 
 		dl_png_write_image(png, rows);
@@ -1296,12 +1275,48 @@ _dump_surface(int force_output, const char *position, Surface_Data *sdata)
 
 }
 
+void
+tracepath_surface_trace_add(const char *desc, GLDisplay dpy, GLContext ctx, GLSurface surf, GLint fbo, GLint tex, GLint rb, GLint tex_w, GLint tex_h, GLint tex_format, const char *dump)
+{
+	Surface_Data *std = NULL;
+
+	if (trace_surface_flag == 1)
+	{
+		AST(mutex_lock(&std_access_mutex) == 1);
+
+		if (std_table == NULL)
+		{
+			std_table = (Surface_Data **)calloc(1, sizeof(Surface_Data *) * MAX_TRACE_TABLE_SIZE);
+		}
+
+		std = (Surface_Data *)_get_trace_data((Trace_Data **)std_table, sizeof(Surface_Data), desc);
+
+		AST(std != NULL);
+
+		if (dump != NULL)
+		{
+			_dump_surface(0, 0, dump, std);
+		}
+
+		std->display = dpy;
+		std->surface = surf;
+		std->context = ctx;
+		if (fbo >= 0) std->fbo = fbo;
+		std->tex = tex;
+		std->rb = rb;
+		if (tex_w >= 0) std->tex_w = tex_w;
+		if (tex_h >= 0) std->tex_h = tex_h;
+		if (tex_format >= 0) std->tex_format = tex_format;
+
+		AST(mutex_unlock(&std_access_mutex) == 1);
+
+	}
+
+}
 
 void
-tracepath_surface_trace(int force_output, const char *position)
+tracepath_surface_trace(int force_output, int type, const char *position)
 {
-	GLThreadState *tstate = NULL;
-	MY_MODULE_TSTATE *tstate_tm = NULL;
 	int i;
 
 	if (trace_surface_flag != 1)
@@ -1309,21 +1324,15 @@ tracepath_surface_trace(int force_output, const char *position)
 		goto finish;
 	}
 
-	tstate = get_current_thread_state();
-
-	if (tstate == NULL)
-	{
-		init_new_thread_state();
-
-		tstate = get_current_thread_state();
-		AST(tstate != NULL);
-	}
-
-	GET_MY_TSTATE(tstate_tm, tstate);
-	if (tstate_tm == NULL) return;
+	AST(mutex_lock(&std_access_mutex) == 1);
 
 	if (std_table != NULL)
 	{
+		EGLDisplay olddpy = _orig_tracepath_eglGetCurrentDisplay();
+		EGLContext oldctx = _orig_tracepath_eglGetCurrentContext();
+		EGLSurface oldsurf_read = _orig_tracepath_eglGetCurrentSurface(EGL_READ);
+		EGLSurface oldsurf_draw = _orig_tracepath_eglGetCurrentSurface(EGL_DRAW);
+
 		for (i = 0; i < MAX_TRACE_TABLE_SIZE; i++)
 		{
 			if (std_table[i] != NULL)
@@ -1336,7 +1345,7 @@ tracepath_surface_trace(int force_output, const char *position)
 					{
 						if (_orig_tracepath_eglMakeCurrent(current->display, current->surface, current->surface, current->context) == EGL_TRUE)
 						{
-							_dump_surface(force_output, position, current);
+							_dump_surface(force_output, type, position, current);
 						}
 					}
 
@@ -1344,10 +1353,11 @@ tracepath_surface_trace(int force_output, const char *position)
 				}
 			}
 		}
-
-		_orig_tracepath_eglMakeCurrent(tstate_tm->ctx->dpy, tstate_tm->surf_draw, tstate_tm->surf_read, tstate_tm->ctx->handle);
+		_orig_tracepath_eglMakeCurrent(olddpy, oldsurf_read, oldsurf_draw, oldctx);
 
 	}
+
+	AST(mutex_unlock(&std_access_mutex) == 1);
 
 	goto finish;
 
@@ -1359,6 +1369,6 @@ tracepath_surface_trace(int force_output, const char *position)
 COREGL_API void
 coregl_dump_surface()
 {
-	_COREGL_TRACE_SURFACE(1, "USER CALL");
+	_COREGL_TRACE_SURFACE(1, 0, "USER CALL");
 }
 

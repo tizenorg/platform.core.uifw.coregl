@@ -62,10 +62,10 @@
 #endif
 
 #ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
-# define _COREGL_TRACE_SURFACE(force_output, position) \
-   tracepath_surface_trace(force_output, position);
+# define _COREGL_TRACE_SURFACE(force_output, type, position) \
+   tracepath_surface_trace(force_output, type, position);
 #else
-# define _COREGL_TRACE_SURFACE(force_output, position)
+# define _COREGL_TRACE_SURFACE(force_output, type, position)
 #endif
 
 #define _COREGL_TRACEPATH_FUNC_BEGIN() \
@@ -137,8 +137,8 @@ extern void                tracepath_mem_trace_add(const char *desc, int alloc_s
 extern void                tracepath_mem_trace_remove(const char *desc, int alloc_size);
 extern void                tracepath_mem_trace_output(int force_output);
 
-extern void                tracepath_surface_trace_add(const char *desc, GLDisplay dpy, GLContext ctx, GLSurface surf, GLint fbo, GLint tex, GLint rb, GLint tex_w, GLint tex_h, GLint tex_format);
-extern void                tracepath_surface_trace(int force_output, const char *position);
+extern void                tracepath_surface_trace_add(const char *desc, GLDisplay dpy, GLContext ctx, GLSurface surf, GLint fbo, GLint tex, GLint rb, GLint tex_w, GLint tex_h, GLint tex_format, const char *dump);
+extern void                tracepath_surface_trace(int force_output, int type, const char *position);
 
 extern void                tracepath_glbuf_clear(Glbuf_Data **glbuf);
 

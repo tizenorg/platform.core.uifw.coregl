@@ -440,6 +440,51 @@ finish:
 	_COREGL_FASTPATH_FUNC_END();
 }
 
+void
+fastpath_glGetFramebufferAttachmentParameteriv(GLenum target, GLenum attachment, GLenum pname, GLint *params)
+{
+	GLint real_obj, fa_type;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	switch (pname)
+	{
+		case GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME:
+			params[0] = 0;
+			_orig_fastpath_glGetFramebufferAttachmentParameteriv(target, attachment, pname, &real_obj);
+			_orig_fastpath_glGetFramebufferAttachmentParameteriv(target, attachment, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &fa_type);
+			switch (fa_type)
+			{
+				case GL_TEXTURE:
+					if (GET_GLUE_OBJ(GL_OBJECT_TYPE_TEXTURE, real_obj, (GLuint *)params) != 1)
+					{
+						params[0] = 0;
+						goto finish;
+					}
+					break;
+				case GL_RENDERBUFFER:
+					if (GET_GLUE_OBJ(GL_OBJECT_TYPE_RENDERBUFFER, real_obj, (GLuint *)params) != 1)
+					{
+						params[0] = 0;
+						goto finish;
+					}
+					break;
+			}
+			break;
+		default:
+			_orig_fastpath_glGetFramebufferAttachmentParameteriv(target, attachment, pname, params);
+			break;
+	}
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+
 GLboolean
 fastpath_glIsTexture(GLuint texture)
 {
