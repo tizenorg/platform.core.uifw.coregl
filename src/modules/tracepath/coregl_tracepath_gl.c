@@ -241,6 +241,12 @@ tracepath_fbdump_update(GLint set)
 #endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 
 
+
+
+
+
+/* OpenGL ES 2.0 */
+
 void
 tracepath_glActiveTexture(GLenum texture)
 {
@@ -2318,7 +2324,467 @@ finish:
 }
 
 
-// GLES Extensions...
+/* OpenGL ES 3.0 */
+void
+tracepath_glReadBuffer(GLenum mode)
+{
+}
+
+void
+tracepath_glDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid* indices)
+{
+}
+
+void
+tracepath_glTexImage3D(GLenum target, GLint level, GLenum GLinternalFormat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glTexImage3D(target, level, GLinternalFormat, width, height, depth, border, format, type, pixels);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glTexSubImage3D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const GLvoid *pixels)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, pixels);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glCopyTexSubImage3D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glCopyTexSubImage3D(target, level, xoffset, yoffset, zoffset, x, y, width, height);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glCompressedTexImage3D(GLenum target, GLint level, GLenum GLinternalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLsizei imageSize, const GLvoid *data)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glCompressedTexImage3D(target, level, GLinternalformat, width, height, depth, border, imageSize, data);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glCompressedTexSubImage3D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const GLvoid *data)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glCompressedTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, data);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glGenQueries(GLsizei n, GLuint* ids)
+{
+}
+void
+tracepath_glDeleteQueries(GLsizei n, const GLuint* ids)
+{
+}
+GLboolean
+tracepath_glIsQuery(GLuint id)
+{
+}
+void
+tracepath_glBeginQuery(GLenum target, GLuint id)
+{
+}
+void
+tracepath_glEndQuery(GLenum target)
+{
+}
+void
+tracepath_glGetQueryiv(GLenum target, GLenum pname, GLint* params)
+{
+}
+void
+tracepath_glGetQueryObjectuiv(GLuint id, GLenum pname, GLuint* params)
+{
+}
+GLboolean
+tracepath_glUnmapBuffer(GLenum target)
+{
+}
+void
+tracepath_glGetBufferPointerv(GLenum target, GLenum pname, GLvoid** params)
+{
+}
+void
+tracepath_glDrawBuffers(GLsizei n, const GLenum* bufs)
+{
+}
+void
+tracepath_glUniformMatrix2x3fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+{
+}
+void
+tracepath_glUniformMatrix3x2fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+{
+}
+void
+tracepath_glUniformMatrix2x4fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+{
+}
+void
+tracepath_glUniformMatrix4x2fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+{
+}
+void
+tracepath_glUniformMatrix3x4fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+{
+}
+void
+tracepath_glUniformMatrix4x3fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+{
+}
+void
+tracepath_glBlitFramebuffer(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter)
+{
+}
+void
+tracepath_glRenderbufferStorageMultisample(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height)
+{
+}
+void
+tracepath_glFramebufferTextureLayer(GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer)
+{
+}
+GLvoid*
+tracepath_glMapBufferRange(GLenum target, GLintptr offset, GLsizeiptr length, GLbitfield access)
+{
+}
+void
+tracepath_glFlushMappedBufferRange(GLenum target, GLintptr offset, GLsizeiptr length)
+{
+}
+void
+tracepath_glBindVertexArray(GLuint array)
+{
+}
+void
+tracepath_glDeleteVertexArrays(GLsizei n, const GLuint* arrays)
+{
+}
+void
+tracepath_glGenVertexArrays(GLsizei n, GLuint* arrays)
+{
+}
+GLboolean
+tracepath_glIsVertexArray(GLuint array)
+{
+}
+void
+tracepath_glGetIntegeri_v(GLenum target, GLuint index, GLint* data)
+{
+}
+void
+tracepath_glBeginTransformFeedback(GLenum primitiveMode)
+{
+}
+void
+tracepath_glEndTransformFeedback(void)
+{
+}
+void
+tracepath_glBindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size)
+{
+}
+void
+tracepath_glBindBufferBase(GLenum target, GLuint index, GLuint buffer)
+{
+}
+void
+tracepath_glTransformFeedbackVaryings(GLuint program, GLsizei count, const GLchar* const* varyings, GLenum bufferMode)
+{
+}
+void
+tracepath_glGetTransformFeedbackVarying(GLuint program, GLuint index, GLsizei bufSize, GLsizei* length, GLsizei* size, GLenum* type, GLchar* name)
+{
+}
+void
+tracepath_glVertexAttribIPointer(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid* pointer)
+{
+}
+void
+tracepath_glGetVertexAttribIiv(GLuint index, GLenum pname, GLint* params)
+{
+}
+void
+tracepath_glGetVertexAttribIuiv(GLuint index, GLenum pname, GLuint* params)
+{
+}
+void
+tracepath_glVertexAttribI4i(GLuint index, GLint x, GLint y, GLint z, GLint w)
+{
+}
+void
+tracepath_glVertexAttribI4ui(GLuint index, GLuint x, GLuint y, GLuint z, GLuint w)
+{
+}
+void
+tracepath_glVertexAttribI4iv(GLuint index, const GLint* v)
+{
+}
+void
+tracepath_glVertexAttribI4uiv(GLuint index, const GLuint* v)
+{
+}
+void
+tracepath_glGetUniformuiv(GLuint program, GLint location, GLuint* params)
+{
+}
+GLint
+tracepath_glGetFragDataLocation(GLuint program, const GLchar *name)
+{
+}
+void
+tracepath_glUniform1ui(GLint location, GLuint v0)
+{
+}
+void
+tracepath_glUniform2ui(GLint location, GLuint v0, GLuint v1)
+{
+}
+void
+tracepath_glUniform3ui(GLint location, GLuint v0, GLuint v1, GLuint v2)
+{
+}
+void
+tracepath_glUniform4ui(GLint location, GLuint v0, GLuint v1, GLuint v2, GLuint v3)
+{
+}
+void
+tracepath_glUniform1uiv(GLint location, GLsizei count, const GLuint* value)
+{
+}
+void
+tracepath_glUniform2uiv(GLint location, GLsizei count, const GLuint* value)
+{
+}
+void
+tracepath_glUniform3uiv(GLint location, GLsizei count, const GLuint* value)
+{
+}
+void
+tracepath_glUniform4uiv(GLint location, GLsizei count, const GLuint* value)
+{
+}
+void
+tracepath_glClearBufferiv(GLenum buffer, GLint drawbuffer, const GLint* value)
+{
+}
+void
+tracepath_glClearBufferuiv(GLenum buffer, GLint drawbuffer, const GLuint* value)
+{
+}
+void
+tracepath_glClearBufferfv(GLenum buffer, GLint drawbuffer, const GLfloat* value)
+{
+}
+void
+tracepath_glClearBufferfi(GLenum buffer, GLint drawbuffer, GLfloat depth, GLint stencil)
+{
+}
+const GLubyte*
+tracepath_glGetStringi(GLenum name, GLuint index)
+{
+}
+void
+tracepath_glCopyBufferSubData(GLenum readTarget, GLenum writeTarget, GLintptr readOffset, GLintptr writeOffset, GLsizeiptr size)
+{
+}
+void
+tracepath_glGetUniformIndices(GLuint program, GLsizei uniformCount, const GLchar* const* uniformNames, GLuint* uniformIndices)
+{
+}
+void
+tracepath_glGetActiveUniformsiv(GLuint program, GLsizei uniformCount, const GLuint* uniformIndices, GLenum pname, GLint* params)
+{
+}
+GLuint
+tracepath_glGetUniformBlockIndex(GLuint program, const GLchar* uniformBlockName)
+{
+}
+void
+tracepath_glGetActiveUniformBlockiv(GLuint program, GLuint uniformBlockIndex, GLenum pname, GLint* params)
+{
+}
+void
+tracepath_glGetActiveUniformBlockName(GLuint program, GLuint uniformBlockIndex, GLsizei bufSize, GLsizei* length, GLchar* uniformBlockName)
+{
+}
+void
+tracepath_glUniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding)
+{
+}
+void
+tracepath_glDrawArraysInstanced(GLenum mode, GLint first, GLsizei count, GLsizei instanceCount)
+{
+}
+void
+tracepath_glDrawElementsInstanced(GLenum mode, GLsizei count, GLenum type, const GLvoid* indices, GLsizei instanceCount)
+{
+}
+GLsync
+tracepath_glFenceSync(GLenum condition, GLbitfield flags)
+{
+}
+GLboolean
+tracepath_glIsSync(GLsync sync)
+{
+}
+void
+tracepath_glDeleteSync(GLsync sync)
+{
+}
+GLenum
+tracepath_glClientWaitSync(GLsync sync, GLbitfield flags, GLuint64 timeout)
+{
+}
+void
+tracepath_glWaitSync(GLsync sync, GLbitfield flags, GLuint64 timeout)
+{
+}
+void
+tracepath_glGetInteger64v(GLenum pname, GLint64* params)
+{
+}
+void
+tracepath_glGetSynciv(GLsync sync, GLenum pname, GLsizei bufSize, GLsizei* length, GLint* values)
+{
+}
+void
+tracepath_glGetInteger64i_v(GLenum target, GLuint index, GLint64* data)
+{
+}
+void
+tracepath_glGetBufferParameteri64v(GLenum target, GLenum pname, GLint64* params)
+{
+}
+void
+tracepath_glGenSamplers(GLsizei count, GLuint* samplers)
+{
+}
+void
+tracepath_glDeleteSamplers(GLsizei count, const GLuint* samplers)
+{
+}
+GLboolean
+tracepath_glIsSampler(GLuint sampler)
+{
+}
+void
+tracepath_glBindSampler(GLuint unit, GLuint sampler)
+{
+}
+void
+tracepath_glSamplerParameteri(GLuint sampler, GLenum pname, GLint param)
+{
+}
+void
+tracepath_glSamplerParameteriv(GLuint sampler, GLenum pname, const GLint* param)
+{
+}
+void
+tracepath_glSamplerParameterf(GLuint sampler, GLenum pname, GLfloat param)
+{
+}
+void
+tracepath_glSamplerParameterfv(GLuint sampler, GLenum pname, const GLfloat* param)
+{
+}
+void
+tracepath_glGetSamplerParameteriv(GLuint sampler, GLenum pname, GLint* params)
+{
+}
+void
+tracepath_glGetSamplerParameterfv(GLuint sampler, GLenum pname, GLfloat* params)
+{
+}
+void
+tracepath_glVertexAttribDivisor(GLuint index, GLuint divisor)
+{
+}
+void
+tracepath_glBindTransformFeedback(GLenum target, GLuint id)
+{
+}
+void
+tracepath_glDeleteTransformFeedbacks(GLsizei n, const GLuint* ids)
+{
+}
+void
+tracepath_glGenTransformFeedbacks(GLsizei n, GLuint* ids)
+{
+}
+GLboolean
+tracepath_glIsTransformFeedback(GLuint id)
+{
+}
+void
+tracepath_glPauseTransformFeedback(void)
+{
+}
+void
+tracepath_glResumeTransformFeedback(void)
+{
+}
+void
+tracepath_glGetProgramBinary(GLuint program, GLsizei bufSize, GLsizei* length, GLenum* binaryFormat, GLvoid* binary)
+{
+}
+void
+tracepath_glProgramBinary(GLuint program, GLenum binaryFormat, const GLvoid* binary, GLsizei length)
+{
+}
+void
+tracepath_glProgramParameteri(GLuint program, GLenum pname, GLint value)
+{
+}
+void
+tracepath_glInvalidateFramebuffer(GLenum target, GLsizei numAttachments, const GLenum* attachments)
+{
+}
+void
+tracepath_glInvalidateSubFramebuffer(GLenum target, GLsizei numAttachments, const GLenum* attachments, GLint x, GLint y, GLsizei width, GLsizei height)
+{
+}
+void
+tracepath_glTexStorage2D(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height)
+{
+}
+void
+tracepath_glTexStorage3D(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth)
+{
+}
+void
+tracepath_glGetInternalformativ(GLenum target, GLenum internalformat, GLenum pname, GLsizei bufSize, GLint* params)
+{
+}
+
+/* GLES Extensions */
 void
 tracepath_glEGLImageTargetTexture2DOES(GLenum target, GLeglImageOES image)
 {
@@ -2889,67 +3355,6 @@ tracepath_glDiscardFramebufferEXT(GLenum target, GLsizei numAttachments, const G
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
 }
-
-void
-tracepath_glTexImage3DOES(GLenum target, GLint level, GLenum GLinternalFormat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels)
-{
-	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glTexImage3DOES(target, level, GLinternalFormat, width, height, depth, border, format, type, pixels);
-
-	goto finish;
-
-finish:
-	_COREGL_TRACEPATH_FUNC_END();
-}
-
-void
-tracepath_glTexSubImage3DOES(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const GLvoid *pixels)
-{
-	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glTexSubImage3DOES(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, pixels);
-
-	goto finish;
-
-finish:
-	_COREGL_TRACEPATH_FUNC_END();
-}
-
-void
-tracepath_glCopyTexSubImage3DOES(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height)
-{
-	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glCopyTexSubImage3DOES(target, level, xoffset, yoffset, zoffset, x, y, width, height);
-
-	goto finish;
-
-finish:
-	_COREGL_TRACEPATH_FUNC_END();
-}
-
-void
-tracepath_glCompressedTexImage3DOES(GLenum target, GLint level, GLenum GLinternalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLsizei imageSize, const GLvoid *data)
-{
-	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glCompressedTexImage3DOES(target, level, GLinternalformat, width, height, depth, border, imageSize, data);
-
-	goto finish;
-
-finish:
-	_COREGL_TRACEPATH_FUNC_END();
-}
-
-void
-tracepath_glCompressedTexSubImage3DOES(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const GLvoid *data)
-{
-	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glCompressedTexSubImage3DOES(target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, data);
-
-	goto finish;
-
-finish:
-	_COREGL_TRACEPATH_FUNC_END();
-}
-
 void
 tracepath_glFramebufferTexture3DOES(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset)
 {

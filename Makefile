@@ -32,7 +32,7 @@ SOURCES = \
 
 BIN = libCOREGL.so
 
-COREGL_MAJOR = 3
+COREGL_MAJOR = 4
 COREGL_MINOR = 0
 
 EGL_MAJOR = 1
@@ -52,9 +52,9 @@ OBJECTS = $(SOURCES:.c=.o)
 
 all : $(OUTPUT_BIN) $(OUTPUT_WRAP_EGL) $(OUTPUT_WRAP_GLES2)
 	cp src/headers/egl.h include/EGL/def_egl.h
-	cp src/headers/gl.h include/GLES2/def_gl.h
+	cp src/headers/gl.h include/GLES3/def_gl.h
 	cp src/headers/sym_egl.h include/EGL/sym_egl.h
-	cp src/headers/sym_gl.h include/GLES2/sym_gl.h
+	cp src/headers/sym_gl.h include/GLES3/sym_gl.h
 
 $(OUTPUT_BIN) : $(OBJECTS)
 	@mkdir -p lib
