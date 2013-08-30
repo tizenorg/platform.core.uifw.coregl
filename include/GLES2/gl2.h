@@ -5,8 +5,8 @@
 
 #include <GLES2/gl2platform.h>
 
-#include "def_gl.h"
-#include "sym_gl.h"
+#include "../GLES3/def_gl.h"
+#include "../GLES3/sym_gl.h"
 
 #undef GL
 
