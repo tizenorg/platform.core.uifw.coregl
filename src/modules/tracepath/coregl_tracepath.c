@@ -284,11 +284,11 @@ tracepath_apply_overrides()
 void
 tracepath_apply_overrides_egl(int enable)
 {
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_INIT_ORIGINAL(_orig_tracepath_, FUNC_NAME, FUNC_NAME);
+#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_INIT_ORIGINAL(_orig_tracepath_, FUNC_NAME);
 # include "../../headers/sym_egl.h"
 #undef _COREGL_SYMBOL
 
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_OVERRIDE(tracepath_, FUNC_NAME, FUNC_NAME);
+#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_OVERRIDE(tracepath_, FUNC_NAME);
 # include "../../headers/sym_egl.h"
 #undef _COREGL_SYMBOL
 }
@@ -296,17 +296,13 @@ tracepath_apply_overrides_egl(int enable)
 void
 tracepath_apply_overrides_gl(int enable)
 {
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_INIT_ORIGINAL(_orig_tracepath_, FUNC_NAME, FUNC_NAME);
-#define _COREGL_EXT_SYMBOL_ALIAS(FUNC_NAME, ALIAS_NAME)                    COREGL_INIT_ORIGINAL(_orig_tracepath_, FUNC_NAME, ALIAS_NAME);
+#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_INIT_ORIGINAL(_orig_tracepath_, FUNC_NAME);
 # include "../../headers/sym_gl.h"
 #undef _COREGL_SYMBOL
-#undef _COREGL_EXT_SYMBOL_ALIAS
 
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_OVERRIDE(tracepath_, FUNC_NAME, FUNC_NAME);
-#define _COREGL_EXT_SYMBOL_ALIAS(FUNC_NAME, ALIAS_NAME)                    COREGL_OVERRIDE(tracepath_, FUNC_NAME, ALIAS_NAME);
+#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_OVERRIDE(tracepath_, FUNC_NAME);
 # include "../../headers/sym_gl.h"
 #undef _COREGL_SYMBOL
-#undef _COREGL_EXT_SYMBOL_ALIAS
 }
 
 #undef OVERRIDE
