@@ -264,6 +264,13 @@ _COREGL_EXT_SYMBOL_ALIAS(glCompressedTexSubImage3DOES, glCompressedTexSubImage3D
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glFramebufferTexture3DOES, (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset))
 _COREGL_EXT_SYMBOL_ALIAS(glFramebufferTexture3DOES, glFramebufferTexture3D)
 
+// ANGLE_framebuffer_blit
+_COREGL_EXT_SYMBOL(GL_TRUE, void, glBlitFramebufferANGLE, (GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter))
+
+// ANGLE_framebuffer_multisample
+_COREGL_EXT_SYMBOL(GL_TRUE, void, glRenderbufferStorageMultisampleANGLE, (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height))
+
+
 
 /* Verified extensions */
 
@@ -319,12 +326,6 @@ _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glExtGetShadersQCOM)
 _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glExtGetProgramsQCOM)
 _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glExtIsProgramBinaryQCOM)
 _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glExtGetProgramBinarySourceQCOM)
-
-// ANGLE_framebuffer_blit
-_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glBlitFramebufferANGLE)
-
-// ANGLE_framebuffer_multisample
-_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glRenderbufferStorageMultisampleANGLE)
 
 
 #ifdef _COREGL_EXT_SYMBOL_NOT_DEFINED

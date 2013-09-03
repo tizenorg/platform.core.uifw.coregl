@@ -1026,10 +1026,18 @@ fastpath_init_context_states(GLGlueContext *ctx)
          int try_step = 0;\
          TYPE valuedata[SIZE]; \
          TYPE *value = NULL; \
+         _sym_glGetError(); \
          memset(valuedata, 0xcc, sizeof(TYPE) * SIZE); \
          do { \
             try_step++; \
             SET_GLUE_VALUE(GET_STMT, DEFAULT_STMT); \
+            if (_sym_glGetError() == GL_INVALID_ENUM) \
+            { \
+					initial_ctx->NAME##_used = 0; \
+					value = valuedata; DEFAULT_STMT; value = valuedata; \
+	            break; \
+            } \
+				initial_ctx->NAME##_used = 1; \
             for (i = 0; i < SIZE; i++) \
             { \
                if (*((char *)(&value[i])) == 0xcc) \
@@ -1085,6 +1093,7 @@ fastpath_init_context_states(GLGlueContext *ctx)
          for (i = 0; i < SIZE; i++) \
          { \
             ctx->NAME[i] = initial_ctx->NAME[i]; \
+            ctx->NAME##_used = initial_ctx->NAME##_used; \
          }
 # include "coregl_fastpath_state.h"
 #undef GLUE_STATE
@@ -1180,9 +1189,25 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 		{
 			CHECK_GL_ERROR(_orig_fastpath_glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, newctx->gl_element_array_buffer_binding[0]))
 		}
-		STATE_COMPARE(gl_framebuffer_binding[0])
+		// ANGLE_framebuffer_blit BEGIN
+		if (newctx->gl_framebuffer_binding_read_used == 1)
 		{
-			CHECK_GL_ERROR(_orig_fastpath_glBindFramebuffer(GL_FRAMEBUFFER, newctx->gl_framebuffer_binding[0]))
+			STATE_COMPARE(gl_framebuffer_binding_read[0])
+			{
+				CHECK_GL_ERROR(_orig_fastpath_glBindFramebuffer(GL_READ_FRAMEBUFFER_ANGLE, newctx->gl_framebuffer_binding_read[0]))
+			}
+			STATE_COMPARE(gl_framebuffer_binding_draw[0])
+			{
+				CHECK_GL_ERROR(_orig_fastpath_glBindFramebuffer(GL_DRAW_FRAMEBUFFER_ANGLE, newctx->gl_framebuffer_binding_draw[0]))
+			}
+		}
+		else
+		// ANGLE_framebuffer_blit END
+		{
+			STATE_COMPARE(gl_framebuffer_binding[0])
+			{
+				CHECK_GL_ERROR(_orig_fastpath_glBindFramebuffer(GL_FRAMEBUFFER, newctx->gl_framebuffer_binding[0]))
+			}
 		}
 		STATE_COMPARE(gl_renderbuffer_binding[0])
 		{

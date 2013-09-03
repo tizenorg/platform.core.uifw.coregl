@@ -846,18 +846,78 @@ fastpath_glBindFramebuffer(GLenum target, GLuint framebuffer)
 
 	if (target == GL_FRAMEBUFFER)
 	{
-		CURR_STATE_COMPARE(gl_framebuffer_binding, real_obj)
+		// ANGLE_framebuffer_blit BEGIN
+		if (current_ctx->gl_framebuffer_binding_read_used == 1)
+		{
+			CURR_STATE_COMPARE(gl_framebuffer_binding_read, real_obj)
+			{
+				IF_GL_SUCCESS(_orig_fastpath_glBindFramebuffer(target, real_obj))
+				{
+					if (real_obj == 0)
+						current_ctx->_bind_flag &= (~FLAG_BIT_4);
+					else
+						current_ctx->_bind_flag |= FLAG_BIT_4;
+					current_ctx->gl_framebuffer_binding_read[0] = real_obj;
+				}
+			}
+			CURR_STATE_COMPARE(gl_framebuffer_binding_draw, real_obj)
+			{
+				IF_GL_SUCCESS(_orig_fastpath_glBindFramebuffer(target, real_obj))
+				{
+					if (real_obj == 0)
+						current_ctx->_bind_flag &= (~FLAG_BIT_5);
+					else
+						current_ctx->_bind_flag |= FLAG_BIT_5;
+					current_ctx->gl_framebuffer_binding_draw[0] = real_obj;
+				}
+			}
+		}
+		else
+		// ANGLE_framebuffer_blit END
+		{
+			CURR_STATE_COMPARE(gl_framebuffer_binding, real_obj)
+			{
+				IF_GL_SUCCESS(_orig_fastpath_glBindFramebuffer(target, real_obj))
+				{
+					if (real_obj == 0)
+						current_ctx->_bind_flag &= (~FLAG_BIT_2);
+					else
+						current_ctx->_bind_flag |= FLAG_BIT_2;
+					current_ctx->gl_framebuffer_binding[0] = real_obj;
+				}
+			}
+		}
+	}
+	// ANGLE_framebuffer_blit BEGIN
+	else if (target == GL_READ_FRAMEBUFFER_ANGLE && current_ctx->gl_framebuffer_binding_read_used)
+	{
+		CURR_STATE_COMPARE(gl_framebuffer_binding_read, real_obj)
 		{
 			IF_GL_SUCCESS(_orig_fastpath_glBindFramebuffer(target, real_obj))
 			{
 				if (real_obj == 0)
-					current_ctx->_bind_flag &= (~FLAG_BIT_2);
+					current_ctx->_bind_flag &= (~FLAG_BIT_4);
 				else
-					current_ctx->_bind_flag |= FLAG_BIT_2;
-				current_ctx->gl_framebuffer_binding[0] = real_obj;
+					current_ctx->_bind_flag |= FLAG_BIT_4;
+				current_ctx->gl_framebuffer_binding_read[0] = real_obj;
 			}
 		}
 	}
+	else if (target == GL_DRAW_FRAMEBUFFER_ANGLE && current_ctx->gl_framebuffer_binding_read_used)
+	{
+		CURR_STATE_COMPARE(gl_framebuffer_binding_draw, real_obj)
+		{
+			IF_GL_SUCCESS(_orig_fastpath_glBindFramebuffer(target, real_obj))
+			{
+				if (real_obj == 0)
+					current_ctx->_bind_flag &= (~FLAG_BIT_5);
+				else
+					current_ctx->_bind_flag |= FLAG_BIT_5;
+				current_ctx->gl_framebuffer_binding_draw[0] = real_obj;
+			}
+		}
+	}
+	// ANGLE_framebuffer_blit END
 	else
 	{
 		_set_gl_error(GL_INVALID_ENUM);
@@ -942,10 +1002,28 @@ fastpath_glDeleteFramebuffers(GLsizei n, const GLuint* framebuffers)
 				{
 					GLGlueContext *cur_gctx = (GLGlueContext *)current->value;
 
-					if (cur_gctx->gl_framebuffer_binding[0] == objid_array[i])
+					// ANGLE_framebuffer_blit BEGIN
+					if (cur_gctx->gl_framebuffer_binding_read_used == 1)
 					{
-						cur_gctx->_bind_flag &= (~FLAG_BIT_2);
-						cur_gctx->gl_framebuffer_binding[0] = 0;
+						if (cur_gctx->gl_framebuffer_binding_read[0] == objid_array[i])
+						{
+							cur_gctx->_bind_flag &= (~FLAG_BIT_4);
+							cur_gctx->gl_framebuffer_binding_read[0] = 0;
+						}
+						if (cur_gctx->gl_framebuffer_binding_draw[0] == objid_array[i])
+						{
+							cur_gctx->_bind_flag &= (~FLAG_BIT_5);
+							cur_gctx->gl_framebuffer_binding_draw[0] = 0;
+						}
+					}
+					else
+					// ANGLE_framebuffer_blit END
+					{
+						if (cur_gctx->gl_framebuffer_binding[0] == objid_array[i])
+						{
+							cur_gctx->_bind_flag &= (~FLAG_BIT_2);
+							cur_gctx->gl_framebuffer_binding[0] = 0;
+						}
 					}
 
 					current = current->next;
@@ -3785,7 +3863,8 @@ _process_getfunc(GLenum pname, GLvoid *ptr, GLenum get_type)
 		case GL_TEXTURE_BINDING_CUBE_MAP:
 		case GL_ARRAY_BUFFER_BINDING:
 		case GL_ELEMENT_ARRAY_BUFFER_BINDING:
-		case GL_FRAMEBUFFER_BINDING:
+		case GL_FRAMEBUFFER_BINDING: // and GL_DRAW_FRAMEBUFFER_BINDING_ANGLE:
+		case GL_READ_FRAMEBUFFER_BINDING_ANGLE:
 		case GL_RENDERBUFFER_BINDING:
 		case GL_CURRENT_PROGRAM:
 		{
@@ -3805,7 +3884,8 @@ _process_getfunc(GLenum pname, GLvoid *ptr, GLenum get_type)
 				case GL_ELEMENT_ARRAY_BUFFER_BINDING:
 					obj_type = GL_OBJECT_TYPE_BUFFER;
 					break;
-				case GL_FRAMEBUFFER_BINDING:
+				case GL_FRAMEBUFFER_BINDING: // and GL_DRAW_FRAMEBUFFER_BINDING_ANGLE
+				case GL_READ_FRAMEBUFFER_BINDING_ANGLE:
 					obj_type = GL_OBJECT_TYPE_FRAMEBUFFER;
 					break;
 				case GL_RENDERBUFFER_BINDING:
