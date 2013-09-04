@@ -254,6 +254,60 @@ finish:
 	return ret;
 }
 
+const GLubyte *
+fastpath_glGetString(GLenum name)
+{
+	const GLubyte *ret = NULL;
+	static const GLubyte *string_gles20 = "OpenGL ES 2.0";
+	static GLubyte string_extensions[2048] = { 0 };
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	switch (name)
+	{
+		case GL_VERSION:
+			IF_GL_SUCCESS(ret = _orig_fastpath_glGetString(name))
+			{
+				if (!strcmp(ret, "OpenGL ES 2.0"))
+				{
+					COREGL_WRN("\E[40;31;1mFastpath can't support %s (Fixed to %s)\E[0m\n", ret, string_gles20);
+					ret = string_gles20;
+				}
+			}
+			break;
+		case GL_EXTENSIONS:
+			IF_GL_SUCCESS(ret = _orig_fastpath_glGetString(name))
+			{
+				if (string_extensions[0] == NULL)
+				{
+					char tmp[64] = { 0 }, *tmpp = NULL;
+					strncpy(tmp, get_env_setting("COREGL_TRACE_SURFACE_FILTER_PERIOD"), 64);
+					for (tmpp = &tmp[0]; ; tmpp++)
+					{
+						if (*tmpp == 0x00) break;
+						if (*tmpp == '~')
+						{
+							*tmpp = 0x00;
+							trace_surface_filter_period_begin = atoi(tmp);
+							trace_surface_filter_period_end = atoi(tmpp + 1);
+							break;
+						}
+					}
+				}
+				ret = string_extensions;
+			}
+			break;
+	}
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+	return ret;
+}
+
 ////////////////////////////////////////////////////////////////////////
 
 void
@@ -300,11 +354,12 @@ fastpath_glGenTextures(GLsizei n, GLuint* textures)
 
 	objid_array = (GLuint *)calloc(1, sizeof(GLuint) * n);
 
-	_orig_fastpath_glGenTextures(n, objid_array);
-
-	for (i = 0; i < n; i++)
+	IF_GL_SUCCESS(_orig_fastpath_glGenTextures(n, objid_array))
 	{
-		textures[i] = fastpath_sostate_create_object(current_ctx->sostate, GL_OBJECT_TYPE_TEXTURE, objid_array[i]);
+		for (i = 0; i < n; i++)
+		{
+			textures[i] = fastpath_sostate_create_object(current_ctx->sostate, GL_OBJECT_TYPE_TEXTURE, objid_array[i]);
+		}
 	}
 
 	goto finish;

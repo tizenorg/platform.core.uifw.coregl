@@ -280,104 +280,61 @@ _COREGL_SYMBOL(GL_FALSE, void, glGetInternalformativ, (GLenum target, GLenum int
 
 // OES_EGL_image
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glEGLImageTargetTexture2DOES, (GLenum target, GLeglImageOES image))
-_COREGL_EXT_SYMBOL_ALIAS(glEGLImageTargetTexture2DOES, glEGLImageTargetTexture2D)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glEGLImageTargetRenderbufferStorageOES, (GLenum target, GLeglImageOES image))
-_COREGL_EXT_SYMBOL_ALIAS(glEGLImageTargetRenderbufferStorageOES, glEGLImageTargetRenderbufferStorage)
 
 // OES_get_program_binary
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glGetProgramBinaryOES, (GLuint program, GLsizei bufsize, GLsizei *length, GLenum *binaryFormat, void *binary))
-_COREGL_EXT_SYMBOL_ALIAS(glGetProgramBinaryOES, glGetProgramBinary)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glProgramBinaryOES, (GLuint program, GLenum binaryFormat, const void *binary, GLint length))
-_COREGL_EXT_SYMBOL_ALIAS(glProgramBinaryOES, glProgramBinary)
 
 // EXT_separate_shader_objects
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glUseProgramStagesEXT, (GLuint pipeline, GLbitfield stages, GLuint program))
-_COREGL_EXT_SYMBOL_ALIAS(glUseProgramStagesEXT, glUseProgramStages)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glActiveShaderProgramEXT, (GLuint pipeline, GLuint program))
-_COREGL_EXT_SYMBOL_ALIAS(glActiveShaderProgramEXT, glActiveShaderProgram)
 _COREGL_EXT_SYMBOL(GL_TRUE, GLuint, glCreateShaderProgramvEXT, (GLenum type, GLsizei count, const char **strings))
-_COREGL_EXT_SYMBOL_ALIAS(glCreateShaderProgramvEXT, glCreateShaderProgramv)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glBindProgramPipelineEXT, (GLuint pipeline))
-_COREGL_EXT_SYMBOL_ALIAS(glBindProgramPipelineEXT, glBindProgramPipeline)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glDeleteProgramPipelinesEXT, (GLsizei n, const GLuint *pipelines))
-_COREGL_EXT_SYMBOL_ALIAS(glDeleteProgramPipelinesEXT, glDeleteProgramPipelines)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glGenProgramPipelinesEXT, (GLsizei n, GLuint *pipelines))
-_COREGL_EXT_SYMBOL_ALIAS(glGenProgramPipelinesEXT, glGenProgramPipelines)
 _COREGL_EXT_SYMBOL(GL_TRUE, GLboolean, glIsProgramPipelineEXT, (GLuint pipeline))
-_COREGL_EXT_SYMBOL_ALIAS(glIsProgramPipelineEXT, glIsProgramPipeline)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glProgramParameteriEXT, (GLuint program, GLenum pname, GLint value))
-_COREGL_EXT_SYMBOL_ALIAS(glProgramParameteriEXT, glProgramParameteri)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glGetProgramPipelineivEXT, (GLuint pipeline, GLenum pname, GLint *params))
-_COREGL_EXT_SYMBOL_ALIAS(glGetProgramPipelineivEXT, glGetProgramPipelineiv)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glProgramUniform1iEXT, (GLuint program, GLint location, GLint x))
-_COREGL_EXT_SYMBOL_ALIAS(glProgramUniform1iEXT, glProgramUniform1i)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glProgramUniform2iEXT, (GLuint program, GLint location, GLint x, GLint y))
-_COREGL_EXT_SYMBOL_ALIAS(glProgramUniform2iEXT, glProgramUniform2i)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glProgramUniform3iEXT, (GLuint program, GLint location, GLint x, GLint y, GLint z))
-_COREGL_EXT_SYMBOL_ALIAS(glProgramUniform3iEXT, glProgramUniform3i)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glProgramUniform4iEXT, (GLuint program, GLint location, GLint x, GLint y, GLint z, GLint w))
-_COREGL_EXT_SYMBOL_ALIAS(glProgramUniform4iEXT, glProgramUniform4i)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glProgramUniform1fEXT, (GLuint program, GLint location, GLfloat x))
-_COREGL_EXT_SYMBOL_ALIAS(glProgramUniform1fEXT, glProgramUniform1f)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glProgramUniform2fEXT, (GLuint program, GLint location, GLfloat x, GLfloat y))
-_COREGL_EXT_SYMBOL_ALIAS(glProgramUniform2fEXT, glProgramUniform2f)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glProgramUniform3fEXT, (GLuint program, GLint location, GLfloat x, GLfloat y, GLfloat z))
-_COREGL_EXT_SYMBOL_ALIAS(glProgramUniform3fEXT, glProgramUniform3f)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glProgramUniform4fEXT, (GLuint program, GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w))
-_COREGL_EXT_SYMBOL_ALIAS(glProgramUniform4fEXT, glProgramUniform4f)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glProgramUniform1ivEXT, (GLuint program, GLint location, GLsizei count, const GLint *value))
-_COREGL_EXT_SYMBOL_ALIAS(glProgramUniform1ivEXT, glProgramUniform1iv)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glProgramUniform2ivEXT, (GLuint program, GLint location, GLsizei count, const GLint *value))
-_COREGL_EXT_SYMBOL_ALIAS(glProgramUniform2ivEXT, glProgramUniform2iv)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glProgramUniform3ivEXT, (GLuint program, GLint location, GLsizei count, const GLint *value))
-_COREGL_EXT_SYMBOL_ALIAS(glProgramUniform3ivEXT, glProgramUniform3iv)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glProgramUniform4ivEXT, (GLuint program, GLint location, GLsizei count, const GLint *value))
-_COREGL_EXT_SYMBOL_ALIAS(glProgramUniform4ivEXT, glProgramUniform4iv)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glProgramUniform1fvEXT, (GLuint program, GLint location, GLsizei count, const GLfloat *value))
-_COREGL_EXT_SYMBOL_ALIAS(glProgramUniform1fvEXT, glProgramUniform1fv)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glProgramUniform2fvEXT, (GLuint program, GLint location, GLsizei count, const GLfloat *value))
-_COREGL_EXT_SYMBOL_ALIAS(glProgramUniform2fvEXT, glProgramUniform2fv)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glProgramUniform3fvEXT, (GLuint program, GLint location, GLsizei count, const GLfloat *value))
-_COREGL_EXT_SYMBOL_ALIAS(glProgramUniform3fvEXT, glProgramUniform3fv)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glProgramUniform4fvEXT, (GLuint program, GLint location, GLsizei count, const GLfloat *value))
-_COREGL_EXT_SYMBOL_ALIAS(glProgramUniform4fvEXT, glProgramUniform4fv)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glProgramUniformMatrix2fvEXT, (GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value))
-_COREGL_EXT_SYMBOL_ALIAS(glProgramUniformMatrix2fvEXT, glProgramUniformMatrix2fv)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glProgramUniformMatrix3fvEXT, (GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value))
-_COREGL_EXT_SYMBOL_ALIAS(glProgramUniformMatrix3fvEXT, glProgramUniformMatrix3fv)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glProgramUniformMatrix4fvEXT, (GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value))
-_COREGL_EXT_SYMBOL_ALIAS(glProgramUniformMatrix4fvEXT, glProgramUniformMatrix4fv)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glValidateProgramPipelineEXT, (GLuint pipeline))
-_COREGL_EXT_SYMBOL_ALIAS(glValidateProgramPipelineEXT, glValidateProgramPipeline)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glGetProgramPipelineInfoLogEXT, (GLuint pipeline, GLsizei bufSize, GLsizei *length, char *infoLog))
-_COREGL_EXT_SYMBOL_ALIAS(glGetProgramPipelineInfoLogEXT, glGetProgramPipelineInfoLog)
 
 // EXT_multisampled_render_to_texture
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glRenderbufferStorageMultisampleEXT, (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height))
-_COREGL_EXT_SYMBOL_ALIAS(glRenderbufferStorageMultisampleEXT, glRenderbufferStorageMultisample)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glFramebufferTexture2DMultisampleEXT, (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLsizei samples))
-_COREGL_EXT_SYMBOL_ALIAS(glFramebufferTexture2DMultisampleEXT, glFramebufferTexture2DMultisample)
 
 // EXT_discard_framebuffer
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glDiscardFramebufferEXT, (GLenum target, GLsizei numAttachments, const GLenum *attachments))
-_COREGL_EXT_SYMBOL_ALIAS(glDiscardFramebufferEXT, glDiscardFramebuffer)
 
 // OES_texture_3d
-_COREGL_EXT_SYMBOL(GL_TRUE, void, glTexImage3DOES, (GLenum target, GLint level, GLenum GLinternalFormat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels))
-_COREGL_EXT_SYMBOL_ALIAS(glTexImage3DOES, glTexImage3D)
-_COREGL_EXT_SYMBOL(GL_TRUE, void, glTexSubImage3DOES, (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const GLvoid *pixels))
-_COREGL_EXT_SYMBOL_ALIAS(glTexSubImage3DOES, glTexSubImage3D)
-_COREGL_EXT_SYMBOL(GL_TRUE, void, glCopyTexSubImage3DOES, (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height))
-_COREGL_EXT_SYMBOL_ALIAS(glCopyTexSubImage3DOES, glCopyTexSubImage3D)
-_COREGL_EXT_SYMBOL(GL_TRUE, void, glCompressedTexImage3DOES, (GLenum target, GLint level, GLenum GLinternalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLsizei imageSize, const GLvoid *data))
-_COREGL_EXT_SYMBOL_ALIAS(glCompressedTexImage3DOES, glCompressedTexImage3D)
-_COREGL_EXT_SYMBOL(GL_TRUE, void, glCompressedTexSubImage3DOES, (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const GLvoid *data))
-_COREGL_EXT_SYMBOL_ALIAS(glCompressedTexSubImage3DOES, glCompressedTexSubImage3D)
+_COREGL_EXT_SYMBOL_ALIAS(glTexImage3DOES, glTexImage3D) // Replaced to ES 3.0 API
+_COREGL_EXT_SYMBOL_ALIAS(glTexSubImage3DOES, glTexSubImage3D) // Replaced to ES 3.0 API
+_COREGL_EXT_SYMBOL_ALIAS(glCopyTexSubImage3DOES, glCopyTexSubImage3D) // Replaced to ES 3.0 API
+_COREGL_EXT_SYMBOL_ALIAS(glCompressedTexImage3DOES, glCompressedTexImage3D) // Replaced to ES 3.0 API
+_COREGL_EXT_SYMBOL_ALIAS(glCompressedTexSubImage3DOES, glCompressedTexSubImage3D) // Replaced to ES 3.0 API
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glFramebufferTexture3DOES, (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset))
-_COREGL_EXT_SYMBOL_ALIAS(glFramebufferTexture3DOES, glFramebufferTexture3D)
 
 
-/* Verified extensions */
+/* Fastpath Verified extensions */
 
 // AMD_performance_monitor
 _COREGL_EXT_SYMBOL_FASTPATH_PASS(glGetPerfMonitorGroupsAMD)
@@ -411,7 +368,8 @@ _COREGL_EXT_SYMBOL_FASTPATH_PASS(glDisableDriverControlQCOM)
 _COREGL_EXT_SYMBOL_FASTPATH_PASS(glStartTilingQCOM)
 _COREGL_EXT_SYMBOL_FASTPATH_PASS(glEndTilingQCOM)
 
-/* Blocked extensions */
+
+/* Fastpath Blocked extensions */
 _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glMapBufferRange)
 _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glUnmapBuffer)
 _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glGetBufferPointerv)

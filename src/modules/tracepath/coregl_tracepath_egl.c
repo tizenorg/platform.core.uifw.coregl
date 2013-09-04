@@ -862,11 +862,11 @@ tracepath_eglGetProcAddress(const char* procname)
 		goto finish; \
 	}
 
-#define _COREGL_EXT_SYMBOL_ALIAS(FUNC_NAME, ALIAS_NAME) \
+#define _COREGL_EXT_SYMBOL_ALIAS(ALIAS_NAME, FUNC_NAME) \
    if (strcmp(procname, #ALIAS_NAME) == 0) \
    { \
 		_eng_fn ret_orig = NULL; \
-		ret_orig = _orig_tracepath_eglGetProcAddress(#FUNC_NAME); \
+		ret_orig = _orig_tracepath_eglGetProcAddress(#ALIAS_NAME); \
 		if (ret_orig != NULL) \
 			ret = (_eng_fn)ovr_##FUNC_NAME; \
 		goto finish; \

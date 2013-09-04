@@ -66,28 +66,21 @@ _COREGL_SYMBOL(GL_FALSE, _eng_fn, eglGetProcAddress, (const char* procname))
 
 // Extensions
 _COREGL_EXT_SYMBOL(GL_TRUE, EGLImageKHR, eglCreateImageKHR, (EGLDisplay dpy, EGLContext ctx, EGLenum target, EGLClientBuffer buffer, const EGLint *attrib_list))
-_COREGL_EXT_SYMBOL_ALIAS(eglCreateImageKHR, eglCreateImage)
 _COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglDestroyImageKHR, (EGLDisplay dpy, EGLImageKHR image))
-_COREGL_EXT_SYMBOL_ALIAS(eglDestroyImageKHR, eglDestroyImage)
 
 _COREGL_EXT_SYMBOL(GL_TRUE, void*, eglMapImageSEC, (EGLDisplay dpy, EGLImageKHR image, EGLint device_type, EGLint access_option))
-_COREGL_EXT_SYMBOL_ALIAS(eglMapImageSEC, eglMapImage)
 _COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglUnmapImageSEC, (EGLDisplay dpy, EGLImageKHR image, EGLint device_type))
-_COREGL_EXT_SYMBOL_ALIAS(eglUnmapImageSEC, eglUnmapImage)
 _COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglGetImageAttribSEC, (EGLDisplay dpy, EGLImageKHR image, EGLint attribute, EGLint *value))
-_COREGL_EXT_SYMBOL_ALIAS(eglGetImageAttribSEC, eglGetImageAttrib)
 
 _COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglLockSurfaceKHR, (EGLDisplay display, EGLSurface surface, const EGLint *attrib_list))
-_COREGL_EXT_SYMBOL_ALIAS(eglLockSurfaceKHR, eglLockSurface)
 _COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglUnlockSurfaceKHR, (EGLDisplay display, EGLSurface surface))
-_COREGL_EXT_SYMBOL_ALIAS(eglUnlockSurfaceKHR, eglUnlockSurface)
 
-// Verified extensions
+/* Fastpath Verified extensions */
 _COREGL_EXT_SYMBOL_FASTPATH_PASS(eglSwapBuffersRegionEXT)
 _COREGL_EXT_SYMBOL_FASTPATH_PASS(eglSwapBuffersRegionSEC)
 _COREGL_EXT_SYMBOL_FASTPATH_PASS(eglSwapBuffersWithDamageEXT)
 
-// Blocked extensions
+/* Fastpath Blocked extensions */
 //_COREGL_EXT_SYMBOL_FASTPATH_BLOCK()
 
 #ifdef _COREGL_EXT_SYMBOL_NOT_DEFINED
