@@ -252,7 +252,11 @@ finish:
 
 typedef struct
 {
-	EGLint                        context_client_version;
+	EGLint                        context_major_version;
+	EGLint                        context_minor_version;
+	EGLint                        context_flags;
+	EGLint                        context_opengl_profile_mask;
+	EGLint                        opengl_reset_notification_strategy;
 } EGL_packed_attrib_list;
 
 typedef struct
@@ -279,7 +283,11 @@ _pack_egl_context_option(EGL_packed_option *pack_data, EGLDisplay dpy, EGLConfig
 	pack_data->force_unique = force_unique;
 
 	// Default context attributes
-	pack_data->attrib_list.context_client_version = EGL_DONT_CARE;
+	pack_data->attrib_list.context_major_version = EGL_DONT_CARE;
+	pack_data->attrib_list.context_minor_version = EGL_DONT_CARE;
+	pack_data->attrib_list.context_flags = EGL_DONT_CARE;
+	pack_data->attrib_list.context_opengl_profile_mask = EGL_DONT_CARE;
+	pack_data->attrib_list.opengl_reset_notification_strategy = EGL_DONT_CARE;
 
 	// Apply specified attributes
 	EGLint *attrib = (EGLint *)attrib_list;
@@ -287,8 +295,20 @@ _pack_egl_context_option(EGL_packed_option *pack_data, EGLDisplay dpy, EGLConfig
 	{
 		switch(attrib[0])
 		{
-			case EGL_CONTEXT_CLIENT_VERSION:
-				pack_data->attrib_list.context_client_version = attrib[1];
+			case EGL_CONTEXT_MAJOR_VERSION_KHR: // EGL_CONTEXT_CLIENT_VERSION
+				pack_data->attrib_list.context_major_version = attrib[1];
+				break;
+			case EGL_CONTEXT_MINOR_VERSION_KHR:
+				pack_data->attrib_list.context_minor_version = attrib[1];
+				break;
+			case EGL_CONTEXT_FLAGS_KHR:
+				pack_data->attrib_list.context_flags = attrib[1];
+				break;
+			case EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR:
+				pack_data->attrib_list.context_opengl_profile_mask = attrib[1];
+				break;
+			case EGL_CONTEXT_OPENGL_RESET_NOTIFICATION_STRATEGY_KHR:
+				pack_data->attrib_list.opengl_reset_notification_strategy = attrib[1];
 				break;
 			default:
 				COREGL_WRN("\E[40;31;1mInvalid context attribute.\E[0m\n");
@@ -298,8 +318,7 @@ _pack_egl_context_option(EGL_packed_option *pack_data, EGLDisplay dpy, EGLConfig
 	}
 
 	// Eject condition for context version
-	// Current : Support GLES 2.0 only
-	if (pack_data->attrib_list.context_client_version != 2)
+	if (pack_data->attrib_list.context_major_version != 2)
 	{
 		pack_data->force_unique = 1;
 	}
@@ -326,11 +345,39 @@ _unpack_egl_context_option(EGL_packed_option *pack_data, EGLDisplay *dpy, EGLCon
 
 		memset(attrib_list, 0x00, sizeof(int) * attrib_list_size);
 
-		if (pack_data->attrib_list.context_client_version != EGL_DONT_CARE)
+		if (pack_data->attrib_list.context_major_version != EGL_DONT_CARE)
 		{
 			AST(attrib_list_index + 2 < attrib_list_size);
-			attrib_list[attrib_list_index] = EGL_CONTEXT_CLIENT_VERSION;
-			attrib_list[attrib_list_index + 1] = pack_data->attrib_list.context_client_version;
+			attrib_list[attrib_list_index] = EGL_CONTEXT_MAJOR_VERSION_KHR;
+			attrib_list[attrib_list_index + 1] = pack_data->attrib_list.context_major_version;
+			attrib_list_index += 2;
+		}
+		if (pack_data->attrib_list.context_minor_version != EGL_DONT_CARE)
+		{
+			AST(attrib_list_index + 2 < attrib_list_size);
+			attrib_list[attrib_list_index] = EGL_CONTEXT_MINOR_VERSION_KHR;
+			attrib_list[attrib_list_index + 1] = pack_data->attrib_list.context_minor_version;
+			attrib_list_index += 2;
+		}
+		if (pack_data->attrib_list.context_flags != EGL_DONT_CARE)
+		{
+			AST(attrib_list_index + 2 < attrib_list_size);
+			attrib_list[attrib_list_index] = EGL_CONTEXT_FLAGS_KHR;
+			attrib_list[attrib_list_index + 1] = pack_data->attrib_list.context_flags;
+			attrib_list_index += 2;
+		}
+		if (pack_data->attrib_list.context_opengl_profile_mask != EGL_DONT_CARE)
+		{
+			AST(attrib_list_index + 2 < attrib_list_size);
+			attrib_list[attrib_list_index] = EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR;
+			attrib_list[attrib_list_index + 1] = pack_data->attrib_list.context_opengl_profile_mask;
+			attrib_list_index += 2;
+		}
+		if (pack_data->attrib_list.opengl_reset_notification_strategy != EGL_DONT_CARE)
+		{
+			AST(attrib_list_index + 2 < attrib_list_size);
+			attrib_list[attrib_list_index] = EGL_CONTEXT_OPENGL_RESET_NOTIFICATION_STRATEGY_KHR;
+			attrib_list[attrib_list_index + 1] = pack_data->attrib_list.opengl_reset_notification_strategy;
 			attrib_list_index += 2;
 		}
 
@@ -773,6 +820,8 @@ fastpath_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_con
 		if (sostate_new == NULL)
 		{
 			COREGL_ERR("\E[40;31;1mError creating a new GLGlueContext(Memory full 4)\E[0m\n");
+			free(gctx);
+			gctx = NULL;
 			goto finish;
 		}
 		fastpath_sostate_init(sostate_new);
@@ -794,6 +843,8 @@ fastpath_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_con
 		if (gctx_list_new == NULL)
 		{
 			COREGL_ERR("\E[40;31;1mError creating a new GlGlueContext(Memory full 5)\E[0m\n");
+			free(gctx);
+			gctx = NULL;
 			goto finish;
 		}
 

@@ -191,6 +191,7 @@ fastpath_apply_overrides_gl(int enable)
 	if (debug_nofp != 1)
 	{
 		COREGL_OVERRIDE(fastpath_, glGetError);
+		COREGL_OVERRIDE(fastpath_, glGetString);
 
 		COREGL_OVERRIDE(fastpath_, glGetIntegerv);
 		COREGL_OVERRIDE(fastpath_, glGetFloatv);
@@ -290,8 +291,9 @@ fastpath_apply_overrides_gl(int enable)
 		COREGL_OVERRIDE(fastpath_, glViewport);
 
 		COREGL_OVERRIDE(fastpath_, glFramebufferTexture2DMultisampleEXT);
-		COREGL_OVERRIDE(fastpath_, glGetProgramBinaryOES);
-		COREGL_OVERRIDE(fastpath_, glProgramBinaryOES);
+		COREGL_OVERRIDE(fastpath_, glFramebufferTextureLayer);
+		COREGL_OVERRIDE(fastpath_, glGetProgramBinary);
+		COREGL_OVERRIDE(fastpath_, glProgramBinary);
 		COREGL_OVERRIDE(fastpath_, glProgramParameteriEXT);
 		COREGL_OVERRIDE(fastpath_, glEGLImageTargetTexture2DOES);
 		COREGL_OVERRIDE(fastpath_, glFramebufferTexture3DOES);

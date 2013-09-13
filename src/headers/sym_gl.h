@@ -16,6 +16,10 @@
 #define _COREGL_EXT_SYMBOL_ALIAS_NOT_DEFINED
 #define _COREGL_EXT_SYMBOL_ALIAS(FUNC_NAME, ALIAS_NAME)
 #endif
+#ifndef _COREGL_FASTPATH_SUPPORTED_EXTENSION
+#define _COREGL_FASTPATH_SUPPORTED_EXTENSION_NOT_DEFINED
+#define _COREGL_FASTPATH_SUPPORTED_EXTENSION(NAME, MINVER, MAXVER)
+#endif
 #ifndef _COREGL_EXT_SYMBOL_FASTPATH_PASS
 #define _COREGL_EXT_SYMBOL_FASTPATH_PASS_NOT_DEFINED
 #define _COREGL_EXT_SYMBOL_FASTPATH_PASS(FUNC_NAME)
@@ -278,15 +282,21 @@ _COREGL_SYMBOL(GL_FALSE, void, glGetInternalformativ, (GLenum target, GLenum int
 
 /* Extensions */
 
-// OES_EGL_image
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_EGL_image", 1.1, -1)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glEGLImageTargetTexture2DOES, (GLenum target, GLeglImageOES image))
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glEGLImageTargetRenderbufferStorageOES, (GLenum target, GLeglImageOES image))
+//_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_EGL_image_external", 1.1, -1)
 
-// OES_get_program_binary
-_COREGL_EXT_SYMBOL(GL_TRUE, void, glGetProgramBinaryOES, (GLuint program, GLsizei bufsize, GLsizei *length, GLenum *binaryFormat, void *binary))
-_COREGL_EXT_SYMBOL(GL_TRUE, void, glProgramBinaryOES, (GLuint program, GLenum binaryFormat, const void *binary, GLint length))
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_get_program_binary", 2.0, -1)
+_COREGL_EXT_SYMBOL_ALIAS(glGetProgramBinaryOES, glGetProgramBinary) // Replaced to ES 3.0 API
+_COREGL_EXT_SYMBOL_ALIAS(glProgramBinaryOES, glProgramBinary) // Replaced to ES 3.0 API
 
-// EXT_separate_shader_objects
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_AMD_program_binary_Z400", 2.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_IMG_program_binary ", 2.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_ARM_mali_program_binary", 2.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_ANGLE_program_binary", 2.0, -1)
+
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_EXT_separate_shader_objects", 2.0, -1)
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glUseProgramStagesEXT, (GLuint pipeline, GLbitfield stages, GLuint program))
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glActiveShaderProgramEXT, (GLuint pipeline, GLuint program))
 _COREGL_EXT_SYMBOL(GL_TRUE, GLuint, glCreateShaderProgramvEXT, (GLenum type, GLsizei count, const char **strings))
@@ -318,14 +328,14 @@ _COREGL_EXT_SYMBOL(GL_TRUE, void, glProgramUniformMatrix4fvEXT, (GLuint program,
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glValidateProgramPipelineEXT, (GLuint pipeline))
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glGetProgramPipelineInfoLogEXT, (GLuint pipeline, GLsizei bufSize, GLsizei *length, char *infoLog))
 
-// EXT_multisampled_render_to_texture
-_COREGL_EXT_SYMBOL(GL_TRUE, void, glRenderbufferStorageMultisampleEXT, (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height))
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_EXT_multisampled_render_to_texture", 2.0, -1)
+_COREGL_EXT_SYMBOL_ALIAS(glRenderbufferStorageMultisampleEXT, glRenderbufferStorageMultisample) // Replaced to ES 3.0 API
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glFramebufferTexture2DMultisampleEXT, (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLsizei samples))
 
-// EXT_discard_framebuffer
-_COREGL_EXT_SYMBOL(GL_TRUE, void, glDiscardFramebufferEXT, (GLenum target, GLsizei numAttachments, const GLenum *attachments))
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_EXT_discard_framebuffer", 1.0, -1)
+_COREGL_EXT_SYMBOL_ALIAS(glDiscardFramebufferEXT, glInvalidateFramebuffer) // Replaced to ES 3.0 API
 
-// OES_texture_3d
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_texture_3D", 2.0, -1)
 _COREGL_EXT_SYMBOL_ALIAS(glTexImage3DOES, glTexImage3D) // Replaced to ES 3.0 API
 _COREGL_EXT_SYMBOL_ALIAS(glTexSubImage3DOES, glTexSubImage3D) // Replaced to ES 3.0 API
 _COREGL_EXT_SYMBOL_ALIAS(glCopyTexSubImage3DOES, glCopyTexSubImage3D) // Replaced to ES 3.0 API
@@ -335,8 +345,71 @@ _COREGL_EXT_SYMBOL(GL_TRUE, void, glFramebufferTexture3DOES, (GLenum target, GLe
 
 
 /* Fastpath Verified extensions */
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_IMG_shader_binary", -1, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_ARM_mali_shader_binary", -1, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_VIV_shader_binary", -1, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_DMP_shader_binary", -1, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_FJ_shader_binary_GCCSO", -1, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_ARM_mali_shader_binary", -1, -1)
 
-// AMD_performance_monitor
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_compressed_ETC1_RGB8_texture", -1, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_compressed_paletted_texture", -1, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_AMD_compressed_3DC_texture", -1, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_AMD_compressed_ATC_texture", -1, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_EXT_texture_compression_dxt1", -1, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_IMG_texture_compression_pvrtc", -1, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_NV_texture_compression_s3tc_update", -1, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_ANGLE_texture_compression_dxt3", -1, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_ANGLE_texture_compression_dxt5", -1, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_KHR_texture_compression_astc_ldr", -1, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_NV_texture_compression_s3tc", -1, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_NV_texture_compression_latc", -1, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_IMG_texture_compression_pvrtc2", -1, -1)
+
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_EXT_texture_type_2_10_10_10_REV", -1, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_EXT_texture_format_BGRA8888", -1, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_APPLE_texture_format_BGRA8888", 1.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_texture_half_float_linear", 2.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_texture_float_linear", 2.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_texture_half_float", 2.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_texture_float", 2.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_texture_npot", 1.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_IMG_texture_env_enhanced_fixed_function", 1.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_APPLE_texture_max_level", 1.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_NV_texture_npot_2D_mipmap", 2.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_ANGLE_texture_usage", 2.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_EXT_texture_rg", 2.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_EXT_sRGB", 1.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_EXT_texture_sRGB_decode", 2.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_EXT_texture_filter_anisotropic", 1.2, -1)
+
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_standard_derivatives", 2.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_depth24", 1.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_ARM_rgba8", 1.1, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_depth_texture", 2.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_packed_depth_stencil", 1.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_EXT_texture_format_BGRA8888", 1.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_EXT_blend_minmax", -1, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_EGL_sync", -1, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_rgb8_rgba8", 1.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_EXT_shader_texture_lod", 2.0, -1)
+
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_element_index_uint", 1.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_fbo_render_mipmap", 1.0, -1)
+
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_depth_texture_cube_map", 2.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_vertex_half_float", 2.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_vertex_type_10_10_10_2", 2.0, -1)
+
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_EXT_color_buffer_half_float", 2.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_EXT_color_buffer_float", 3.0, -1)
+
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_element_index_uint", 1.0, -1)
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_element_index_uint", 1.0, -1)
+
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_EXT_debug_marker", 1.1, -1)
+
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_AMD_performance_monitor", -1, -1)
 _COREGL_EXT_SYMBOL_FASTPATH_PASS(glGetPerfMonitorGroupsAMD)
 _COREGL_EXT_SYMBOL_FASTPATH_PASS(glGetPerfMonitorCountersAMD)
 _COREGL_EXT_SYMBOL_FASTPATH_PASS(glGetPerfMonitorGroupStringAMD)
@@ -349,7 +422,7 @@ _COREGL_EXT_SYMBOL_FASTPATH_PASS(glBeginPerfMonitorAMD)
 _COREGL_EXT_SYMBOL_FASTPATH_PASS(glEndPerfMonitorAMD)
 _COREGL_EXT_SYMBOL_FASTPATH_PASS(glGetPerfMonitorCounterDataAMD)
 
-// NV_fence
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_NV_fence", -1, -1)
 _COREGL_EXT_SYMBOL_FASTPATH_PASS(glSetFenceNV)
 _COREGL_EXT_SYMBOL_FASTPATH_PASS(glTestFenceNV)
 _COREGL_EXT_SYMBOL_FASTPATH_PASS(glFinishFenceNV)
@@ -358,23 +431,58 @@ _COREGL_EXT_SYMBOL_FASTPATH_PASS(glDeleteFencesNV)
 _COREGL_EXT_SYMBOL_FASTPATH_PASS(glIsFenceNV)
 _COREGL_EXT_SYMBOL_FASTPATH_PASS(glGetFenceivNV)
 
-// QCOM_driver_control
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_QCOM_driver_control", 1.0, -1)
 _COREGL_EXT_SYMBOL_FASTPATH_PASS(glGetDriverControlsQCOM)
 _COREGL_EXT_SYMBOL_FASTPATH_PASS(glGetDriverControlStringQCOM)
 _COREGL_EXT_SYMBOL_FASTPATH_PASS(glEnableDriverControlQCOM)
 _COREGL_EXT_SYMBOL_FASTPATH_PASS(glDisableDriverControlQCOM)
 
-// QCOM_tiled_rendering
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_QCOM_tiled_rendering", 1.0, -1)
 _COREGL_EXT_SYMBOL_FASTPATH_PASS(glStartTilingQCOM)
 _COREGL_EXT_SYMBOL_FASTPATH_PASS(glEndTilingQCOM)
 
 
 /* Fastpath Blocked extensions */
-_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glMapBufferRange)
-_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glUnmapBuffer)
-_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glGetBufferPointerv)
+
+//_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_EXT_robustness", 1.1, -1)
+_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glGetGraphicsResetStatusEXT)
+_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glReadnPixelsEXT)
+_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glGetnUniformfvEXT)
+_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glGetnUniformivEXT)
+
+//_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_EXT_debug_label", 1.1, -1)
+_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glLabelObjectEXT)
+_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glGetObjectLabelEXT)
+
+//_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_EXT_disjoint_timer_query", 2.0, -1)
+_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glGenQueriesEXT)
+_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glDeleteQueriesEXT)
+_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glIsQueryEXT)
+_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glBeginQueryEXT)
+_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glEndQueryEXT)
+_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glQueryCounterEXT)
+_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glGetQueryivEXT)
+_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glGetQueryObjectivEXT)
+_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glGetQueryObjectuivEXT)
+_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glGetQueryObjecti64vEXT)
+_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glGetQueryObjectui64vEXT)
+
+//_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_vertex_array_object", 1.1, -1)
+_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glBindVertexArrayOES)
+_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glDeleteVertexArraysOES)
+_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glGenVertexArraysOES)
+_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glIsVertexArrayOES)
+
+//_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_QCOM_alpha_test", 2.0, -1)
+
+//_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_QCOM_binning_control", 1.0, -1)
+
+//_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_QCOM_perfmon_global_mode", -1, -1)
+
+//_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_QCOM_writeonly_rendering", 1.0, -1)
 
 // QCOM_extended_get
+//_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_QCOM_extended_get", 1.0, -1)
 _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glExtGetTexturesQCOM)
 _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glExtGetBuffersQCOM)
 _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glExtGetRenderbuffersQCOM)
@@ -385,15 +493,18 @@ _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glExtGetTexSubImageQCOM)
 _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glExtGetBufferPointervQCOM)
 
 // QCOM_extended_get2
+//_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_QCOM_extended_get2", 1.0, -1)
 _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glExtGetShadersQCOM)
 _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glExtGetProgramsQCOM)
 _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glExtIsProgramBinaryQCOM)
 _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glExtGetProgramBinarySourceQCOM)
 
 // ANGLE_framebuffer_blit
+//_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_ANGLE_framebuffer_blit", 1.0, -1)
 _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glBlitFramebufferANGLE)
 
 // ANGLE_framebuffer_multisample
+//_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_ANGLE_framebuffer_multisample", 1.0, -1)
 _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glRenderbufferStorageMultisampleANGLE)
 
 
@@ -410,6 +521,11 @@ _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glRenderbufferStorageMultisampleANGLE)
 #ifdef _COREGL_EXT_SYMBOL_ALIAS_NOT_DEFINED
 #undef _COREGL_EXT_SYMBOL_ALIAS_NOT_DEFINED
 #undef _COREGL_EXT_SYMBOL_ALIAS
+#endif
+
+#ifdef _COREGL_FASTPATH_SUPPORTED_EXTENSION_NOT_DEFINED
+#undef _COREGL_FASTPATH_SUPPORTED_EXTENSION_NOT_DEFINED
+#undef _COREGL_FASTPATH_SUPPORTED_EXTENSION
 #endif
 
 #ifdef _COREGL_EXT_SYMBOL_FASTPATH_PASS_NOT_DEFINED

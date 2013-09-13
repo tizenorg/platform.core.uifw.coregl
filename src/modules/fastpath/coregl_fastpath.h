@@ -178,6 +178,8 @@ typedef struct _GLGlueContext
 	int							ref_count;
 	int							is_destroyed;
 
+	double                  glversion;
+
 	int							used_count;
 
 	GLDisplay              *rdpy;
