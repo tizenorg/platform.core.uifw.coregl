@@ -58,7 +58,7 @@ _dump_context_info(const char *ment, int force_output)
 			GET_MY_TSTATE(cur_tstate_tm, cur_tstate);
 			AST(cur_tstate_tm != NULL);
 
-			TRACE(" %c Thread  [%12d] : Surf <D=[%12p] R=[%12p]>",
+			TRACE(" %c Thread  [0x%12x] : Surf <D=[%12p] R=[%12p]>",
 			      (tstate == cur_tstate_tm) ? '*' : ' ',
 			      cur_tstate->thread_id,
 			      cur_tstate_tm->rsurf_draw,

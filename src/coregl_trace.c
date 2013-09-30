@@ -6,6 +6,7 @@
 
 int                 trace_api_flag = 0;
 int                 trace_api_all_flag = 0;
+int                 trace_api_frame_flag = 0;
 int                 trace_ctx_flag = 0;
 int                 trace_ctx_force_flag = 0;
 int                 trace_mem_flag = 0;
