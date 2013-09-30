@@ -30,7 +30,7 @@
 #ifdef COREGL_TRACEPATH_TRACE_ALL
 #define COREGL_TRACEPATH_TRACE_CONTEXT_INFO   // Context state & thread state & Glue-context info
 #define COREGL_TRACEPATH_TRACE_STATE_INFO     // Glue-context state info
-#define COREGL_TRACEPATH_TRACE_APICALL_INFO   // API call frequency info
+#define COREGL_TRACEPATH_TRACE_APICALL_INFO   // API call frequency & each frame call info
 #define COREGL_TRACEPATH_TRACE_MEMUSE_INFO   // Memory usage info
 #define COREGL_TRACEPATH_TRACE_SURFACE_INFO  // Surface dump info
 #endif
@@ -42,10 +42,13 @@
    tracepath_api_trace_end(api, hint, trace_total_time);
 # define _COREGL_TRACE_API_OUTPUT(force_output) \
    tracepath_api_trace_output(force_output);
+# define _COREGL_TRACE_API_RESET_FRAME() \
+   tracepath_api_trace_reset_frame();
 #else
 # define _COREGL_TRACE_API_BEGIN(api, hint, trace_total_time) NULL;
 # define _COREGL_TRACE_API_END(api, hint, trace_total_time)
 # define _COREGL_TRACE_API_OUTPUT(force_output)
+# define _COREGL_TRACE_API_RESET_FRAME()
 #endif
 
 #ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
@@ -132,6 +135,7 @@ extern void                tracepath_dump_context_states(int force_output);
 extern void               *tracepath_api_trace_begin(const char *name, void *hint, int trace_total_time);
 extern void               *tracepath_api_trace_end(const char *name, void *hint, int trace_total_time);
 extern void                tracepath_api_trace_output(int force_output);
+extern void                tracepath_api_trace_reset_frame();
 
 extern void                tracepath_mem_trace_add(const char *desc, int alloc_size);
 extern void                tracepath_mem_trace_remove(const char *desc, int alloc_size);
