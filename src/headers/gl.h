@@ -810,3 +810,12 @@ typedef void* GLeglImageOES;
 /* GL_OES_standard_derivatives */
 #define GL_FRAGMENT_SHADER_DERIVATIVE_HINT_OES               0x8B8B
 
+/* GL_ANGLE_framebuffer_blit */
+#ifndef GL_ANGLE_framebuffer_blit
+#define GL_READ_FRAMEBUFFER_ANGLE                0x8CA8
+#define GL_DRAW_FRAMEBUFFER_ANGLE                0x8CA9
+
+#define GL_DRAW_FRAMEBUFFER_BINDING_ANGLE        0x8CA6
+#define GL_READ_FRAMEBUFFER_BINDING_ANGLE        0x8CAA
+#endif
+

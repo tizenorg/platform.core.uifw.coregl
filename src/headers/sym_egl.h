@@ -75,10 +75,12 @@ _COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglGetImageAttribSEC, (EGLDisplay dpy, E
 _COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglLockSurfaceKHR, (EGLDisplay display, EGLSurface surface, const EGLint *attrib_list))
 _COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglUnlockSurfaceKHR, (EGLDisplay display, EGLSurface surface))
 
+_COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglSwapBuffersWithDamageEXT, (EGLDisplay dpy, EGLSurface surface, EGLint *rects, EGLint n_rects))
+
+_COREGL_EXT_SYMBOL(GL_TRUE, EGLBoolean, eglSwapBuffersRegionEXT, (EGLDisplay dpy, EGLSurface surface, EGLint numRects, const EGLint *rects))
+
 /* Fastpath Verified extensions */
-_COREGL_EXT_SYMBOL_FASTPATH_PASS(eglSwapBuffersRegionEXT)
-_COREGL_EXT_SYMBOL_FASTPATH_PASS(eglSwapBuffersRegionSEC)
-_COREGL_EXT_SYMBOL_FASTPATH_PASS(eglSwapBuffersWithDamageEXT)
+//_COREGL_EXT_SYMBOL_FASTPATH_PASS(eglSwapBuffersRegionSEC)
 
 /* Fastpath Blocked extensions */
 //_COREGL_EXT_SYMBOL_FASTPATH_BLOCK()

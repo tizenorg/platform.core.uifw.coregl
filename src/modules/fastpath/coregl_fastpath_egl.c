@@ -58,7 +58,7 @@ _dump_context_info(const char *ment, int force_output)
 			GET_MY_TSTATE(cur_tstate_tm, cur_tstate);
 			AST(cur_tstate_tm != NULL);
 
-			TRACE(" %c Thread  [%12d] : Surf <D=[%12p] R=[%12p]>",
+			TRACE(" %c Thread  [0x%12x] : Surf <D=[%12p] R=[%12p]>",
 			      (tstate == cur_tstate_tm) ? '*' : ' ',
 			      cur_tstate->thread_id,
 			      cur_tstate_tm->rsurf_draw,
@@ -756,7 +756,7 @@ finish:
 EGLContext
 fastpath_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_context, const EGLint* attrib_list)
 {
-	GLGlueContext *gctx = NULL;
+	GLGlueContext *gctx = NULL, *newgctx = NULL;
 	GLGlueContext_List *gctx_list_new = NULL;
 	MY_MODULE_TSTATE *tstate = NULL;
 	GLContextState *cstate = NULL;
@@ -795,24 +795,24 @@ fastpath_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_con
 	AST(_pack_egl_context_sharable_option(real_ctx_sharable_option, share_context) == 1);
 
 	// Allocate a new context
-	gctx = (GLGlueContext *)calloc(1, sizeof(GLGlueContext));
-	if (gctx == NULL)
+	newgctx = (GLGlueContext *)calloc(1, sizeof(GLGlueContext));
+	if (newgctx == NULL)
 	{
 		COREGL_ERR("\E[40;31;1mError creating a new GLGlueContext(Memory full 3)\E[0m\n");
 		goto finish;
 	}
 
-	gctx->magic = MAGIC_GLFAST;
-	gctx->initialized = 0;
-	gctx->rdpy = dpy;
-	gctx->thread_id = get_current_thread();
+	newgctx->magic = MAGIC_GLFAST;
+	newgctx->initialized = 0;
+	newgctx->rdpy = dpy;
+	newgctx->thread_id = get_current_thread();
 
 	if (share_context != EGL_NO_CONTEXT)
 	{
 		GLGlueContext *shared_gctx = (GLGlueContext *)share_context;
 		AST(shared_gctx->magic == MAGIC_GLFAST);
 		AST(shared_gctx->sostate != NULL);
-		gctx->sostate = shared_gctx->sostate;
+		newgctx->sostate = shared_gctx->sostate;
 	}
 	else
 	{
@@ -825,18 +825,18 @@ fastpath_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_con
 			goto finish;
 		}
 		fastpath_sostate_init(sostate_new);
-		gctx->sostate = sostate_new;
+		newgctx->sostate = sostate_new;
 	}
-	_add_shared_obj_state_ref(gctx, gctx->sostate);
-	gctx->real_ctx_option = real_ctx_option;
-	gctx->real_ctx_option_len = sizeof(EGL_packed_option);
-	gctx->real_ctx_sharable_option = real_ctx_sharable_option;
-	gctx->real_ctx_sharable_option_len = sizeof(EGL_packed_sharable_option);
+	_add_shared_obj_state_ref(newgctx, newgctx->sostate);
+	newgctx->real_ctx_option = real_ctx_option;
+	newgctx->real_ctx_option_len = sizeof(EGL_packed_option);
+	newgctx->real_ctx_sharable_option = real_ctx_sharable_option;
+	newgctx->real_ctx_sharable_option_len = sizeof(EGL_packed_sharable_option);
 
-	_link_context_state(gctx, cstate);
-	_add_context_ref(gctx);
+	_link_context_state(newgctx, cstate);
+	_add_context_ref(newgctx);
 
-	gctx->cstate = cstate;
+	newgctx->cstate = cstate;
 
 	{ // Add glue context to list
 		gctx_list_new = (GLGlueContext_List *)calloc(1, sizeof(GLGlueContext_List));
@@ -850,7 +850,7 @@ fastpath_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_con
 
 		AST(mutex_lock(&ctx_list_access_mutex) == 1);
 
-		gctx_list_new->gctx = gctx;
+		gctx_list_new->gctx = newgctx;
 
 		gctx_list_new->prev = NULL;
 		gctx_list_new->next = gctx_list;
@@ -862,13 +862,15 @@ fastpath_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_con
 		AST(mutex_unlock(&ctx_list_access_mutex) == 1);
 	}
 
+	gctx = newgctx;
+
 #ifdef COREGL_FASTPATH_TRACE_CONTEXT_INFO
 	if (unlikely(trace_ctx_flag == 1))
 	{
 		char ment[256];
-		add_to_general_trace_list(&glue_ctx_trace_list, gctx);
+		add_to_general_trace_list(&glue_ctx_trace_list, newgctx);
 
-		sprintf(ment, "eglCreateContext completed (GlueCTX=[%12p])", gctx);
+		sprintf(ment, "eglCreateContext completed (GlueCTX=[%12p])", newgctx);
 		_dump_context_info(ment, 1);
 	}
 #endif // COREGL_FASTPATH_TRACE_CONTEXT_INFO
@@ -924,6 +926,12 @@ finish:
 			AST(mutex_unlock(&ctx_list_access_mutex) == 1);
 
 			free(gctx_list_new);
+		}
+		if (newgctx != NULL)
+		{
+			_remove_context_ref(newgctx, &ctx_list_access_mutex);
+			free(newgctx);
+			newgctx = NULL;
 		}
 	}
 

@@ -75,7 +75,7 @@ _dump_context_info(const char *ment, int force_output)
 			GET_MY_TSTATE(cur_tstate_tm, cur_tstate);
 			AST(cur_tstate_tm != NULL);
 
-			TRACE(" %c Thread  [%12d] : Surf <D=[%12p] R=[%12p]>",
+			TRACE(" %c Thread  [0x%12x] : Surf <D=[%12p] R=[%12p]>",
 			      (tstate == cur_tstate_tm) ? '*' : ' ',
 			      cur_tstate->thread_id,
 			      cur_tstate_tm->surf_draw,
@@ -826,7 +826,90 @@ tracepath_eglSwapBuffers(EGLDisplay dpy, EGLSurface surface)
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
-	_COREGL_TRACE_API_OUTPUT(0);
+	if (unlikely(trace_api_frame_flag == 1))
+	{
+		if (unlikely(trace_api_all_flag == 1))
+		{
+			_COREGL_TRACE_API_OUTPUT(1);
+		}
+		else
+		{
+			_COREGL_TRACE_API_OUTPUT(0);
+		}
+		_COREGL_TRACE_API_RESET_FRAME();
+	}
+	else
+	{
+		_COREGL_TRACE_API_OUTPUT(0);
+	}
+	_COREGL_TRACE_MEM_OUTPUT(0);
+	return ret;
+}
+
+EGLBoolean
+tracepath_eglSwapBuffersWithDamageEXT(EGLDisplay dpy, EGLSurface surface, EGLint *rects, EGLint n_rects)
+{
+	EGLBoolean ret = EGL_FALSE;
+
+	_COREGL_TRACE_SURFACE(0, 1, "SWAPBUFFERS");
+
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	ret = _orig_tracepath_eglSwapBuffersWithDamageEXT(dpy, surface, rects, n_rects);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+	if (unlikely(trace_api_frame_flag == 1))
+	{
+		if (unlikely(trace_api_all_flag == 1))
+		{
+			_COREGL_TRACE_API_OUTPUT(1);
+		}
+		else
+		{
+			_COREGL_TRACE_API_OUTPUT(0);
+		}
+		_COREGL_TRACE_API_RESET_FRAME();
+	}
+	else
+	{
+		_COREGL_TRACE_API_OUTPUT(0);
+	}
+	_COREGL_TRACE_MEM_OUTPUT(0);
+	return ret;
+}
+
+EGLBoolean
+tracepath_eglSwapBuffersRegionEXT(EGLDisplay dpy, EGLSurface surface, EGLint numRects, const EGLint *rects)
+{
+	EGLBoolean ret = EGL_FALSE;
+
+	_COREGL_TRACE_SURFACE(0, 1, "SWAPBUFFERS");
+
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	ret = _orig_tracepath_eglSwapBuffersRegionEXT(dpy, surface, numRects, rects);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+	if (unlikely(trace_api_frame_flag == 1))
+	{
+		if (unlikely(trace_api_all_flag == 1))
+		{
+			_COREGL_TRACE_API_OUTPUT(1);
+		}
+		else
+		{
+			_COREGL_TRACE_API_OUTPUT(0);
+		}
+		_COREGL_TRACE_API_RESET_FRAME();
+	}
+	else
+	{
+		_COREGL_TRACE_API_OUTPUT(0);
+	}
 	_COREGL_TRACE_MEM_OUTPUT(0);
 	return ret;
 }

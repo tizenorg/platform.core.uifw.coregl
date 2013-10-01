@@ -343,6 +343,13 @@ _COREGL_EXT_SYMBOL_ALIAS(glCompressedTexImage3DOES, glCompressedTexImage3D) // R
 _COREGL_EXT_SYMBOL_ALIAS(glCompressedTexSubImage3DOES, glCompressedTexSubImage3D) // Replaced to ES 3.0 API
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glFramebufferTexture3DOES, (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset))
 
+// ANGLE_framebuffer_blit
+_COREGL_EXT_SYMBOL(GL_TRUE, void, glBlitFramebufferANGLE, (GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter))
+
+// ANGLE_framebuffer_multisample
+_COREGL_EXT_SYMBOL(GL_TRUE, void, glRenderbufferStorageMultisampleANGLE, (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height))
+
+
 
 /* Fastpath Verified extensions */
 _COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_IMG_shader_binary", -1, -1)
@@ -506,6 +513,10 @@ _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glBlitFramebufferANGLE)
 // ANGLE_framebuffer_multisample
 //_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_ANGLE_framebuffer_multisample", 1.0, -1)
 _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glRenderbufferStorageMultisampleANGLE)
+
+// ES3 Invalid usages
+_COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glBlitFramebuffer)
+
 
 
 #ifdef _COREGL_EXT_SYMBOL_NOT_DEFINED

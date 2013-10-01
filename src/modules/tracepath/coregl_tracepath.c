@@ -116,6 +116,7 @@ init_modules_tracepath()
 #ifdef COREGL_TRACEPATH_TRACE_APICALL_INFO
 	trace_api_flag = atoi(get_env_setting("COREGL_TRACE_API"));
 	trace_api_all_flag = atoi(get_env_setting("COREGL_TRACE_API_ALL"));
+	trace_api_frame_flag = atoi(get_env_setting("COREGL_TRACE_API_FRAME"));
 #endif
 #ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
 	trace_mem_flag = atoi(get_env_setting("COREGL_TRACE_MEM"));
@@ -217,6 +218,7 @@ init_modules_tracepath()
 		{
 			COREGL_LOG("\E[40;31;1m(API)\E[0m ");
 			if (trace_api_all_flag == 1) COREGL_LOG("\E[40;31;1m(API-ALL)\E[0m ");
+			if (trace_api_frame_flag == 1) COREGL_LOG("\E[40;31;1m(API-FRAME)\E[0m ");
 		}
 		if (trace_ctx_flag == 1) {
 			COREGL_LOG("\E[40;33;1m(CONTEXT)\E[0m ");
@@ -236,7 +238,7 @@ init_modules_tracepath()
 				COREGL_LOG("\E[40;36;1m(SURFACE-PERIOD:%d~%d)\E[0m ", trace_surface_filter_period_begin, trace_surface_filter_period_end);
 			if (trace_surface_filter_type == 1) COREGL_LOG("\E[40;36;1m(SURFACE-TYPE:EGL)\E[0m ");
 			if (trace_surface_filter_type == 2) COREGL_LOG("\E[40;36;1m(SURFACE-TYPE:FBO)\E[0m ");
-			if (trace_surface_filter_handle != 0) COREGL_LOG("\E[40;36;1m(SURFACE-HANDLE:%p(%d))\E[0m ", trace_surface_filter_handle, trace_surface_filter_handle);
+			if (trace_surface_filter_handle != 0) COREGL_LOG("\E[40;36;1m(SURFACE-HANDLE:0x%x(%d))\E[0m ", trace_surface_filter_handle, trace_surface_filter_handle);
 			if (trace_surface_filter_size_w > 0 && trace_surface_filter_size_h > 0)
 				COREGL_LOG("\E[40;36;1m(SURFACE-SIZE:%dx%d)\E[0m ", trace_surface_filter_size_w, trace_surface_filter_size_h);
 		}
@@ -727,10 +729,10 @@ tracepath_api_trace_output(int force_output)
 	}
 
 	GET_MY_TSTATE(tstate_tm, tstate);
-	if (tstate_tm == NULL) return;
+	if (tstate_tm == NULL) goto finish;
 
 	ftd_table = tstate_tm->ftd_table;
-	if (ftd_table == NULL) return;
+	if (ftd_table == NULL) goto finish;
 
 	{
 		static Apicall_Data *trace_hint_swap = NULL;
@@ -746,7 +748,7 @@ tracepath_api_trace_output(int force_output)
 
 	TRACE("\n");
 	TRACE("\E[40;34m========================================================================================================================\E[0m\n");
-	TRACE("\E[40;32;1m  API call info \E[1;37;1m: <PID = %d> Thread ID = %d  [Swaps per Second(P) = %7.2f]\E[0m\n", getpid(), tstate->thread_id, swaps_per_sec);
+	TRACE("\E[40;32;1m  API call info \E[1;37;1m: <PID = %d> Thread ID = 0x%x  [Swaps per Second(P) = %7.2f]\E[0m\n", getpid(), tstate->thread_id, swaps_per_sec);
 	TRACE("\E[40;34m========================================================================================================================\E[0m\n");
 
 	// highlighted
@@ -802,7 +804,7 @@ tracepath_api_trace_output(int force_output)
 
 					while (current != NULL)
 					{
-						if (current->traced == 0)
+						if (current->traced == 0 && current->call_count > 0)
 						{
 							double elapsed_time = _get_timeval(current->elapsed_time);
 							double elapsed_time_per_call = elapsed_time / current->call_count;
@@ -824,36 +826,39 @@ tracepath_api_trace_output(int force_output)
 
 	TRACE("\E[40;34m========================================================================================================================\E[0m\n");
 
-	TRACE("\E[40;36;1m %-39.39s : %13.2f ms[%6.2f%%], %13.2f ms(P)[%6.2f%%]\E[0m\n",
-	      "TOTAL elapsed Time",
-	      total_elapsed_time,
-	      100.0,
-	      total_elapsed_time_period,
-	      100.0);
+	if (trace_api_frame_flag == 0)
+	{
+		TRACE("\E[40;36;1m %-39.39s : %13.2f ms[%6.2f%%], %13.2f ms(P)[%6.2f%%]\E[0m\n",
+		      "TOTAL elapsed Time",
+		      total_elapsed_time,
+		      100.0,
+		      total_elapsed_time_period,
+		      100.0);
 
 
-	TRACE("\E[40;36;1m %-39.39s : %13.2f ms[%6.2f%%], %13.2f ms(P)[%6.2f%%]\E[0m\n",
-	      "OpenGL elapsed Time",
-	      total_opengl_elapsed_time,
-	      total_opengl_elapsed_time * 100.0 / total_elapsed_time,
-	      total_opengl_elapsed_time_period,
-	      total_opengl_elapsed_time_period * 100.0 / total_elapsed_time_period);
+		TRACE("\E[40;36;1m %-39.39s : %13.2f ms[%6.2f%%], %13.2f ms(P)[%6.2f%%]\E[0m\n",
+		      "OpenGL elapsed Time",
+		      total_opengl_elapsed_time,
+		      total_opengl_elapsed_time * 100.0 / total_elapsed_time,
+		      total_opengl_elapsed_time_period,
+		      total_opengl_elapsed_time_period * 100.0 / total_elapsed_time_period);
 
-	TRACE("\E[40;36;1m %-39.39s : %13.2f ms[%6.2f%%], %13.2f ms(P)[%6.2f%%]\E[0m\n",
-	      "Out of OpenGL elapsed time",
-	      total_other_elapsed_time,
-	      total_other_elapsed_time * 100.0 / total_elapsed_time,
-	      total_other_elapsed_time_period,
-	      total_other_elapsed_time_period * 100.0 / total_elapsed_time_period);
+		TRACE("\E[40;36;1m %-39.39s : %13.2f ms[%6.2f%%], %13.2f ms(P)[%6.2f%%]\E[0m\n",
+		      "Out of OpenGL elapsed time",
+		      total_other_elapsed_time,
+		      total_other_elapsed_time * 100.0 / total_elapsed_time,
+		      total_other_elapsed_time_period,
+		      total_other_elapsed_time_period * 100.0 / total_elapsed_time_period);
 
-	TRACE("\E[40;36;1m %-39.39s : %13.2f ms[%6.2f%%], %13.2f ms(P)[%6.2f%%]\E[0m\n",
-	      "CoreGL API tracing overhead",
-	      total_elapsed_time - total_opengl_elapsed_time - total_other_elapsed_time,
-	      (total_elapsed_time - total_opengl_elapsed_time - total_other_elapsed_time) * 100.0 / total_elapsed_time,
-	      total_elapsed_time_period - total_opengl_elapsed_time_period - total_other_elapsed_time_period,
-	      (total_elapsed_time_period - total_opengl_elapsed_time_period - total_other_elapsed_time_period) * 100.0 / total_elapsed_time_period);
+		TRACE("\E[40;36;1m %-39.39s : %13.2f ms[%6.2f%%], %13.2f ms(P)[%6.2f%%]\E[0m\n",
+		      "CoreGL API tracing overhead",
+		      total_elapsed_time - total_opengl_elapsed_time - total_other_elapsed_time,
+		      (total_elapsed_time - total_opengl_elapsed_time - total_other_elapsed_time) * 100.0 / total_elapsed_time,
+		      total_elapsed_time_period - total_opengl_elapsed_time_period - total_other_elapsed_time_period,
+		      (total_elapsed_time_period - total_opengl_elapsed_time_period - total_other_elapsed_time_period) * 100.0 / total_elapsed_time_period);
 
-	TRACE("\E[40;34m========================================================================================================================\E[0m\n");
+		TRACE("\E[40;34m========================================================================================================================\E[0m\n");
+	}
 	TRACE("\n");
 
 	for (i = 0; i < MAX_TRACE_TABLE_SIZE; i++)
@@ -878,6 +883,65 @@ tracepath_api_trace_output(int force_output)
 
 finish:
 	return;
+}
+
+void
+tracepath_api_trace_reset_frame()
+{
+	GLThreadState *tstate = NULL;
+	MY_MODULE_TSTATE *tstate_tm = NULL;
+	Apicall_Data **ftd_table = NULL;
+
+	int i;
+
+	if (trace_api_flag != 1)
+	{
+		goto finish;
+	}
+
+	tstate = get_current_thread_state();
+
+	if (tstate == NULL)
+	{
+		init_new_thread_state();
+
+		tstate = get_current_thread_state();
+		AST(tstate != NULL);
+	}
+
+	GET_MY_TSTATE(tstate_tm, tstate);
+	if (tstate_tm == NULL) goto finish;
+
+	ftd_table = tstate_tm->ftd_table;
+	if (ftd_table == NULL) goto finish;
+
+	for (i = 0; i < MAX_TRACE_TABLE_SIZE; i++)
+	{
+		if (ftd_table[i] != NULL)
+		{
+			Apicall_Data *current = ftd_table[i];
+
+			while (current != NULL)
+			{
+				current->call_count = 0;
+				current->last_call_count = 0;
+				current->elapsed_time.tv_sec = 0;
+				current->elapsed_time.tv_usec = 0;
+				current->last_elapsed_time.tv_sec = 0;
+				current->last_elapsed_time.tv_usec = 0;
+				current->last_total_elapsed_time.tv_sec = 0;
+				current->last_total_elapsed_time.tv_usec = 0;
+				current->total_elapsed_time.tv_sec = 0;
+				current->total_elapsed_time.tv_usec = 0;
+				current = (Apicall_Data *)current->trace_data.next;
+			}
+		}
+	}
+	AST(gettimeofday(&last_initial_time, NULL) == 0);
+
+finish:
+	return;
+
 }
 
 void
