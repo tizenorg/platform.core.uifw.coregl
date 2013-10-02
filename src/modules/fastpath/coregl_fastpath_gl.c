@@ -337,6 +337,15 @@ fastpath_glGetString(GLenum name)
 			}
 			ret = string_extensions;
 			break;
+		default:
+			IF_GL_SUCCESS(ret = (const char *)_orig_fastpath_glGetString(name))
+			{
+			}
+			else
+			{
+				ret = NULL;
+			}
+			break;
 	}
 
 	goto finish;
