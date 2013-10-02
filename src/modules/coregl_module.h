@@ -30,16 +30,16 @@ typedef enum
 	} \
 	else \
 	{ \
-		AST(ovr_##falias != NULL); \
-		COREGL_OVERRIDE_API(ovr_, falias, falias, orig_prefix); \
-		orig_prefix##falias = NULL; \
+		AST(ovr_##f != NULL); \
+		COREGL_OVERRIDE_API(ovr_, f, orig_prefix); \
+		orig_prefix##f = NULL; \
 	} \
 }
 
-#define COREGL_OVERRIDE(prefix, f, falias) \
+#define COREGL_OVERRIDE(prefix, f) \
 	if (enable == 1) \
 	{ \
-		COREGL_OVERRIDE_API(ovr_, f, falias, prefix); \
+		COREGL_OVERRIDE_API(ovr_, f, prefix); \
 	}
 
 #endif // COREGL_MODULE_H
