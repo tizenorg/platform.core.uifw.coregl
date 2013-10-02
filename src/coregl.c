@@ -72,7 +72,7 @@ finish:
 static void
 _sym_missing()
 {
-	COREGL_ERR("GL symbol missing!\n");
+	COREGL_ERR("GL symbol missing! Check client version!\n");
 }
 
 static int
@@ -84,14 +84,12 @@ _glue_sym_init(void)
    if (!dst) dst = (__typeof__(dst))dlsym(libhandle, sym);
 
 #define FALLBAK(dst) \
-   if (!dst) { dst = (__typeof__(dst))_sym_missing; COREGL_WRN("symbol '"#dst"' missing!\n"); }
+   if (!dst) { dst = (__typeof__(dst))_sym_missing; }
 
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) \
     FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME); \
     if (IS_EXTENSION == GL_TRUE) { \
        FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"EXT"); \
-       FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"ARB"); \
-       FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"OES"); \
        FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"KHR"); \
     } else { FALLBAK(_sym_##FUNC_NAME); }
 #include "headers/sym_egl.h"
@@ -111,15 +109,13 @@ _gl_sym_init(void)
    if ((!dst) && (getproc)) dst = (__typeof__(dst))getproc(sym); \
    if (!dst) dst = (__typeof__(dst))dlsym(gl_lib_handle, sym);
 #define FALLBAK(dst) \
-   if (!dst) { dst = (__typeof__(dst))_sym_missing; COREGL_WRN("symbol '"#dst"' missing!\n"); }
+   if (!dst) { dst = (__typeof__(dst))_sym_missing; }
 
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) \
     FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME); \
     if (IS_EXTENSION == GL_TRUE) { \
        FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"EXT"); \
-       FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"ARB"); \
        FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"OES"); \
-       FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"KHR"); \
      } else { FALLBAK(_sym_##FUNC_NAME); }
 #include "headers/sym_gl.h"
 #undef _COREGL_SYMBOL

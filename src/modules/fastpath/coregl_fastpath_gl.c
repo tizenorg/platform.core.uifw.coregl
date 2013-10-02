@@ -254,6 +254,98 @@ finish:
 	return ret;
 }
 
+const GLubyte *
+fastpath_glGetString(GLenum name)
+{
+	const char *ret = NULL;
+	int i = _COREGL_INT_INIT_VALUE;
+	static const char *string_gles20 = "OpenGL ES 2.0";
+	static char string_tmpbuf[2048], string_extensions[2048] = { 0x00 };
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	switch (name)
+	{
+		case GL_VERSION:
+			IF_GL_SUCCESS(ret = (const char *)_orig_fastpath_glGetString(name))
+			{
+				if (strncmp(ret, "OpenGL ES 2.0", 13))
+				{
+					COREGL_WRN("\E[40;31;1mFastpath can't support %s (Fixed to %s)\E[0m\n", ret, string_gles20);
+					ret = string_gles20;
+				}
+			}
+			break;
+		case GL_EXTENSIONS:
+			IF_GL_SUCCESS(ret = (const char *)_orig_fastpath_glGetString(name))
+			{
+
+				if (string_extensions[0] == 0x00)
+				{
+					double GLver = 0.0;
+					const char *vret;
+					char vret_tmp[80] = { 0 };
+					IF_GL_SUCCESS(vret = (const char *)_orig_fastpath_glGetString(GL_VERSION))
+					{
+						if (!strncmp(vret, "OpenGL ES", 9))
+						{
+							int stp = 10;
+							if (vret[9] == '-') stp = 13;
+
+							for (i = stp; ; i++)
+							{
+								if (vret[i] == ' ' || vret[i] == 0x00 || i >= 80)
+								{
+									strncpy(vret_tmp, &vret[stp], i - stp);
+									vret_tmp[i - stp] = 0x00;
+									break;
+								}
+							}
+							if (vret_tmp[0] != 0x00)
+								GLver = atof(vret_tmp);
+						}
+					}
+
+					strcpy(string_tmpbuf, ret);
+					char *fstr = &string_tmpbuf[0], *estr = NULL;
+					for (estr = fstr; ; estr++)
+					{
+						if (*estr == 0x00) break;
+						if (*estr == ' ')
+						{
+							*estr = 0x00;
+
+#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)
+#define _COREGL_FASTPATH_SUPPORTED_EXTENSION(NAME, MINVER, MAXVER) \
+							if (!strcmp(fstr, NAME) && (MINVER < 0 || GLver >= MINVER) && (MAXVER < 0 || GLver <= MAXVER)) \
+							{ \
+								strcat(string_extensions, fstr); \
+								strcat(string_extensions, " "); \
+							}
+
+# include "../../headers/sym_gl.h"
+
+#undef _COREGL_FASTPATH_SUPPORTED_EXTENSION
+#undef _COREGL_SYMBOL
+
+							fstr = estr + 1;
+						}
+					}
+				}
+			}
+			ret = string_extensions;
+			break;
+	}
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+	return (const GLubyte *)ret;
+}
+
 ////////////////////////////////////////////////////////////////////////
 
 void
@@ -300,11 +392,12 @@ fastpath_glGenTextures(GLsizei n, GLuint* textures)
 
 	objid_array = (GLuint *)calloc(1, sizeof(GLuint) * n);
 
-	_orig_fastpath_glGenTextures(n, objid_array);
-
-	for (i = 0; i < n; i++)
+	IF_GL_SUCCESS(_orig_fastpath_glGenTextures(n, objid_array))
 	{
-		textures[i] = fastpath_sostate_create_object(current_ctx->sostate, GL_OBJECT_TYPE_TEXTURE, objid_array[i]);
+		for (i = 0; i < n; i++)
+		{
+			textures[i] = fastpath_sostate_create_object(current_ctx->sostate, GL_OBJECT_TYPE_TEXTURE, objid_array[i]);
+		}
 	}
 
 	goto finish;
@@ -410,6 +503,29 @@ fastpath_glFramebufferTexture3DOES(GLenum target, GLenum attachment, GLenum text
 	}
 
 	_orig_fastpath_glFramebufferTexture3DOES(target, attachment, textarget, real_obj, level, zoffset);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glFramebufferTextureLayer(GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_TEXTURE, texture, &real_obj) != 1)
+	{
+		_set_gl_error(GL_OUT_OF_MEMORY);
+		goto finish;
+	}
+
+	_orig_fastpath_glFramebufferTextureLayer(target, attachment, real_obj, level, layer);
 
 	goto finish;
 
@@ -1875,7 +1991,7 @@ finish:
 }
 
 void
-fastpath_glGetProgramBinaryOES(GLuint program, GLsizei bufsize, GLsizei* length, GLenum* binaryFormat, void* binary)
+fastpath_glGetProgramBinary(GLuint program, GLsizei bufsize, GLsizei* length, GLenum* binaryFormat, void* binary)
 {
 	GLuint real_obj;
 
@@ -1889,7 +2005,7 @@ fastpath_glGetProgramBinaryOES(GLuint program, GLsizei bufsize, GLsizei* length,
 		goto finish;
 	}
 
-	_orig_fastpath_glGetProgramBinaryOES(real_obj, bufsize, length, binaryFormat, binary);
+	_orig_fastpath_glGetProgramBinary(real_obj, bufsize, length, binaryFormat, binary);
 
 	goto finish;
 
@@ -1898,7 +2014,7 @@ finish:
 }
 
 void
-fastpath_glProgramBinaryOES(GLuint program, GLenum binaryFormat, const void* binary, GLint length)
+fastpath_glProgramBinary(GLuint program, GLenum binaryFormat, const void* binary, GLint length)
 {
 	GLuint real_obj;
 
@@ -1912,7 +2028,7 @@ fastpath_glProgramBinaryOES(GLuint program, GLenum binaryFormat, const void* bin
 		goto finish;
 	}
 
-	_orig_fastpath_glProgramBinaryOES(real_obj, binaryFormat, binary, length);
+	_orig_fastpath_glProgramBinary(real_obj, binaryFormat, binary, length);
 
 	goto finish;
 

@@ -60,7 +60,7 @@ typedef GLuint       GLuintmask;
 #define _COREGL_INT_INIT_VALUE -3
 
 #define COREGL_OVERRIDE_API(mangle, func, prefix) \
-   mangle##func = prefix##func
+	mangle##func = prefix##func
 
 typedef EGLSurface     GLSurface;
 typedef EGLDisplay     GLDisplay;

@@ -308,7 +308,6 @@ tracepath_apply_overrides_gl(int enable)
 #define _COREGL_EXT_SYMBOL_ALIAS(FUNC_NAME, ALIAS_NAME)                    COREGL_OVERRIDE(tracepath_, FUNC_NAME, ALIAS_NAME);
 # include "../../headers/sym_gl.h"
 #undef _COREGL_SYMBOL
-#undef _COREGL_EXT_SYMBOL_ALIAS
 }
 
 #undef OVERRIDE
