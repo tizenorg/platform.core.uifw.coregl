@@ -276,11 +276,13 @@ typedef struct
 static int
 _pack_egl_context_option(EGL_packed_option *pack_data, EGLDisplay dpy, EGLConfig cfg, EGLint force_unique, const EGLint *attrib_list)
 {
+	static int force_unique_free_id = 0;
 	int ret = 0;
 
 	pack_data->dpy = dpy;
 	pack_data->cfg = cfg;
-	pack_data->force_unique = force_unique;
+	if (force_unique != 0)
+		pack_data->force_unique = force_unique_free_id++;
 
 	// Default context attributes
 	pack_data->attrib_list.context_major_version = EGL_DONT_CARE;
@@ -320,7 +322,7 @@ _pack_egl_context_option(EGL_packed_option *pack_data, EGLDisplay dpy, EGLConfig
 	// Eject condition for context version
 	if (pack_data->attrib_list.context_major_version != 2)
 	{
-		pack_data->force_unique = 1;
+		pack_data->force_unique = force_unique_free_id;
 	}
 
 	ret = 1;

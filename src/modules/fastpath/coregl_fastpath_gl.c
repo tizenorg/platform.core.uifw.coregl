@@ -1,6 +1,12 @@
 #include "coregl_fastpath.h"
 
 #include <stdlib.h>
+#include <execinfo.h>
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <signal.h>
+int kill(pid_t pid, int sig);
 
 #define CURR_STATE_COMPARE(curr_state, state ) \
    if ((current_ctx->curr_state[0]) != (state))
@@ -512,29 +518,6 @@ fastpath_glFramebufferTexture3DOES(GLenum target, GLenum attachment, GLenum text
 	}
 
 	_orig_fastpath_glFramebufferTexture3DOES(target, attachment, textarget, real_obj, level, zoffset);
-
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-}
-
-void
-fastpath_glFramebufferTextureLayer(GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer)
-{
-	GLuint real_obj;
-
-	DEFINE_FASTPAH_GL_FUNC();
-	_COREGL_FASTPATH_FUNC_BEGIN();
-	INIT_FASTPATH_GL_FUNC();
-
-	if (GET_REAL_OBJ(GL_OBJECT_TYPE_TEXTURE, texture, &real_obj) != 1)
-	{
-		_set_gl_error(GL_OUT_OF_MEMORY);
-		goto finish;
-	}
-
-	_orig_fastpath_glFramebufferTextureLayer(target, attachment, real_obj, level, layer);
 
 	goto finish;
 
@@ -1992,52 +1975,6 @@ fastpath_glGetUniformiv(GLuint program, GLint location, GLint* params)
 	}
 
 	_orig_fastpath_glGetUniformiv(real_obj, location, params);
-
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-}
-
-void
-fastpath_glGetProgramBinary(GLuint program, GLsizei bufsize, GLsizei* length, GLenum* binaryFormat, void* binary)
-{
-	GLuint real_obj;
-
-	DEFINE_FASTPAH_GL_FUNC();
-	_COREGL_FASTPATH_FUNC_BEGIN();
-	INIT_FASTPATH_GL_FUNC();
-
-	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
-	{
-		_set_gl_error(GL_INVALID_VALUE);
-		goto finish;
-	}
-
-	_orig_fastpath_glGetProgramBinary(real_obj, bufsize, length, binaryFormat, binary);
-
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-}
-
-void
-fastpath_glProgramBinary(GLuint program, GLenum binaryFormat, const void* binary, GLint length)
-{
-	GLuint real_obj;
-
-	DEFINE_FASTPAH_GL_FUNC();
-	_COREGL_FASTPATH_FUNC_BEGIN();
-	INIT_FASTPATH_GL_FUNC();
-
-	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
-	{
-		_set_gl_error(GL_INVALID_VALUE);
-		goto finish;
-	}
-
-	_orig_fastpath_glProgramBinary(real_obj, binaryFormat, binary, length);
 
 	goto finish;
 
@@ -3929,6 +3866,7 @@ fastpath_glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 			current_ctx->gl_viewport[3] = height;
 		}
 	}
+
 	goto finish;
 
 finish:
@@ -3998,7 +3936,6 @@ _process_getfunc(GLenum pname, GLvoid *ptr, GLenum get_type)
 			GL_Object_Type obj_type = GL_OBJECT_TYPE_UNKNOWN;
 
 			_orig_fastpath_glGetIntegerv(pname, (GLint *)&real_obj_id);
-
 			switch(pname)
 			{
 				case GL_TEXTURE_BINDING_2D:
@@ -4080,6 +4017,1338 @@ fastpath_glGetIntegerv(GLenum pname, GLint* params)
 	{
 		_orig_fastpath_glGetIntegerv(pname, params);
 	}
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+
+
+void
+fastpath_glDrawArrays(GLenum mode, GLint first, GLsizei count)
+{
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	_orig_fastpath_glDrawArrays(mode, first, count);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+
+/* ES 3.0 PASS (SUPPORT) */
+void
+fastpath_glGetProgramBinary(GLuint program, GLsizei bufsize, GLsizei* length, GLenum* binaryFormat, void* binary)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glGetProgramBinary(real_obj, bufsize, length, binaryFormat, binary);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glProgramBinary(GLuint program, GLenum binaryFormat, const void* binary, GLint length)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glProgramBinary(real_obj, binaryFormat, binary, length);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+/* ES 3.0 BLOCK (UNTIL SUPPORT) */
+#define SIGILL_ERROR() \
+	COREGL_ERR("\E[40;31;1mFASTPATH can't support ES3.0 API '%s' (will be terminated with Illegal instruction!)\E[0m\n", __func__); \
+	kill(getpid(), SIGILL)
+
+void
+fastpath_glReadBuffer(GLenum mode)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glReadBuffer(mode);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid* indices)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glDrawRangeElements(mode, start, end, count, type, indices);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glTexImage3D(GLenum target, GLint level, GLint GLinternalFormat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glTexImage3D(target, level, GLinternalFormat, width, height, depth, border, format, type, pixels);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glTexSubImage3D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const GLvoid *pixels)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, pixels);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glCopyTexSubImage3D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glCopyTexSubImage3D(target, level, xoffset, yoffset, zoffset, x, y, width, height);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glCompressedTexImage3D(GLenum target, GLint level, GLenum GLinternalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLsizei imageSize, const GLvoid *data)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glCompressedTexImage3D(target, level, GLinternalformat, width, height, depth, border, imageSize, data);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glCompressedTexSubImage3D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const GLvoid *data)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glCompressedTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, data);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glGenQueries(GLsizei n, GLuint* ids)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glGenQueries(n, ids);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glDeleteQueries(GLsizei n, const GLuint* ids)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glDeleteQueries(n, ids);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+GLboolean
+fastpath_glIsQuery(GLuint id)
+{
+	GLboolean ret = GL_FALSE;
+
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	ret = _orig_fastpath_glIsQuery(id);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+	return ret;
+}
+
+void
+fastpath_glBeginQuery(GLenum target, GLuint id)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glBeginQuery(target, id);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glEndQuery(GLenum target)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glEndQuery(target);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glGetQueryiv(GLenum target, GLenum pname, GLint* params)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glGetQueryiv(target, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glGetQueryObjectuiv(GLuint id, GLenum pname, GLuint* params)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glGetQueryObjectuiv(id, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+GLboolean
+fastpath_glUnmapBuffer(GLenum target)
+{
+	GLboolean ret = GL_FALSE;
+
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	ret = _orig_fastpath_glUnmapBuffer(target);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+	return ret;
+}
+
+void
+fastpath_glGetBufferPointerv(GLenum target, GLenum pname, GLvoid** params)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glGetBufferPointerv(target, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glDrawBuffers(GLsizei n, const GLenum* bufs)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glDrawBuffers(n, bufs);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glUniformMatrix2x3fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glUniformMatrix2x3fv(location, count, transpose, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glUniformMatrix3x2fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glUniformMatrix3x2fv(location, count, transpose, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glUniformMatrix2x4fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glUniformMatrix2x4fv(location, count, transpose, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glUniformMatrix4x2fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glUniformMatrix4x2fv(location, count, transpose, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glUniformMatrix3x4fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glUniformMatrix3x4fv(location, count, transpose, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glUniformMatrix4x3fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glUniformMatrix4x3fv(location, count, transpose, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glBlitFramebuffer(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glRenderbufferStorageMultisample(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glRenderbufferStorageMultisample(target, samples, internalformat, width, height);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+
+}
+
+void
+fastpath_glFramebufferTextureLayer(GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+
+	_orig_fastpath_glFramebufferTextureLayer(target, attachment, texture, level, layer);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+GLvoid*
+fastpath_glMapBufferRange(GLenum target, GLintptr offset, GLsizeiptr length, GLbitfield access)
+{
+	GLvoid* ret = NULL;
+
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	ret = _orig_fastpath_glMapBufferRange(target, offset, length, access);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+	return ret;
+}
+
+void
+fastpath_glFlushMappedBufferRange(GLenum target, GLintptr offset, GLsizeiptr length)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glFlushMappedBufferRange(target, offset, length);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glBindVertexArray(GLuint array)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glBindVertexArray(array);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glDeleteVertexArrays(GLsizei n, const GLuint* arrays)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glDeleteVertexArrays(n, arrays);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glGenVertexArrays(GLsizei n, GLuint* arrays)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glGenVertexArrays(n, arrays);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+GLboolean
+fastpath_glIsVertexArray(GLuint array)
+{
+	GLboolean ret = GL_FALSE;
+
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	ret = _orig_fastpath_glIsVertexArray(array);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+	return ret;
+}
+
+void
+fastpath_glGetIntegeri_v(GLenum target, GLuint index, GLint* data)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glGetIntegeri_v(target, index, data);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glBeginTransformFeedback(GLenum primitiveMode)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glBeginTransformFeedback(primitiveMode);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glEndTransformFeedback()
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glEndTransformFeedback();
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glBindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glBindBufferRange(target, index, buffer, offset, size);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glBindBufferBase(GLenum target, GLuint index, GLuint buffer)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glBindBufferBase(target, index, buffer);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glTransformFeedbackVaryings(GLuint program, GLsizei count, const GLchar* const* varyings, GLenum bufferMode)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glTransformFeedbackVaryings(program, count, varyings, bufferMode);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glGetTransformFeedbackVarying(GLuint program, GLuint index, GLsizei bufSize, GLsizei* length, GLsizei* size, GLenum* type, GLchar* name)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glGetTransformFeedbackVarying(program, index, bufSize, length, size, type, name);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glVertexAttribIPointer(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid* pointer)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glVertexAttribIPointer(index, size, type, stride, pointer);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glGetVertexAttribIiv(GLuint index, GLenum pname, GLint* params)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glGetVertexAttribIiv(index, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glGetVertexAttribIuiv(GLuint index, GLenum pname, GLuint* params)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glGetVertexAttribIuiv(index, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glVertexAttribI4i(GLuint index, GLint x, GLint y, GLint z, GLint w)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glVertexAttribI4i(index, x, y, z, w);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glVertexAttribI4ui(GLuint index, GLuint x, GLuint y, GLuint z, GLuint w)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glVertexAttribI4ui(index, x, y, z, w);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glVertexAttribI4iv(GLuint index, const GLint* v)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glVertexAttribI4iv(index, v);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glVertexAttribI4uiv(GLuint index, const GLuint* v)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glVertexAttribI4uiv(index, v);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glGetUniformuiv(GLuint program, GLint location, GLuint* params)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glGetUniformuiv(program, location, params);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+GLint
+fastpath_glGetFragDataLocation(GLuint program, const GLchar *name)
+{
+	GLint ret = _COREGL_INT_INIT_VALUE;
+
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	ret = _orig_fastpath_glGetFragDataLocation(program, name);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+	return ret;
+}
+
+void
+fastpath_glUniform1ui(GLint location, GLuint v0)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glUniform1ui(location, v0);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glUniform2ui(GLint location, GLuint v0, GLuint v1)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glUniform2ui(location, v0, v1);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glUniform3ui(GLint location, GLuint v0, GLuint v1, GLuint v2)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glUniform3ui(location, v0, v1, v2);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glUniform4ui(GLint location, GLuint v0, GLuint v1, GLuint v2, GLuint v3)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glUniform4ui(location, v0, v1, v2, v3);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glUniform1uiv(GLint location, GLsizei count, const GLuint* value)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glUniform1uiv(location, count, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glUniform2uiv(GLint location, GLsizei count, const GLuint* value)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glUniform2uiv(location, count, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glUniform3uiv(GLint location, GLsizei count, const GLuint* value)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glUniform3uiv(location, count, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glUniform4uiv(GLint location, GLsizei count, const GLuint* value)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glUniform4uiv(location, count, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glClearBufferiv(GLenum buffer, GLint drawbuffer, const GLint* value)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glClearBufferiv(buffer, drawbuffer, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glClearBufferuiv(GLenum buffer, GLint drawbuffer, const GLuint* value)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glClearBufferuiv(buffer, drawbuffer, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glClearBufferfv(GLenum buffer, GLint drawbuffer, const GLfloat* value)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glClearBufferfv(buffer, drawbuffer, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glClearBufferfi(GLenum buffer, GLint drawbuffer, GLfloat depth, GLint stencil)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glClearBufferfi(buffer, drawbuffer, depth, stencil);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+const GLubyte*
+fastpath_glGetStringi(GLenum name, GLuint index)
+{
+	const GLubyte* ret = NULL;
+
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	ret = _orig_fastpath_glGetStringi(name, index);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+	return ret;
+}
+
+void
+fastpath_glCopyBufferSubData(GLenum readTarget, GLenum writeTarget, GLintptr readOffset, GLintptr writeOffset, GLsizeiptr size)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glCopyBufferSubData(readTarget, writeTarget, readOffset, writeOffset, size);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glGetUniformIndices(GLuint program, GLsizei uniformCount, const GLchar* const* uniformNames, GLuint* uniformIndices)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glGetUniformIndices(program, uniformCount, uniformNames, uniformIndices);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glGetActiveUniformsiv(GLuint program, GLsizei uniformCount, const GLuint* uniformIndices, GLenum pname, GLint* params)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glGetActiveUniformsiv(program, uniformCount, uniformIndices, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+GLuint
+fastpath_glGetUniformBlockIndex(GLuint program, const GLchar* uniformBlockName)
+{
+	GLuint ret = _COREGL_INT_INIT_VALUE;
+
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	ret = _orig_fastpath_glGetUniformBlockIndex(program, uniformBlockName);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+	return ret;
+}
+
+void
+fastpath_glGetActiveUniformBlockiv(GLuint program, GLuint uniformBlockIndex, GLenum pname, GLint* params)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glGetActiveUniformBlockiv(program, uniformBlockIndex, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glGetActiveUniformBlockName(GLuint program, GLuint uniformBlockIndex, GLsizei bufSize, GLsizei* length, GLchar* uniformBlockName)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glGetActiveUniformBlockName(program, uniformBlockIndex, bufSize, length, uniformBlockName);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glUniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glUniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glDrawArraysInstanced(GLenum mode, GLint first, GLsizei count, GLsizei instanceCount)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glDrawArraysInstanced(mode, first, count, instanceCount);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glDrawElementsInstanced(GLenum mode, GLsizei count, GLenum type, const GLvoid* indices, GLsizei instanceCount)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glDrawElementsInstanced(mode, count, type, indices, instanceCount);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+GLsync
+fastpath_glFenceSync(GLenum condition, GLbitfield flags)
+{
+	GLsync ret = NULL;
+
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	ret = _orig_fastpath_glFenceSync(condition, flags);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+	return ret;
+}
+
+GLboolean
+fastpath_glIsSync(GLsync sync)
+{
+	GLboolean ret = GL_FALSE;
+
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	ret = _orig_fastpath_glIsSync(sync);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+	return ret;
+}
+
+void
+fastpath_glDeleteSync(GLsync sync)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glDeleteSync(sync);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+GLenum
+fastpath_glClientWaitSync(GLsync sync, GLbitfield flags, GLuint64 timeout)
+{
+	GLenum ret = _COREGL_INT_INIT_VALUE;
+
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	ret = _orig_fastpath_glClientWaitSync(sync, flags, timeout);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+	return ret;
+}
+
+void
+fastpath_glWaitSync(GLsync sync, GLbitfield flags, GLuint64 timeout)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glWaitSync(sync, flags, timeout);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glGetInteger64v(GLenum pname, GLint64* params)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glGetInteger64v(pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glGetSynciv(GLsync sync, GLenum pname, GLsizei bufSize, GLsizei* length, GLint* values)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glGetSynciv(sync, pname, bufSize, length, values);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glGetInteger64i_v(GLenum target, GLuint index, GLint64* data)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glGetInteger64i_v(target, index, data);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glGetBufferParameteri64v(GLenum target, GLenum pname, GLint64* params)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glGetBufferParameteri64v(target, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glGenSamplers(GLsizei count, GLuint* samplers)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glGenSamplers(count, samplers);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glDeleteSamplers(GLsizei count, const GLuint* samplers)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glDeleteSamplers(count, samplers);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+GLboolean
+fastpath_glIsSampler(GLuint sampler)
+{
+	GLboolean ret = GL_FALSE;
+
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	ret = _orig_fastpath_glIsSampler(sampler);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+	return ret;
+}
+
+void
+fastpath_glBindSampler(GLuint unit, GLuint sampler)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glBindSampler(unit, sampler);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glSamplerParameteri(GLuint sampler, GLenum pname, GLint param)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glSamplerParameteri(sampler, pname, param);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glSamplerParameteriv(GLuint sampler, GLenum pname, const GLint* param)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glSamplerParameteriv(sampler, pname, param);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glSamplerParameterf(GLuint sampler, GLenum pname, GLfloat param)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glSamplerParameterf(sampler, pname, param);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glSamplerParameterfv(GLuint sampler, GLenum pname, const GLfloat* param)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glSamplerParameterfv(sampler, pname, param);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glGetSamplerParameteriv(GLuint sampler, GLenum pname, GLint* params)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glGetSamplerParameteriv(sampler, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glGetSamplerParameterfv(GLuint sampler, GLenum pname, GLfloat* params)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glGetSamplerParameterfv(sampler, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glVertexAttribDivisor(GLuint index, GLuint divisor)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glVertexAttribDivisor(index, divisor);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glBindTransformFeedback(GLenum target, GLuint id)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glBindTransformFeedback(target, id);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glDeleteTransformFeedbacks(GLsizei n, const GLuint* ids)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glDeleteTransformFeedbacks(n, ids);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glGenTransformFeedbacks(GLsizei n, GLuint* ids)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glGenTransformFeedbacks(n, ids);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+GLboolean
+fastpath_glIsTransformFeedback(GLuint id)
+{
+	GLboolean ret = GL_FALSE;
+
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	ret = _orig_fastpath_glIsTransformFeedback(id);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+	return ret;
+}
+
+void
+fastpath_glPauseTransformFeedback()
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glPauseTransformFeedback();
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glResumeTransformFeedback()
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glResumeTransformFeedback();
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glProgramParameteri(GLuint program, GLenum pname, GLint value)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glProgramParameteri(program, pname, value);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glInvalidateFramebuffer(GLenum target, GLsizei numAttachments, const GLenum* attachments)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glInvalidateFramebuffer(target, numAttachments, attachments);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glInvalidateSubFramebuffer(GLenum target, GLsizei numAttachments, const GLenum* attachments, GLint x, GLint y, GLsizei width, GLsizei height)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glInvalidateSubFramebuffer(target, numAttachments, attachments, x, y, width, height);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glTexStorage2D(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glTexStorage2D(target, levels, internalformat, width, height);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glTexStorage3D(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glTexStorage3D(target, levels, internalformat, width, height, depth);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glGetInternalformativ(GLenum target, GLenum internalformat, GLenum pname, GLsizei bufSize, GLint* params)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glGetInternalformativ(target, internalformat, pname, bufSize, params);
+
 	goto finish;
 
 finish:

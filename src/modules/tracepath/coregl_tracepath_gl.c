@@ -301,20 +301,26 @@ tracepath_glBindFramebuffer(GLenum target, GLuint framebuffer)
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 
 #ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
-	GLint oldfb;
-	_orig_tracepath_glGetIntegerv(GL_FRAMEBUFFER_BINDING, &oldfb);
-	if (oldfb != 0)
+	if (unlikely(trace_surface_flag == 1))
 	{
-		_COREGL_TRACE_SURFACE(0, 2, "GLBINDFBO");
-	}
+		GLint oldfb;
+		_orig_tracepath_glGetIntegerv(GL_FRAMEBUFFER_BINDING, &oldfb);
+		if (oldfb != 0)
+		{
+			_COREGL_TRACE_SURFACE(0, 2, "GLBINDFBO");
+		}
 
-	tracepath_fbdump_update(0);
+		tracepath_fbdump_update(0);
+	}
 #endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 
 	_orig_tracepath_glBindFramebuffer(target, framebuffer);
 
 #ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
-	tracepath_fbdump_update(1);
+	if (unlikely(trace_surface_flag == 1))
+	{
+		tracepath_fbdump_update(1);
+	}
 #endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 
 	goto finish;
