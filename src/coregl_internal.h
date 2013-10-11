@@ -19,6 +19,18 @@
 #define LOG_TAG "CoreGL"
 #include <dlog.h>
 
+///////////////////////////////////////
+// Disable dlog for debugging urgent issues //
+#ifdef COREGL_DEBUG
+# undef LOGE
+# define LOGE printf
+# undef LOGW
+# define LOGW printf
+# undef LOGD
+# define LOGD printf
+#endif
+///////////////////////////////////////
+
 # define COREGL_ERR(...) \
      LOGE(" "__VA_ARGS__)
 # define COREGL_WRN(...) \
