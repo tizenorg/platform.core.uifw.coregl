@@ -123,6 +123,7 @@ typedef enum
     GL_OBJECT_TYPE_FRAMEBUFFER   = 0x3000000,
     GL_OBJECT_TYPE_RENDERBUFFER  = 0x4000000,
     GL_OBJECT_TYPE_PROGRAM       = 0x5000000,
+    GL_OBJECT_TYPE_QUERY          = 0x6000000,
 } GL_Object_Type;
 
 typedef struct _GL_Object
@@ -161,12 +162,14 @@ typedef struct _GL_Shared_Object_State
 	GL_Object_Hash_Base      framebuffer;
 	GL_Object_Hash_Base      renderbuffer;
 	GL_Object_Hash_Base      program;
+	GL_Object_Hash_Base      query;
 
 	GL_Object_Hash_Base      texture_real;
 	GL_Object_Hash_Base      buffer_real;
 	GL_Object_Hash_Base      framebuffer_real;
 	GL_Object_Hash_Base      renderbuffer_real;
 	GL_Object_Hash_Base      program_real;
+	GL_Object_Hash_Base      query_real;
 } GL_Shared_Object_State;
 
 typedef struct _GLGlueContext
@@ -203,6 +206,7 @@ typedef struct _GLGlueContext
 	unsigned char           _stencil_flag2;
 	unsigned char           _misc_flag1;
 	unsigned char           _misc_flag2;
+	unsigned char           _misc_flag3;
 	unsigned char           _vattrib_flag;
 
 	GL_Shared_Object_State *sostate;

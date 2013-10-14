@@ -146,3 +146,6 @@ GLUE_STATE(GLfloat, gl_vertex_attrib_value, 4 * INITIAL_CTX->gl_num_vertex_attri
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 4, SET_4(0, 0, 0, 1)),
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 4, _sym_glGetVertexAttribfv(i, GL_CURRENT_VERTEX_ATTRIB, (GLfloat *)value);))
 
+// MISC FLAG 3
+GLUE_STATE(GLenum, gl_read_buffer, 1, 1, SET_1(GL_BACK), _sym_glGetIntegerv(GL_READ_BUFFER, (GLint *)value);)
+

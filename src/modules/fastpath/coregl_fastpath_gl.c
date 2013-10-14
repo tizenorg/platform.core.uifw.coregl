@@ -4025,22 +4025,6 @@ finish:
 
 
 
-void
-fastpath_glDrawArrays(GLenum mode, GLint first, GLsizei count)
-{
-	DEFINE_FASTPAH_GL_FUNC();
-	_COREGL_FASTPATH_FUNC_BEGIN();
-	INIT_FASTPATH_GL_FUNC();
-
-	_orig_fastpath_glDrawArrays(mode, first, count);
-
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-}
-
-
 /* ES 3.0 PASS (SUPPORT) */
 void
 fastpath_glGetProgramBinary(GLuint program, GLsizei bufsize, GLsizei* length, GLenum* binaryFormat, void* binary)
@@ -4065,6 +4049,7 @@ finish:
 	_COREGL_FASTPATH_FUNC_END();
 }
 
+
 void
 fastpath_glProgramBinary(GLuint program, GLenum binaryFormat, const void* binary, GLint length)
 {
@@ -4088,16 +4073,22 @@ finish:
 	_COREGL_FASTPATH_FUNC_END();
 }
 
-/* ES 3.0 BLOCK (UNTIL SUPPORT) */
-#define SIGILL_ERROR() \
-	COREGL_ERR("\E[40;31;1mFASTPATH can't support ES3.0 API '%s' (will be terminated with Illegal instruction!)\E[0m\n", __func__); \
-	kill(getpid(), SIGILL)
 
 void
 fastpath_glReadBuffer(GLenum mode)
 {
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glReadBuffer(mode);
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	CURR_STATE_COMPARE(gl_read_buffer, mode)
+	{
+		IF_GL_SUCCESS(_orig_fastpath_glReadBuffer(mode))
+		{
+			current_ctx->_misc_flag3 |= FLAG_BIT_0;
+			current_ctx->gl_read_buffer[0] = mode;
+		}
+	}
 
 	goto finish;
 
@@ -4105,49 +4096,141 @@ finish:
 	_COREGL_FASTPATH_FUNC_END();
 }
 
-void
-fastpath_glDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid* indices)
-{
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glDrawRangeElements(mode, start, end, count, type, indices);
-
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-}
 
 void
 fastpath_glGenQueries(GLsizei n, GLuint* ids)
 {
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glGenQueries(n, ids);
+	int i;
+	GLuint *objid_array = NULL;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (n < 0)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+	if (n == 0) goto finish;
+	if (ids == NULL) goto finish;
+
+	AST(current_ctx->sostate != NULL);
+
+	objid_array = (GLuint *)calloc(1, sizeof(GLuint) * n);
+
+	IF_GL_SUCCESS(_orig_fastpath_glGenQueries(n, objid_array))
+	{
+		for (i = 0; i < n; i++)
+		{
+			ids[i] = fastpath_sostate_create_object(current_ctx->sostate, GL_OBJECT_TYPE_QUERY, objid_array[i]);
+		}
+	}
 
 	goto finish;
 
 finish:
+	if (objid_array != NULL)
+	{
+		free(objid_array);
+		objid_array = NULL;
+	}
 	_COREGL_FASTPATH_FUNC_END();
 }
+
 
 void
 fastpath_glDeleteQueries(GLsizei n, const GLuint* ids)
 {
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glDeleteQueries(n, ids);
+	int i, j;
+	GLuint *objid_array = NULL;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (n < 0)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+	if (n == 0) goto finish;
+	if (ids == NULL) goto finish;
+
+	AST(current_ctx->sostate != NULL);
+
+	objid_array = (GLuint *)calloc(1, sizeof(GLuint) * n);
+	{
+		int real_n = 0;
+
+		for (i = 0; i < n; i++)
+		{
+			int real_objid = _COREGL_INT_INIT_VALUE;
+			if (ids[i] == 0) continue;
+
+			real_objid = fastpath_sostate_get_object(current_ctx->sostate, GL_OBJECT_TYPE_QUERY, ids[i]);
+			if (real_objid == 0) continue;
+
+			AST(fastpath_sostate_remove_object(current_ctx->sostate, GL_OBJECT_TYPE_QUERY, ids[i]) == 1);
+			objid_array[real_n++] = real_objid;
+		}
+
+		IF_GL_SUCCESS(_orig_fastpath_glDeleteQueries(real_n, objid_array))
+		{
+			/*
+			for (i = 0; i < real_n; i++)
+			{
+				General_Trace_List *current = NULL;
+				current = current_ctx->sostate->using_gctxs;
+
+				while (current != NULL)
+				{
+					GLGlueContext *cur_gctx = (GLGlueContext *)current->value;
+
+					for (j = 0; j < cur_gctx->gl_num_tex_units[0]; j++)
+					{
+						if (cur_gctx->gl_tex_2d_state[j] == objid_array[i])
+							cur_gctx->gl_tex_2d_state[j] = 0;
+						if (cur_gctx->gl_tex_cube_state[j] == objid_array[i])
+							cur_gctx->gl_tex_cube_state[j] = 0;
+					}
+
+					current = current->next;
+				}
+			}
+			*/
+		}
+	}
 
 	goto finish;
 
 finish:
+	if (objid_array != NULL)
+	{
+		free(objid_array);
+		objid_array = NULL;
+	}
 	_COREGL_FASTPATH_FUNC_END();
 }
+
 
 GLboolean
 fastpath_glIsQuery(GLuint id)
 {
 	GLboolean ret = GL_FALSE;
+	GLuint real_obj;
 
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	ret = _orig_fastpath_glIsQuery(id);
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_QUERY, id, &real_obj) != 1)
+	{
+		ret = GL_FALSE;
+		goto finish;
+	}
+
+	ret = _orig_fastpath_glIsQuery(real_obj);
 
 	goto finish;
 
@@ -4156,11 +4239,30 @@ finish:
 	return ret;
 }
 
+
+
+/* ES 3.0 BLOCK (UNTIL SUPPORT) */
+#define SIGILL_ERROR() \
+	COREGL_ERR("\E[40;31;1mFASTPATH can't support ES3.0 API '%s' (will be terminated with Illegal instruction!)\E[0m\n", __func__); \
+	kill(getpid(), SIGILL)
+
+
 void
 fastpath_glBeginQuery(GLenum target, GLuint id)
 {
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glBeginQuery(target, id);
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_QUERY, id, &real_obj) != 1)
+	{
+		_set_gl_error(GL_OUT_OF_MEMORY);
+		goto finish;
+	}
+
+	ret = _orig_fastpath_glBeginQuery(target, real_obj);
 
 	goto finish;
 

@@ -295,9 +295,9 @@ fastpath_apply_overrides_gl(int enable)
 		COREGL_OVERRIDE(fastpath_, glEGLImageTargetTexture2DOES);
 		COREGL_OVERRIDE(fastpath_, glFramebufferTexture3DOES);
 
-		/* ES 3.0 BLOCK */
 		COREGL_OVERRIDE(fastpath_, glReadBuffer);
-		COREGL_OVERRIDE(fastpath_, glDrawRangeElements);
+
+		/* ES 3.0 BLOCK */
 		COREGL_OVERRIDE(fastpath_, glGenQueries);
 		COREGL_OVERRIDE(fastpath_, glDeleteQueries);
 		COREGL_OVERRIDE(fastpath_, glIsQuery);
@@ -417,6 +417,8 @@ _get_shared_object_hash(GL_Shared_Object_State *sostate, GL_Object_Type type)
 			return &sostate->renderbuffer;
 		case GL_OBJECT_TYPE_PROGRAM:
 			return &sostate->program;
+		case GL_OBJECT_TYPE_QUERY:
+			return &sostate->query;
 		default:
 			return NULL;
 	}
@@ -437,6 +439,8 @@ _get_shared_object_hash_real(GL_Shared_Object_State *sostate, GL_Object_Type typ
 			return &sostate->renderbuffer_real;
 		case GL_OBJECT_TYPE_PROGRAM:
 			return &sostate->program_real;
+		case GL_OBJECT_TYPE_QUERY:
+			return &sostate->query_real;
 		default:
 			return NULL;
 	}
@@ -603,12 +607,14 @@ fastpath_sostate_init(GL_Shared_Object_State *sostate)
 	HASH_INIT(sostate->framebuffer);
 	HASH_INIT(sostate->renderbuffer);
 	HASH_INIT(sostate->program);
+	HASH_INIT(sostate->query);
 
 	HASH_INIT(sostate->texture_real);
 	HASH_INIT(sostate->buffer_real);
 	HASH_INIT(sostate->framebuffer_real);
 	HASH_INIT(sostate->renderbuffer_real);
 	HASH_INIT(sostate->program_real);
+	HASH_INIT(sostate->query_real);
 
 #undef HASH_INIT
 }
@@ -704,12 +710,14 @@ fastpath_sostate_deinit(GL_Shared_Object_State *sostate)
 	HASH_DEINIT(sostate->framebuffer, 1);
 	HASH_DEINIT(sostate->renderbuffer, 1);
 	HASH_DEINIT(sostate->program, 1);
+	HASH_DEINIT(sostate->query, 1);
 
 	HASH_DEINIT(sostate->texture_real, 0);
 	HASH_DEINIT(sostate->buffer_real, 0);
 	HASH_DEINIT(sostate->framebuffer_real, 0);
 	HASH_DEINIT(sostate->renderbuffer_real, 0);
 	HASH_DEINIT(sostate->program_real, 0);
+	HASH_DEINIT(sostate->query_real, 0);
 
 #undef HASH_DEINIT
 }
@@ -1336,7 +1344,7 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 			}
 			else
 				CHECK_GL_ERROR(_orig_fastpath_glDisable(GL_BLEND))
-			}
+		}
 		STATE_COMPARE(gl_cull_face[0])
 		{
 			if (newctx->gl_cull_face[0])
@@ -1345,7 +1353,7 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 			}
 			else
 				CHECK_GL_ERROR(_orig_fastpath_glDisable(GL_CULL_FACE))
-			}
+		}
 		STATE_COMPARE(gl_depth_test[0])
 		{
 			if (newctx->gl_depth_test[0])
@@ -1354,7 +1362,7 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 			}
 			else
 				CHECK_GL_ERROR(_orig_fastpath_glDisable(GL_DEPTH_TEST))
-			}
+		}
 		STATE_COMPARE(gl_dither[0])
 		{
 			if (newctx->gl_dither[0])
@@ -1363,7 +1371,7 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 			}
 			else
 				CHECK_GL_ERROR(_orig_fastpath_glDisable(GL_DITHER))
-			}
+		}
 	}
 
 	// _enable_flag2
@@ -1378,7 +1386,7 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 			}
 			else
 				CHECK_GL_ERROR(_orig_fastpath_glDisable(GL_POLYGON_OFFSET_FILL))
-			}
+		}
 		STATE_COMPARE(gl_sample_alpha_to_coverage[0])
 		{
 			if (newctx->gl_sample_alpha_to_coverage[0])
@@ -1387,7 +1395,7 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 			}
 			else
 				CHECK_GL_ERROR(_orig_fastpath_glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE))
-			}
+		}
 		STATE_COMPARE(gl_sample_coverage[0])
 		{
 			if (newctx->gl_sample_coverage[0])
@@ -1396,7 +1404,7 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 			}
 			else
 				CHECK_GL_ERROR(_orig_fastpath_glDisable(GL_SAMPLE_COVERAGE))
-			}
+		}
 		STATE_COMPARE(gl_scissor_test[0])
 		{
 			if (newctx->gl_scissor_test[0])
@@ -1405,7 +1413,7 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 			}
 			else
 				CHECK_GL_ERROR(_orig_fastpath_glDisable(GL_SCISSOR_TEST))
-			}
+		}
 		STATE_COMPARE(gl_stencil_test[0])
 		{
 			if (newctx->gl_stencil_test[0])
@@ -1414,7 +1422,7 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 			}
 			else
 				CHECK_GL_ERROR(_orig_fastpath_glDisable(GL_STENCIL_TEST))
-			}
+		}
 	}
 
 #ifdef COREGL_USE_MODULE_TRACEPATH
@@ -1680,6 +1688,17 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 			CHECK_GL_ERROR(_orig_fastpath_glPixelStorei(GL_UNPACK_ALIGNMENT, newctx->gl_unpack_alignment[0]))
 		}
 	}
+
+	// _misc_flag3
+	flag = oldctx->_misc_flag3 | newctx->_misc_flag3;
+	if (flag)
+	{
+		STATE_COMPARE(gl_read_buffer[0])
+		{
+			CHECK_GL_ERROR(_orig_fastpath_glReadBuffer(newctx->gl_read_buffer[0]))
+		}
+	}
+
 #ifdef COREGL_USE_MODULE_TRACEPATH
 	tracepath_api_trace_end("eglMakeCurrent(FP etc.)", trace_hint_etc, 0);
 #endif // COREGL_USE_MODULE_TRACEPATH
