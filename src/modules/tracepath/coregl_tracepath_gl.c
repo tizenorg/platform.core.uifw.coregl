@@ -4266,3 +4266,47 @@ finish:
 }
 
 
+void
+tracepath_glGetBufferPointervOES(GLenum target, GLenum pname, GLvoid** params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGetBufferPointervOES(target, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+
+void *
+tracepath_glMapBufferOES(GLenum target, GLenum access)
+{
+	void *ret = NULL;
+
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	ret = _orig_tracepath_glMapBufferOES(target, access);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+   return ret;
+}
+
+
+GLboolean
+tracepath_glUnmapBufferOES(GLenum target)
+{
+	GLboolean ret = GL_FALSE;
+
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	ret = _orig_tracepath_glUnmapBufferOES(target);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+   return ret;
+}
+

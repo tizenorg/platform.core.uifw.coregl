@@ -343,6 +343,12 @@ _COREGL_EXT_SYMBOL_ALIAS(glCompressedTexImage3DOES, glCompressedTexImage3D) // R
 _COREGL_EXT_SYMBOL_ALIAS(glCompressedTexSubImage3DOES, glCompressedTexSubImage3D) // Replaced to ES 3.0 API
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glFramebufferTexture3DOES, (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset))
 
+_COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_mapbuffer", 1.1, -1)
+_COREGL_EXT_SYMBOL(GL_TRUE, void, glGetBufferPointervOES, (GLenum target, GLenum pname, GLvoid** params))
+_COREGL_EXT_SYMBOL(GL_TRUE, void *, glMapBufferOES, (GLenum target, GLenum access))
+_COREGL_EXT_SYMBOL(GL_TRUE, GLboolean, glUnmapBufferOES, (GLenum target))
+
+
 // ANGLE_framebuffer_blit
 _COREGL_EXT_SYMBOL(GL_TRUE, void, glBlitFramebufferANGLE, (GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter))
 
