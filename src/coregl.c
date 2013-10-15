@@ -136,7 +136,7 @@ _gl_lib_init(void)
 {
 	//------------------------------------------------//
 	// Open EGL Library as EGL is separate
-	egl_lib_handle = dlopen("/usr/lib/egl/libEGL.so", RTLD_LAZY|RTLD_GLOBAL);
+	egl_lib_handle = dlopen("/usr/lib/egl/libEGL.so", RTLD_LAZY | RTLD_LOCAL);
 	if (!egl_lib_handle)
 	{
 		COREGL_ERR("\E[40;31;1m%s\E[0m\n\n", dlerror());
@@ -152,7 +152,7 @@ _gl_lib_init(void)
 	}
 
 	// use gl_lib handle for GL symbols
-	gl_lib_handle = dlopen("/usr/lib/egl/libGLESv2.so", RTLD_LAZY|RTLD_GLOBAL);
+	gl_lib_handle = dlopen("/usr/lib/egl/libGLESv2.so", RTLD_LAZY | RTLD_LOCAL);
 	if (!gl_lib_handle)
 	{
 		COREGL_ERR("\E[40;31;1m%s\E[0m\n\n", dlerror());
