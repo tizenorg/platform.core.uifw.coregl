@@ -38,7 +38,7 @@ make %{?jobs:-j%jobs}
 mkdir -p %{buildroot}/usr/lib
 mkdir -p %{buildroot}/usr/include/EGL
 mkdir -p %{buildroot}/usr/include/GLES2
-cp %{_builddir}/%{name}-%{version}/libCOREGL.so.3.0 %{buildroot}%{_libdir}/libCOREGL.so.3.0
+cp %{_builddir}/%{name}-%{version}/libCOREGL.so.4.0 %{buildroot}%{_libdir}/libCOREGL.so.4.0
 cp %{_builddir}/%{name}-%{version}/libEGL.so.1.4 %{buildroot}%{_libdir}/libEGL.so.1.4
 cp %{_builddir}/%{name}-%{version}/libGLESv2.so.2.0 %{buildroot}%{_libdir}/libGLESv2.so.2.0
 
@@ -56,9 +56,9 @@ init_coregl()
     rm -f ./libGLESv2.so
     rm -f ./libGLESv2.so.2
     rm -f ./libCOREGL.so
-    rm -f ./libCOREGL.so.3
-    ln -s libCOREGL.so.3.0 libCOREGL.so.3
-    ln -s libCOREGL.so.3 libCOREGL.so
+    rm -f ./libCOREGL.so.4
+    ln -s libCOREGL.so.4.0 libCOREGL.so.4
+    ln -s libCOREGL.so.4 libCOREGL.so
     ln -s libEGL.so.1.4 libEGL.so.1
     ln -s libEGL.so.1 libEGL.so
     ln -s libGLESv2.so.2.0 libGLESv2.so.2
