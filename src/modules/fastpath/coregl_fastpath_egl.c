@@ -1222,7 +1222,7 @@ fastpath_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLCon
 		width = box_buffer[2];
 		height = box_buffer[3];
 
-		gctx->_clear_flag1 |= FLAG_BIT_0;
+		gctx->_clear_flag1 |= _CLEAR_FLAG1_BIT_gl_viewport;
 		gctx->gl_viewport[0] = 0;
 		gctx->gl_viewport[1] = 0;
 		gctx->gl_viewport[2] = width;
@@ -1232,7 +1232,7 @@ fastpath_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLCon
 		width = box_buffer[2];
 		height = box_buffer[3];
 
-		gctx->_misc_flag2 |= FLAG_BIT_0;
+		gctx->_misc_flag2 |= _MISC_FLAG2_BIT_gl_scissor_box;
 		gctx->gl_scissor_box[0] = 0;
 		gctx->gl_scissor_box[1] = 0;
 		gctx->gl_scissor_box[2] = width;

@@ -85,20 +85,41 @@ Mutex               std_access_mutex = MUTEX_INITIALIZER;
 Surface_Data      **std_table;
 
 static void
-_get_texture_states(GLenum pname, GLint *params)
+_state_get_texture_states(GLenum pname, GLint *params)
 {
 	GLuint cur_active_tex = 0;
 
 	AST(initial_fake_ctx != NULL);
 
-	_sym_glGetIntegerv(GL_ACTIVE_TEXTURE, (GLint *)&cur_active_tex);
+	_orig_tracepath_glGetIntegerv(GL_ACTIVE_TEXTURE, (GLint *)&cur_active_tex);
 	int i;
 	for (i = 0; i < initial_fake_ctx->gl_num_tex_units[0]; i++)
 	{
-		_sym_glActiveTexture(GL_TEXTURE0 + i);
-		_sym_glGetIntegerv(pname, &(((GLint *)params)[i]));
+		_orig_tracepath_glActiveTexture(GL_TEXTURE0 + i);
+		_orig_tracepath_glGetIntegerv(pname, &(((GLint *)params)[i]));
 	}
-	_sym_glActiveTexture(cur_active_tex);
+	_orig_tracepath_glActiveTexture(cur_active_tex);
+}
+
+static void
+_state_get_draw_buffers(GLenum *params)
+{
+	_orig_tracepath_glGetIntegerv(GL_DRAW_BUFFER0, &(((GLint *)params)[0]));
+	_orig_tracepath_glGetIntegerv(GL_DRAW_BUFFER1, &(((GLint *)params)[1]));
+	_orig_tracepath_glGetIntegerv(GL_DRAW_BUFFER2, &(((GLint *)params)[2]));
+	_orig_tracepath_glGetIntegerv(GL_DRAW_BUFFER3, &(((GLint *)params)[3]));
+	_orig_tracepath_glGetIntegerv(GL_DRAW_BUFFER4, &(((GLint *)params)[4]));
+	_orig_tracepath_glGetIntegerv(GL_DRAW_BUFFER5, &(((GLint *)params)[5]));
+	_orig_tracepath_glGetIntegerv(GL_DRAW_BUFFER6, &(((GLint *)params)[6]));
+	_orig_tracepath_glGetIntegerv(GL_DRAW_BUFFER7, &(((GLint *)params)[7]));
+	_orig_tracepath_glGetIntegerv(GL_DRAW_BUFFER8, &(((GLint *)params)[8]));
+	_orig_tracepath_glGetIntegerv(GL_DRAW_BUFFER9, &(((GLint *)params)[9]));
+	_orig_tracepath_glGetIntegerv(GL_DRAW_BUFFER10, &(((GLint *)params)[10]));
+	_orig_tracepath_glGetIntegerv(GL_DRAW_BUFFER11, &(((GLint *)params)[11]));
+	_orig_tracepath_glGetIntegerv(GL_DRAW_BUFFER12, &(((GLint *)params)[12]));
+	_orig_tracepath_glGetIntegerv(GL_DRAW_BUFFER13, &(((GLint *)params)[13]));
+	_orig_tracepath_glGetIntegerv(GL_DRAW_BUFFER14, &(((GLint *)params)[14]));
+	_orig_tracepath_glGetIntegerv(GL_DRAW_BUFFER15, &(((GLint *)params)[15]));
 }
 
 void

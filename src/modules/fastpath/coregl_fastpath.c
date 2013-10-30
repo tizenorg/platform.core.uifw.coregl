@@ -28,7 +28,7 @@ Mutex               ctx_list_access_mutex = MUTEX_INITIALIZER;
 GLContext_List     *glctx_list = NULL;
 
 static void
-_get_texture_states(GLenum pname, GLint *params)
+_state_get_texture_states(GLenum pname, GLint *params)
 {
 	GLuint cur_active_tex = 0;
 
@@ -42,6 +42,33 @@ _get_texture_states(GLenum pname, GLint *params)
 		_orig_fastpath_glGetIntegerv(pname, &(((GLint *)params)[i]));
 	}
 	_orig_fastpath_glActiveTexture(cur_active_tex);
+}
+
+static void
+_state_get_draw_buffers(GLenum *params)
+{
+	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER0, &(((GLint *)params)[0]));
+	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER1, &(((GLint *)params)[1]));
+	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER2, &(((GLint *)params)[2]));
+	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER3, &(((GLint *)params)[3]));
+	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER4, &(((GLint *)params)[4]));
+	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER5, &(((GLint *)params)[5]));
+	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER6, &(((GLint *)params)[6]));
+	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER7, &(((GLint *)params)[7]));
+	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER8, &(((GLint *)params)[8]));
+	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER9, &(((GLint *)params)[9]));
+	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER10, &(((GLint *)params)[10]));
+	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER11, &(((GLint *)params)[11]));
+	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER12, &(((GLint *)params)[12]));
+	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER13, &(((GLint *)params)[13]));
+	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER14, &(((GLint *)params)[14]));
+	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER15, &(((GLint *)params)[15]));
+}
+
+void
+fastpath_state_get_draw_buffers(GLenum *params)
+{
+	_state_get_draw_buffers(params);
 }
 
 void
@@ -305,25 +332,21 @@ fastpath_apply_overrides_gl(int enable)
 		COREGL_OVERRIDE(fastpath_, glEndQuery);
 		COREGL_OVERRIDE(fastpath_, glGetQueryiv);
 		COREGL_OVERRIDE(fastpath_, glGetQueryObjectuiv);
-		COREGL_OVERRIDE(fastpath_, glUnmapBuffer);
-		COREGL_OVERRIDE(fastpath_, glGetBufferPointerv);
 		COREGL_OVERRIDE(fastpath_, glDrawBuffers);
-		COREGL_OVERRIDE(fastpath_, glUniformMatrix2x3fv);
-		COREGL_OVERRIDE(fastpath_, glUniformMatrix3x2fv);
-		COREGL_OVERRIDE(fastpath_, glUniformMatrix2x4fv);
-		COREGL_OVERRIDE(fastpath_, glUniformMatrix4x2fv);
-		COREGL_OVERRIDE(fastpath_, glUniformMatrix3x4fv);
-		COREGL_OVERRIDE(fastpath_, glUniformMatrix4x3fv);
 		COREGL_OVERRIDE(fastpath_, glFramebufferTextureLayer);
-		COREGL_OVERRIDE(fastpath_, glMapBufferRange);
-		COREGL_OVERRIDE(fastpath_, glFlushMappedBufferRange);
+
 		COREGL_OVERRIDE(fastpath_, glBindVertexArray);
 		COREGL_OVERRIDE(fastpath_, glDeleteVertexArrays);
 		COREGL_OVERRIDE(fastpath_, glGenVertexArrays);
 		COREGL_OVERRIDE(fastpath_, glIsVertexArray);
+
 		COREGL_OVERRIDE(fastpath_, glGetIntegeri_v);
-		COREGL_OVERRIDE(fastpath_, glBeginTransformFeedback);
-		COREGL_OVERRIDE(fastpath_, glEndTransformFeedback);
+
+		COREGL_OVERRIDE(fastpath_, glBindTransformFeedback);
+		COREGL_OVERRIDE(fastpath_, glDeleteTransformFeedbacks);
+		COREGL_OVERRIDE(fastpath_, glGenTransformFeedbacks);
+		COREGL_OVERRIDE(fastpath_, glIsTransformFeedback);
+
 		COREGL_OVERRIDE(fastpath_, glBindBufferRange);
 		COREGL_OVERRIDE(fastpath_, glBindBufferBase);
 		COREGL_OVERRIDE(fastpath_, glTransformFeedbackVaryings);
@@ -337,14 +360,6 @@ fastpath_apply_overrides_gl(int enable)
 		COREGL_OVERRIDE(fastpath_, glVertexAttribI4uiv);
 		COREGL_OVERRIDE(fastpath_, glGetUniformuiv);
 		COREGL_OVERRIDE(fastpath_, glGetFragDataLocation);
-		COREGL_OVERRIDE(fastpath_, glUniform1ui);
-		COREGL_OVERRIDE(fastpath_, glUniform2ui);
-		COREGL_OVERRIDE(fastpath_, glUniform3ui);
-		COREGL_OVERRIDE(fastpath_, glUniform4ui);
-		COREGL_OVERRIDE(fastpath_, glUniform1uiv);
-		COREGL_OVERRIDE(fastpath_, glUniform2uiv);
-		COREGL_OVERRIDE(fastpath_, glUniform3uiv);
-		COREGL_OVERRIDE(fastpath_, glUniform4uiv);
 		COREGL_OVERRIDE(fastpath_, glClearBufferiv);
 		COREGL_OVERRIDE(fastpath_, glClearBufferuiv);
 		COREGL_OVERRIDE(fastpath_, glClearBufferfv);
@@ -379,12 +394,6 @@ fastpath_apply_overrides_gl(int enable)
 		COREGL_OVERRIDE(fastpath_, glGetSamplerParameteriv);
 		COREGL_OVERRIDE(fastpath_, glGetSamplerParameterfv);
 		COREGL_OVERRIDE(fastpath_, glVertexAttribDivisor);
-		COREGL_OVERRIDE(fastpath_, glBindTransformFeedback);
-		COREGL_OVERRIDE(fastpath_, glDeleteTransformFeedbacks);
-		COREGL_OVERRIDE(fastpath_, glGenTransformFeedbacks);
-		COREGL_OVERRIDE(fastpath_, glIsTransformFeedback);
-		COREGL_OVERRIDE(fastpath_, glPauseTransformFeedback);
-		COREGL_OVERRIDE(fastpath_, glResumeTransformFeedback);
 		COREGL_OVERRIDE(fastpath_, glGetProgramBinary); // OPEN
 		COREGL_OVERRIDE(fastpath_, glProgramBinary); // OPEN
 		COREGL_OVERRIDE(fastpath_, glProgramParameteri);
@@ -407,6 +416,8 @@ _get_shared_object_hash(GL_Shared_Object_State *sostate, GL_Object_Type type)
 {
 	switch (type)
 	{
+		case GL_OBJECT_TYPE_QUERY:
+			return &sostate->query;
 		case GL_OBJECT_TYPE_TEXTURE:
 			return &sostate->texture;
 		case GL_OBJECT_TYPE_BUFFER:
@@ -417,8 +428,10 @@ _get_shared_object_hash(GL_Shared_Object_State *sostate, GL_Object_Type type)
 			return &sostate->renderbuffer;
 		case GL_OBJECT_TYPE_PROGRAM:
 			return &sostate->program;
-		case GL_OBJECT_TYPE_QUERY:
-			return &sostate->query;
+		case GL_OBJECT_TYPE_VERTEXARRAY:
+			return &sostate->vertexarray;
+		case GL_OBJECT_TYPE_TRANSFORMFEEDBACK:
+			return &sostate->transformfeedback;
 		default:
 			return NULL;
 	}
@@ -429,6 +442,8 @@ _get_shared_object_hash_real(GL_Shared_Object_State *sostate, GL_Object_Type typ
 {
 	switch (type)
 	{
+		case GL_OBJECT_TYPE_QUERY:
+			return &sostate->query_real;
 		case GL_OBJECT_TYPE_TEXTURE:
 			return &sostate->texture_real;
 		case GL_OBJECT_TYPE_BUFFER:
@@ -439,8 +454,10 @@ _get_shared_object_hash_real(GL_Shared_Object_State *sostate, GL_Object_Type typ
 			return &sostate->renderbuffer_real;
 		case GL_OBJECT_TYPE_PROGRAM:
 			return &sostate->program_real;
-		case GL_OBJECT_TYPE_QUERY:
-			return &sostate->query_real;
+		case GL_OBJECT_TYPE_VERTEXARRAY:
+			return &sostate->vertexarray_real;
+		case GL_OBJECT_TYPE_TRANSFORMFEEDBACK:
+			return &sostate->transformfeedback_real;
 		default:
 			return NULL;
 	}
@@ -602,19 +619,23 @@ fastpath_sostate_init(GL_Shared_Object_State *sostate)
 	hash_base.hash_field = (GL_Object_Hash **)calloc(1, sizeof(GL_Object_Hash *) * GL_OBJECT_HASH_BASE); \
 	hash_base.hash_size = GL_OBJECT_HASH_BASE;
 
+	HASH_INIT(sostate->query);
 	HASH_INIT(sostate->texture);
 	HASH_INIT(sostate->buffer);
 	HASH_INIT(sostate->framebuffer);
 	HASH_INIT(sostate->renderbuffer);
 	HASH_INIT(sostate->program);
-	HASH_INIT(sostate->query);
+	HASH_INIT(sostate->vertexarray);
+	HASH_INIT(sostate->transformfeedback);
 
+	HASH_INIT(sostate->query_real);
 	HASH_INIT(sostate->texture_real);
 	HASH_INIT(sostate->buffer_real);
 	HASH_INIT(sostate->framebuffer_real);
 	HASH_INIT(sostate->renderbuffer_real);
 	HASH_INIT(sostate->program_real);
-	HASH_INIT(sostate->query_real);
+	HASH_INIT(sostate->vertexarray_real);
+	HASH_INIT(sostate->transformfeedback_real);
 
 #undef HASH_INIT
 }
@@ -705,19 +726,23 @@ fastpath_sostate_deinit(GL_Shared_Object_State *sostate)
 	free(hash_base.hash_field); \
 	hash_base.hash_size = 0;
 
+	HASH_DEINIT(sostate->query, 1);
 	HASH_DEINIT(sostate->texture, 1);
 	HASH_DEINIT(sostate->buffer, 1);
 	HASH_DEINIT(sostate->framebuffer, 1);
 	HASH_DEINIT(sostate->renderbuffer, 1);
 	HASH_DEINIT(sostate->program, 1);
-	HASH_DEINIT(sostate->query, 1);
+	HASH_DEINIT(sostate->vertexarray, 1);
+	HASH_DEINIT(sostate->transformfeedback, 1);
 
+	HASH_DEINIT(sostate->query_real, 0);
 	HASH_DEINIT(sostate->texture_real, 0);
 	HASH_DEINIT(sostate->buffer_real, 0);
 	HASH_DEINIT(sostate->framebuffer_real, 0);
 	HASH_DEINIT(sostate->renderbuffer_real, 0);
 	HASH_DEINIT(sostate->program_real, 0);
-	HASH_DEINIT(sostate->query_real, 0);
+	HASH_DEINIT(sostate->vertexarray_real, 0);
+	HASH_DEINIT(sostate->transformfeedback_real, 0);
 
 #undef HASH_DEINIT
 }
@@ -1275,11 +1300,59 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 	tracepath_api_trace_end("eglMakeCurrent(FP glFinish)", trace_hint_glfinish, 0);
 #endif // COREGL_USE_MODULE_TRACEPATH
 
+	// _varray_flag
+#ifdef COREGL_USE_MODULE_TRACEPATH
+	static void *trace_hint_vertex_attrib = NULL;
+	trace_hint_vertex_attrib = tracepath_api_trace_begin("eglMakeCurrent(FP vertex attrib)", trace_hint_vertex_attrib, 0);
+#endif // COREGL_USE_MODULE_TRACEPATH
+
+	flag = oldctx->_vattrib_flag | newctx->_vattrib_flag;
+	if (flag)
+	{
+		for (i = 0; i < oldctx->gl_num_vertex_attribs[0]; i++)
+		{
+			if (newctx->gl_vertex_array_buf_id[i] != oldctx->gl_vertex_array_buf_id[i])
+			{
+				CHECK_GL_ERROR(_orig_fastpath_glBindBuffer(GL_ARRAY_BUFFER, newctx->gl_vertex_array_buf_id[i]))
+			}
+			else
+			{
+				CHECK_GL_ERROR(_orig_fastpath_glBindBuffer(GL_ARRAY_BUFFER, 0))
+			}
+
+			CHECK_GL_ERROR(_orig_fastpath_glVertexAttribPointer(i,
+			               newctx->gl_vertex_array_size[i],
+			               newctx->gl_vertex_array_type[i],
+			               newctx->gl_vertex_array_normalized[i],
+			               newctx->gl_vertex_array_stride[i],
+			               newctx->gl_vertex_array_pointer[i]))
+
+			STATES_COMPARE(gl_vertex_attrib_value + 4 * i, 4 * sizeof(GLfloat))
+			{
+				CHECK_GL_ERROR(_orig_fastpath_glVertexAttrib4fv(i, &newctx->gl_vertex_attrib_value[4 * i]))
+			}
+
+			if (newctx->gl_vertex_array_enabled[i] == GL_TRUE)
+			{
+				CHECK_GL_ERROR(_orig_fastpath_glEnableVertexAttribArray(i))
+			}
+			else
+			{
+				CHECK_GL_ERROR(_orig_fastpath_glDisableVertexAttribArray(i))
+			}
+		}
+
+	}
+
+#ifdef COREGL_USE_MODULE_TRACEPATH
+	tracepath_api_trace_end("eglMakeCurrent(FP vertex attrib)", trace_hint_vertex_attrib, 0);
+#endif // COREGL_USE_MODULE_TRACEPATH
+
+
 #ifdef COREGL_USE_MODULE_TRACEPATH
 	static void *trace_hint_bindbuffers = NULL;
 	trace_hint_bindbuffers = tracepath_api_trace_begin("eglMakeCurrent(FP bind buffers)", trace_hint_bindbuffers, 0);
 #endif // COREGL_USE_MODULE_TRACEPATH
-
 
 	//------------------//
 	// _bind_flag
@@ -1290,9 +1363,33 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 		{
 			CHECK_GL_ERROR(_orig_fastpath_glBindBuffer(GL_ARRAY_BUFFER, newctx->gl_array_buffer_binding[0]))
 		}
+		STATE_COMPARE(gl_copy_read_buffer_binding[0])
+		{
+			CHECK_GL_ERROR(_orig_fastpath_glBindBuffer(GL_COPY_READ_BUFFER, newctx->gl_copy_read_buffer_binding[0]))
+		}
+		STATE_COMPARE(gl_copy_write_buffer_binding[0])
+		{
+			CHECK_GL_ERROR(_orig_fastpath_glBindBuffer(GL_COPY_WRITE_BUFFER, newctx->gl_copy_write_buffer_binding[0]))
+		}
 		STATE_COMPARE(gl_element_array_buffer_binding[0])
 		{
 			CHECK_GL_ERROR(_orig_fastpath_glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, newctx->gl_element_array_buffer_binding[0]))
+		}
+		STATE_COMPARE(gl_pixel_pack_buffer_binding[0])
+		{
+			CHECK_GL_ERROR(_orig_fastpath_glBindBuffer(GL_PIXEL_PACK_BUFFER, newctx->gl_pixel_pack_buffer_binding[0]))
+		}
+		STATE_COMPARE(gl_pixel_unpack_buffer_binding[0])
+		{
+			CHECK_GL_ERROR(_orig_fastpath_glBindBuffer(GL_PIXEL_UNPACK_BUFFER, newctx->gl_pixel_unpack_buffer_binding[0]))
+		}
+		STATE_COMPARE(gl_transform_feedback_buffer_binding[0])
+		{
+			CHECK_GL_ERROR(_orig_fastpath_glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, newctx->gl_transform_feedback_buffer_binding[0]))
+		}
+		STATE_COMPARE(gl_uniform_buffer_binding[0])
+		{
+			CHECK_GL_ERROR(_orig_fastpath_glBindBuffer(GL_UNIFORM_BUFFER, newctx->gl_uniform_buffer_binding[0]))
 		}
 		// ANGLE_framebuffer_blit BEGIN
 		if (newctx->gl_framebuffer_binding_read_used == 1)
@@ -1697,67 +1794,26 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 		{
 			CHECK_GL_ERROR(_orig_fastpath_glReadBuffer(newctx->gl_read_buffer[0]))
 		}
+		STATES_COMPARE(gl_draw_buffers, 16 * sizeof(GLenum))
+		{
+			CHECK_GL_ERROR(_orig_fastpath_glDrawBuffers(16, newctx->gl_draw_buffers))
+		}
+		STATE_COMPARE(gl_vertex_array_binding[0])
+		{
+			CHECK_GL_ERROR(_orig_fastpath_glBindVertexArray(newctx->gl_vertex_array_binding[0]))
+		}
+		STATE_COMPARE(gl_transform_feedback_binding[0])
+		{
+			CHECK_GL_ERROR(_orig_fastpath_glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, newctx->gl_transform_feedback_binding[0]))
+		}
+//		STATE_COMPARE(gl_transform_feedback_state[0])
+//		{
+			//CHECK_GL_ERROR(_orig_fastpath_glBindVertexArray(newctx->gl_vertex_array_binding[0]))
+//		}
 	}
 
 #ifdef COREGL_USE_MODULE_TRACEPATH
 	tracepath_api_trace_end("eglMakeCurrent(FP etc.)", trace_hint_etc, 0);
-#endif // COREGL_USE_MODULE_TRACEPATH
-
-	// _varray_flag
-#ifdef COREGL_USE_MODULE_TRACEPATH
-	static void *trace_hint_vertex_attrib = NULL;
-	trace_hint_vertex_attrib = tracepath_api_trace_begin("eglMakeCurrent(FP vertex attrib)", trace_hint_vertex_attrib, 0);
-#endif // COREGL_USE_MODULE_TRACEPATH
-
-	flag = oldctx->_vattrib_flag | newctx->_vattrib_flag;
-	if (flag)
-	{
-		for (i = 0; i < oldctx->gl_num_vertex_attribs[0]; i++)
-		{
-			if (newctx->gl_vertex_array_buf_id[i] != oldctx->gl_vertex_array_buf_id[i])
-			{
-				CHECK_GL_ERROR(_orig_fastpath_glBindBuffer(GL_ARRAY_BUFFER, newctx->gl_vertex_array_buf_id[i]))
-			}
-			else
-			{
-				CHECK_GL_ERROR(_orig_fastpath_glBindBuffer(GL_ARRAY_BUFFER, 0))
-			}
-
-			CHECK_GL_ERROR(_orig_fastpath_glVertexAttribPointer(i,
-			               newctx->gl_vertex_array_size[i],
-			               newctx->gl_vertex_array_type[i],
-			               newctx->gl_vertex_array_normalized[i],
-			               newctx->gl_vertex_array_stride[i],
-			               newctx->gl_vertex_array_pointer[i]))
-
-			STATES_COMPARE(gl_vertex_attrib_value + 4 * i, 4 * sizeof(GLfloat))
-			{
-				CHECK_GL_ERROR(_orig_fastpath_glVertexAttrib4fv(i, &newctx->gl_vertex_attrib_value[4 * i]))
-			}
-
-			if (newctx->gl_vertex_array_enabled[i] == GL_TRUE)
-			{
-				CHECK_GL_ERROR(_orig_fastpath_glEnableVertexAttribArray(i))
-			}
-			else
-			{
-				CHECK_GL_ERROR(_orig_fastpath_glDisableVertexAttribArray(i))
-			}
-		}
-
-		STATE_COMPARE(gl_array_buffer_binding[0])
-		{
-			CHECK_GL_ERROR(_orig_fastpath_glBindBuffer(GL_ARRAY_BUFFER, newctx->gl_array_buffer_binding[0]))
-		}
-		STATE_COMPARE(gl_element_array_buffer_binding[0])
-		{
-			CHECK_GL_ERROR(_orig_fastpath_glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, newctx->gl_element_array_buffer_binding[0]))
-		}
-
-	}
-
-#ifdef COREGL_USE_MODULE_TRACEPATH
-	tracepath_api_trace_end("eglMakeCurrent(FP vertex attrib)", trace_hint_vertex_attrib, 0);
 #endif // COREGL_USE_MODULE_TRACEPATH
 
 	ret = 1;

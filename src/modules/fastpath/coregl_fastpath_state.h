@@ -25,7 +25,13 @@ GLUE_STATE(GLuint, gl_num_vertex_attribs, 1, 1,
            _sym_glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, (GLint *)value);)
 
 GLUE_STATE(GLuint, gl_array_buffer_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_ARRAY_BUFFER_BINDING, (GLint *)value);)
+GLUE_STATE(GLuint, gl_copy_read_buffer_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_COPY_READ_BUFFER_BINDING, (GLint *)value);)
+GLUE_STATE(GLuint, gl_copy_write_buffer_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_COPY_WRITE_BUFFER_BINDING, (GLint *)value);)
 GLUE_STATE(GLuint, gl_element_array_buffer_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, (GLint *)value);)
+GLUE_STATE(GLuint, gl_pixel_pack_buffer_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_PIXEL_PACK_BUFFER_BINDING, (GLint *)value);)
+GLUE_STATE(GLuint, gl_pixel_unpack_buffer_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_PIXEL_UNPACK_BUFFER_BINDING, (GLint *)value);)
+GLUE_STATE(GLuint, gl_transform_feedback_buffer_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, (GLint *)value);)
+GLUE_STATE(GLuint, gl_uniform_buffer_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_UNIFORM_BUFFER_BINDING, (GLint *)value);)
 GLUE_STATE(GLuint, gl_framebuffer_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint *)value);)
 // ANGLE_framebuffer_blit BEGIN (check gl_framebuffer_binding_read_used)
 GLUE_STATE(GLuint, gl_framebuffer_binding_read, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING_ANGLE, (GLint *)value);)
@@ -60,10 +66,10 @@ GLUE_STATE(GLenum, gl_cull_face_mode, 1, 1, SET_1(GL_BACK), _sym_glGetIntegerv(G
 
 GLUE_STATE(GLuint, gl_tex_2d_state, INITIAL_CTX->gl_num_tex_units[0], MAX_TEXTURE_UNITS,
            SET_N(INITIAL_CTX->gl_num_tex_units[0], 1, SET_1(0)),
-           _get_texture_states(GL_TEXTURE_BINDING_2D, (GLint *)value);)
+           _state_get_texture_states(GL_TEXTURE_BINDING_2D, (GLint *)value);)
 GLUE_STATE(GLuint, gl_tex_cube_state, INITIAL_CTX->gl_num_tex_units[0], MAX_TEXTURE_UNITS,
            SET_N(INITIAL_CTX->gl_num_tex_units[0], 1, SET_1(0)),
-           _get_texture_states(GL_TEXTURE_BINDING_CUBE_MAP, (GLint *)value);)
+           _state_get_texture_states(GL_TEXTURE_BINDING_CUBE_MAP, (GLint *)value);)
 
 GLUE_STATE(GLenum, gl_active_texture, 1, 1, SET_1(GL_TEXTURE0), _sym_glGetIntegerv(GL_ACTIVE_TEXTURE, (GLint *)value))
 GLUE_STATE(GLenum, gl_generate_mipmap_hint, 1, 1, SET_1(GL_DONT_CARE), _sym_glGetIntegerv(GL_GENERATE_MIPMAP_HINT, (GLint *)value))
@@ -148,4 +154,11 @@ GLUE_STATE(GLfloat, gl_vertex_attrib_value, 4 * INITIAL_CTX->gl_num_vertex_attri
 
 // MISC FLAG 3
 GLUE_STATE(GLenum, gl_read_buffer, 1, 1, SET_1(GL_BACK), _sym_glGetIntegerv(GL_READ_BUFFER, (GLint *)value);)
+GLUE_STATE(GLenum, gl_draw_buffers, 16, 16,
+           _state_get_draw_buffers(value); /* DEFAULT NOT EFFECT */,
+           _state_get_draw_buffers(value);)
+GLUE_STATE(GLuint, gl_vertex_array_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_VERTEX_ARRAY_BINDING, (GLint *)value);)
+GLUE_STATE(GLuint, gl_transform_feedback_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_TRANSFORM_FEEDBACK_BINDING, (GLint *)value);)
+GLUE_STATE(GLboolean, gl_transform_feedback_active, 1, 1, SET_1(0), _sym_glGetBooleanv(GL_TRANSFORM_FEEDBACK_ACTIVE, (GLboolean *)value);)
+GLUE_STATE(GLboolean, gl_transform_feedback_paused, 1, 1, SET_1(0), _sym_glGetBooleanv(GL_TRANSFORM_FEEDBACK_PAUSED, (GLboolean *)value);)
 

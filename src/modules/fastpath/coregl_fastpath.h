@@ -117,13 +117,15 @@ typedef struct
 
 typedef enum
 {
-    GL_OBJECT_TYPE_UNKNOWN       = 0x0,
-    GL_OBJECT_TYPE_TEXTURE       = 0x1000000,
-    GL_OBJECT_TYPE_BUFFER        = 0x2000000,
-    GL_OBJECT_TYPE_FRAMEBUFFER   = 0x3000000,
-    GL_OBJECT_TYPE_RENDERBUFFER  = 0x4000000,
-    GL_OBJECT_TYPE_PROGRAM       = 0x5000000,
-    GL_OBJECT_TYPE_QUERY          = 0x6000000,
+    GL_OBJECT_TYPE_QUERY               = 0x0,
+    GL_OBJECT_TYPE_TEXTURE             = 0x1000000,
+    GL_OBJECT_TYPE_BUFFER              = 0x2000000,
+    GL_OBJECT_TYPE_FRAMEBUFFER         = 0x3000000,
+    GL_OBJECT_TYPE_RENDERBUFFER        = 0x4000000,
+    GL_OBJECT_TYPE_PROGRAM             = 0x5000000,
+    GL_OBJECT_TYPE_VERTEXARRAY         = 0x6000000,
+    GL_OBJECT_TYPE_TRANSFORMFEEDBACK   = 0x7000000,
+    GL_OBJECT_TYPE_UNKNOWN             = 0xFFFFFFF
 } GL_Object_Type;
 
 typedef struct _GL_Object
@@ -157,19 +159,23 @@ typedef struct _GL_Shared_Object_State
 	int                      ref_count;
 	General_Trace_List      *using_gctxs;
 
+	GL_Object_Hash_Base      query;
 	GL_Object_Hash_Base      texture;
 	GL_Object_Hash_Base      buffer;
 	GL_Object_Hash_Base      framebuffer;
 	GL_Object_Hash_Base      renderbuffer;
 	GL_Object_Hash_Base      program;
-	GL_Object_Hash_Base      query;
+	GL_Object_Hash_Base      vertexarray;
+	GL_Object_Hash_Base      transformfeedback;
 
+	GL_Object_Hash_Base      query_real;
 	GL_Object_Hash_Base      texture_real;
 	GL_Object_Hash_Base      buffer_real;
 	GL_Object_Hash_Base      framebuffer_real;
 	GL_Object_Hash_Base      renderbuffer_real;
 	GL_Object_Hash_Base      program_real;
-	GL_Object_Hash_Base      query_real;
+	GL_Object_Hash_Base      vertexarray_real;
+	GL_Object_Hash_Base      transformfeedback_real;
 } GL_Shared_Object_State;
 
 typedef struct _GLGlueContext
@@ -195,19 +201,109 @@ typedef struct _GLGlueContext
 	void                   *real_ctx_sharable_option;
 	int                     real_ctx_sharable_option_len;
 
+
+
+
 	unsigned char           _bind_flag;
+#define _BIND_FLAG_BIT_gl_array_buffer_binding               FLAG_BIT_0
+#define _BIND_FLAG_BIT_gl_copy_read_buffer_binding           FLAG_BIT_1
+#define _BIND_FLAG_BIT_gl_copy_write_buffer_binding          FLAG_BIT_1
+#define _BIND_FLAG_BIT_gl_element_array_buffer_binding       FLAG_BIT_1
+#define _BIND_FLAG_BIT_gl_pixel_pack_buffer_binding          FLAG_BIT_1
+#define _BIND_FLAG_BIT_gl_pixel_unpack_buffer_binding        FLAG_BIT_1
+#define _BIND_FLAG_BIT_gl_transform_feedback_buffer_binding  FLAG_BIT_1
+#define _BIND_FLAG_BIT_gl_uniform_buffer_binding             FLAG_BIT_1
+#define _BIND_FLAG_BIT_gl_framebuffer_binding                FLAG_BIT_2
+#define _BIND_FLAG_BIT_gl_renderbuffer_binding               FLAG_BIT_3
+#define _BIND_FLAG_BIT_gl_framebuffer_binding_read           FLAG_BIT_4
+#define _BIND_FLAG_BIT_gl_framebuffer_binding_draw           FLAG_BIT_5
+
 	unsigned char           _enable_flag1;
+#define _ENABLE_FLAG1_BIT_gl_blend        FLAG_BIT_0
+#define _ENABLE_FLAG1_BIT_gl_cull_face    FLAG_BIT_1
+#define _ENABLE_FLAG1_BIT_gl_depth_test   FLAG_BIT_2
+#define _ENABLE_FLAG1_BIT_gl_dither       FLAG_BIT_3
+
 	unsigned char           _enable_flag2;
+#define _ENABLE_FLAG2_BIT_gl_polygon_offset_fill       FLAG_BIT_0
+#define _ENABLE_FLAG2_BIT_gl_sample_alpha_to_coverage  FLAG_BIT_1
+#define _ENABLE_FLAG2_BIT_gl_sample_coverage           FLAG_BIT_2
+#define _ENABLE_FLAG2_BIT_gl_scissor_test              FLAG_BIT_3
+#define _ENABLE_FLAG2_BIT_gl_stencil_test              FLAG_BIT_4
+
 	unsigned char           _clear_flag1;
+#define _CLEAR_FLAG1_BIT_gl_viewport            FLAG_BIT_0
+#define _CLEAR_FLAG1_BIT_gl_current_program     FLAG_BIT_1
+#define _CLEAR_FLAG1_BIT_gl_color_clear_value   FLAG_BIT_2
+
 	unsigned char           _clear_flag2;
+#define _CLEAR_FLAG2_BIT_gl_color_writemask     FLAG_BIT_0
+#define _CLEAR_FLAG2_BIT_gl_depth_range         FLAG_BIT_1
+#define _CLEAR_FLAG2_BIT_gl_depth_clear_value   FLAG_BIT_2
+#define _CLEAR_FLAG2_BIT_gl_depth_func          FLAG_BIT_3
+#define _CLEAR_FLAG2_BIT_gl_depth_writemask     FLAG_BIT_4
+#define _CLEAR_FLAG2_BIT_gl_cull_face_mode      FLAG_BIT_5
+
 	unsigned char           _tex_flag1;
+#define _TEX_FLAG1_BIT_gl_active_texture         FLAG_BIT_0
+#define _TEX_FLAG1_BIT_gl_generate_mipmap_hint   FLAG_BIT_1
+#define _TEX_FLAG1_BIT_gl_tex_2d_state           FLAG_BIT_2
+#define _TEX_FLAG1_BIT_gl_tex_cube_state         FLAG_BIT_3
+
 	unsigned char           _blend_flag;
+#define _BLEND_FLAG_BIT_gl_blend_color           FLAG_BIT_0
+#define _BLEND_FLAG_BIT_gl_blend_src_rgb         FLAG_BIT_1
+#define _BLEND_FLAG_BIT_gl_blend_src_alpha       FLAG_BIT_2
+#define _BLEND_FLAG_BIT_gl_blend_dst_rgb         FLAG_BIT_3
+#define _BLEND_FLAG_BIT_gl_blend_dst_alpha       FLAG_BIT_4
+#define _BLEND_FLAG_BIT_gl_blend_equation_rgb    FLAG_BIT_5
+#define _BLEND_FLAG_BIT_gl_blend_equation_alpha  FLAG_BIT_6
+
 	unsigned char           _stencil_flag1;
+#define _STENCIL_FLAG1_BIT_gl_stencil_func              FLAG_BIT_0
+#define _STENCIL_FLAG1_BIT_gl_stencil_ref               FLAG_BIT_1
+#define _STENCIL_FLAG1_BIT_gl_stencil_value_mask        FLAG_BIT_2
+#define _STENCIL_FLAG1_BIT_gl_stencil_fail              FLAG_BIT_3
+#define _STENCIL_FLAG1_BIT_gl_stencil_pass_depth_fail   FLAG_BIT_4
+#define _STENCIL_FLAG1_BIT_gl_stencil_pass_depth_pass   FLAG_BIT_5
+#define _STENCIL_FLAG1_BIT_gl_stencil_writemask         FLAG_BIT_6
+
 	unsigned char           _stencil_flag2;
+#define _STENCIL_FLAG2_BIT_gl_stencil_back_func              FLAG_BIT_0
+#define _STENCIL_FLAG2_BIT_gl_stencil_back_ref               FLAG_BIT_1
+#define _STENCIL_FLAG2_BIT_gl_stencil_back_value_mask        FLAG_BIT_2
+#define _STENCIL_FLAG2_BIT_gl_stencil_back_fail              FLAG_BIT_3
+#define _STENCIL_FLAG2_BIT_gl_stencil_back_pass_depth_fail   FLAG_BIT_4
+#define _STENCIL_FLAG2_BIT_gl_stencil_back_pass_depth_pass   FLAG_BIT_5
+#define _STENCIL_FLAG2_BIT_gl_stencil_back_writemask         FLAG_BIT_6
+#define _STENCIL_FLAG2_BIT_gl_stencil_clear_value            FLAG_BIT_7
+
 	unsigned char           _misc_flag1;
+#define _MISC_FLAG1_BIT_gl_front_face                        FLAG_BIT_0
+#define _MISC_FLAG1_BIT_gl_line_width                        FLAG_BIT_1
+#define _MISC_FLAG1_BIT_gl_polygon_offset_factor             FLAG_BIT_2
+#define _MISC_FLAG1_BIT_gl_polygon_offset_units              FLAG_BIT_3
+#define _MISC_FLAG1_BIT_gl_sample_coverage_value             FLAG_BIT_4
+#define _MISC_FLAG1_BIT_gl_sample_coverage_invert            FLAG_BIT_5
+#define _MISC_FLAG1_BIT_gl_fragment_shader_derivative_hint   FLAG_BIT_6
+
 	unsigned char           _misc_flag2;
+#define _MISC_FLAG2_BIT_gl_scissor_box                       FLAG_BIT_0
+#define _MISC_FLAG2_BIT_gl_pack_alignment                    FLAG_BIT_1
+#define _MISC_FLAG2_BIT_gl_unpack_alignment                  FLAG_BIT_2
+
 	unsigned char           _misc_flag3;
+#define _MISC_FLAG3_BIT_gl_read_buffer                       FLAG_BIT_0
+#define _MISC_FLAG3_BIT_gl_draw_buffers                      FLAG_BIT_1
+#define _MISC_FLAG3_BIT_gl_vertex_array_binding              FLAG_BIT_2
+#define _MISC_FLAG3_BIT_gl_transform_feedback_binding        FLAG_BIT_3
+#define _MISC_FLAG3_BIT_gl_transform_feedback                FLAG_BIT_4
+
 	unsigned char           _vattrib_flag;
+#define _VATTRIB_FLAG_BIT_gl_vertex_attrib_value             FLAG_BIT_0
+#define _VATTRIB_FLAG_BIT_gl_vertex_array                    FLAG_BIT_1
+
+
 
 	GL_Shared_Object_State *sostate;
 
@@ -268,6 +364,9 @@ extern GLvoid             *fastpath_sostate_get_object_tag(GL_Shared_Object_Stat
 
 // GL context management functions
 extern void                fastpath_release_gl_context(GLGlueContext *gctx);
+
+// State query functions
+extern void                fastpath_state_get_draw_buffers(GLenum *params);
 
 #endif // COREGL_FASTPATH_H
 
