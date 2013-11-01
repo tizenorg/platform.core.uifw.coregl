@@ -822,8 +822,6 @@ fastpath_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_con
 		if (sostate_new == NULL)
 		{
 			COREGL_ERR("\E[40;31;1mError creating a new GLGlueContext(Memory full 4)\E[0m\n");
-			free(gctx);
-			gctx = NULL;
 			goto finish;
 		}
 		fastpath_sostate_init(sostate_new);
@@ -845,8 +843,6 @@ fastpath_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_con
 		if (gctx_list_new == NULL)
 		{
 			COREGL_ERR("\E[40;31;1mError creating a new GlGlueContext(Memory full 5)\E[0m\n");
-			free(gctx);
-			gctx = NULL;
 			goto finish;
 		}
 

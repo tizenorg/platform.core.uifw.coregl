@@ -17,9 +17,7 @@ typedef enum
 
 #define GET_MY_TSTATE(val, stmt) \
 	if (stmt != NULL) \
-		val = ((MY_MODULE_TSTATE *)(stmt)->module_data[MY_MODULE_ID]); \
-	else \
-		val = NULL
+		val = ((MY_MODULE_TSTATE *)(stmt)->module_data[MY_MODULE_ID]);
 
 #define COREGL_INIT_ORIGINAL(orig_prefix, f) \
 { \

@@ -840,10 +840,10 @@ finish:
 }
 
 #define FIND_OBJ_FROM_HASH_WITH_VERIFY(hash_base, hash, object) \
-	if ((hash) < 0) { ret = 0; goto finish; } \
+	if (((int)(hash)) < 0) { ret = 0; goto finish; } \
 	{ \
 		GL_Object_Hash *object_hash = NULL; \
-		FIND_HASH((hash_base), (hash), object_hash); \
+		FIND_HASH((hash_base), (int)(hash), object_hash); \
 		if (object_hash == NULL) { ret = 0; goto finish; } \
 		(object) = object_hash->item; \
 		if ((object) == NULL) { ret = 0; goto finish; } \
