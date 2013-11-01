@@ -24,6 +24,14 @@ GLUE_STATE(GLuint, gl_num_vertex_attribs, 1, 1,
            _sym_glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, (GLint *)value); /* DEFAULT NOT EFFECT */,
            _sym_glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, (GLint *)value);)
 
+GLUE_STATE(GLuint, gl_num_transform_feedback_separate_attribs, 1, 1,
+           _sym_glGetIntegerv(GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS, (GLint *)value); /* DEFAULT NOT EFFECT */,
+           _sym_glGetIntegerv(GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS, (GLint *)value);)
+
+GLUE_STATE(GLuint, gl_num_uniform_buffer_bindings, 1, 1,
+           _sym_glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, (GLint *)value); /* DEFAULT NOT EFFECT */,
+           _sym_glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, (GLint *)value);)
+
 GLUE_STATE(GLuint, gl_array_buffer_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_ARRAY_BUFFER_BINDING, (GLint *)value);)
 GLUE_STATE(GLuint, gl_copy_read_buffer_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_COPY_READ_BUFFER_BINDING, (GLint *)value);)
 GLUE_STATE(GLuint, gl_copy_write_buffer_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_COPY_WRITE_BUFFER_BINDING, (GLint *)value);)
@@ -32,6 +40,31 @@ GLUE_STATE(GLuint, gl_pixel_pack_buffer_binding, 1, 1, SET_1(0), _sym_glGetInteg
 GLUE_STATE(GLuint, gl_pixel_unpack_buffer_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_PIXEL_UNPACK_BUFFER_BINDING, (GLint *)value);)
 GLUE_STATE(GLuint, gl_transform_feedback_buffer_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, (GLint *)value);)
 GLUE_STATE(GLuint, gl_uniform_buffer_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_UNIFORM_BUFFER_BINDING, (GLint *)value);)
+
+GLUE_STATE(GLuint, gl_transform_feedback_buffer_binding_array, INITIAL_CTX->gl_num_transform_feedback_separate_attribs[0], MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS,
+	_state_get_transform_feedback_buffer_bindings(value); /* DEFAULT NOT EFFECT */,
+	_state_get_transform_feedback_buffer_bindings(value);)
+
+GLUE_STATE(GLintptr, gl_transform_feedback_buffer_binding_array_offset, INITIAL_CTX->gl_num_transform_feedback_separate_attribs[0], MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS,
+	_state_get_transform_feedback_buffer_bindings_offset(value); /* DEFAULT NOT EFFECT */,
+	_state_get_transform_feedback_buffer_bindings_offset(value);)
+
+GLUE_STATE(GLsizeiptr, gl_transform_feedback_buffer_binding_array_size, INITIAL_CTX->gl_num_transform_feedback_separate_attribs[0], MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS,
+	_state_get_transform_feedback_buffer_bindings_size(value); /* DEFAULT NOT EFFECT */,
+	_state_get_transform_feedback_buffer_bindings_size(value);)
+
+GLUE_STATE(GLuint, gl_uniform_buffer_binding_array, INITIAL_CTX->gl_num_uniform_buffer_bindings[0], MAX_UNIFORM_BUFFER_BINDINGS,
+	_state_get_uniform_buffer_bindings(value); /* DEFAULT NOT EFFECT */,
+	_state_get_uniform_buffer_bindings(value);)
+
+GLUE_STATE(GLintptr, gl_uniform_buffer_binding_array_offset, INITIAL_CTX->gl_num_uniform_buffer_bindings[0], MAX_UNIFORM_BUFFER_BINDINGS,
+	_state_get_uniform_buffer_bindings_offset(value); /* DEFAULT NOT EFFECT */,
+	_state_get_uniform_buffer_bindings_offset(value);)
+
+GLUE_STATE(GLsizeiptr, gl_uniform_buffer_binding_array_size, INITIAL_CTX->gl_num_uniform_buffer_bindings[0], MAX_UNIFORM_BUFFER_BINDINGS,
+	_state_get_uniform_buffer_bindings_size(value); /* DEFAULT NOT EFFECT */,
+	_state_get_uniform_buffer_bindings_size(value);)
+
 GLUE_STATE(GLuint, gl_framebuffer_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint *)value);)
 // ANGLE_framebuffer_blit BEGIN (check gl_framebuffer_binding_read_used)
 GLUE_STATE(GLuint, gl_framebuffer_binding_read, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING_ANGLE, (GLint *)value);)
@@ -141,13 +174,15 @@ GLUE_STATE(GLenum, gl_vertex_array_type, INITIAL_CTX->gl_num_vertex_attribs[0], 
 GLUE_STATE(GLboolean, gl_vertex_array_normalized, INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, SET_1(GL_FALSE)),
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, _sym_glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, (GLint *)value);))
+GLUE_STATE(GLboolean, gl_vertex_array_integer, INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
+           SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, SET_1(GL_FALSE)),
+           SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, _sym_glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_INTEGER, (GLint *)value);))
 GLUE_STATE(GLsizei, gl_vertex_array_stride, INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, SET_1(GL_FALSE)),
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, _sym_glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_STRIDE, (GLint *)value);))
 GLUE_STATE(GLvoidptr, gl_vertex_array_pointer, INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, SET_1(NULL)),
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, _sym_glGetVertexAttribPointerv(i, GL_VERTEX_ATTRIB_ARRAY_POINTER, (GLvoidptr *)value);))
-
 GLUE_STATE(GLfloat, gl_vertex_attrib_value, 4 * INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 4, SET_4(0, 0, 0, 1)),
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 4, _sym_glGetVertexAttribfv(i, GL_CURRENT_VERTEX_ATTRIB, (GLfloat *)value);))

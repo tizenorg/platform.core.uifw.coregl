@@ -2210,10 +2210,10 @@ finish:
 }
 
 void
-tracepath_glVertexAttrib1f(GLuint indx, GLfloat x)
+tracepath_glVertexAttrib1f(GLuint index, GLfloat x)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glVertexAttrib1f(indx, x);
+	_orig_tracepath_glVertexAttrib1f(index, x);
 
 	goto finish;
 
@@ -2222,10 +2222,10 @@ finish:
 }
 
 void
-tracepath_glVertexAttrib1fv(GLuint indx, const GLfloat* values)
+tracepath_glVertexAttrib1fv(GLuint index, const GLfloat* values)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glVertexAttrib1fv(indx, values);
+	_orig_tracepath_glVertexAttrib1fv(index, values);
 
 	goto finish;
 
@@ -2234,10 +2234,10 @@ finish:
 }
 
 void
-tracepath_glVertexAttrib2f(GLuint indx, GLfloat x, GLfloat y)
+tracepath_glVertexAttrib2f(GLuint index, GLfloat x, GLfloat y)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glVertexAttrib2f(indx, x, y);
+	_orig_tracepath_glVertexAttrib2f(index, x, y);
 
 	goto finish;
 
@@ -2246,10 +2246,10 @@ finish:
 }
 
 void
-tracepath_glVertexAttrib2fv(GLuint indx, const GLfloat* values)
+tracepath_glVertexAttrib2fv(GLuint index, const GLfloat* values)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glVertexAttrib2fv(indx, values);
+	_orig_tracepath_glVertexAttrib2fv(index, values);
 
 	goto finish;
 
@@ -2258,10 +2258,10 @@ finish:
 }
 
 void
-tracepath_glVertexAttrib3f(GLuint indx, GLfloat x, GLfloat y, GLfloat z)
+tracepath_glVertexAttrib3f(GLuint index, GLfloat x, GLfloat y, GLfloat z)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glVertexAttrib3f(indx, x, y, z);
+	_orig_tracepath_glVertexAttrib3f(index, x, y, z);
 
 	goto finish;
 
@@ -2270,10 +2270,10 @@ finish:
 }
 
 void
-tracepath_glVertexAttrib3fv(GLuint indx, const GLfloat* values)
+tracepath_glVertexAttrib3fv(GLuint index, const GLfloat* values)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glVertexAttrib3fv(indx, values);
+	_orig_tracepath_glVertexAttrib3fv(index, values);
 
 	goto finish;
 
@@ -2282,10 +2282,10 @@ finish:
 }
 
 void
-tracepath_glVertexAttrib4f(GLuint indx, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+tracepath_glVertexAttrib4f(GLuint index, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glVertexAttrib4f(indx, x, y, z, w);
+	_orig_tracepath_glVertexAttrib4f(index, x, y, z, w);
 
 	goto finish;
 
@@ -2294,10 +2294,10 @@ finish:
 }
 
 void
-tracepath_glVertexAttrib4fv(GLuint indx, const GLfloat* values)
+tracepath_glVertexAttrib4fv(GLuint index, const GLfloat* values)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glVertexAttrib4fv(indx, values);
+	_orig_tracepath_glVertexAttrib4fv(index, values);
 
 	goto finish;
 
@@ -2306,10 +2306,10 @@ finish:
 }
 
 void
-tracepath_glVertexAttribPointer(GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* ptr)
+tracepath_glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* pointer)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glVertexAttribPointer(indx, size, type, normalized, stride, ptr);
+	_orig_tracepath_glVertexAttribPointer(index, size, type, normalized, stride, pointer);
 
 	goto finish;
 

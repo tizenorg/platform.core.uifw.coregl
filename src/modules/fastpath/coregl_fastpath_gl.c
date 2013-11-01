@@ -3808,19 +3808,19 @@ finish:
 
 // Optmize?
 void
-fastpath_glVertexAttrib1f(GLuint indx, GLfloat x)
+fastpath_glVertexAttrib1f(GLuint index, GLfloat x)
 {
 	DEFINE_FASTPAH_GL_FUNC();
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib1f(indx, x))
+	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib1f(index, x))
 	{
 		current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_attrib_value;
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 0] = x;
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 1] = 0;
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 2] = 0;
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 3] = 1;
+		current_ctx->gl_vertex_attrib_value[index * 4 + 0] = x;
+		current_ctx->gl_vertex_attrib_value[index * 4 + 1] = 0;
+		current_ctx->gl_vertex_attrib_value[index * 4 + 2] = 0;
+		current_ctx->gl_vertex_attrib_value[index * 4 + 3] = 1;
 	}
 	goto finish;
 
@@ -3831,19 +3831,19 @@ finish:
 
 // Optmize?
 void
-fastpath_glVertexAttrib1fv(GLuint indx, const GLfloat* values)
+fastpath_glVertexAttrib1fv(GLuint index, const GLfloat* values)
 {
 	DEFINE_FASTPAH_GL_FUNC();
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib1fv(indx, values))
+	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib1fv(index, values))
 	{
 		current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_attrib_value;
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 0] = values[0];
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 1] = 0;
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 2] = 0;
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 3] = 1;
+		current_ctx->gl_vertex_attrib_value[index * 4 + 0] = values[0];
+		current_ctx->gl_vertex_attrib_value[index * 4 + 1] = 0;
+		current_ctx->gl_vertex_attrib_value[index * 4 + 2] = 0;
+		current_ctx->gl_vertex_attrib_value[index * 4 + 3] = 1;
 	}
 	goto finish;
 
@@ -3854,19 +3854,19 @@ finish:
 
 // Optmize?
 void
-fastpath_glVertexAttrib2f(GLuint indx, GLfloat x, GLfloat y)
+fastpath_glVertexAttrib2f(GLuint index, GLfloat x, GLfloat y)
 {
 	DEFINE_FASTPAH_GL_FUNC();
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib2f(indx, x, y))
+	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib2f(index, x, y))
 	{
 		current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_attrib_value;
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 0] = x;
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 1] = y;
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 2] = 0;
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 3] = 1;
+		current_ctx->gl_vertex_attrib_value[index * 4 + 0] = x;
+		current_ctx->gl_vertex_attrib_value[index * 4 + 1] = y;
+		current_ctx->gl_vertex_attrib_value[index * 4 + 2] = 0;
+		current_ctx->gl_vertex_attrib_value[index * 4 + 3] = 1;
 	}
 	goto finish;
 
@@ -3877,19 +3877,19 @@ finish:
 
 // Optmize?
 void
-fastpath_glVertexAttrib2fv(GLuint indx, const GLfloat* values)
+fastpath_glVertexAttrib2fv(GLuint index, const GLfloat* values)
 {
 	DEFINE_FASTPAH_GL_FUNC();
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib2fv(indx, values))
+	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib2fv(index, values))
 	{
 		current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_attrib_value;
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 0] = values[0];
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 1] = values[1];
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 2] = 0;
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 3] = 1;
+		current_ctx->gl_vertex_attrib_value[index * 4 + 0] = values[0];
+		current_ctx->gl_vertex_attrib_value[index * 4 + 1] = values[1];
+		current_ctx->gl_vertex_attrib_value[index * 4 + 2] = 0;
+		current_ctx->gl_vertex_attrib_value[index * 4 + 3] = 1;
 	}
 	goto finish;
 
@@ -3900,19 +3900,19 @@ finish:
 
 // Optmize?
 void
-fastpath_glVertexAttrib3f(GLuint indx, GLfloat x, GLfloat y, GLfloat z)
+fastpath_glVertexAttrib3f(GLuint index, GLfloat x, GLfloat y, GLfloat z)
 {
 	DEFINE_FASTPAH_GL_FUNC();
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib3f(indx, x, y, z))
+	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib3f(index, x, y, z))
 	{
 		current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_attrib_value;
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 0] = x;
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 1] = y;
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 2] = z;
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 3] = 1;
+		current_ctx->gl_vertex_attrib_value[index * 4 + 0] = x;
+		current_ctx->gl_vertex_attrib_value[index * 4 + 1] = y;
+		current_ctx->gl_vertex_attrib_value[index * 4 + 2] = z;
+		current_ctx->gl_vertex_attrib_value[index * 4 + 3] = 1;
 	}
 	goto finish;
 
@@ -3923,19 +3923,19 @@ finish:
 
 // Optmize?
 void
-fastpath_glVertexAttrib3fv(GLuint indx, const GLfloat* values)
+fastpath_glVertexAttrib3fv(GLuint index, const GLfloat* values)
 {
 	DEFINE_FASTPAH_GL_FUNC();
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib3fv(indx, values))
+	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib3fv(index, values))
 	{
 		current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_attrib_value;
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 0] = values[0];
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 1] = values[1];
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 2] = values[2];
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 3] = 1;
+		current_ctx->gl_vertex_attrib_value[index * 4 + 0] = values[0];
+		current_ctx->gl_vertex_attrib_value[index * 4 + 1] = values[1];
+		current_ctx->gl_vertex_attrib_value[index * 4 + 2] = values[2];
+		current_ctx->gl_vertex_attrib_value[index * 4 + 3] = 1;
 	}
 	goto finish;
 
@@ -3946,19 +3946,19 @@ finish:
 
 // Optmize?
 void
-fastpath_glVertexAttrib4f(GLuint indx, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+fastpath_glVertexAttrib4f(GLuint index, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
 	DEFINE_FASTPAH_GL_FUNC();
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib4f(indx, x, y, z, w))
+	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib4f(index, x, y, z, w))
 	{
 		current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_attrib_value;
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 0] = x;
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 1] = y;
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 2] = z;
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 3] = w;
+		current_ctx->gl_vertex_attrib_value[index * 4 + 0] = x;
+		current_ctx->gl_vertex_attrib_value[index * 4 + 1] = y;
+		current_ctx->gl_vertex_attrib_value[index * 4 + 2] = z;
+		current_ctx->gl_vertex_attrib_value[index * 4 + 3] = w;
 	}
 	goto finish;
 
@@ -3969,19 +3969,19 @@ finish:
 
 // Optmize?
 void
-fastpath_glVertexAttrib4fv(GLuint indx, const GLfloat* values)
+fastpath_glVertexAttrib4fv(GLuint index, const GLfloat* values)
 {
 	DEFINE_FASTPAH_GL_FUNC();
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib4fv(indx, values))
+	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib4fv(index, values))
 	{
 		current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_attrib_value;
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 0] = values[0];
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 1] = values[1];
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 2] = values[2];
-		current_ctx->gl_vertex_attrib_value[indx * 4 + 3] = values[3];
+		current_ctx->gl_vertex_attrib_value[index * 4 + 0] = values[0];
+		current_ctx->gl_vertex_attrib_value[index * 4 + 1] = values[1];
+		current_ctx->gl_vertex_attrib_value[index * 4 + 2] = values[2];
+		current_ctx->gl_vertex_attrib_value[index * 4 + 3] = values[3];
 	}
 	goto finish;
 
@@ -3993,22 +3993,23 @@ finish:
 
 // Optmize?
 void
-fastpath_glVertexAttribPointer(GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* ptr)
+fastpath_glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* pointer)
 {
 	DEFINE_FASTPAH_GL_FUNC();
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	IF_GL_SUCCESS(_orig_fastpath_glVertexAttribPointer(indx, size, type, normalized, stride, ptr))
+	IF_GL_SUCCESS(_orig_fastpath_glVertexAttribPointer(index, size, type, normalized, stride, pointer))
 	{
 		current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_array;
 
-		current_ctx->gl_vertex_array_buf_id[indx]     = current_ctx->gl_array_buffer_binding[0];
-		current_ctx->gl_vertex_array_size[indx]       = size;
-		current_ctx->gl_vertex_array_type[indx]       = type;
-		current_ctx->gl_vertex_array_normalized[indx] = normalized;
-		current_ctx->gl_vertex_array_stride[indx]     = stride;
-		current_ctx->gl_vertex_array_pointer[indx]    = (GLvoid *)ptr;
+		current_ctx->gl_vertex_array_buf_id[index]       = current_ctx->gl_array_buffer_binding[0];
+		current_ctx->gl_vertex_array_size[index]         = size;
+		current_ctx->gl_vertex_array_type[index]         = type;
+		current_ctx->gl_vertex_array_normalized[index]   = normalized;
+		current_ctx->gl_vertex_array_normalized[index]   = GL_FALSE;
+		current_ctx->gl_vertex_array_stride[index]       = stride;
+		current_ctx->gl_vertex_array_pointer[index]      = (GLvoid *)pointer;
 	}
 	goto finish;
 
@@ -4914,6 +4915,62 @@ finish:
 
 ////////////////////////////////////////////////////////////////////////
 
+
+void
+fastpath_glBindBufferBase(GLenum target, GLuint index, GLuint buffer)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_BUFFER, buffer, &real_obj) != 1)
+	{
+		_set_gl_error(GL_OUT_OF_MEMORY);
+		goto finish;
+	}
+
+	if (target == GL_TRANSFORM_FEEDBACK_BUFFER)
+	{
+		CURR_STATE_COMPARE(gl_transform_feedback_buffer_binding, real_obj)
+		{
+			IF_GL_SUCCESS(_orig_fastpath_glBindBufferBase(target, index, real_obj))
+			{
+				current_ctx->_bind_flag |= _BIND_FLAG_BIT_gl_transform_feedback_buffer_binding;
+				current_ctx->gl_transform_feedback_buffer_binding_array[index] = real_obj;
+				current_ctx->gl_transform_feedback_buffer_binding_array_offset[index] = 0;
+				current_ctx->gl_transform_feedback_buffer_binding_array_size[index] = 0;
+			}
+		}
+	}
+	else if (target == GL_UNIFORM_BUFFER)
+	{
+		CURR_STATE_COMPARE(gl_uniform_buffer_binding, real_obj)
+		{
+			IF_GL_SUCCESS(_orig_fastpath_glBindBufferBase(target, index, real_obj))
+			{
+				current_ctx->_bind_flag |= _BIND_FLAG_BIT_gl_uniform_buffer_binding;
+				current_ctx->gl_uniform_buffer_binding_array[index] = real_obj;
+				current_ctx->gl_uniform_buffer_binding_array_offset[index] = 0;
+				current_ctx->gl_uniform_buffer_binding_array_size[index] = 0;
+			}
+		}
+	}
+	else
+	{
+		_set_gl_error(GL_INVALID_ENUM);
+		goto finish;
+	}
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+
+
 void
 fastpath_glBindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size)
 {
@@ -4929,13 +4986,109 @@ fastpath_glBindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr 
 		goto finish;
 	}
 
-	if (current_ctx->gl_transform_feedback_binding[0] != real_obj)
+	if (target == GL_TRANSFORM_FEEDBACK_BUFFER)
 	{
-		IF_GL_SUCCESS(_orig_fastpath_glBindTransformFeedback(target, real_obj))
+		CURR_STATE_COMPARE(gl_transform_feedback_buffer_binding, real_obj)
 		{
-			current_ctx->_misc_flag3 |= _MISC_FLAG3_BIT_gl_transform_feedback_binding;
-			current_ctx->gl_transform_feedback_binding[0] = real_obj;
+			IF_GL_SUCCESS(_orig_fastpath_glBindBufferRange(target, index, real_obj, offset, size))
+			{
+				current_ctx->_bind_flag |= _BIND_FLAG_BIT_gl_transform_feedback_buffer_binding;
+				current_ctx->gl_transform_feedback_buffer_binding_array[index] = real_obj;
+				current_ctx->gl_transform_feedback_buffer_binding_array_offset[index] = offset;
+				current_ctx->gl_transform_feedback_buffer_binding_array_size[index] = size;
+			}
 		}
+	}
+	else if (target == GL_UNIFORM_BUFFER)
+	{
+		CURR_STATE_COMPARE(gl_uniform_buffer_binding, real_obj)
+		{
+			IF_GL_SUCCESS(_orig_fastpath_glBindBufferRange(target, index, real_obj, offset, size))
+			{
+				current_ctx->_bind_flag |= _BIND_FLAG_BIT_gl_uniform_buffer_binding;
+				current_ctx->gl_uniform_buffer_binding_array[index] = real_obj;
+				current_ctx->gl_uniform_buffer_binding_array_offset[index] = offset;
+				current_ctx->gl_uniform_buffer_binding_array_size[index] = size;
+			}
+		}
+	}
+	else
+	{
+		_set_gl_error(GL_INVALID_ENUM);
+		goto finish;
+	}
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+
+void
+fastpath_glTransformFeedbackVaryings(GLuint program, GLsizei count, const GLchar* const* varyings, GLenum bufferMode)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glTransformFeedbackVaryings(real_obj, count, varyings, bufferMode);
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+
+void
+fastpath_glGetTransformFeedbackVarying(GLuint program, GLuint index, GLsizei bufSize, GLsizei* length, GLsizei* size, GLenum* type, GLchar* name)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glGetTransformFeedbackVarying(real_obj, index, bufSize, length, size, type, name);
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+
+void
+fastpath_glVertexAttribIPointer(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid* pointer)
+{
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	IF_GL_SUCCESS(_orig_fastpath_glVertexAttribIPointer(index, size, type, stride, pointer))
+	{
+		current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_array;
+
+		current_ctx->gl_vertex_array_buf_id[index]       = current_ctx->gl_array_buffer_binding[0];
+		current_ctx->gl_vertex_array_size[index]         = size;
+		current_ctx->gl_vertex_array_type[index]         = type;
+		current_ctx->gl_vertex_array_normalized[index]   = GL_FALSE;
+		current_ctx->gl_vertex_array_integer[index]      = GL_TRUE;
+		current_ctx->gl_vertex_array_stride[index]       = stride;
+		current_ctx->gl_vertex_array_pointer[index]      = (GLvoid *)pointer;
 	}
 	goto finish;
 
@@ -4949,55 +5102,6 @@ finish:
 #define SIGILL_ERROR() \
 	COREGL_ERR("\E[40;31;1mFASTPATH can't support ES3.0 API '%s' (will be terminated with Illegal instruction!)\E[0m\n", __func__); \
 	kill(getpid(), SIGILL)
-
-
-void
-fastpath_glBindBufferBase(GLenum target, GLuint index, GLuint buffer)
-{
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glBindBufferBase(target, index, buffer);
-
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-}
-
-void
-fastpath_glTransformFeedbackVaryings(GLuint program, GLsizei count, const GLchar* const* varyings, GLenum bufferMode)
-{
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glTransformFeedbackVaryings(program, count, varyings, bufferMode);
-
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-}
-
-void
-fastpath_glGetTransformFeedbackVarying(GLuint program, GLuint index, GLsizei bufSize, GLsizei* length, GLsizei* size, GLenum* type, GLchar* name)
-{
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glGetTransformFeedbackVarying(program, index, bufSize, length, size, type, name);
-
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-}
-
-void
-fastpath_glVertexAttribIPointer(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid* pointer)
-{
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glVertexAttribIPointer(index, size, type, stride, pointer);
-
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-}
 
 void
 fastpath_glGetVertexAttribIiv(GLuint index, GLenum pname, GLint* params)
