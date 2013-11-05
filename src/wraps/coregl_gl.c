@@ -36,7 +36,12 @@ coregl_glwrap_init()
 	}
 
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) \
-   ovr_##FUNC_NAME = (__typeof__(ovr_##FUNC_NAME))dlsym(lib_handle, "coregl_api_"#FUNC_NAME);
+   ovr_##FUNC_NAME = (__typeof__(ovr_##FUNC_NAME))dlsym(lib_handle, "coregl_api_"#FUNC_NAME); \
+	if (ovr_##FUNC_NAME == NULL) \
+	{ \
+		LOGE("\E[40;31;1mCan't find a symbol '%s'!\E[0m\n\n", #FUNC_NAME); \
+		LOGE("\E[40;31;1mInvalid library link! (Check linkage of libGLESv2 -> libCOREGL)\E[0m\n"); \
+	}
 #include "../headers/sym_gl.h"
 #undef _COREGL_SYMBOL
 
@@ -836,57 +841,57 @@ glValidateProgram(GLuint program)
 }
 
 void
-glVertexAttrib1f(GLuint indx, GLfloat x)
+glVertexAttrib1f(GLuint index, GLfloat x)
 {
-	ovr_glVertexAttrib1f(indx, x);
+	ovr_glVertexAttrib1f(index, x);
 }
 
 void
-glVertexAttrib1fv(GLuint indx, const GLfloat* values)
+glVertexAttrib1fv(GLuint index, const GLfloat* values)
 {
-	ovr_glVertexAttrib1fv(indx, values);
+	ovr_glVertexAttrib1fv(index, values);
 }
 
 void
-glVertexAttrib2f(GLuint indx, GLfloat x, GLfloat y)
+glVertexAttrib2f(GLuint index, GLfloat x, GLfloat y)
 {
-	ovr_glVertexAttrib2f(indx, x, y);
+	ovr_glVertexAttrib2f(index, x, y);
 }
 
 void
-glVertexAttrib2fv(GLuint indx, const GLfloat* values)
+glVertexAttrib2fv(GLuint index, const GLfloat* values)
 {
-	ovr_glVertexAttrib2fv(indx, values);
+	ovr_glVertexAttrib2fv(index, values);
 }
 
 void
-glVertexAttrib3f(GLuint indx, GLfloat x, GLfloat y, GLfloat z)
+glVertexAttrib3f(GLuint index, GLfloat x, GLfloat y, GLfloat z)
 {
-	ovr_glVertexAttrib3f(indx, x, y, z);
+	ovr_glVertexAttrib3f(index, x, y, z);
 }
 
 void
-glVertexAttrib3fv(GLuint indx, const GLfloat* values)
+glVertexAttrib3fv(GLuint index, const GLfloat* values)
 {
-	ovr_glVertexAttrib3fv(indx, values);
+	ovr_glVertexAttrib3fv(index, values);
 }
 
 void
-glVertexAttrib4f(GLuint indx, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+glVertexAttrib4f(GLuint index, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
-	ovr_glVertexAttrib4f(indx, x, y, z, w);
+	ovr_glVertexAttrib4f(index, x, y, z, w);
 }
 
 void
-glVertexAttrib4fv(GLuint indx, const GLfloat* values)
+glVertexAttrib4fv(GLuint index, const GLfloat* values)
 {
-	ovr_glVertexAttrib4fv(indx, values);
+	ovr_glVertexAttrib4fv(index, values);
 }
 
 void
-glVertexAttribPointer(GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* ptr)
+glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* pointer)
 {
-	ovr_glVertexAttribPointer(indx, size, type, normalized, stride, ptr);
+	ovr_glVertexAttribPointer(index, size, type, normalized, stride, pointer);
 }
 
 void
