@@ -424,37 +424,21 @@ fastpath_apply_overrides_gl(int enable)
 		COREGL_OVERRIDE(fastpath_, glTransformFeedbackVaryings);
 		COREGL_OVERRIDE(fastpath_, glGetTransformFeedbackVarying);
 		COREGL_OVERRIDE(fastpath_, glVertexAttribIPointer);
-		COREGL_OVERRIDE(fastpath_, glGetVertexAttribIiv);
-		COREGL_OVERRIDE(fastpath_, glGetVertexAttribIuiv);
 		COREGL_OVERRIDE(fastpath_, glVertexAttribI4i);
 		COREGL_OVERRIDE(fastpath_, glVertexAttribI4ui);
 		COREGL_OVERRIDE(fastpath_, glVertexAttribI4iv);
 		COREGL_OVERRIDE(fastpath_, glVertexAttribI4uiv);
 		COREGL_OVERRIDE(fastpath_, glGetUniformuiv);
 		COREGL_OVERRIDE(fastpath_, glGetFragDataLocation);
-		COREGL_OVERRIDE(fastpath_, glClearBufferiv);
-		COREGL_OVERRIDE(fastpath_, glClearBufferuiv);
-		COREGL_OVERRIDE(fastpath_, glClearBufferfv);
-		COREGL_OVERRIDE(fastpath_, glClearBufferfi);
 		COREGL_OVERRIDE(fastpath_, glGetStringi);
-		COREGL_OVERRIDE(fastpath_, glCopyBufferSubData);
 		COREGL_OVERRIDE(fastpath_, glGetUniformIndices);
 		COREGL_OVERRIDE(fastpath_, glGetActiveUniformsiv);
 		COREGL_OVERRIDE(fastpath_, glGetUniformBlockIndex);
 		COREGL_OVERRIDE(fastpath_, glGetActiveUniformBlockiv);
 		COREGL_OVERRIDE(fastpath_, glGetActiveUniformBlockName);
 		COREGL_OVERRIDE(fastpath_, glUniformBlockBinding);
-		COREGL_OVERRIDE(fastpath_, glDrawArraysInstanced);
-		COREGL_OVERRIDE(fastpath_, glDrawElementsInstanced);
-		COREGL_OVERRIDE(fastpath_, glFenceSync);
-		COREGL_OVERRIDE(fastpath_, glIsSync);
-		COREGL_OVERRIDE(fastpath_, glDeleteSync);
-		COREGL_OVERRIDE(fastpath_, glClientWaitSync);
-		COREGL_OVERRIDE(fastpath_, glWaitSync);
 		COREGL_OVERRIDE(fastpath_, glGetInteger64v);
-		COREGL_OVERRIDE(fastpath_, glGetSynciv);
 		COREGL_OVERRIDE(fastpath_, glGetInteger64i_v);
-		COREGL_OVERRIDE(fastpath_, glGetBufferParameteri64v);
 		COREGL_OVERRIDE(fastpath_, glGenSamplers);
 		COREGL_OVERRIDE(fastpath_, glDeleteSamplers);
 		COREGL_OVERRIDE(fastpath_, glIsSampler);
@@ -484,52 +468,56 @@ fastpath_apply_overrides_gl(int enable)
 #undef OVERRIDE
 
 static inline GL_Object_Hash_Base *
-_get_shared_object_hash(GL_Shared_Object_State *sostate, GL_Object_Type type)
+_get_shared_object_hash(GL_Object_State *ostate, GL_Object_Type type)
 {
 	switch (type)
 	{
 		case GL_OBJECT_TYPE_QUERY:
-			return &sostate->query;
+			return &ostate->query;
 		case GL_OBJECT_TYPE_TEXTURE:
-			return &sostate->texture;
+			return &ostate->shared->texture;
 		case GL_OBJECT_TYPE_BUFFER:
-			return &sostate->buffer;
+			return &ostate->shared->buffer;
 		case GL_OBJECT_TYPE_FRAMEBUFFER:
-			return &sostate->framebuffer;
+			return &ostate->framebuffer;
 		case GL_OBJECT_TYPE_RENDERBUFFER:
-			return &sostate->renderbuffer;
+			return &ostate->shared->renderbuffer;
 		case GL_OBJECT_TYPE_PROGRAM:
-			return &sostate->program;
+			return &ostate->shared->program;
 		case GL_OBJECT_TYPE_VERTEXARRAY:
-			return &sostate->vertexarray;
+			return &ostate->vertexarray;
+		case GL_OBJECT_TYPE_SAMPLER:
+			return &ostate->shared->sampler;
 		case GL_OBJECT_TYPE_TRANSFORMFEEDBACK:
-			return &sostate->transformfeedback;
+			return &ostate->transformfeedback;
 		default:
 			return NULL;
 	}
 }
 
 static inline GL_Object_Hash_Base *
-_get_shared_object_hash_real(GL_Shared_Object_State *sostate, GL_Object_Type type)
+_get_shared_object_hash_real(GL_Object_State *ostate, GL_Object_Type type)
 {
 	switch (type)
 	{
 		case GL_OBJECT_TYPE_QUERY:
-			return &sostate->query_real;
+			return &ostate->query_real;
 		case GL_OBJECT_TYPE_TEXTURE:
-			return &sostate->texture_real;
+			return &ostate->shared->texture_real;
 		case GL_OBJECT_TYPE_BUFFER:
-			return &sostate->buffer_real;
+			return &ostate->shared->buffer_real;
 		case GL_OBJECT_TYPE_FRAMEBUFFER:
-			return &sostate->framebuffer_real;
+			return &ostate->framebuffer_real;
 		case GL_OBJECT_TYPE_RENDERBUFFER:
-			return &sostate->renderbuffer_real;
+			return &ostate->shared->renderbuffer_real;
 		case GL_OBJECT_TYPE_PROGRAM:
-			return &sostate->program_real;
+			return &ostate->shared->program_real;
 		case GL_OBJECT_TYPE_VERTEXARRAY:
-			return &sostate->vertexarray_real;
+			return &ostate->vertexarray_real;
+		case GL_OBJECT_TYPE_SAMPLER:
+			return &ostate->shared->sampler_real;
 		case GL_OBJECT_TYPE_TRANSFORMFEEDBACK:
-			return &sostate->transformfeedback_real;
+			return &ostate->transformfeedback_real;
 		default:
 			return NULL;
 	}
@@ -684,33 +672,46 @@ finish:
 	return ret;
 }
 
-void
-fastpath_sostate_init(GL_Shared_Object_State *sostate)
-{
+
+
 #define HASH_INIT(hash_base) \
 	hash_base.hash_field = (GL_Object_Hash **)calloc(1, sizeof(GL_Object_Hash *) * GL_OBJECT_HASH_BASE); \
 	hash_base.hash_size = GL_OBJECT_HASH_BASE;
 
-	HASH_INIT(sostate->query);
+void
+fastpath_ostate_init(GL_Object_State *ostate)
+{
+	HASH_INIT(ostate->query);
+	HASH_INIT(ostate->framebuffer);
+	HASH_INIT(ostate->vertexarray);
+	HASH_INIT(ostate->transformfeedback);
+
+	HASH_INIT(ostate->query_real);
+	HASH_INIT(ostate->framebuffer_real);
+	HASH_INIT(ostate->vertexarray_real);
+	HASH_INIT(ostate->transformfeedback_real);
+}
+
+void
+fastpath_sostate_init(GL_Shared_Object_State *sostate)
+{
+	mutex_init(&sostate->access_mutex);
+
 	HASH_INIT(sostate->texture);
 	HASH_INIT(sostate->buffer);
-	HASH_INIT(sostate->framebuffer);
 	HASH_INIT(sostate->renderbuffer);
 	HASH_INIT(sostate->program);
-	HASH_INIT(sostate->vertexarray);
-	HASH_INIT(sostate->transformfeedback);
+	HASH_INIT(sostate->sampler);
 
-	HASH_INIT(sostate->query_real);
 	HASH_INIT(sostate->texture_real);
 	HASH_INIT(sostate->buffer_real);
-	HASH_INIT(sostate->framebuffer_real);
 	HASH_INIT(sostate->renderbuffer_real);
 	HASH_INIT(sostate->program_real);
-	HASH_INIT(sostate->vertexarray_real);
-	HASH_INIT(sostate->transformfeedback_real);
+	HASH_INIT(sostate->sampler_real);
+}
 
 #undef HASH_INIT
-}
+
 
 static void
 _add_hash(GL_Object_Hash_Base *hash_base, GL_Object_Hash *data)
@@ -790,34 +791,46 @@ _free_hash_list(GL_Object_Hash_Base *hash_base, int free_data)
 	}
 }
 
-void
-fastpath_sostate_deinit(GL_Shared_Object_State *sostate)
-{
+
+
 #define HASH_DEINIT(hash_base, free_data) \
 	_free_hash_list(&hash_base, free_data); \
 	free(hash_base.hash_field); \
 	hash_base.hash_size = 0;
 
-	HASH_DEINIT(sostate->query, 1);
+void
+fastpath_ostate_deinit(GL_Object_State *ostate)
+{
+	HASH_DEINIT(ostate->query, 1);
+	HASH_DEINIT(ostate->framebuffer, 1);
+	HASH_DEINIT(ostate->vertexarray, 1);
+	HASH_DEINIT(ostate->transformfeedback, 1);
+
+	HASH_DEINIT(ostate->query_real, 0);
+	HASH_DEINIT(ostate->framebuffer_real, 0);
+	HASH_DEINIT(ostate->vertexarray_real, 0);
+	HASH_DEINIT(ostate->transformfeedback_real, 0);
+}
+
+void
+fastpath_sostate_deinit(GL_Shared_Object_State *sostate)
+{
 	HASH_DEINIT(sostate->texture, 1);
 	HASH_DEINIT(sostate->buffer, 1);
-	HASH_DEINIT(sostate->framebuffer, 1);
 	HASH_DEINIT(sostate->renderbuffer, 1);
 	HASH_DEINIT(sostate->program, 1);
-	HASH_DEINIT(sostate->vertexarray, 1);
-	HASH_DEINIT(sostate->transformfeedback, 1);
+	HASH_DEINIT(sostate->sampler, 1);
 
-	HASH_DEINIT(sostate->query_real, 0);
 	HASH_DEINIT(sostate->texture_real, 0);
 	HASH_DEINIT(sostate->buffer_real, 0);
-	HASH_DEINIT(sostate->framebuffer_real, 0);
 	HASH_DEINIT(sostate->renderbuffer_real, 0);
 	HASH_DEINIT(sostate->program_real, 0);
-	HASH_DEINIT(sostate->vertexarray_real, 0);
-	HASH_DEINIT(sostate->transformfeedback_real, 0);
+	HASH_DEINIT(sostate->sampler_real, 0);
+}
 
 #undef HASH_DEINIT
-}
+
+
 
 #define FIND_HASH(hash_base, key, ret) \
 { \
@@ -834,7 +847,7 @@ fastpath_sostate_deinit(GL_Shared_Object_State *sostate)
 }
 
 void
-_sostate_hash_check(GL_Object_Hash_Base *hash_base)
+_ostate_hash_check(GL_Object_Hash_Base *hash_base)
 {
 	if (hash_base->item_size + 1 < hash_base->hash_size)
 		return;
@@ -866,7 +879,7 @@ _sostate_hash_check(GL_Object_Hash_Base *hash_base)
 }
 
 GLuint
-fastpath_sostate_create_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint real_name)
+fastpath_ostate_create_object(GL_Object_State *ostate, GL_Object_Type type, GLuint real_name)
 {
 	GLuint ret = _COREGL_INT_INIT_VALUE;
 
@@ -874,8 +887,8 @@ fastpath_sostate_create_object(GL_Shared_Object_State *sostate, GL_Object_Type t
 	GL_Object_Hash_Base *hash_base_real = NULL;
 	int newid = _COREGL_INT_INIT_VALUE;
 
-	hash_base = _get_shared_object_hash(sostate, type);
-	hash_base_real = _get_shared_object_hash_real(sostate, type);
+	hash_base = _get_shared_object_hash(ostate, type);
+	hash_base_real = _get_shared_object_hash_real(ostate, type);
 
 	newid = hash_base->last_id + 1;
 	if (newid >= hash_base->hash_size)
@@ -927,8 +940,8 @@ fastpath_sostate_create_object(GL_Shared_Object_State *sostate, GL_Object_Type t
 		_add_hash(hash_base_real, newobj_hash_real);
 	}
 
-	_sostate_hash_check(hash_base);
-	_sostate_hash_check(hash_base_real);
+	_ostate_hash_check(hash_base);
+	_ostate_hash_check(hash_base_real);
 
 	goto finish;
 
@@ -947,7 +960,7 @@ finish:
 	}
 
 GLuint
-fastpath_sostate_remove_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint glue_name)
+fastpath_ostate_remove_object(GL_Object_State *ostate, GL_Object_Type type, GLuint glue_name)
 {
 	GLuint ret = _COREGL_INT_INIT_VALUE;
 
@@ -955,8 +968,8 @@ fastpath_sostate_remove_object(GL_Shared_Object_State *sostate, GL_Object_Type t
 	GL_Object_Hash_Base *hash_base_real = NULL;
 	GL_Object *object = NULL;
 
-	hash_base = _get_shared_object_hash(sostate, type);
-	hash_base_real = _get_shared_object_hash_real(sostate, type);
+	hash_base = _get_shared_object_hash(ostate, type);
+	hash_base_real = _get_shared_object_hash_real(ostate, type);
 
 	FIND_OBJ_FROM_HASH_WITH_VERIFY(hash_base, glue_name - (int)type, object);
 
@@ -990,14 +1003,14 @@ finish:
 }
 
 GLuint
-fastpath_sostate_get_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint glue_name)
+fastpath_ostate_get_object(GL_Object_State *ostate, GL_Object_Type type, GLuint glue_name)
 {
 	GLuint ret = _COREGL_INT_INIT_VALUE;
 
 	GL_Object_Hash_Base *hash_base = NULL;
 	GL_Object *object = NULL;
 
-	hash_base = _get_shared_object_hash(sostate, type);
+	hash_base = _get_shared_object_hash(ostate, type);
 
 	FIND_OBJ_FROM_HASH_WITH_VERIFY(hash_base, glue_name - (int)type, object);
 
@@ -1009,7 +1022,7 @@ finish:
 }
 
 GLint
-fastpath_sostate_set_object_tag(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint glue_name, GLvoid *tag)
+fastpath_ostate_set_object_tag(GL_Object_State *ostate, GL_Object_Type type, GLuint glue_name, GLvoid *tag)
 {
 	GLint ret = _COREGL_INT_INIT_VALUE;
 
@@ -1017,7 +1030,7 @@ fastpath_sostate_set_object_tag(GL_Shared_Object_State *sostate, GL_Object_Type 
 	GL_Object *object = NULL;
 	int hash = _COREGL_INT_INIT_VALUE;
 
-	hash_base = _get_shared_object_hash(sostate, type);
+	hash_base = _get_shared_object_hash(ostate, type);
 
 	hash = glue_name - (int)type;
 
@@ -1033,14 +1046,14 @@ finish:
 }
 
 GLvoid *
-fastpath_sostate_get_object_tag(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint glue_name)
+fastpath_ostate_get_object_tag(GL_Object_State *ostate, GL_Object_Type type, GLuint glue_name)
 {
 	GLvoid *ret = NULL;
 
 	GL_Object_Hash_Base *hash_base = NULL;
 	GL_Object *object = NULL;
 
-	hash_base = _get_shared_object_hash(sostate, type);
+	hash_base = _get_shared_object_hash(ostate, type);
 
 	FIND_OBJ_FROM_HASH_WITH_VERIFY(hash_base, glue_name - (int)type, object);
 
@@ -1052,14 +1065,14 @@ finish:
 }
 
 GLuint
-fastpath_sostate_find_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint real_name)
+fastpath_ostate_find_object(GL_Object_State *ostate, GL_Object_Type type, GLuint real_name)
 {
 	GLuint ret = _COREGL_INT_INIT_VALUE;
 
 	GL_Object_Hash_Base *hash_base_real = NULL;
 	GL_Object *object = NULL;
 
-	hash_base_real = _get_shared_object_hash_real(sostate, type);
+	hash_base_real = _get_shared_object_hash_real(ostate, type);
 
 	FIND_OBJ_FROM_HASH_WITH_VERIFY(hash_base_real, real_name, object);
 
@@ -1071,14 +1084,14 @@ finish:
 }
 
 GLint
-fastpath_sostate_use_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint glue_name)
+fastpath_ostate_use_object(GL_Object_State *ostate, GL_Object_Type type, GLuint glue_name)
 {
 	GLint ret = _COREGL_INT_INIT_VALUE;
 
 	GL_Object_Hash_Base *hash_base = NULL;
 	GL_Object *object = NULL;
 
-	hash_base = _get_shared_object_hash(sostate, type);
+	hash_base = _get_shared_object_hash(ostate, type);
 
 	FIND_OBJ_FROM_HASH_WITH_VERIFY(hash_base, glue_name - (int)type, object);
 
@@ -1177,7 +1190,7 @@ fastpath_init_context_states(GLGlueContext *ctx)
 	}
 
 	AST(ctx->initialized == 0);
-	AST(ctx->sostate != NULL);
+	AST(ctx->ostate.shared != NULL);
 
 	if (initial_ctx == NULL)
 	{
@@ -1394,16 +1407,32 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 				CHECK_GL_ERROR(_orig_fastpath_glBindBuffer(GL_ARRAY_BUFFER, 0))
 			}
 
-			CHECK_GL_ERROR(_orig_fastpath_glVertexAttribPointer(i,
-			               newctx->gl_vertex_array_size[i],
-			               newctx->gl_vertex_array_type[i],
-			               newctx->gl_vertex_array_normalized[i],
-			               newctx->gl_vertex_array_stride[i],
-			               newctx->gl_vertex_array_pointer[i]))
-
-			STATES_COMPARE(gl_vertex_attrib_value + 4 * i, 4 * sizeof(GLfloat))
+			if (newctx->gl_vertex_array_pointer[i] != NULL)
 			{
-				CHECK_GL_ERROR(_orig_fastpath_glVertexAttrib4fv(i, &newctx->gl_vertex_attrib_value[4 * i]))
+				CHECK_GL_ERROR(_orig_fastpath_glVertexAttribPointer(i,
+				               newctx->gl_vertex_array_size[i],
+				               newctx->gl_vertex_array_type[i],
+				               newctx->gl_vertex_array_normalized[i],
+				               newctx->gl_vertex_array_stride[i],
+				               newctx->gl_vertex_array_pointer[i]))
+			}
+			else
+			{
+				if (newctx->gl_vertex_array_integer[0] == GL_TRUE)
+				{
+					if (newctx->gl_vertex_array_type[0] == GL_UNSIGNED_INT)
+					{
+						CHECK_GL_ERROR(_orig_fastpath_glVertexAttribI4uiv(i, &newctx->gl_vertex_attrib_value_unsigned_integer[4 * i]))
+					}
+					else
+					{
+						CHECK_GL_ERROR(_orig_fastpath_glVertexAttribI4iv(i, &newctx->gl_vertex_attrib_value_integer[4 * i]))
+					}
+				}
+				else
+				{
+					CHECK_GL_ERROR(_orig_fastpath_glVertexAttrib4fv(i, &newctx->gl_vertex_attrib_value[4 * i]))
+				}
 			}
 
 			if (newctx->gl_vertex_array_enabled[i] == GL_TRUE)

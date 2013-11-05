@@ -117,18 +117,17 @@ typedef struct
 
 #define GL_OBJECT_ID_LIMIT         0xFFFFFF
 
-typedef enum
-{
-    GL_OBJECT_TYPE_QUERY               = 0x0,
-    GL_OBJECT_TYPE_TEXTURE             = 0x1000000,
-    GL_OBJECT_TYPE_BUFFER              = 0x2000000,
-    GL_OBJECT_TYPE_FRAMEBUFFER         = 0x3000000,
-    GL_OBJECT_TYPE_RENDERBUFFER        = 0x4000000,
-    GL_OBJECT_TYPE_PROGRAM             = 0x5000000,
-    GL_OBJECT_TYPE_VERTEXARRAY         = 0x6000000,
-    GL_OBJECT_TYPE_TRANSFORMFEEDBACK   = 0x7000000,
-    GL_OBJECT_TYPE_UNKNOWN             = 0xFFFFFFF
-} GL_Object_Type;
+#define GL_Object_Type                     int
+#define GL_OBJECT_TYPE_QUERY               0x0
+#define GL_OBJECT_TYPE_TEXTURE             0x1000000
+#define GL_OBJECT_TYPE_BUFFER              0x2000000
+#define GL_OBJECT_TYPE_FRAMEBUFFER         0x3000000
+#define GL_OBJECT_TYPE_RENDERBUFFER        0x4000000
+#define GL_OBJECT_TYPE_PROGRAM             0x5000000
+#define GL_OBJECT_TYPE_VERTEXARRAY         0x6000000
+#define GL_OBJECT_TYPE_SAMPLER             0x7000000
+#define GL_OBJECT_TYPE_TRANSFORMFEEDBACK   0x8000000
+#define GL_OBJECT_TYPE_UNKNOWN             0xFFFFFFF
 
 typedef struct _GL_Object
 {
@@ -158,27 +157,37 @@ typedef struct _GL_Object_Hash_Base
 
 typedef struct _GL_Shared_Object_State
 {
+	Mutex                    access_mutex;
 	int                      ref_count;
 	General_Trace_List      *using_gctxs;
 
-	GL_Object_Hash_Base      query;
 	GL_Object_Hash_Base      texture;
 	GL_Object_Hash_Base      buffer;
-	GL_Object_Hash_Base      framebuffer;
 	GL_Object_Hash_Base      renderbuffer;
 	GL_Object_Hash_Base      program;
+	GL_Object_Hash_Base      sampler;
+
+	GL_Object_Hash_Base      texture_real;
+	GL_Object_Hash_Base      buffer_real;
+	GL_Object_Hash_Base      renderbuffer_real;
+	GL_Object_Hash_Base      program_real;
+	GL_Object_Hash_Base      sampler_real;
+} GL_Shared_Object_State;
+
+typedef struct _GL_Object_State
+{
+	GL_Shared_Object_State  *shared;
+
+	GL_Object_Hash_Base      query;
+	GL_Object_Hash_Base      framebuffer;
 	GL_Object_Hash_Base      vertexarray;
 	GL_Object_Hash_Base      transformfeedback;
 
 	GL_Object_Hash_Base      query_real;
-	GL_Object_Hash_Base      texture_real;
-	GL_Object_Hash_Base      buffer_real;
 	GL_Object_Hash_Base      framebuffer_real;
-	GL_Object_Hash_Base      renderbuffer_real;
-	GL_Object_Hash_Base      program_real;
 	GL_Object_Hash_Base      vertexarray_real;
 	GL_Object_Hash_Base      transformfeedback_real;
-} GL_Shared_Object_State;
+} GL_Object_State;
 
 typedef struct _GLGlueContext
 {
@@ -305,9 +314,7 @@ typedef struct _GLGlueContext
 #define _VATTRIB_FLAG_BIT_gl_vertex_attrib_value             FLAG_BIT_0
 #define _VATTRIB_FLAG_BIT_gl_vertex_array                    FLAG_BIT_1
 
-
-
-	GL_Shared_Object_State *sostate;
+	GL_Object_State         ostate;
 
 	GLenum                  gl_error;
 
@@ -354,15 +361,17 @@ extern int                 fastpath_remove_context_states_from_list(GLContextSta
 extern GLContextState     *fastpath_get_context_state_from_list(const void *data, const int datalen, Mutex *mtx);
 
 // Shared object state functions
-extern void                fastpath_sostate_init(GL_Shared_Object_State *sostate);
-extern void                fastpath_sostate_deinit(GL_Shared_Object_State *sostate);
-extern GLuint              fastpath_sostate_create_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint name);
-extern GLuint              fastpath_sostate_remove_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint glue_name);
-extern GLuint              fastpath_sostate_get_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint name);
-extern GLuint              fastpath_sostate_find_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint real_name);
-extern GLint               fastpath_sostate_use_object(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint glue_name);
-extern GLint               fastpath_sostate_set_object_tag(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint glue_name, GLvoid *tag);
-extern GLvoid             *fastpath_sostate_get_object_tag(GL_Shared_Object_State *sostate, GL_Object_Type type, GLuint glue_name);
+extern void                fastpath_ostate_init(GL_Object_State *ostate);
+extern void                fastpath_sostate_init(GL_Shared_Object_State *ostate);
+extern void                fastpath_ostate_deinit(GL_Object_State *ostate);
+extern void                fastpath_sostate_deinit(GL_Shared_Object_State *ostate);
+extern GLuint              fastpath_ostate_create_object(GL_Object_State *ostate, GL_Object_Type type, GLuint name);
+extern GLuint              fastpath_ostate_remove_object(GL_Object_State *ostate, GL_Object_Type type, GLuint glue_name);
+extern GLuint              fastpath_ostate_get_object(GL_Object_State *ostate, GL_Object_Type type, GLuint name);
+extern GLuint              fastpath_ostate_find_object(GL_Object_State *ostate, GL_Object_Type type, GLuint real_name);
+extern GLint               fastpath_ostate_use_object(GL_Object_State *ostate, GL_Object_Type type, GLuint glue_name);
+extern GLint               fastpath_ostate_set_object_tag(GL_Object_State *ostate, GL_Object_Type type, GLuint glue_name, GLvoid *tag);
+extern GLvoid             *fastpath_ostate_get_object_tag(GL_Object_State *ostate, GL_Object_Type type, GLuint glue_name);
 
 // GL context management functions
 extern void                fastpath_release_gl_context(GLGlueContext *gctx);

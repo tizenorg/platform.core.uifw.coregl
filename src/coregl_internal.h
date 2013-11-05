@@ -129,6 +129,7 @@ extern const char         *get_env_setting(const char *name);
 extern int                 init_new_thread_state();
 
 // Thread functions
+extern int                 mutex_init(Mutex *mt);
 extern int                 mutex_lock(Mutex *mt);
 extern int                 mutex_unlock(Mutex *mt);
 extern int                 get_current_thread();

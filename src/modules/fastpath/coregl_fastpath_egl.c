@@ -519,9 +519,11 @@ _remove_context_ref(GLGlueContext *gctx, Mutex *ctx_list_mtx)
 
 		_unlink_context_state(gctx, ctx_list_mtx);
 
-		AST(gctx->sostate != NULL);
-		_remove_shared_obj_state_ref(gctx, gctx->sostate);
-		gctx->sostate = NULL;
+		AST(gctx->ostate.shared != NULL);
+		_remove_shared_obj_state_ref(gctx, gctx->ostate.shared);
+		gctx->ostate.shared = NULL;
+
+		fastpath_ostate_deinit(&gctx->ostate);
 
 		if (gctx->real_ctx_option != NULL)
 		{
@@ -809,12 +811,14 @@ fastpath_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_con
 	newgctx->rdpy = dpy;
 	newgctx->thread_id = get_current_thread();
 
+	fastpath_ostate_init(&newgctx->ostate);
+
 	if (share_context != EGL_NO_CONTEXT)
 	{
 		GLGlueContext *shared_gctx = (GLGlueContext *)share_context;
 		AST(shared_gctx->magic == MAGIC_GLFAST);
-		AST(shared_gctx->sostate != NULL);
-		newgctx->sostate = shared_gctx->sostate;
+		AST(shared_gctx->ostate.shared != NULL);
+		newgctx->ostate.shared = shared_gctx->ostate.shared;
 	}
 	else
 	{
@@ -825,9 +829,9 @@ fastpath_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_con
 			goto finish;
 		}
 		fastpath_sostate_init(sostate_new);
-		newgctx->sostate = sostate_new;
+		newgctx->ostate.shared = sostate_new;
 	}
-	_add_shared_obj_state_ref(newgctx, newgctx->sostate);
+	_add_shared_obj_state_ref(newgctx, newgctx->ostate.shared);
 	newgctx->real_ctx_option = real_ctx_option;
 	newgctx->real_ctx_option_len = sizeof(EGL_packed_option);
 	newgctx->real_ctx_sharable_option = real_ctx_sharable_option;
