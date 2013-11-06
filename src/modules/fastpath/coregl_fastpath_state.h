@@ -177,6 +177,9 @@ GLUE_STATE(GLboolean, gl_vertex_array_normalized, INITIAL_CTX->gl_num_vertex_att
 GLUE_STATE(GLboolean, gl_vertex_array_integer, INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, SET_1(GL_FALSE)),
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, _sym_glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_INTEGER, (GLint *)value);))
+GLUE_STATE(GLuint, gl_vertex_array_divisor, INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
+           SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, SET_1(GL_FALSE)),
+           SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, _sym_glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_DIVISOR, (GLint *)value);))
 GLUE_STATE(GLsizei, gl_vertex_array_stride, INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, SET_1(GL_FALSE)),
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, _sym_glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_STRIDE, (GLint *)value);))

@@ -1381,15 +1381,15 @@ glGetBufferParameteri64v(GLenum target, GLenum pname, GLint64* params)
 }
 
 void
-glGenSamplers(GLsizei count, GLuint* samplers)
+glGenSamplers(GLsizei n, GLuint* samplers)
 {
-	ovr_glGenSamplers(count, samplers);
+	ovr_glGenSamplers(n, samplers);
 }
 
 void
-glDeleteSamplers(GLsizei count, const GLuint* samplers)
+glDeleteSamplers(GLsizei n, const GLuint* samplers)
 {
-	ovr_glDeleteSamplers(count, samplers);
+	ovr_glDeleteSamplers(n, samplers);
 }
 
 GLboolean

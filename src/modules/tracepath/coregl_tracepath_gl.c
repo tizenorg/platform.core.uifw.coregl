@@ -3398,10 +3398,10 @@ finish:
 }
 
 void
-tracepath_glGenSamplers(GLsizei count, GLuint* samplers)
+tracepath_glGenSamplers(GLsizei n, GLuint* samplers)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glGenSamplers(count, samplers);
+	_orig_tracepath_glGenSamplers(n, samplers);
 
 	goto finish;
 
@@ -3410,10 +3410,10 @@ finish:
 }
 
 void
-tracepath_glDeleteSamplers(GLsizei count, const GLuint* samplers)
+tracepath_glDeleteSamplers(GLsizei n, const GLuint* samplers)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glDeleteSamplers(count, samplers);
+	_orig_tracepath_glDeleteSamplers(n, samplers);
 
 	goto finish;
 

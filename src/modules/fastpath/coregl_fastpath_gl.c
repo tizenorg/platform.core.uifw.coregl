@@ -4398,31 +4398,7 @@ fastpath_glDeleteQueries(GLsizei n, const GLuint* ids)
 			objid_array[real_n++] = real_objid;
 		}
 
-		IF_GL_SUCCESS(_orig_fastpath_glDeleteQueries(real_n, objid_array))
-		{
-			/*
-			for (i = 0; i < real_n; i++)
-			{
-				General_Trace_List *current = NULL;
-				current = current_ctx->ostate.shared->using_gctxs;
-
-				while (current != NULL)
-				{
-					GLGlueContext *cur_gctx = (GLGlueContext *)current->value;
-
-					for (j = 0; j < cur_gctx->gl_num_tex_units[0]; j++)
-					{
-						if (cur_gctx->gl_tex_2d_state[j] == objid_array[i])
-							cur_gctx->gl_tex_2d_state[j] = 0;
-						if (cur_gctx->gl_tex_cube_state[j] == objid_array[i])
-							cur_gctx->gl_tex_cube_state[j] = 0;
-					}
-
-					current = current->next;
-				}
-			}
-			*/
-		}
+		_orig_fastpath_glDeleteQueries(real_n, objid_array);
 	}
 
 	goto finish;
@@ -4460,6 +4436,69 @@ fastpath_glIsQuery(GLuint id)
 finish:
 	_COREGL_FASTPATH_FUNC_END();
 	return ret;
+}
+
+
+// TODO : Begin Query without Gen
+void
+fastpath_glBeginQuery(GLenum target, GLuint id)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_QUERY, id, &real_obj) != 1)
+	{
+		_set_gl_error(GL_OUT_OF_MEMORY);
+		goto finish;
+	}
+
+	IF_GL_SUCCESS(_orig_fastpath_glBeginQuery(target, real_obj))
+	{
+	}
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glEndQuery(GLenum target)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glEndQuery(target);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glGetQueryiv(GLenum target, GLenum pname, GLint* params)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glGetQueryiv(target, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glGetQueryObjectuiv(GLuint id, GLenum pname, GLuint* params)
+{
+	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
+	_orig_fastpath_glGetQueryObjectuiv(id, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
 }
 
 
@@ -5516,7 +5555,7 @@ finish:
 
 ////////////////////////////////////////////////////////////////////////
 void
-fastpath_glGenSamplers(GLsizei count, GLuint* samplers)
+fastpath_glGenSamplers(GLsizei n, GLuint* samplers)
 {
 	int i;
 	GLuint *objid_array = NULL;
@@ -5531,7 +5570,7 @@ fastpath_glGenSamplers(GLsizei count, GLuint* samplers)
 		goto finish;
 	}
 	if (n == 0) goto finish;
-	if (arrays == NULL) goto finish;
+	if (samplers == NULL) goto finish;
 
 	AST(current_ctx->ostate.shared != NULL);
 
@@ -5558,7 +5597,7 @@ finish:
 
 
 void
-fastpath_glBindVertexArray(GLuint array)
+fastpath_glBindSampler(GLuint unit, GLuint sampler)
 {
 	GLuint real_obj;
 
@@ -5566,20 +5605,13 @@ fastpath_glBindVertexArray(GLuint array)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	if (GET_REAL_OBJ(GL_OBJECT_TYPE_VERTEXARRAY, array, &real_obj) != 1)
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_SAMPLER, sampler, &real_obj) != 1)
 	{
 		_set_gl_error(GL_OUT_OF_MEMORY);
 		goto finish;
 	}
 
-	if (current_ctx->gl_vertex_array_binding[0] != real_obj)
-	{
-		IF_GL_SUCCESS(_orig_fastpath_glBindVertexArray(real_obj))
-		{
-			current_ctx->_misc_flag3 |= _MISC_FLAG3_BIT_gl_vertex_array_binding;
-			current_ctx->gl_vertex_array_binding[0] = real_obj;
-		}
-	}
+	_orig_fastpath_glBindSampler(unit, real_obj);
 	goto finish;
 
 finish:
@@ -5588,7 +5620,7 @@ finish:
 
 
 GLboolean
-fastpath_glIsVertexArray(GLuint array)
+fastpath_glIsSampler(GLuint sampler)
 {
 	GLboolean ret = GL_FALSE;
 	GLuint real_obj;
@@ -5597,13 +5629,13 @@ fastpath_glIsVertexArray(GLuint array)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	if (GET_REAL_OBJ(GL_OBJECT_TYPE_VERTEXARRAY, array, &real_obj) != 1)
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_SAMPLER, sampler, &real_obj) != 1)
 	{
 		ret = GL_FALSE;
 		goto finish;
 	}
 
-	ret = _orig_fastpath_glIsVertexArray(real_obj);
+	ret = _orig_fastpath_glIsSampler(real_obj);
 
 	goto finish;
 
@@ -5614,7 +5646,7 @@ finish:
 
 
 void
-fastpath_glDeleteSamplers(GLsizei count, const GLuint* samplers)
+fastpath_glDeleteSamplers(GLsizei n, const GLuint* samplers)
 {
 	int i;
 	GLuint *objid_array = NULL;
@@ -5629,7 +5661,7 @@ fastpath_glDeleteSamplers(GLsizei count, const GLuint* samplers)
 		goto finish;
 	}
 	if (n == 0) goto finish;
-	if (arrays == NULL) goto finish;
+	if (samplers == NULL) goto finish;
 
 	AST(current_ctx->ostate.shared != NULL);
 
@@ -5640,7 +5672,7 @@ fastpath_glDeleteSamplers(GLsizei count, const GLuint* samplers)
 		for (i = 0; i < n; i++)
 		{
 			int real_objid = _COREGL_INT_INIT_VALUE;
-			if (arrays[i] == 0) continue;
+			if (samplers[i] == 0) continue;
 
 			real_objid = fastpath_ostate_get_object(&current_ctx->ostate, GL_OBJECT_TYPE_SAMPLER, samplers[i]);
 			if (real_objid == 0) continue;
@@ -5649,24 +5681,7 @@ fastpath_glDeleteSamplers(GLsizei count, const GLuint* samplers)
 			objid_array[real_n++] = real_objid;
 		}
 
-		IF_GL_SUCCESS(_orig_fastpath_glDeleteSamplers(real_n, objid_array))
-		{
-			for (i = 0; i < real_n; i++)
-			{
-				General_Trace_List *current = NULL;
-				current = current_ctx->ostate.shared->using_gctxs;
-
-				while (current != NULL)
-				{
-					GLGlueContext *cur_gctx = (GLGlueContext *)current->value;
-
-					if (cur_gctx->gl_vertex_array_binding[0] == objid_array[i])
-						cur_gctx->gl_vertex_array_binding[0] = 0;
-
-					current = current->next;
-				}
-			}
-		}
+		_orig_fastpath_glDeleteSamplers(real_n, objid_array);
 	}
 
 	goto finish;
@@ -5683,50 +5698,23 @@ finish:
 ////////////////////////////////////////////////////////////////////////
 
 
-
-
-
-
-
-/* ES 3.0 BLOCK (UNTIL SUPPORT) */
-#define SIGILL_ERROR() \
-	COREGL_ERR("\E[40;31;1mFASTPATH can't support ES3.0 API '%s' (will be terminated with Illegal instruction!)\E[0m\n", __func__); \
-	kill(getpid(), SIGILL)
-
-
-
-GLboolean
-fastpath_glIsSampler(GLuint sampler)
-{
-	GLboolean ret = GL_FALSE;
-
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	ret = _orig_fastpath_glIsSampler(sampler);
-
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-	return ret;
-}
-
-void
-fastpath_glBindSampler(GLuint unit, GLuint sampler)
-{
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glBindSampler(unit, sampler);
-
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-}
-
 void
 fastpath_glSamplerParameteri(GLuint sampler, GLenum pname, GLint param)
 {
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glSamplerParameteri(sampler, pname, param);
+	GLboolean ret = GL_FALSE;
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_SAMPLER, sampler, &real_obj) != 1)
+	{
+		ret = GL_FALSE;
+		goto finish;
+	}
+
+	_orig_fastpath_glSamplerParameteri(real_obj, pname, param);
 
 	goto finish;
 
@@ -5737,8 +5725,20 @@ finish:
 void
 fastpath_glSamplerParameteriv(GLuint sampler, GLenum pname, const GLint* param)
 {
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glSamplerParameteriv(sampler, pname, param);
+	GLboolean ret = GL_FALSE;
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_SAMPLER, sampler, &real_obj) != 1)
+	{
+		ret = GL_FALSE;
+		goto finish;
+	}
+
+	_orig_fastpath_glSamplerParameteriv(real_obj, pname, param);
 
 	goto finish;
 
@@ -5749,8 +5749,20 @@ finish:
 void
 fastpath_glSamplerParameterf(GLuint sampler, GLenum pname, GLfloat param)
 {
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glSamplerParameterf(sampler, pname, param);
+	GLboolean ret = GL_FALSE;
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_SAMPLER, sampler, &real_obj) != 1)
+	{
+		ret = GL_FALSE;
+		goto finish;
+	}
+
+	_orig_fastpath_glSamplerParameterf(real_obj, pname, param);
 
 	goto finish;
 
@@ -5761,8 +5773,20 @@ finish:
 void
 fastpath_glSamplerParameterfv(GLuint sampler, GLenum pname, const GLfloat* param)
 {
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glSamplerParameterfv(sampler, pname, param);
+	GLboolean ret = GL_FALSE;
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_SAMPLER, sampler, &real_obj) != 1)
+	{
+		ret = GL_FALSE;
+		goto finish;
+	}
+
+	_orig_fastpath_glSamplerParameterfv(real_obj, pname, param);
 
 	goto finish;
 
@@ -5773,8 +5797,20 @@ finish:
 void
 fastpath_glGetSamplerParameteriv(GLuint sampler, GLenum pname, GLint* params)
 {
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glGetSamplerParameteriv(sampler, pname, params);
+	GLboolean ret = GL_FALSE;
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_SAMPLER, sampler, &real_obj) != 1)
+	{
+		ret = GL_FALSE;
+		goto finish;
+	}
+
+	_orig_fastpath_glGetSamplerParameteriv(real_obj, pname, params);
 
 	goto finish;
 
@@ -5785,101 +5821,49 @@ finish:
 void
 fastpath_glGetSamplerParameterfv(GLuint sampler, GLenum pname, GLfloat* params)
 {
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glGetSamplerParameterfv(sampler, pname, params);
+	GLboolean ret = GL_FALSE;
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_SAMPLER, sampler, &real_obj) != 1)
+	{
+		ret = GL_FALSE;
+		goto finish;
+	}
+
+	_orig_fastpath_glGetSamplerParameterfv(real_obj, pname, params);
 
 	goto finish;
 
 finish:
 	_COREGL_FASTPATH_FUNC_END();
 }
+
 
 void
 fastpath_glVertexAttribDivisor(GLuint index, GLuint divisor)
 {
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glVertexAttribDivisor(index, divisor);
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
 
+	IF_GL_SUCCESS(_orig_fastpath_glVertexAttribDivisor(index, divisor))
+	{
+		current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_array;
+		current_ctx->gl_vertex_array_divisor[index] = divisor;
+	}
 	goto finish;
 
 finish:
 	_COREGL_FASTPATH_FUNC_END();
 }
+
 
 void
 fastpath_glProgramParameteri(GLuint program, GLenum pname, GLint value)
-{
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glProgramParameteri(program, pname, value);
-
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-}
-
-void
-fastpath_glInvalidateFramebuffer(GLenum target, GLsizei numAttachments, const GLenum* attachments)
-{
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glInvalidateFramebuffer(target, numAttachments, attachments);
-
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-}
-
-void
-fastpath_glInvalidateSubFramebuffer(GLenum target, GLsizei numAttachments, const GLenum* attachments, GLint x, GLint y, GLsizei width, GLsizei height)
-{
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glInvalidateSubFramebuffer(target, numAttachments, attachments, x, y, width, height);
-
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-}
-
-void
-fastpath_glTexStorage2D(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height)
-{
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glTexStorage2D(target, levels, internalformat, width, height);
-
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-}
-
-void
-fastpath_glTexStorage3D(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth)
-{
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glTexStorage3D(target, levels, internalformat, width, height, depth);
-
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-}
-
-void
-fastpath_glGetInternalformativ(GLenum target, GLenum internalformat, GLenum pname, GLsizei bufSize, GLint* params)
-{
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glGetInternalformativ(target, internalformat, pname, bufSize, params);
-
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-}
-
-void
-fastpath_glBeginQuery(GLenum target, GLuint id)
 {
 	GLuint real_obj;
 
@@ -5887,15 +5871,13 @@ fastpath_glBeginQuery(GLenum target, GLuint id)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 	INIT_FASTPATH_GL_FUNC();
 
-	if (GET_REAL_OBJ(GL_OBJECT_TYPE_QUERY, id, &real_obj) != 1)
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
 	{
-		_set_gl_error(GL_OUT_OF_MEMORY);
+		_set_gl_error(GL_INVALID_VALUE);
 		goto finish;
 	}
 
-	IF_GL_SUCCESS(_orig_fastpath_glBeginQuery(target, real_obj))
-	{
-	}
+	_orig_fastpath_glProgramParameteri(real_obj, pname, value);
 
 	goto finish;
 
@@ -5903,39 +5885,4 @@ finish:
 	_COREGL_FASTPATH_FUNC_END();
 }
 
-void
-fastpath_glEndQuery(GLenum target)
-{
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glEndQuery(target);
-
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-}
-
-void
-fastpath_glGetQueryiv(GLenum target, GLenum pname, GLint* params)
-{
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glGetQueryiv(target, pname, params);
-
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-}
-
-void
-fastpath_glGetQueryObjectuiv(GLuint id, GLenum pname, GLuint* params)
-{
-	_COREGL_FASTPATH_FUNC_BEGIN(); 	SIGILL_ERROR(); // BLOCK API
-	_orig_fastpath_glGetQueryObjectuiv(id, pname, params);
-
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-}
 

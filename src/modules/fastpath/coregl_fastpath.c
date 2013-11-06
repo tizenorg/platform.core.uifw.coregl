@@ -450,13 +450,9 @@ fastpath_apply_overrides_gl(int enable)
 		COREGL_OVERRIDE(fastpath_, glGetSamplerParameteriv);
 		COREGL_OVERRIDE(fastpath_, glGetSamplerParameterfv);
 		COREGL_OVERRIDE(fastpath_, glVertexAttribDivisor);
-		COREGL_OVERRIDE(fastpath_, glGetProgramBinary); // OPEN
-		COREGL_OVERRIDE(fastpath_, glProgramBinary); // OPEN
+		COREGL_OVERRIDE(fastpath_, glGetProgramBinary);
+		COREGL_OVERRIDE(fastpath_, glProgramBinary);
 		COREGL_OVERRIDE(fastpath_, glProgramParameteri);
-		COREGL_OVERRIDE(fastpath_, glInvalidateSubFramebuffer);
-		COREGL_OVERRIDE(fastpath_, glTexStorage2D);
-		COREGL_OVERRIDE(fastpath_, glTexStorage3D);
-		COREGL_OVERRIDE(fastpath_, glGetInternalformativ);
 
 	}
 	else
@@ -1405,6 +1401,11 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 			else
 			{
 				CHECK_GL_ERROR(_orig_fastpath_glBindBuffer(GL_ARRAY_BUFFER, 0))
+			}
+
+			STATE_COMPARE(gl_vertex_array_divisor[i])
+			{
+				CHECK_GL_ERROR(_orig_fastpath_glVertexAttribDivisor(i, newctx->gl_vertex_array_divisor[i]))
 			}
 
 			if (newctx->gl_vertex_array_pointer[i] != NULL)
