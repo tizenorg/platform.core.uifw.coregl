@@ -298,11 +298,6 @@ fastpath_apply_overrides_gl(int enable)
 		/* ES 3.0 BLOCK */
 		COREGL_OVERRIDE(fastpath_, glReadBuffer);
 		COREGL_OVERRIDE(fastpath_, glDrawRangeElements);
-		COREGL_OVERRIDE(fastpath_, glTexImage3D);
-		COREGL_OVERRIDE(fastpath_, glTexSubImage3D);
-		COREGL_OVERRIDE(fastpath_, glCopyTexSubImage3D);
-		COREGL_OVERRIDE(fastpath_, glCompressedTexImage3D);
-		COREGL_OVERRIDE(fastpath_, glCompressedTexSubImage3D);
 		COREGL_OVERRIDE(fastpath_, glGenQueries);
 		COREGL_OVERRIDE(fastpath_, glDeleteQueries);
 		COREGL_OVERRIDE(fastpath_, glIsQuery);
@@ -319,8 +314,6 @@ fastpath_apply_overrides_gl(int enable)
 		COREGL_OVERRIDE(fastpath_, glUniformMatrix4x2fv);
 		COREGL_OVERRIDE(fastpath_, glUniformMatrix3x4fv);
 		COREGL_OVERRIDE(fastpath_, glUniformMatrix4x3fv);
-		COREGL_OVERRIDE(fastpath_, glBlitFramebuffer);
-		COREGL_OVERRIDE(fastpath_, glRenderbufferStorageMultisample);
 		COREGL_OVERRIDE(fastpath_, glFramebufferTextureLayer);
 		COREGL_OVERRIDE(fastpath_, glMapBufferRange);
 		COREGL_OVERRIDE(fastpath_, glFlushMappedBufferRange);
@@ -395,7 +388,6 @@ fastpath_apply_overrides_gl(int enable)
 		COREGL_OVERRIDE(fastpath_, glGetProgramBinary); // OPEN
 		COREGL_OVERRIDE(fastpath_, glProgramBinary); // OPEN
 		COREGL_OVERRIDE(fastpath_, glProgramParameteri);
-		COREGL_OVERRIDE(fastpath_, glInvalidateFramebuffer);
 		COREGL_OVERRIDE(fastpath_, glInvalidateSubFramebuffer);
 		COREGL_OVERRIDE(fastpath_, glTexStorage2D);
 		COREGL_OVERRIDE(fastpath_, glTexStorage3D);

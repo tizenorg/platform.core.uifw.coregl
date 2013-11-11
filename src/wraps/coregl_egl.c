@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <dlfcn.h>
 
-// Include GL/EGL/GLX types
 # include <EGL/eglplatform.h>
 # include "../headers/egl.h"
 
@@ -19,7 +18,9 @@ typedef void (*_eng_fn) (void);
 #undef _COREGL_SYMBOL
 
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*ovr_##FUNC_NAME) PARAM_LIST = NULL;
+#define _COREGL_EXT_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)
 # include "../headers/sym_egl.h"
+#undef _COREGL_EXT_SYMBOL
 #undef _COREGL_SYMBOL
 
 #define INIT_EXPORT()

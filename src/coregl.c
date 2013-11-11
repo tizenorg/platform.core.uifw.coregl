@@ -75,28 +75,26 @@ _sym_missing()
 	COREGL_ERR("GL symbol missing! Check client version!\n");
 }
 
+#define FINDSYM(libhandle, getproc, dst, sym) \
+   if (!dst || (void *)dst == (void *)_sym_missing) \
+		if (getproc) dst = (__typeof__(dst))getproc(sym); \
+   if (!dst || (void *)dst == (void *)_sym_missing) \
+		dst = (__typeof__(dst))dlsym(libhandle, sym); \
+	if (!dst) dst = (__typeof__(dst))_sym_missing;
+
 static int
 _glue_sym_init(void)
 {
 
-#define FINDSYM(libhandle, getproc, dst, sym) \
-   if ((!dst) && (getproc)) dst = (__typeof__(dst))getproc(sym); \
-   if (!dst) dst = (__typeof__(dst))dlsym(libhandle, sym);
-
-#define FALLBAK(dst) \
-   if (!dst) { dst = (__typeof__(dst))_sym_missing; }
-
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) \
-    FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME); \
-    if (IS_EXTENSION == GL_TRUE) { \
-       FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"EXT"); \
-       FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"KHR"); \
-    } else { FALLBAK(_sym_##FUNC_NAME); }
-#include "headers/sym_egl.h"
-#undef _COREGL_SYMBOL
+    FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME);
+#define _COREGL_EXT_SYMBOL_ALIAS(FUNC_NAME, ALIAS_NAME) \
+    FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##ALIAS_NAME, #FUNC_NAME);
 
-#undef FINDSYM
-#undef FALLBAK
+#include "headers/sym_egl.h"
+
+#undef _COREGL_EXT_SYMBOL_ALIAS
+#undef _COREGL_SYMBOL
 
 	return 1;
 }
@@ -105,26 +103,21 @@ static int
 _gl_sym_init(void)
 {
 
-#define FINDSYM(libhandle, getproc, dst, sym) \
-   if ((!dst) && (getproc)) dst = (__typeof__(dst))getproc(sym); \
-   if (!dst) dst = (__typeof__(dst))dlsym(gl_lib_handle, sym);
-#define FALLBAK(dst) \
-   if (!dst) { dst = (__typeof__(dst))_sym_missing; }
-
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) \
-    FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME); \
-    if (IS_EXTENSION == GL_TRUE) { \
-       FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"EXT"); \
-       FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME"OES"); \
-     } else { FALLBAK(_sym_##FUNC_NAME); }
-#include "headers/sym_gl.h"
-#undef _COREGL_SYMBOL
+    FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME);
+#define _COREGL_EXT_SYMBOL_ALIAS(FUNC_NAME, ALIAS_NAME) \
+    FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##ALIAS_NAME, #FUNC_NAME);
 
-#undef FINDSYM
-#undef FALLBAK
+#include "headers/sym_gl.h"
+
+#undef _COREGL_EXT_SYMBOL_ALIAS
+#undef _COREGL_SYMBOL
 
 	return 1;
 }
+
+#undef FINDSYM
+
 
 COREGL_API void coregl_symbol_exported()
 {

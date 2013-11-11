@@ -16,7 +16,9 @@
 #undef _COREGL_SYMBOL
 
 #define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*ovr_##FUNC_NAME) PARAM_LIST = NULL;
+#define _COREGL_EXT_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)
 # include "../headers/sym_gl.h"
+#undef _COREGL_EXT_SYMBOL
 #undef _COREGL_SYMBOL
 
 #define INIT_EXPORT()
@@ -42,7 +44,10 @@ coregl_glwrap_init()
 		LOGE("\E[40;31;1mCan't find a symbol '%s'!\E[0m\n\n", #FUNC_NAME); \
 		LOGE("\E[40;31;1mInvalid library link! (Check linkage of libGLESv2 -> libCOREGL)\E[0m\n"); \
 	}
+
+#define _COREGL_EXT_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)
 #include "../headers/sym_gl.h"
+#undef _COREGL_EXT_SYMBOL
 #undef _COREGL_SYMBOL
 
 	return 1;
