@@ -158,6 +158,7 @@ typedef struct _GL_Object_Hash_Base
 typedef struct _GL_Shared_Object_State
 {
 	Mutex                    access_mutex;
+	Mutex                    real_access_mutex;
 	int                      ref_count;
 	General_Trace_List      *using_gctxs;
 
@@ -242,6 +243,10 @@ typedef struct _GLGlueContext
 #define _ENABLE_FLAG2_BIT_gl_scissor_test              FLAG_BIT_3
 #define _ENABLE_FLAG2_BIT_gl_stencil_test              FLAG_BIT_4
 
+	unsigned char           _enable_flag3;
+#define _ENABLE_FLAG3_BIT_gl_primitive_restart_fixed_index  FLAG_BIT_0
+#define _ENABLE_FLAG3_BIT_gl_rasterizer_discard             FLAG_BIT_1
+
 	unsigned char           _clear_flag1;
 #define _CLEAR_FLAG1_BIT_gl_viewport            FLAG_BIT_0
 #define _CLEAR_FLAG1_BIT_gl_current_program     FLAG_BIT_1
@@ -259,7 +264,9 @@ typedef struct _GLGlueContext
 #define _TEX_FLAG1_BIT_gl_active_texture         FLAG_BIT_0
 #define _TEX_FLAG1_BIT_gl_generate_mipmap_hint   FLAG_BIT_1
 #define _TEX_FLAG1_BIT_gl_tex_2d_state           FLAG_BIT_2
-#define _TEX_FLAG1_BIT_gl_tex_cube_state         FLAG_BIT_3
+#define _TEX_FLAG1_BIT_gl_tex_3d_state           FLAG_BIT_3
+#define _TEX_FLAG1_BIT_gl_tex_2d_array_state     FLAG_BIT_4
+#define _TEX_FLAG1_BIT_gl_tex_cube_state         FLAG_BIT_5
 
 	unsigned char           _blend_flag;
 #define _BLEND_FLAG_BIT_gl_blend_color           FLAG_BIT_0
@@ -289,6 +296,20 @@ typedef struct _GLGlueContext
 #define _STENCIL_FLAG2_BIT_gl_stencil_back_writemask         FLAG_BIT_6
 #define _STENCIL_FLAG2_BIT_gl_stencil_clear_value            FLAG_BIT_7
 
+	unsigned char           _pixel_flag1;
+#define _PIXEL_FLAG1_BIT_gl_pack_row_length      FLAG_BIT_0
+#define _PIXEL_FLAG1_BIT_gl_pack_skip_rows       FLAG_BIT_1
+#define _PIXEL_FLAG1_BIT_gl_pack_skip_pixels     FLAG_BIT_2
+#define _PIXEL_FLAG1_BIT_gl_pack_alignment       FLAG_BIT_3
+
+	unsigned char           _pixel_flag2;
+#define _PIXEL_FLAG2_BIT_gl_unpack_row_length      FLAG_BIT_0
+#define _PIXEL_FLAG2_BIT_gl_unpack_skip_rows       FLAG_BIT_1
+#define _PIXEL_FLAG2_BIT_gl_unpack_skip_pixels     FLAG_BIT_2
+#define _PIXEL_FLAG2_BIT_gl_unpack_alignment       FLAG_BIT_3
+#define _PIXEL_FLAG2_BIT_gl_unpack_image_height    FLAG_BIT_4
+#define _PIXEL_FLAG2_BIT_gl_unpack_skip_images     FLAG_BIT_5
+
 	unsigned char           _misc_flag1;
 #define _MISC_FLAG1_BIT_gl_front_face                        FLAG_BIT_0
 #define _MISC_FLAG1_BIT_gl_line_width                        FLAG_BIT_1
@@ -300,8 +321,6 @@ typedef struct _GLGlueContext
 
 	unsigned char           _misc_flag2;
 #define _MISC_FLAG2_BIT_gl_scissor_box                       FLAG_BIT_0
-#define _MISC_FLAG2_BIT_gl_pack_alignment                    FLAG_BIT_1
-#define _MISC_FLAG2_BIT_gl_unpack_alignment                  FLAG_BIT_2
 
 	unsigned char           _misc_flag3;
 #define _MISC_FLAG3_BIT_gl_read_buffer                       FLAG_BIT_0

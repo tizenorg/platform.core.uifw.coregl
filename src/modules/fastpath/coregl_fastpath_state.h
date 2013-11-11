@@ -83,6 +83,9 @@ GLUE_STATE(GLboolean, gl_sample_coverage, 1, 1, SET_1(GL_FALSE), _sym_glGetBoole
 GLUE_STATE(GLboolean, gl_scissor_test, 1, 1, SET_1(GL_FALSE), _sym_glGetBooleanv(GL_SCISSOR_TEST, (GLboolean *)value);)
 GLUE_STATE(GLboolean, gl_stencil_test, 1, 1, SET_1(GL_FALSE), _sym_glGetBooleanv(GL_STENCIL_TEST, (GLboolean *)value);)
 
+GLUE_STATE(GLboolean, gl_primitive_restart_fixed_index, 1, 1, SET_1(GL_FALSE), _sym_glGetBooleanv(GL_PRIMITIVE_RESTART_FIXED_INDEX, (GLboolean *)value);)
+GLUE_STATE(GLboolean, gl_rasterizer_discard, 1, 1, SET_1(GL_FALSE), _sym_glGetBooleanv(GL_RASTERIZER_DISCARD, (GLboolean *)value);)
+
 GLUE_STATE(GLint, gl_viewport, 4, 4,
            _sym_glGetIntegerv(GL_VIEWPORT, (GLint *)value); /* DEFAULT NOT EFFECT */,
            _sym_glGetIntegerv(GL_VIEWPORT, (GLint *)value);)
@@ -100,6 +103,12 @@ GLUE_STATE(GLenum, gl_cull_face_mode, 1, 1, SET_1(GL_BACK), _sym_glGetIntegerv(G
 GLUE_STATE(GLuint, gl_tex_2d_state, INITIAL_CTX->gl_num_tex_units[0], MAX_TEXTURE_UNITS,
            SET_N(INITIAL_CTX->gl_num_tex_units[0], 1, SET_1(0)),
            _state_get_texture_states(GL_TEXTURE_BINDING_2D, (GLint *)value);)
+GLUE_STATE(GLuint, gl_tex_3d_state, INITIAL_CTX->gl_num_tex_units[0], MAX_TEXTURE_UNITS,
+           SET_N(INITIAL_CTX->gl_num_tex_units[0], 1, SET_1(0)),
+           _state_get_texture_states(GL_TEXTURE_BINDING_3D, (GLint *)value);)
+GLUE_STATE(GLuint, gl_tex_2d_array_state, INITIAL_CTX->gl_num_tex_units[0], MAX_TEXTURE_UNITS,
+           SET_N(INITIAL_CTX->gl_num_tex_units[0], 1, SET_1(0)),
+           _state_get_texture_states(GL_TEXTURE_BINDING_2D_ARRAY, (GLint *)value);)
 GLUE_STATE(GLuint, gl_tex_cube_state, INITIAL_CTX->gl_num_tex_units[0], MAX_TEXTURE_UNITS,
            SET_N(INITIAL_CTX->gl_num_tex_units[0], 1, SET_1(0)),
            _state_get_texture_states(GL_TEXTURE_BINDING_CUBE_MAP, (GLint *)value);)
@@ -142,6 +151,20 @@ GLUE_STATE(GLuintmask, gl_stencil_back_writemask, 1, 1,
 
 GLUE_STATE(GLint, gl_stencil_clear_value, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_STENCIL_CLEAR_VALUE, (GLint *)value);)
 
+// PIXEL FLAG 1
+GLUE_STATE(GLint, gl_pack_row_length, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_PACK_ROW_LENGTH, (GLint *)value);)
+GLUE_STATE(GLint, gl_pack_skip_rows, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_PACK_SKIP_ROWS, (GLint *)value);)
+GLUE_STATE(GLint, gl_pack_skip_pixels, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_PACK_SKIP_PIXELS, (GLint *)value);)
+GLUE_STATE(GLint, gl_pack_alignment, 1, 1, SET_1(4), _sym_glGetIntegerv(GL_PACK_ALIGNMENT, (GLint *)value);)
+
+// PIXEL FLAG 2
+GLUE_STATE(GLint, gl_unpack_row_length, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_UNPACK_ROW_LENGTH, (GLint *)value);)
+GLUE_STATE(GLint, gl_unpack_skip_rows, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_UNPACK_SKIP_ROWS, (GLint *)value);)
+GLUE_STATE(GLint, gl_unpack_skip_pixels, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_UNPACK_SKIP_PIXELS, (GLint *)value);)
+GLUE_STATE(GLint, gl_unpack_alignment, 1, 1, SET_1(4), _sym_glGetIntegerv(GL_UNPACK_ALIGNMENT, (GLint *)value);)
+GLUE_STATE(GLint, gl_unpack_image_height, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_UNPACK_IMAGE_HEIGHT, (GLint *)value);)
+GLUE_STATE(GLint, gl_unpack_skip_images, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_UNPACK_SKIP_IMAGES, (GLint *)value);)
+
 // MISC FLAG 1
 GLUE_STATE(GLenum, gl_front_face, 1, 1, SET_1(GL_CCW), _sym_glGetIntegerv(GL_FRONT_FACE, (GLint *)value);)
 GLUE_STATE(GLfloat, gl_line_width, 1, 1, SET_1(1.0f), _sym_glGetFloatv(GL_LINE_WIDTH, (GLfloat *)value);)
@@ -149,15 +172,12 @@ GLUE_STATE(GLfloat, gl_polygon_offset_factor, 1, 1, SET_1(0.0f), _sym_glGetFloat
 GLUE_STATE(GLfloat, gl_polygon_offset_units, 1, 1, SET_1(0.0f), _sym_glGetFloatv(GL_POLYGON_OFFSET_UNITS, (GLfloat *)value);)
 GLUE_STATE(GLclampf, gl_sample_coverage_value, 1, 1, SET_1(1.0f), _sym_glGetFloatv(GL_SAMPLE_COVERAGE_VALUE, (GLfloat *)value);)
 GLUE_STATE(GLboolean, gl_sample_coverage_invert, 1, 1, SET_1(GL_FALSE), _sym_glGetBooleanv(GL_SAMPLE_COVERAGE_INVERT, (GLboolean *)value);)
-GLUE_STATE(GLenum, gl_fragment_shader_derivative_hint, 1, 1, SET_1(GL_DONT_CARE), _sym_glGetIntegerv(GL_FRAGMENT_SHADER_DERIVATIVE_HINT_OES, (GLint *)value);)
+GLUE_STATE(GLenum, gl_fragment_shader_derivative_hint, 1, 1, SET_1(GL_DONT_CARE), _sym_glGetIntegerv(GL_FRAGMENT_SHADER_DERIVATIVE_HINT, (GLint *)value);)
 
 // MISC FLAG 2
 GLUE_STATE(GLint, gl_scissor_box, 4, 4,
            _sym_glGetIntegerv(GL_SCISSOR_BOX, (GLint *)value); /* DEFAULT NOT EFFECT */,
            _sym_glGetIntegerv(GL_SCISSOR_BOX, (GLint *)value);)
-
-GLUE_STATE(GLint, gl_pack_alignment, 1, 1, SET_1(4), _sym_glGetIntegerv(GL_PACK_ALIGNMENT, (GLint *)value);)
-GLUE_STATE(GLint, gl_unpack_alignment, 1, 1, SET_1(4), _sym_glGetIntegerv(GL_UNPACK_ALIGNMENT, (GLint *)value);)
 
 GLUE_STATE(GLuint, gl_vertex_array_buf_id, INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, SET_1(0)),
@@ -168,6 +188,9 @@ GLUE_STATE(GLboolean, gl_vertex_array_enabled, INITIAL_CTX->gl_num_vertex_attrib
 GLUE_STATE(GLint, gl_vertex_array_size, INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, SET_1(4)),
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, _sym_glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_SIZE, (GLint *)value);))
+GLUE_STATE(GLsizei, gl_vertex_array_stride, INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
+           SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, SET_1(GL_FALSE)),
+           SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, _sym_glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_STRIDE, (GLint *)value);))
 GLUE_STATE(GLenum, gl_vertex_array_type, INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, SET_1(GL_FLOAT)),
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, _sym_glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_TYPE, (GLint *)value);))
@@ -180,9 +203,6 @@ GLUE_STATE(GLboolean, gl_vertex_array_integer, INITIAL_CTX->gl_num_vertex_attrib
 GLUE_STATE(GLuint, gl_vertex_array_divisor, INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, SET_1(GL_FALSE)),
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, _sym_glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_DIVISOR, (GLint *)value);))
-GLUE_STATE(GLsizei, gl_vertex_array_stride, INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
-           SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, SET_1(GL_FALSE)),
-           SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, _sym_glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_STRIDE, (GLint *)value);))
 GLUE_STATE(GLvoidptr, gl_vertex_array_pointer, INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, SET_1(NULL)),
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, _sym_glGetVertexAttribPointerv(i, GL_VERTEX_ATTRIB_ARRAY_POINTER, (GLvoidptr *)value);))

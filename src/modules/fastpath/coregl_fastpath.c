@@ -389,19 +389,45 @@ fastpath_apply_overrides_gl(int enable)
 		COREGL_OVERRIDE(fastpath_, glVertexAttribPointer);
 		COREGL_OVERRIDE(fastpath_, glViewport);
 
-		COREGL_OVERRIDE(fastpath_, glFramebufferTexture2DMultisampleEXT);
+
+		COREGL_OVERRIDE(fastpath_, glUseProgramStagesEXT);
+		COREGL_OVERRIDE(fastpath_, glActiveShaderProgramEXT);
 		COREGL_OVERRIDE(fastpath_, glProgramParameteriEXT);
+		COREGL_OVERRIDE(fastpath_, glProgramUniform1iEXT);
+		COREGL_OVERRIDE(fastpath_, glProgramUniform2iEXT);
+		COREGL_OVERRIDE(fastpath_, glProgramUniform3iEXT);
+		COREGL_OVERRIDE(fastpath_, glProgramUniform4iEXT);
+		COREGL_OVERRIDE(fastpath_, glProgramUniform1fEXT);
+		COREGL_OVERRIDE(fastpath_, glProgramUniform2fEXT);
+		COREGL_OVERRIDE(fastpath_, glProgramUniform3fEXT);
+		COREGL_OVERRIDE(fastpath_, glProgramUniform4fEXT);
+		COREGL_OVERRIDE(fastpath_, glProgramUniform1ivEXT);
+		COREGL_OVERRIDE(fastpath_, glProgramUniform2ivEXT);
+		COREGL_OVERRIDE(fastpath_, glProgramUniform3ivEXT);
+		COREGL_OVERRIDE(fastpath_, glProgramUniform4ivEXT);
+		COREGL_OVERRIDE(fastpath_, glProgramUniform1fvEXT);
+		COREGL_OVERRIDE(fastpath_, glProgramUniform2fvEXT);
+		COREGL_OVERRIDE(fastpath_, glProgramUniform3fvEXT);
+		COREGL_OVERRIDE(fastpath_, glProgramUniform4fvEXT);
+		COREGL_OVERRIDE(fastpath_, glProgramUniformMatrix2fvEXT);
+		COREGL_OVERRIDE(fastpath_, glProgramUniformMatrix3fvEXT);
+		COREGL_OVERRIDE(fastpath_, glProgramUniformMatrix4fvEXT);
+		COREGL_OVERRIDE(fastpath_, glProgramParameteriEXT);
+		COREGL_OVERRIDE(fastpath_, glProgramParameteriEXT);
+		COREGL_OVERRIDE(fastpath_, glProgramParameteriEXT);
+		COREGL_OVERRIDE(fastpath_, glProgramParameteriEXT);
+		COREGL_OVERRIDE(fastpath_, glProgramParameteriEXT);
+
+		COREGL_OVERRIDE(fastpath_, glFramebufferTexture2DMultisampleEXT);
 		COREGL_OVERRIDE(fastpath_, glEGLImageTargetTexture2DOES);
 		COREGL_OVERRIDE(fastpath_, glFramebufferTexture3DOES);
 
 		COREGL_OVERRIDE(fastpath_, glReadBuffer);
 
-		/* ES 3.0 BLOCK */
 		COREGL_OVERRIDE(fastpath_, glGenQueries);
 		COREGL_OVERRIDE(fastpath_, glDeleteQueries);
 		COREGL_OVERRIDE(fastpath_, glIsQuery);
 		COREGL_OVERRIDE(fastpath_, glBeginQuery);
-		COREGL_OVERRIDE(fastpath_, glEndQuery);
 		COREGL_OVERRIDE(fastpath_, glGetQueryiv);
 		COREGL_OVERRIDE(fastpath_, glGetQueryObjectuiv);
 		COREGL_OVERRIDE(fastpath_, glDrawBuffers);
@@ -464,25 +490,30 @@ fastpath_apply_overrides_gl(int enable)
 #undef OVERRIDE
 
 static inline GL_Object_Hash_Base *
-_get_shared_object_hash(GL_Object_State *ostate, GL_Object_Type type)
+_lock_gl_object_hash(GL_Object_State *ostate, GL_Object_Type type)
 {
 	switch (type)
 	{
 		case GL_OBJECT_TYPE_QUERY:
 			return &ostate->query;
 		case GL_OBJECT_TYPE_TEXTURE:
+			AST(mutex_lock(&ostate->shared->access_mutex) == 1);
 			return &ostate->shared->texture;
 		case GL_OBJECT_TYPE_BUFFER:
+			AST(mutex_lock(&ostate->shared->access_mutex) == 1);
 			return &ostate->shared->buffer;
 		case GL_OBJECT_TYPE_FRAMEBUFFER:
 			return &ostate->framebuffer;
 		case GL_OBJECT_TYPE_RENDERBUFFER:
+			AST(mutex_lock(&ostate->shared->access_mutex) == 1);
 			return &ostate->shared->renderbuffer;
 		case GL_OBJECT_TYPE_PROGRAM:
+			AST(mutex_lock(&ostate->shared->access_mutex) == 1);
 			return &ostate->shared->program;
 		case GL_OBJECT_TYPE_VERTEXARRAY:
 			return &ostate->vertexarray;
 		case GL_OBJECT_TYPE_SAMPLER:
+			AST(mutex_lock(&ostate->shared->access_mutex) == 1);
 			return &ostate->shared->sampler;
 		case GL_OBJECT_TYPE_TRANSFORMFEEDBACK:
 			return &ostate->transformfeedback;
@@ -491,31 +522,69 @@ _get_shared_object_hash(GL_Object_State *ostate, GL_Object_Type type)
 	}
 }
 
+static inline void
+_unlock_gl_object_hash(GL_Object_State *ostate, GL_Object_Type type)
+{
+	switch (type)
+	{
+		case GL_OBJECT_TYPE_TEXTURE:
+		case GL_OBJECT_TYPE_BUFFER:
+		case GL_OBJECT_TYPE_RENDERBUFFER:
+		case GL_OBJECT_TYPE_PROGRAM:
+		case GL_OBJECT_TYPE_SAMPLER:
+			AST(mutex_unlock(&ostate->shared->access_mutex) == 1);
+		default:
+			break;
+	}
+}
+
 static inline GL_Object_Hash_Base *
-_get_shared_object_hash_real(GL_Object_State *ostate, GL_Object_Type type)
+_lock_gl_object_hash_real(GL_Object_State *ostate, GL_Object_Type type)
 {
 	switch (type)
 	{
 		case GL_OBJECT_TYPE_QUERY:
 			return &ostate->query_real;
 		case GL_OBJECT_TYPE_TEXTURE:
+			AST(mutex_lock(&ostate->shared->real_access_mutex) == 1);
 			return &ostate->shared->texture_real;
 		case GL_OBJECT_TYPE_BUFFER:
+			AST(mutex_lock(&ostate->shared->real_access_mutex) == 1);
 			return &ostate->shared->buffer_real;
 		case GL_OBJECT_TYPE_FRAMEBUFFER:
 			return &ostate->framebuffer_real;
 		case GL_OBJECT_TYPE_RENDERBUFFER:
+			AST(mutex_lock(&ostate->shared->real_access_mutex) == 1);
 			return &ostate->shared->renderbuffer_real;
 		case GL_OBJECT_TYPE_PROGRAM:
+			AST(mutex_lock(&ostate->shared->real_access_mutex) == 1);
 			return &ostate->shared->program_real;
 		case GL_OBJECT_TYPE_VERTEXARRAY:
 			return &ostate->vertexarray_real;
 		case GL_OBJECT_TYPE_SAMPLER:
+			AST(mutex_lock(&ostate->shared->real_access_mutex) == 1);
 			return &ostate->shared->sampler_real;
 		case GL_OBJECT_TYPE_TRANSFORMFEEDBACK:
 			return &ostate->transformfeedback_real;
 		default:
 			return NULL;
+	}
+}
+
+static inline void
+_unlock_gl_object_hash_real(GL_Object_State *ostate, GL_Object_Type type)
+{
+	switch (type)
+	{
+		case GL_OBJECT_TYPE_TEXTURE:
+		case GL_OBJECT_TYPE_BUFFER:
+		case GL_OBJECT_TYPE_RENDERBUFFER:
+		case GL_OBJECT_TYPE_PROGRAM:
+		case GL_OBJECT_TYPE_SAMPLER:
+			AST(mutex_unlock(&ostate->shared->real_access_mutex) == 1);
+			break;
+		default:
+			break;
 	}
 }
 
@@ -883,8 +952,8 @@ fastpath_ostate_create_object(GL_Object_State *ostate, GL_Object_Type type, GLui
 	GL_Object_Hash_Base *hash_base_real = NULL;
 	int newid = _COREGL_INT_INIT_VALUE;
 
-	hash_base = _get_shared_object_hash(ostate, type);
-	hash_base_real = _get_shared_object_hash_real(ostate, type);
+	hash_base = _lock_gl_object_hash(ostate, type);
+	hash_base_real = _lock_gl_object_hash_real(ostate, type);
 
 	newid = hash_base->last_id + 1;
 	if (newid >= hash_base->hash_size)
@@ -942,6 +1011,8 @@ fastpath_ostate_create_object(GL_Object_State *ostate, GL_Object_Type type, GLui
 	goto finish;
 
 finish:
+	_unlock_gl_object_hash(ostate, type);
+	_unlock_gl_object_hash_real(ostate, type);
 	return ret;
 }
 
@@ -964,8 +1035,8 @@ fastpath_ostate_remove_object(GL_Object_State *ostate, GL_Object_Type type, GLui
 	GL_Object_Hash_Base *hash_base_real = NULL;
 	GL_Object *object = NULL;
 
-	hash_base = _get_shared_object_hash(ostate, type);
-	hash_base_real = _get_shared_object_hash_real(ostate, type);
+	hash_base = _lock_gl_object_hash(ostate, type);
+	hash_base_real = _lock_gl_object_hash_real(ostate, type);
 
 	FIND_OBJ_FROM_HASH_WITH_VERIFY(hash_base, glue_name - (int)type, object);
 
@@ -995,6 +1066,8 @@ fastpath_ostate_remove_object(GL_Object_State *ostate, GL_Object_Type type, GLui
 	goto finish;
 
 finish:
+	_unlock_gl_object_hash(ostate, type);
+	_unlock_gl_object_hash_real(ostate, type);
 	return ret;
 }
 
@@ -1006,7 +1079,7 @@ fastpath_ostate_get_object(GL_Object_State *ostate, GL_Object_Type type, GLuint 
 	GL_Object_Hash_Base *hash_base = NULL;
 	GL_Object *object = NULL;
 
-	hash_base = _get_shared_object_hash(ostate, type);
+	hash_base = _lock_gl_object_hash(ostate, type);
 
 	FIND_OBJ_FROM_HASH_WITH_VERIFY(hash_base, glue_name - (int)type, object);
 
@@ -1014,6 +1087,7 @@ fastpath_ostate_get_object(GL_Object_State *ostate, GL_Object_Type type, GLuint 
 	goto finish;
 
 finish:
+	_unlock_gl_object_hash(ostate, type);
 	return ret;
 }
 
@@ -1026,7 +1100,7 @@ fastpath_ostate_set_object_tag(GL_Object_State *ostate, GL_Object_Type type, GLu
 	GL_Object *object = NULL;
 	int hash = _COREGL_INT_INIT_VALUE;
 
-	hash_base = _get_shared_object_hash(ostate, type);
+	hash_base = _lock_gl_object_hash(ostate, type);
 
 	hash = glue_name - (int)type;
 
@@ -1038,6 +1112,7 @@ fastpath_ostate_set_object_tag(GL_Object_State *ostate, GL_Object_Type type, GLu
 	goto finish;
 
 finish:
+	_unlock_gl_object_hash(ostate, type);
 	return ret;
 }
 
@@ -1049,7 +1124,7 @@ fastpath_ostate_get_object_tag(GL_Object_State *ostate, GL_Object_Type type, GLu
 	GL_Object_Hash_Base *hash_base = NULL;
 	GL_Object *object = NULL;
 
-	hash_base = _get_shared_object_hash(ostate, type);
+	hash_base = _lock_gl_object_hash(ostate, type);
 
 	FIND_OBJ_FROM_HASH_WITH_VERIFY(hash_base, glue_name - (int)type, object);
 
@@ -1057,6 +1132,7 @@ fastpath_ostate_get_object_tag(GL_Object_State *ostate, GL_Object_Type type, GLu
 	goto finish;
 
 finish:
+	_unlock_gl_object_hash(ostate, type);
 	return ret;
 }
 
@@ -1068,7 +1144,7 @@ fastpath_ostate_find_object(GL_Object_State *ostate, GL_Object_Type type, GLuint
 	GL_Object_Hash_Base *hash_base_real = NULL;
 	GL_Object *object = NULL;
 
-	hash_base_real = _get_shared_object_hash_real(ostate, type);
+	hash_base_real = _lock_gl_object_hash_real(ostate, type);
 
 	FIND_OBJ_FROM_HASH_WITH_VERIFY(hash_base_real, real_name, object);
 
@@ -1076,6 +1152,7 @@ fastpath_ostate_find_object(GL_Object_State *ostate, GL_Object_Type type, GLuint
 	goto finish;
 
 finish:
+	_unlock_gl_object_hash_real(ostate, type);
 	return ret;
 }
 
@@ -1087,7 +1164,7 @@ fastpath_ostate_use_object(GL_Object_State *ostate, GL_Object_Type type, GLuint 
 	GL_Object_Hash_Base *hash_base = NULL;
 	GL_Object *object = NULL;
 
-	hash_base = _get_shared_object_hash(ostate, type);
+	hash_base = _lock_gl_object_hash(ostate, type);
 
 	FIND_OBJ_FROM_HASH_WITH_VERIFY(hash_base, glue_name - (int)type, object);
 
@@ -1096,6 +1173,7 @@ fastpath_ostate_use_object(GL_Object_State *ostate, GL_Object_Type type, GLuint 
 	goto finish;
 
 finish:
+	_unlock_gl_object_hash(ostate, type);
 	return ret;
 }
 
@@ -1408,7 +1486,7 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 				CHECK_GL_ERROR(_orig_fastpath_glVertexAttribDivisor(i, newctx->gl_vertex_array_divisor[i]))
 			}
 
-			if (newctx->gl_vertex_array_pointer[i] != NULL)
+			if (newctx->gl_vertex_array_size[i] != 0)
 			{
 				CHECK_GL_ERROR(_orig_fastpath_glVertexAttribPointer(i,
 				               newctx->gl_vertex_array_size[i],
@@ -1626,6 +1704,30 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 		}
 	}
 
+	// _enable_flag3
+	flag = oldctx->_enable_flag3 | newctx->_enable_flag3;
+	if (flag)
+	{
+		STATE_COMPARE(gl_primitive_restart_fixed_index[0])
+		{
+			if (newctx->gl_primitive_restart_fixed_index[0])
+			{
+				CHECK_GL_ERROR(_orig_fastpath_glEnable(GL_PRIMITIVE_RESTART_FIXED_INDEX))
+			}
+			else
+				CHECK_GL_ERROR(_orig_fastpath_glDisable(GL_PRIMITIVE_RESTART_FIXED_INDEX))
+		}
+		STATE_COMPARE(gl_rasterizer_discard[0])
+		{
+			if (newctx->gl_rasterizer_discard[0])
+			{
+				CHECK_GL_ERROR(_orig_fastpath_glEnable(GL_RASTERIZER_DISCARD))
+			}
+			else
+				CHECK_GL_ERROR(_orig_fastpath_glDisable(GL_RASTERIZER_DISCARD))
+		}
+	}
+
 #ifdef COREGL_USE_MODULE_TRACEPATH
 	tracepath_api_trace_end("eglMakeCurrent(FP enable states)", trace_hint_enable_states, 0);
 #endif // COREGL_USE_MODULE_TRACEPATH
@@ -1720,7 +1822,16 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 				CHECK_GL_ERROR(_orig_fastpath_glActiveTexture(GL_TEXTURE0 + i))
 				CHECK_GL_ERROR(_orig_fastpath_glBindTexture(GL_TEXTURE_2D, newctx->gl_tex_2d_state[i]))
 			}
-
+			STATE_COMPARE(gl_tex_3d_state[i])
+			{
+				CHECK_GL_ERROR(_orig_fastpath_glActiveTexture(GL_TEXTURE0 + i))
+				CHECK_GL_ERROR(_orig_fastpath_glBindTexture(GL_TEXTURE_3D, newctx->gl_tex_3d_state[i]))
+			}
+			STATE_COMPARE(gl_tex_2d_array_state[i])
+			{
+				CHECK_GL_ERROR(_orig_fastpath_glActiveTexture(GL_TEXTURE0 + i))
+				CHECK_GL_ERROR(_orig_fastpath_glBindTexture(GL_TEXTURE_2D_ARRAY, newctx->gl_tex_2d_array_state[i]))
+			}
 			STATE_COMPARE(gl_tex_cube_state[i])
 			{
 				CHECK_GL_ERROR(_orig_fastpath_glActiveTexture(GL_TEXTURE0 + i))
@@ -1839,6 +1950,59 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 	}
 
 	//------------------//
+	// _pixel_flag1
+	flag = oldctx->_pixel_flag1 | newctx->_pixel_flag1;
+	if (flag)
+	{
+		STATE_COMPARE(gl_pack_row_length[0])
+		{
+			CHECK_GL_ERROR(_orig_fastpath_glPixelStorei(GL_PACK_ROW_LENGTH, newctx->gl_pack_row_length[0]))
+		}
+		STATE_COMPARE(gl_pack_skip_rows[0])
+		{
+			CHECK_GL_ERROR(_orig_fastpath_glPixelStorei(GL_PACK_SKIP_ROWS, newctx->gl_pack_skip_rows[0]))
+		}
+		STATE_COMPARE(gl_pack_skip_pixels[0])
+		{
+			CHECK_GL_ERROR(_orig_fastpath_glPixelStorei(GL_PACK_SKIP_PIXELS, newctx->gl_pack_skip_pixels[0]))
+		}
+		STATE_COMPARE(gl_pack_alignment[0])
+		{
+			CHECK_GL_ERROR(_orig_fastpath_glPixelStorei(GL_PACK_ALIGNMENT, newctx->gl_pack_alignment[0]))
+		}
+	}
+
+	// _pixel_flag2
+	flag = oldctx->_pixel_flag2 | newctx->_pixel_flag2;
+	if (flag)
+	{
+		STATE_COMPARE(gl_unpack_row_length[0])
+		{
+			CHECK_GL_ERROR(_orig_fastpath_glPixelStorei(GL_UNPACK_ROW_LENGTH, newctx->gl_unpack_row_length[0]))
+		}
+		STATE_COMPARE(gl_unpack_skip_rows[0])
+		{
+			CHECK_GL_ERROR(_orig_fastpath_glPixelStorei(GL_UNPACK_SKIP_ROWS, newctx->gl_unpack_skip_rows[0]))
+		}
+		STATE_COMPARE(gl_unpack_skip_pixels[0])
+		{
+			CHECK_GL_ERROR(_orig_fastpath_glPixelStorei(GL_UNPACK_SKIP_PIXELS, newctx->gl_unpack_skip_pixels[0]))
+		}
+		STATE_COMPARE(gl_unpack_alignment[0])
+		{
+			CHECK_GL_ERROR(_orig_fastpath_glPixelStorei(GL_UNPACK_ALIGNMENT, newctx->gl_unpack_alignment[0]))
+		}
+		STATE_COMPARE(gl_unpack_image_height[0])
+		{
+			CHECK_GL_ERROR(_orig_fastpath_glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, newctx->gl_unpack_image_height[0]))
+		}
+		STATE_COMPARE(gl_unpack_skip_images[0])
+		{
+			CHECK_GL_ERROR(_orig_fastpath_glPixelStorei(GL_UNPACK_SKIP_IMAGES, newctx->gl_unpack_skip_images[0]))
+		}
+	}
+
+	//------------------//
 	// _misc_flag1
 	flag = oldctx->_misc_flag1 | newctx->_misc_flag1;
 	if (flag)
@@ -1880,14 +2044,6 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 			                                        newctx->gl_scissor_box[2],
 			                                        newctx->gl_scissor_box[3]))
 		}
-		STATE_COMPARE(gl_pack_alignment[0])
-		{
-			CHECK_GL_ERROR(_orig_fastpath_glPixelStorei(GL_PACK_ALIGNMENT, newctx->gl_pack_alignment[0]))
-		}
-		STATE_COMPARE(gl_unpack_alignment[0])
-		{
-			CHECK_GL_ERROR(_orig_fastpath_glPixelStorei(GL_UNPACK_ALIGNMENT, newctx->gl_unpack_alignment[0]))
-		}
 	}
 
 	// _misc_flag3
@@ -1906,14 +2062,19 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 		{
 			CHECK_GL_ERROR(_orig_fastpath_glBindVertexArray(newctx->gl_vertex_array_binding[0]))
 		}
+
+		if (oldctx->gl_transform_feedback_active[0] == GL_TRUE && oldctx->gl_transform_feedback_paused[0] == GL_FALSE)
+		{
+			CHECK_GL_ERROR(_orig_fastpath_glPauseTransformFeedback())
+		}
 		STATE_COMPARE(gl_transform_feedback_binding[0])
 		{
 			CHECK_GL_ERROR(_orig_fastpath_glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, newctx->gl_transform_feedback_binding[0]))
 		}
-//		STATE_COMPARE(gl_transform_feedback_state[0])
-//		{
-			//CHECK_GL_ERROR(_orig_fastpath_glBindVertexArray(newctx->gl_vertex_array_binding[0]))
-//		}
+		if (newctx->gl_transform_feedback_active[0] == GL_TRUE && newctx->gl_transform_feedback_paused[0] == GL_FALSE)
+		{
+			CHECK_GL_ERROR(_orig_fastpath_glResumeTransformFeedback())
+		}
 	}
 
 #ifdef COREGL_USE_MODULE_TRACEPATH
