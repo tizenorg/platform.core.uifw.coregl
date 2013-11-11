@@ -21,6 +21,7 @@ BuildRequires:  opengl-es-devel
 BuildRequires:  pkgconfig(x11)
 BuildRequires:  cmake
 BuildRequires:  pkgconfig(dlog)
+BuildRequires:  sec-product-features
 
 %description
 This package contains the GLESv2.0/EGL 
@@ -29,7 +30,13 @@ This package contains the GLESv2.0/EGL
 %setup -q -n %{name}-%{version}
 
 %build
-cmake . -DCMAKE_INSTALL_PREFIX=/usr
+
+%if 0%{?sec_product_feature_graphics_adreno}
+%else
+%global extra_option -DUSE_MALI=TRUE
+%endif
+
+cmake . -DCMAKE_INSTALL_PREFIX=/usr %{?extra_option}
 
 make %{?jobs:-j%jobs}
 
