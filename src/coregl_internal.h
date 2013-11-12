@@ -23,11 +23,11 @@
 // Disable dlog for debugging urgent issues //
 #ifdef COREGL_DEBUG
 # undef LOGE
-# define LOGE printf
+# define LOGE(...) fprintf(stderr, __VA_ARGS__)
 # undef LOGW
-# define LOGW printf
+# define LOGW(...) fprintf(stderr, __VA_ARGS__)
 # undef LOGD
-# define LOGD printf
+# define LOGD(...) fprintf(stderr, __VA_ARGS__)
 #endif
 ///////////////////////////////////////
 
