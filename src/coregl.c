@@ -12,10 +12,12 @@
 void               *egl_lib_handle;
 void               *gl_lib_handle;
 
-#if USE_MALI
-#define DRIVER_PATH "/usr/lib/driver"
-#else
-#define DRIVER_PATH "/usr/lib/egl"
+#ifndef _COREGL_VENDOR_EGL_LIB_PATH
+#define _COREGL_VENDOR_EGL_LIB_PATH "/usr/lib/driver/libEGL.so" /* DEFAULT EGL PATH */
+#endif
+
+#ifndef _COREGL_VENDOR_GL_LIB_PATH
+#define _COREGL_VENDOR_GL_LIB_PATH "/usr/lib/driver/libGLESv2.so" /* DEFAULT GL PATH */
 #endif
 
 // Symbol definition for real
@@ -135,34 +137,34 @@ _gl_lib_init(void)
 {
 	//------------------------------------------------//
 	// Open EGL Library as EGL is separate
-	egl_lib_handle = dlopen(DRIVER_PATH "/libEGL.so", RTLD_LAZY | RTLD_LOCAL);
+	egl_lib_handle = dlopen(_COREGL_VENDOR_EGL_LIB_PATH, RTLD_LAZY | RTLD_LOCAL);
 	if (!egl_lib_handle)
 	{
 		COREGL_ERR("\E[40;31;1m%s\E[0m\n\n", dlerror());
-		COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> %s/libEGL.so)\E[0m\n", DRIVER_PATH);
+		COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> %s)\E[0m\n", _COREGL_VENDOR_EGL_LIB_PATH);
 		return 0;
 	}
 
 	// test for invalid linking egl
 	if (dlsym(egl_lib_handle, "coregl_symbol_exported"))
 	{
-		COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> %s/libEGL.so)\E[0m\n", DRIVER_PATH);
+		COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> %s)\E[0m\n", _COREGL_VENDOR_EGL_LIB_PATH);
 		return 0;
 	}
 
 	// use gl_lib handle for GL symbols
-	gl_lib_handle = dlopen(DRIVER_PATH "/libGLESv2.so", RTLD_LAZY | RTLD_LOCAL);
+	gl_lib_handle = dlopen(_COREGL_VENDOR_GL_LIB_PATH, RTLD_LAZY | RTLD_LOCAL);
 	if (!gl_lib_handle)
 	{
 		COREGL_ERR("\E[40;31;1m%s\E[0m\n\n", dlerror());
-		COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> %s/libGLESv2.so)\E[0m\n", DRIVER_PATH);
+		COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> %s)\E[0m\n", _COREGL_VENDOR_GL_LIB_PATH);
 		return 0;
 	}
 
 	// test for invalid linking gl
 	if (dlsym(gl_lib_handle, "coregl_symbol_exported"))
 	{
-		COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> %s/libGLESv2.so)\E[0m\n", DRIVER_PATH);
+		COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> %s)\E[0m\n", _COREGL_VENDOR_GL_LIB_PATH);
 		return 0;
 	}
 	//------------------------------------------------//

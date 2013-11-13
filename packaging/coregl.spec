@@ -32,8 +32,7 @@ This package contains the GLESv2.0/EGL
 %build
 
 %if 0%{?sec_product_feature_graphics_adreno}
-%else
-%global extra_option -DUSE_MALI=TRUE
+%global extra_option -DUSE_ADRENO=TRUE
 %endif
 
 cmake . -DCMAKE_INSTALL_PREFIX=/usr %{?extra_option}
