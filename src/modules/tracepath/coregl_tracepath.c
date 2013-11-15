@@ -186,7 +186,7 @@ init_modules_tracepath()
 	}
 
 	{ // COREGL_TRACE_SURFACE_FILTER_SIZE=640x480
-		char tmp[64] = { 0 }, *tmpp = NULL;
+		char tmp[64 + 1] = { 0 }, *tmpp = NULL;
 		strncpy(tmp, get_env_setting("COREGL_TRACE_SURFACE_FILTER_SIZE"), 64);
 		for (tmpp = &tmp[0]; ; tmpp++)
 		{
@@ -1073,6 +1073,13 @@ static void
 _dump_surface(int force_output, int type, const char *position, Surface_Data *sdata)
 {
 	static int alldumpcount = 0;
+	unsigned char *data = NULL;
+	EGLint width = -1, height = -1, channel = -1;
+	char name[200];
+	FILE *write_fd = NULL;
+	png_struct *png = NULL;
+	png_info *info = NULL;
+	png_byte **rows = NULL;
 
 	if (!png_lib_handle)
 	{
@@ -1094,10 +1101,6 @@ _dump_surface(int force_output, int type, const char *position, Surface_Data *sd
 	}
 
 	{
-		png_struct *png;
-		png_info *info;
-		png_byte **rows;
-
 		if (!png_lib_handle ||
 		    dl_png_create_write_struct == NULL ||
 		    dl_png_destroy_write_struct == NULL ||
@@ -1111,12 +1114,8 @@ _dump_surface(int force_output, int type, const char *position, Surface_Data *sd
 		    dl_png_write_end == NULL)
 		{
 			COREGL_ERR("Can't trace surface : Failed to use libpng (recommend : 1.2.50-3.4)");
-			return;
+			goto finish;
 		}
-
-		EGLint width = -1, height = -1, channel = -1;
-		unsigned char *data = NULL;
-		char name[200];
 
 		if (trace_surface_sequence_sort_flag == 1)
 			sprintf(name, "[%d (%06d)%p-%p] %s %04d (%s).png", getpid(), alldumpcount, sdata->display, sdata->context, sdata->trace_data.name, sdata->dump_count, position);
@@ -1126,10 +1125,10 @@ _dump_surface(int force_output, int type, const char *position, Surface_Data *sd
 		if (!strncmp(sdata->trace_data.name, "EGL", 3) && type != 2)
 		{ // EGL
 			if (trace_surface_filter_type != 0 &&
-			    trace_surface_filter_type != 1) return;
+			    trace_surface_filter_type != 1) goto finish;;
 
 			if (trace_surface_filter_handle != 0 &&
-			    trace_surface_filter_handle != (int)sdata->surface) return;
+			    trace_surface_filter_handle != (int)sdata->surface) goto finish;
 
 			EGLConfig eglconfig;
 			GLint asize, rsize, gsize, bsize;
@@ -1147,17 +1146,17 @@ _dump_surface(int force_output, int type, const char *position, Surface_Data *sd
 			if (rsize == 0) channel = 0;
 
 			if (channel == 2) channel = 3;
-			if (width <= 0 || height <= 0 || channel <= 0) return;
+			if (width <= 0 || height <= 0 || channel <= 0) goto finish;
 			if (trace_surface_filter_size_w > 0 && trace_surface_filter_size_h > 0 &&
 			    (trace_surface_filter_size_w != width || trace_surface_filter_size_h != height))
-				return;
+				goto finish;
 
 			if ((trace_surface_filter_period_begin > 0 || trace_surface_filter_period_end > 0) &&
 			    (trace_surface_filter_period_begin > alldumpcount || trace_surface_filter_period_end < alldumpcount))
 			{
 				alldumpcount++;
 				sdata->dump_count++;
-				return;
+				goto finish;
 			}
 
 			if (channel == 3) channel = 4;
@@ -1167,24 +1166,24 @@ _dump_surface(int force_output, int type, const char *position, Surface_Data *sd
 			{
 				alldumpcount++;
 				sdata->dump_count++;
-				return;
+				goto finish;
 			}
 
 			data = (unsigned char *)calloc(1, width * height * channel * sizeof(unsigned char));
 			if (data == NULL)
 			{
 				COREGL_ERR("Can't trace surface : Failed to allocate memory");
-				return;
+				goto finish;
 			}
 
 			GLint oldfb;
 			_orig_tracepath_glGetIntegerv(GL_FRAMEBUFFER_BINDING, &oldfb);
 			_orig_tracepath_glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-			switch(channel)
+			switch (channel)
 			{
 				case 4: _orig_tracepath_glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data); break;
-				case 3: _orig_tracepath_glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data); break;
+				//case 3: _orig_tracepath_glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data); break;
 				case 1: _orig_tracepath_glReadPixels(0, 0, width, height, GL_ALPHA, GL_UNSIGNED_BYTE, data); break;
 			}
 
@@ -1192,14 +1191,14 @@ _dump_surface(int force_output, int type, const char *position, Surface_Data *sd
 		}
 		if (!strncmp(sdata->trace_data.name, "FBO", 3) && type != 1)
 		{ // FBO
-			if (sdata->fbo == 0) return;
+			if (sdata->fbo == 0) goto finish;
 
 			if (trace_surface_filter_type != 0 &&
-			    trace_surface_filter_type != 2) return;
+			    trace_surface_filter_type != 2) goto finish;
 
 			if (trace_surface_filter_handle != 0 &&
 			    trace_surface_filter_handle != sdata->tex &&
-			    trace_surface_filter_handle != sdata->rb) return;
+			    trace_surface_filter_handle != sdata->rb) goto finish;
 
 			GLint oldfb;
 			_orig_tracepath_glGetIntegerv(GL_FRAMEBUFFER_BINDING, &oldfb);
@@ -1213,17 +1212,17 @@ _dump_surface(int force_output, int type, const char *position, Surface_Data *sd
 				channel = sdata->tex_format;
 
 				if (channel == 2) channel = 3;
-				if (width <= 0 || height <= 0 || channel <= 0) return;
+				if (width <= 0 || height <= 0 || channel <= 0) goto finish;
 				if (trace_surface_filter_size_w > 0 && trace_surface_filter_size_h > 0 &&
 				    (trace_surface_filter_size_w != width || trace_surface_filter_size_h != height))
-					return;
+					goto finish;
 
 				if ((trace_surface_filter_period_begin > 0 || trace_surface_filter_period_end > 0) &&
 				    (trace_surface_filter_period_begin > alldumpcount || trace_surface_filter_period_end < alldumpcount))
 				{
 					alldumpcount++;
 					sdata->dump_count++;
-					return;
+					goto finish;
 				}
 
 				TRACE("\E[40;31;1m[[TRACE SURFACE]] : '%s' is dumped (%dx%dx%d).\E[0m\n", name, width, height, channel);
@@ -1231,7 +1230,7 @@ _dump_surface(int force_output, int type, const char *position, Surface_Data *sd
 				{
 					alldumpcount++;
 					sdata->dump_count++;
-					return;
+					goto finish;
 				}
 
 				if (channel == 3) channel = 4;
@@ -1240,7 +1239,7 @@ _dump_surface(int force_output, int type, const char *position, Surface_Data *sd
 				if (data == NULL)
 				{
 					COREGL_ERR("Can't trace surface : Failed to allocate memory");
-					return;
+					goto finish;
 				}
 
 				_orig_tracepath_glBindFramebuffer(GL_FRAMEBUFFER, sdata->fbo);
@@ -1259,32 +1258,34 @@ _dump_surface(int force_output, int type, const char *position, Surface_Data *sd
 						break;
 				}
 
-				switch(channel)
+				switch (channel)
 				{
 					case 4: _orig_tracepath_glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data); break;
-					case 3: _orig_tracepath_glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data); break;
+					//case 3: _orig_tracepath_glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data); break;
 					case 1: _orig_tracepath_glReadPixels(0, 0, width, height, GL_ALPHA, GL_UNSIGNED_BYTE, data); break;
 				}
 			}
 			_orig_tracepath_glBindFramebuffer(GL_FRAMEBUFFER, oldfb);
 		}
 
-		if (data == NULL) return;
+
+
+		if (data == NULL) goto finish;
 
 		unlink(name);
-		FILE *file = fopen (name, "wb");
+		write_fd = fopen(name, "wb");
 
-		if (file == NULL)
+		if (write_fd == NULL)
 		{
 			COREGL_ERR("Can't trace surface : Failed to create png file");
-			return;
+			goto finish;
 		}
 
-		rows = malloc(height * sizeof(png_byte *));
+		rows = (png_byte **)malloc(height * sizeof(png_byte *));
 		if (rows == NULL)
 		{
 			COREGL_ERR("Can't trace surface : Failed to allocate memory");
-			return;
+			goto finish;
 		}
 
 		for (int i = 0; i < height; i++)
@@ -1299,21 +1300,19 @@ _dump_surface(int force_output, int type, const char *position, Surface_Data *sd
 		if (png == NULL)
 		{
 			COREGL_ERR("Can't trace surface : Failed to create write structure of png file");
-			return;
+			goto finish;
 		}
 
 		info = dl_png_create_info_struct(png);
 		if (info == NULL)
 		{
-			fclose (file);
-			dl_png_destroy_write_struct (&png, NULL);
 			COREGL_ERR("Can't trace surface : Failed to create info structure of png file");
-			return;
+			goto finish;
 		}
 
-		dl_png_init_io(png, file);
+		dl_png_init_io(png, write_fd);
 
-		switch(channel)
+		switch (channel)
 		{
 			case 4: dl_png_set_IHDR(png, info, width, height, 8, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT); break;
 			case 3: dl_png_set_IHDR(png, info, width, height, 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT); break;
@@ -1328,14 +1327,39 @@ _dump_surface(int force_output, int type, const char *position, Surface_Data *sd
 
 		dl_png_destroy_write_struct(&png, &info);
 
-		free(rows);
-		free(data);
-		fclose(file);
-
 		alldumpcount++;
 		sdata->dump_count++;
 	}
 
+	goto finish;
+
+finish:
+	if (data != NULL)
+	{
+		free(data);
+		data = NULL;
+	}
+	if (write_fd != NULL)
+	{
+		fclose(write_fd);
+		write_fd = NULL;
+	}
+	if (rows != NULL)
+	{
+		free(rows);
+		rows = NULL;
+	}
+	if (png != NULL)
+	{
+		if (info != NULL)
+		{
+			dl_png_destroy_write_struct(&png, &info);
+			info = NULL;
+		}
+		else
+			dl_png_destroy_write_struct(&png, NULL);
+		png = NULL;
+	}
 }
 
 void
