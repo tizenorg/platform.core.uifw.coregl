@@ -128,7 +128,7 @@ init_modules_tracepath()
 	trace_surface_print_only_flag = atoi(get_env_setting("COREGL_TRACE_SURFACE_PRINT_ONLY"));
 
 	{ // COREGL_TRACE_SURFACE_FILTER_PERIOD=40~60
-		char tmp[64] = { 0 }, *tmpp = NULL;
+		char tmp[64 + 1] = { 0 }, *tmpp = NULL;
 		strncpy(tmp, get_env_setting("COREGL_TRACE_SURFACE_FILTER_PERIOD"), 64);
 		for (tmpp = &tmp[0]; ; tmpp++)
 		{
@@ -144,14 +144,14 @@ init_modules_tracepath()
 	}
 
 	{ // COREGL_TRACE_SURFACE_FILTER_TYPE=EGL|FBO
-		char tmp[64] = { 0 };
+		char tmp[64 + 1] = { 0 };
 		strncpy(tmp, get_env_setting("COREGL_TRACE_SURFACE_FILTER_TYPE"), 64);
 		if (strcmp(tmp, "EGL") == 0) trace_surface_filter_type = 1;
 		if (strcmp(tmp, "FBO") == 0) trace_surface_filter_type = 2;
 	}
 
 	{ // COREGL_TRACE_SURFACE_FILTER_HANDLE=0x3234
-		char tmp[64] = { 0 }, *tmpp = NULL;
+		char tmp[64 + 1] = { 0 }, *tmpp = NULL;
 		strncpy(tmp, get_env_setting("COREGL_TRACE_SURFACE_FILTER_HANDLE"), 64);
 		if (tmp[0] == '0' && tmp[1] == 'x')
 		{
@@ -1315,7 +1315,7 @@ _dump_surface(int force_output, int type, const char *position, Surface_Data *sd
 		switch (channel)
 		{
 			case 4: dl_png_set_IHDR(png, info, width, height, 8, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT); break;
-			case 3: dl_png_set_IHDR(png, info, width, height, 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT); break;
+			//case 3: dl_png_set_IHDR(png, info, width, height, 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT); break;
 			case 1: dl_png_set_IHDR(png, info, width, height, 8, PNG_COLOR_TYPE_GRAY, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT); break;
 		}
 
