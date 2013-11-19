@@ -168,7 +168,11 @@ _state_get_uniform_buffer_bindings(GLuint *params)
 	int i;
 	for (i = 0; i < initial_fake_ctx->gl_num_uniform_buffer_bindings[0]; i++)
 	{
-		_orig_tracepath_glGetIntegeri_v(GL_UNIFORM_BUFFER_BINDING, i, &(((GLint *)params)[i]));
+/////////////////////////////////////////////////////////////////////////////////
+// XXXX : AVOID SEGFAULT in ADRENO
+		((GLint *)params)[i] = 0;
+//		_orig_tracepath_glGetIntegeri_v(GL_UNIFORM_BUFFER_BINDING, i, &(((GLint *)params)[i]));
+/////////////////////////////////////////////////////////////////////////////////
 	}
 }
 

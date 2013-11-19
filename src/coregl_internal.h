@@ -57,6 +57,9 @@
        fflush(trace_fp)
 #define _COREGL_TRACE_OUTPUT_INTERVAL_SEC 5
 
+static inline GLint GET_INT_FROM_FLOAT(GLfloat value) { return *((GLint *)&value); }
+static inline GLuint GET_UINT_FROM_FLOAT(GLfloat value) { return *((GLint *)&value); }
+
 
 #ifdef COREGL_DEBUG
 # define AST(expr) \

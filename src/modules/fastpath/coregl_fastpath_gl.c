@@ -243,16 +243,54 @@ fastpath_release_gl_context(GLGlueContext *gctx)
 	}
 }
 
+
+static float
+_get_gl_version()
+{
+	float GLver = 0.0;
+	const char *vret;
+	int vlen = _COREGL_INT_INIT_VALUE;
+	int i = _COREGL_INT_INIT_VALUE;
+	char vret_tmp[80 + 1] = { 0 };
+	IF_GL_SUCCESS(vret = (const char *)_orig_fastpath_glGetString(GL_VERSION))
+	{
+		vlen = (int)strlen(vret);
+		if (!strncmp(vret, "OpenGL ES", 9) && vlen >= 11)
+		{
+			int stp = 10;
+			if (vret[9] == '-')
+			{
+				if (vlen < 14) return 0.0f;
+				stp = 13;
+			}
+
+			for (i = stp; ; i++)
+			{
+				if (vret[i] == ' ' || vret[i] == 0x00 || i >= 80)
+				{
+					strncpy(vret_tmp, &vret[stp], i - stp);
+					vret_tmp[i - stp] = 0x00;
+					break;
+				}
+			}
+			if (vret_tmp[0] != 0x00)
+				GLver = atof(vret_tmp);
+		}
+	}
+	return GLver;
+}
+
+
 Mutex extension_check_mutex = MUTEX_INITIALIZER;
 char string_extensions[16384] = { 0x00 };
 char string_each_extensions[128][64];
 int gl_extension_count = 0;
 
+
 static void
 _valid_extension_string()
 {
 	char string_tmpbuf[2048];
-	int i = _COREGL_INT_INIT_VALUE;
 	const char *res = NULL;
 
 	AST(mutex_lock(&extension_check_mutex) == 1);
@@ -263,29 +301,7 @@ _valid_extension_string()
 		{
 			if (string_extensions[0] == 0x00)
 			{
-				double GLver = 0.0;
-				const char *vret;
-				char vret_tmp[80] = { 0 };
-				IF_GL_SUCCESS(vret = (const char *)_orig_fastpath_glGetString(GL_VERSION))
-				{
-					if (!strncmp(vret, "OpenGL ES", 9))
-					{
-						int stp = 10;
-						if (vret[9] == '-') stp = 13;
-
-						for (i = stp; ; i++)
-						{
-							if (vret[i] == ' ' || vret[i] == 0x00 || i >= 80)
-							{
-								strncpy(vret_tmp, &vret[stp], i - stp);
-								vret_tmp[i - stp] = 0x00;
-								break;
-							}
-						}
-						if (vret_tmp[0] != 0x00)
-							GLver = atof(vret_tmp);
-					}
-				}
+				double GLver = _get_gl_version();
 
 				strcpy(string_tmpbuf, res);
 				char *fstr = &string_tmpbuf[0], *estr = NULL;
@@ -354,6 +370,7 @@ fastpath_glGetString(GLenum name)
 {
 	const char *ret = NULL;
 	static const char *string_gles20 = "OpenGL ES 2.0";
+	static const char *string_gles30 = "OpenGL ES 3.0";
 
 	DEFINE_FASTPAH_GL_FUNC();
 	_COREGL_FASTPATH_FUNC_BEGIN();
@@ -364,7 +381,13 @@ fastpath_glGetString(GLenum name)
 		case GL_VERSION:
 			IF_GL_SUCCESS(ret = (const char *)_orig_fastpath_glGetString(name))
 			{
-				if (strncmp(ret, "OpenGL ES 2.0", 13))
+				double GLver = _get_gl_version();
+				if (GLver > 3.0)
+				{
+					COREGL_WRN("\E[40;31;1mFastpath can't support %s (Fixed to %s)\E[0m\n", ret, string_gles30);
+					ret = string_gles30;
+				}
+				if (GLver < 2.0)
 				{
 					COREGL_WRN("\E[40;31;1mFastpath can't support %s (Fixed to %s)\E[0m\n", ret, string_gles20);
 					ret = string_gles20;
