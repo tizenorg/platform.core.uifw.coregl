@@ -39,7 +39,7 @@ _state_get_texture_states(GLenum pname, GLint *params)
 	for (i = 0; i < initial_ctx->gl_num_tex_units[0]; i++)
 	{
 		_orig_fastpath_glActiveTexture(GL_TEXTURE0 + i);
-		_orig_fastpath_glGetIntegerv(pname, &(((GLint *)params)[i]));
+		_orig_fastpath_glGetIntegerv(pname, (GLint *)&params[i]);
 	}
 	_orig_fastpath_glActiveTexture(cur_active_tex);
 }
@@ -47,22 +47,13 @@ _state_get_texture_states(GLenum pname, GLint *params)
 static void
 _state_get_draw_buffers(GLenum *params)
 {
-	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER0, &(((GLint *)params)[0]));
-	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER1, &(((GLint *)params)[1]));
-	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER2, &(((GLint *)params)[2]));
-	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER3, &(((GLint *)params)[3]));
-	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER4, &(((GLint *)params)[4]));
-	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER5, &(((GLint *)params)[5]));
-	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER6, &(((GLint *)params)[6]));
-	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER7, &(((GLint *)params)[7]));
-	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER8, &(((GLint *)params)[8]));
-	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER9, &(((GLint *)params)[9]));
-	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER10, &(((GLint *)params)[10]));
-	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER11, &(((GLint *)params)[11]));
-	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER12, &(((GLint *)params)[12]));
-	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER13, &(((GLint *)params)[13]));
-	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER14, &(((GLint *)params)[14]));
-	_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER15, &(((GLint *)params)[15]));
+	AST(initial_ctx != NULL);
+
+	int i;
+	for (i = 0; i < initial_ctx->gl_num_draw_buffers[0]; i++)
+	{
+		_orig_fastpath_glGetIntegerv(GL_DRAW_BUFFER0 + i, (GLint *)&params[i]);
+	}
 }
 
 static void
@@ -73,7 +64,7 @@ _state_get_transform_feedback_buffer_bindings(GLuint *params)
 	int i;
 	for (i = 0; i < initial_ctx->gl_num_transform_feedback_separate_attribs[0]; i++)
 	{
-		_orig_fastpath_glGetIntegeri_v(GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, i, &(((GLint *)params)[i]));
+		_orig_fastpath_glGetIntegeri_v(GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, i, (GLint *)&params[i]);
 	}
 }
 
@@ -85,7 +76,7 @@ _state_get_transform_feedback_buffer_bindings_offset(GLintptr *params)
 	int i;
 	for (i = 0; i < initial_ctx->gl_num_transform_feedback_separate_attribs[0]; i++)
 	{
-		_orig_fastpath_glGetIntegeri_v(GL_TRANSFORM_FEEDBACK_BUFFER_START, i, &(((GLint *)params)[i]));
+		_orig_fastpath_glGetIntegeri_v(GL_TRANSFORM_FEEDBACK_BUFFER_START, i, (GLint *)&params[i]);
 	}
 }
 
@@ -97,7 +88,7 @@ _state_get_transform_feedback_buffer_bindings_size(GLsizeiptr *params)
 	int i;
 	for (i = 0; i < initial_ctx->gl_num_transform_feedback_separate_attribs[0]; i++)
 	{
-		_orig_fastpath_glGetIntegeri_v(GL_TRANSFORM_FEEDBACK_BUFFER_SIZE, i, &(((GLint *)params)[i]));
+		_orig_fastpath_glGetIntegeri_v(GL_TRANSFORM_FEEDBACK_BUFFER_SIZE, i, (GLint *)&params[i]);
 	}
 }
 
@@ -112,7 +103,7 @@ _state_get_uniform_buffer_bindings(GLuint *params)
 /////////////////////////////////////////////////////////////////////////////////
 // XXXX : AVOID SEGFAULT in ADRENO
 		((GLint *)params)[i] = 0;
-//		_orig_fastpath_glGetIntegeri_v(GL_UNIFORM_BUFFER_BINDING, i, &(((GLint *)params)[i]));
+//		_orig_fastpath_glGetIntegeri_v(GL_UNIFORM_BUFFER_BINDING, i, (GLint *)&params[i]);
 /////////////////////////////////////////////////////////////////////////////////
 	}
 }
@@ -125,7 +116,7 @@ _state_get_uniform_buffer_bindings_offset(GLintptr *params)
 	int i;
 	for (i = 0; i < initial_ctx->gl_num_uniform_buffer_bindings[0]; i++)
 	{
-		_orig_fastpath_glGetIntegeri_v(GL_UNIFORM_BUFFER_START, i, &(((GLint *)params)[i]));
+		_orig_fastpath_glGetIntegeri_v(GL_UNIFORM_BUFFER_START, i, (GLint *)&params[i]);
 	}
 }
 
@@ -137,7 +128,7 @@ _state_get_uniform_buffer_bindings_size(GLsizeiptr *params)
 	int i;
 	for (i = 0; i < initial_ctx->gl_num_uniform_buffer_bindings[0]; i++)
 	{
-		_orig_fastpath_glGetIntegeri_v(GL_UNIFORM_BUFFER_SIZE, i, &(((GLint *)params)[i]));
+		_orig_fastpath_glGetIntegeri_v(GL_UNIFORM_BUFFER_SIZE, i, (GLint *)&params[i]);
 	}
 }
 
@@ -1204,7 +1195,7 @@ fastpath_dump_context_states(GLGlueContext *ctx, int force_output)
 	TRACE("\E[40;32;1m  State info \E[1;37;1m: <PID = %d> GlueCTX = %p\E[0m\n", getpid(), ctx);
 	TRACE("\E[0;40;34m========================================================================================================================\E[0m\n");
 
-#define PRINTF_CHAR_GLenum "%10d"
+#define PRINTF_CHAR_GLenum "0x%8X"
 #define PRINTF_CHAR_GLboolean "%10d"
 #define PRINTF_CHAR_GLint "%10d"
 #define PRINTF_CHAR_GLsizei "%10u"
@@ -1235,8 +1226,10 @@ fastpath_dump_context_states(GLGlueContext *ctx, int force_output)
             else \
                TRACE(", "); \
          } \
+         if (ctx->NAME[i] != value[i]) { TRACE("\E[40;31;1m"); } \
          TRACE(PRINTF_CHAR(TYPE), ctx->NAME[i]); \
          TRACE("["PRINTF_CHAR(TYPE)"]", value[i]); \
+         if (ctx->NAME[i] != value[i]) { TRACE("\E[0m"); } \
       } \
       TRACE(" \E[40;37;1m)\E[0m\n"); \
    }
@@ -1577,7 +1570,6 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 		{
 			CHECK_GL_ERROR(_orig_fastpath_glBindBuffer(GL_UNIFORM_BUFFER, newctx->gl_uniform_buffer_binding[0]))
 		}
-		// ANGLE_framebuffer_blit BEGIN
 		if (newctx->gl_framebuffer_binding_read_used == 1)
 		{
 			STATE_COMPARE(gl_framebuffer_binding_read[0])
@@ -1590,7 +1582,6 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 			}
 		}
 		else
-		// ANGLE_framebuffer_blit END
 		{
 			STATE_COMPARE(gl_framebuffer_binding[0])
 			{

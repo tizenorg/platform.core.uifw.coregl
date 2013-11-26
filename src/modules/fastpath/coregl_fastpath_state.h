@@ -16,6 +16,10 @@
       } \
    }
 
+GLUE_STATE(GLuint, gl_num_draw_buffers, 1, 1,
+           _sym_glGetIntegerv(GL_MAX_DRAW_BUFFERS, (GLint *)value); /* DEFAULT NOT EFFECT */,
+           _sym_glGetIntegerv(GL_MAX_DRAW_BUFFERS, (GLint *)value);)
+
 GLUE_STATE(GLuint, gl_num_tex_units, 1, 1,
            _sym_glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, (GLint *)value); /* DEFAULT NOT EFFECT */,
            _sym_glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, (GLint *)value);)
@@ -66,10 +70,8 @@ GLUE_STATE(GLsizeiptr, gl_uniform_buffer_binding_array_size, INITIAL_CTX->gl_num
 	_state_get_uniform_buffer_bindings_size(value);)
 
 GLUE_STATE(GLuint, gl_framebuffer_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint *)value);)
-// ANGLE_framebuffer_blit BEGIN (check gl_framebuffer_binding_read_used)
 GLUE_STATE(GLuint, gl_framebuffer_binding_read, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING_ANGLE, (GLint *)value);)
 GLUE_STATE(GLuint, gl_framebuffer_binding_draw, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING_ANGLE, (GLint *)value);)
-// ANGLE_framebuffer_blit END
 GLUE_STATE(GLuint, gl_renderbuffer_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_RENDERBUFFER_BINDING, (GLint *)value);)
 
 GLUE_STATE(GLboolean, gl_blend, 1, 1, SET_1(GL_FALSE), _sym_glGetBooleanv(GL_BLEND, (GLboolean *)value);)
@@ -218,8 +220,8 @@ GLUE_STATE(GLuint, gl_vertex_attrib_value_unsigned_integer, 4 * INITIAL_CTX->gl_
 
 // MISC FLAG 3
 GLUE_STATE(GLenum, gl_read_buffer, 1, 1, SET_1(GL_BACK), _sym_glGetIntegerv(GL_READ_BUFFER, (GLint *)value);)
-GLUE_STATE(GLenum, gl_draw_buffers, 16, 16,
-           _state_get_draw_buffers(value); /* DEFAULT NOT EFFECT */,
+GLUE_STATE(GLenum, gl_draw_buffers, INITIAL_CTX->gl_num_draw_buffers[0], 16,
+           SET_1(GL_BACK); value++; SET_N(INITIAL_CTX->gl_num_draw_buffers[0] - 1, 1, SET_1(GL_NONE)),
            _state_get_draw_buffers(value);)
 GLUE_STATE(GLuint, gl_vertex_array_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_VERTEX_ARRAY_BINDING, (GLint *)value);)
 GLUE_STATE(GLuint, gl_transform_feedback_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_TRANSFORM_FEEDBACK_BINDING, (GLint *)value);)

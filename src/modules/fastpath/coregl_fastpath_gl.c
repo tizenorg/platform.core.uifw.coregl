@@ -33,7 +33,7 @@ int kill(pid_t pid, int sig);
    GET_MY_TSTATE(tstate, get_current_thread_state()); \
    if (tstate == NULL || tstate->cstate == NULL) \
    { \
-		COREGL_WRN("\E[40;31;1m'%s' called when GLES2 context is not binded (Check MakeCurrent)!\E[0m\n", __func__); \
+		COREGL_WRN("\E[40;31;1m'%s' called when GLES context is not binded (Check MakeCurrent)!\E[0m\n", __func__); \
 		goto finish; \
    } \
    current_ctx = (GLGlueContext *)tstate->cstate->data; \
@@ -3119,7 +3119,7 @@ fastpath_glDisableVertexAttribArray(GLuint index)
 
 	IF_GL_SUCCESS(_orig_fastpath_glDisableVertexAttribArray(index))
 	{
-		if (current_ctx->gl_vertex_array_binding == 0)
+		if (current_ctx->gl_vertex_array_binding[0] == 0)
 		{
 			current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_array;
 			current_ctx->gl_vertex_array_enabled[index] = GL_FALSE;
@@ -3206,7 +3206,7 @@ fastpath_glEnableVertexAttribArray(GLuint index)
 
 	IF_GL_SUCCESS(_orig_fastpath_glEnableVertexAttribArray(index))
 	{
-		if (current_ctx->gl_vertex_array_binding == 0)
+		if (current_ctx->gl_vertex_array_binding[0] == 0)
 		{
 			current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_array;
 			current_ctx->gl_vertex_array_enabled[index] = GL_TRUE;
@@ -3722,7 +3722,7 @@ fastpath_glVertexAttrib1f(GLuint index, GLfloat x)
 
 	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib1f(index, x))
 	{
-		if (current_ctx->gl_vertex_array_binding == 0)
+		if (current_ctx->gl_vertex_array_binding[0] == 0)
 		{
 			current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_attrib_value;
 			current_ctx->gl_vertex_array_size[index] = 0;
@@ -3750,7 +3750,7 @@ fastpath_glVertexAttrib1fv(GLuint index, const GLfloat* values)
 
 	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib1fv(index, values))
 	{
-		if (current_ctx->gl_vertex_array_binding == 0)
+		if (current_ctx->gl_vertex_array_binding[0] == 0)
 		{
 			current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_attrib_value;
 			current_ctx->gl_vertex_array_size[index] = 0;
@@ -3778,7 +3778,7 @@ fastpath_glVertexAttrib2f(GLuint index, GLfloat x, GLfloat y)
 
 	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib2f(index, x, y))
 	{
-		if (current_ctx->gl_vertex_array_binding == 0)
+		if (current_ctx->gl_vertex_array_binding[0] == 0)
 		{
 			current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_attrib_value;
 			current_ctx->gl_vertex_array_size[index] = 0;
@@ -3806,7 +3806,7 @@ fastpath_glVertexAttrib2fv(GLuint index, const GLfloat* values)
 
 	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib2fv(index, values))
 	{
-		if (current_ctx->gl_vertex_array_binding == 0)
+		if (current_ctx->gl_vertex_array_binding[0] == 0)
 		{
 			current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_attrib_value;
 			current_ctx->gl_vertex_array_size[index] = 0;
@@ -3834,7 +3834,7 @@ fastpath_glVertexAttrib3f(GLuint index, GLfloat x, GLfloat y, GLfloat z)
 
 	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib3f(index, x, y, z))
 	{
-		if (current_ctx->gl_vertex_array_binding == 0)
+		if (current_ctx->gl_vertex_array_binding[0] == 0)
 		{
 			current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_attrib_value;
 			current_ctx->gl_vertex_array_size[index] = 0;
@@ -3862,7 +3862,7 @@ fastpath_glVertexAttrib3fv(GLuint index, const GLfloat* values)
 
 	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib3fv(index, values))
 	{
-		if (current_ctx->gl_vertex_array_binding == 0)
+		if (current_ctx->gl_vertex_array_binding[0] == 0)
 		{
 			current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_attrib_value;
 			current_ctx->gl_vertex_array_size[index] = 0;
@@ -3890,7 +3890,7 @@ fastpath_glVertexAttrib4f(GLuint index, GLfloat x, GLfloat y, GLfloat z, GLfloat
 
 	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib4f(index, x, y, z, w))
 	{
-		if (current_ctx->gl_vertex_array_binding == 0)
+		if (current_ctx->gl_vertex_array_binding[0] == 0)
 		{
 			current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_attrib_value;
 			current_ctx->gl_vertex_array_size[index] = 0;
@@ -3918,7 +3918,7 @@ fastpath_glVertexAttrib4fv(GLuint index, const GLfloat* values)
 
 	IF_GL_SUCCESS(_orig_fastpath_glVertexAttrib4fv(index, values))
 	{
-		if (current_ctx->gl_vertex_array_binding == 0)
+		if (current_ctx->gl_vertex_array_binding[0] == 0)
 		{
 			current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_attrib_value;
 			current_ctx->gl_vertex_array_size[index] = 0;
@@ -3946,7 +3946,7 @@ fastpath_glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean 
 
 	IF_GL_SUCCESS(_orig_fastpath_glVertexAttribPointer(index, size, type, normalized, stride, pointer))
 	{
-		if (current_ctx->gl_vertex_array_binding == 0)
+		if (current_ctx->gl_vertex_array_binding[0] == 0)
 		{
 			current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_array;
 
@@ -5101,7 +5101,7 @@ fastpath_glVertexAttribIPointer(GLuint index, GLint size, GLenum type, GLsizei s
 
 	IF_GL_SUCCESS(_orig_fastpath_glVertexAttribIPointer(index, size, type, stride, pointer))
 	{
-		if (current_ctx->gl_vertex_array_binding == 0)
+		if (current_ctx->gl_vertex_array_binding[0] == 0)
 		{
 			current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_array;
 
@@ -5130,7 +5130,7 @@ fastpath_glVertexAttribI4i(GLuint index, GLint x, GLint y, GLint z, GLint w)
 
 	IF_GL_SUCCESS(_orig_fastpath_glVertexAttribI4i(index, x, y, z, w))
 	{
-		if (current_ctx->gl_vertex_array_binding == 0)
+		if (current_ctx->gl_vertex_array_binding[0] == 0)
 		{
 			current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_attrib_value;
 			current_ctx->gl_vertex_array_size[index] = 0;
@@ -5159,7 +5159,7 @@ fastpath_glVertexAttribI4ui(GLuint index, GLuint x, GLuint y, GLuint z, GLuint w
 
 	IF_GL_SUCCESS(_orig_fastpath_glVertexAttribI4ui(index, x, y, z, w))
 	{
-		if (current_ctx->gl_vertex_array_binding == 0)
+		if (current_ctx->gl_vertex_array_binding[0] == 0)
 		{
 			current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_attrib_value;
 			current_ctx->gl_vertex_array_size[index] = 0;
@@ -5188,7 +5188,7 @@ fastpath_glVertexAttribI4iv(GLuint index, const GLint* v)
 
 	IF_GL_SUCCESS(_orig_fastpath_glVertexAttribI4iv(index, v))
 	{
-		if (current_ctx->gl_vertex_array_binding == 0)
+		if (current_ctx->gl_vertex_array_binding[0] == 0)
 		{
 			current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_attrib_value;
 			current_ctx->gl_vertex_array_size[index] = 0;
@@ -5217,7 +5217,7 @@ fastpath_glVertexAttribI4uiv(GLuint index, const GLuint* v)
 
 	IF_GL_SUCCESS(_orig_fastpath_glVertexAttribI4uiv(index, v))
 	{
-		if (current_ctx->gl_vertex_array_binding == 0)
+		if (current_ctx->gl_vertex_array_binding[0] == 0)
 		{
 			current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_attrib_value;
 			current_ctx->gl_vertex_array_size[index] = 0;
@@ -5809,7 +5809,7 @@ fastpath_glVertexAttribDivisor(GLuint index, GLuint divisor)
 
 	IF_GL_SUCCESS(_orig_fastpath_glVertexAttribDivisor(index, divisor))
 	{
-		if (current_ctx->gl_vertex_array_binding == 0)
+		if (current_ctx->gl_vertex_array_binding[0] == 0)
 		{
 			current_ctx->_vattrib_flag |= _VATTRIB_FLAG_BIT_gl_vertex_array;
 			current_ctx->gl_vertex_array_divisor[index] = divisor;
