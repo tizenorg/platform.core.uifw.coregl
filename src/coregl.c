@@ -21,7 +21,7 @@ void               *gl_lib_handle;
 #endif
 
 // Symbol definition for real
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*_sym_##FUNC_NAME) PARAM_LIST;
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*_sym_##FUNC_NAME) PARAM_LIST;
 #include "headers/sym.h"
 #undef _COREGL_SYMBOL
 
@@ -94,7 +94,7 @@ static int
 _glue_sym_init(void)
 {
 
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) \
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST) \
     FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME);
 #define _COREGL_EXT_SYMBOL_ALIAS(FUNC_NAME, ALIAS_NAME) \
     FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##ALIAS_NAME, #FUNC_NAME);
@@ -111,7 +111,7 @@ static int
 _gl_sym_init(void)
 {
 
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) \
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST) \
     FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME);
 #define _COREGL_EXT_SYMBOL_ALIAS(FUNC_NAME, ALIAS_NAME) \
     FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##ALIAS_NAME, #FUNC_NAME);

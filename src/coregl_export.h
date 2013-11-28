@@ -3,7 +3,7 @@
 
 #include "coregl_internal.h"
 
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     extern RET_TYPE (*ovr_##FUNC_NAME) PARAM_LIST;
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     extern RET_TYPE (*ovr_##FUNC_NAME) PARAM_LIST;
 # include "headers/sym.h"
 #undef _COREGL_SYMBOL
 

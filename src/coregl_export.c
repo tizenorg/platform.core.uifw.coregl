@@ -1,6 +1,6 @@
 #include "coregl_export.h"
 
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*ovr_##FUNC_NAME) PARAM_LIST = NULL;
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*ovr_##FUNC_NAME) PARAM_LIST = NULL;
 #include "headers/sym.h"
 #undef _COREGL_SYMBOL
 
@@ -16,11 +16,11 @@ _clean_overrides()
 {
 #define OVERRIDE(f) COREGL_OVERRIDE_API(ovr_, f, _sym_)
 
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     OVERRIDE(FUNC_NAME);
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     OVERRIDE(FUNC_NAME);
 # include "headers/sym_egl.h"
 #undef _COREGL_SYMBOL
 
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     OVERRIDE(FUNC_NAME);
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     OVERRIDE(FUNC_NAME);
 # include "headers/sym_gl.h"
 #undef _COREGL_SYMBOL
 

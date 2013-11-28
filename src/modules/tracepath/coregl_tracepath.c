@@ -9,7 +9,7 @@
 
 #include <dlfcn.h>
 
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*_orig_tracepath_##FUNC_NAME) PARAM_LIST = NULL;
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*_orig_tracepath_##FUNC_NAME) PARAM_LIST = NULL;
 #include "../../headers/sym.h"
 #undef _COREGL_SYMBOL
 
@@ -377,11 +377,11 @@ tracepath_apply_overrides()
 void
 tracepath_apply_overrides_egl(int enable)
 {
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_INIT_ORIGINAL(_orig_tracepath_, FUNC_NAME);
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_INIT_ORIGINAL(_orig_tracepath_, FUNC_NAME);
 # include "../../headers/sym_egl.h"
 #undef _COREGL_SYMBOL
 
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_OVERRIDE(tracepath_, FUNC_NAME);
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_OVERRIDE(tracepath_, FUNC_NAME);
 # include "../../headers/sym_egl.h"
 #undef _COREGL_SYMBOL
 }
@@ -389,11 +389,11 @@ tracepath_apply_overrides_egl(int enable)
 void
 tracepath_apply_overrides_gl(int enable)
 {
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_INIT_ORIGINAL(_orig_tracepath_, FUNC_NAME);
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_INIT_ORIGINAL(_orig_tracepath_, FUNC_NAME);
 # include "../../headers/sym_gl.h"
 #undef _COREGL_SYMBOL
 
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_OVERRIDE(tracepath_, FUNC_NAME);
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_OVERRIDE(tracepath_, FUNC_NAME);
 # include "../../headers/sym_gl.h"
 #undef _COREGL_SYMBOL
 }

@@ -4,19 +4,25 @@
 # include <GLES/glplatform.h>
 # include "../headers/gl.h"
 
-#define LOG_TAG "CoreGL_GLES2"
-#include <dlog.h>
+///////////////////////////////////////
+// Disable dlog for debugging urgent issues //
+//#define LOG_TAG "CoreGL_GLES2"
+//#include <dlog.h>
+#define LOGE(...) fprintf(stderr, __VA_ARGS__)
+#define LOGW(...) fprintf(stderr, __VA_ARGS__)
+#define LOGD(...) fprintf(stderr, __VA_ARGS__)
+///////////////////////////////////////
 
 #define COREGL_API           __attribute__((visibility("default")))
 
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_API extern RET_TYPE FUNC_NAME PARAM_LIST;
-#define _COREGL_EXT_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_API extern RET_TYPE FUNC_NAME PARAM_LIST;
+#define _COREGL_EXT_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)
 # include "../headers/sym_gl.h"
 #undef _COREGL_EXT_SYMBOL
 #undef _COREGL_SYMBOL
 
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*ovr_##FUNC_NAME) PARAM_LIST = NULL;
-#define _COREGL_EXT_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*ovr_##FUNC_NAME) PARAM_LIST = NULL;
+#define _COREGL_EXT_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)
 # include "../headers/sym_gl.h"
 #undef _COREGL_EXT_SYMBOL
 #undef _COREGL_SYMBOL
@@ -37,7 +43,7 @@ coregl_glwrap_init()
 		return 0;
 	}
 
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) \
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST) \
    ovr_##FUNC_NAME = (__typeof__(ovr_##FUNC_NAME))dlsym(lib_handle, "coregl_api_"#FUNC_NAME); \
 	if (ovr_##FUNC_NAME == NULL) \
 	{ \
@@ -45,7 +51,7 @@ coregl_glwrap_init()
 		LOGE("\E[40;31;1mInvalid library link! (Check linkage of libGLESv2 -> libCOREGL)\E[0m\n"); \
 	}
 
-#define _COREGL_EXT_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)
+#define _COREGL_EXT_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)
 #include "../headers/sym_gl.h"
 #undef _COREGL_EXT_SYMBOL
 #undef _COREGL_SYMBOL

@@ -1377,7 +1377,7 @@ fastpath_eglGetProcAddress(const char* procname)
 
 	_COREGL_FASTPATH_FUNC_BEGIN();
 
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST) \
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST) \
 	if (strcmp(procname, #FUNC_NAME) == 0) \
 	{ \
 		_eng_fn ret_orig = NULL; \

@@ -1,6 +1,7 @@
 #include "coregl_fastpath.h"
 
 #include <stdlib.h>
+#include <string.h>
 #include <execinfo.h>
 
 #include <sys/types.h>
@@ -312,7 +313,7 @@ _valid_extension_string()
 					{
 						*estr = 0x00;
 
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)
 #define _COREGL_FASTPATH_SUPPORTED_EXTENSION(NAME, MINVER, MAXVER) \
 						if (!strcmp(fstr, NAME) && (MINVER < 0 || GLver >= MINVER) && (MAXVER < 0 || GLver <= MAXVER)) \
 						{ \
@@ -4213,6 +4214,30 @@ finish:
 
 
 void
+fastpath_glGetProgramBinaryOES(GLuint program, GLsizei bufsize, GLsizei* length, GLenum* binaryFormat, void* binary)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glGetProgramBinaryOES(real_obj, bufsize, length, binaryFormat, binary);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+
+void
 fastpath_glProgramBinary(GLuint program, GLenum binaryFormat, const void* binary, GLint length)
 {
 	GLuint real_obj;
@@ -4228,6 +4253,30 @@ fastpath_glProgramBinary(GLuint program, GLenum binaryFormat, const void* binary
 	}
 
 	_orig_fastpath_glProgramBinary(real_obj, binaryFormat, binary, length);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+
+void
+fastpath_glProgramBinaryOES(GLuint program, GLenum binaryFormat, const void* binary, GLint length)
+{
+	GLuint real_obj;
+
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if (GET_REAL_OBJ(GL_OBJECT_TYPE_PROGRAM, program, &real_obj) != 1)
+	{
+		_set_gl_error(GL_INVALID_VALUE);
+		goto finish;
+	}
+
+	_orig_fastpath_glProgramBinaryOES(real_obj, binaryFormat, binary, length);
 
 	goto finish;
 

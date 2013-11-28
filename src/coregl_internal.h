@@ -10,23 +10,19 @@
 #define unlikely(x) __builtin_expect(x, 0)
 
 // Symbol definition for real
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     extern RET_TYPE (*_sym_##FUNC_NAME) PARAM_LIST;
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     extern RET_TYPE (*_sym_##FUNC_NAME) PARAM_LIST;
 # include "headers/sym.h"
 #undef _COREGL_SYMBOL
 
 #define COREGL_DEBUG
 
-#define LOG_TAG "CoreGL"
-#include <dlog.h>
-
 ///////////////////////////////////////
 // Disable dlog for debugging urgent issues //
 #ifdef COREGL_DEBUG
-# undef LOGE
+//# define LOG_TAG "CoreGL"
+//# include <dlog.h>
 # define LOGE(...) fprintf(stderr, __VA_ARGS__)
-# undef LOGW
 # define LOGW(...) fprintf(stderr, __VA_ARGS__)
-# undef LOGD
 # define LOGD(...) fprintf(stderr, __VA_ARGS__)
 #endif
 ///////////////////////////////////////

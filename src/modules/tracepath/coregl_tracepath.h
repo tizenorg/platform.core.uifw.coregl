@@ -13,12 +13,12 @@
 #include "../../coregl_internal.h"
 #include "../../coregl_export.h"
 
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     extern RET_TYPE (*_orig_tracepath_##FUNC_NAME) PARAM_LIST;
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     extern RET_TYPE (*_orig_tracepath_##FUNC_NAME) PARAM_LIST;
 # include "../../headers/sym.h"
 #undef _COREGL_SYMBOL
 
 // Symbol definition for tracepath
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     extern RET_TYPE (tracepath_##FUNC_NAME) PARAM_LIST;
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     extern RET_TYPE (tracepath_##FUNC_NAME) PARAM_LIST;
 # include "../../headers/sym.h"
 #undef _COREGL_SYMBOL
 

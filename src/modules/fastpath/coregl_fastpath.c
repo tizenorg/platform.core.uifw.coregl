@@ -7,7 +7,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*_orig_fastpath_##FUNC_NAME) PARAM_LIST = NULL;
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*_orig_fastpath_##FUNC_NAME) PARAM_LIST = NULL;
 #include "../../headers/sym.h"
 #undef _COREGL_SYMBOL
 
@@ -254,7 +254,7 @@ fastpath_apply_overrides()
 void
 fastpath_apply_overrides_egl(int enable)
 {
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_INIT_ORIGINAL(_orig_fastpath_, FUNC_NAME);
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_INIT_ORIGINAL(_orig_fastpath_, FUNC_NAME);
 # include "../../headers/sym_egl.h"
 #undef _COREGL_SYMBOL
 
@@ -278,7 +278,7 @@ fastpath_apply_overrides_egl(int enable)
 void
 fastpath_apply_overrides_gl(int enable)
 {
-#define _COREGL_SYMBOL(IS_EXTENSION, RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_INIT_ORIGINAL(_orig_fastpath_, FUNC_NAME);
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_INIT_ORIGINAL(_orig_fastpath_, FUNC_NAME);
 # include "../../headers/sym_gl.h"
 #undef _COREGL_SYMBOL
 
@@ -384,6 +384,8 @@ fastpath_apply_overrides_gl(int enable)
 		COREGL_OVERRIDE(fastpath_, glVertexAttribPointer);
 		COREGL_OVERRIDE(fastpath_, glViewport);
 
+		COREGL_OVERRIDE(fastpath_, glGetProgramBinaryOES);
+		COREGL_OVERRIDE(fastpath_, glProgramBinaryOES);
 
 		COREGL_OVERRIDE(fastpath_, glUseProgramStagesEXT);
 		COREGL_OVERRIDE(fastpath_, glActiveShaderProgramEXT);
