@@ -517,6 +517,10 @@ _remove_context_ref(GLGlueContext *gctx, Mutex *ctx_list_mtx)
 			remove_from_general_trace_list(&glue_ctx_trace_list, gctx);
 #endif // COREGL_FASTPATH_TRACE_CONTEXT_INFO
 
+		AST(gctx->cstate != NULL);
+		if (gctx->cstate->data == gctx)
+			gctx->cstate->data = NULL;
+
 		_unlink_context_state(gctx, ctx_list_mtx);
 
 		AST(gctx->ostate.shared != NULL);
@@ -1199,7 +1203,14 @@ fastpath_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLCon
 			goto finish;
 		}
 
+		if (tstate->cstate != NULL && tstate->cstate->data != NULL)
+			_remove_context_ref((GLGlueContext *)tstate->cstate->data, &ctx_list_access_mutex);
+
+		AST(tstate->cstate != gctx->cstate);
 		tstate->cstate = gctx->cstate;
+
+		if (tstate->cstate->data != NULL)
+			_add_context_ref((GLGlueContext *)tstate->cstate->data);
 
 		tstate->rsurf_draw = draw;
 		tstate->rsurf_read = read;

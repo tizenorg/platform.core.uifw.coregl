@@ -216,19 +216,21 @@ typedef struct _GLGlueContext
 
 
 
-	unsigned char           _bind_flag;
-#define _BIND_FLAG_BIT_gl_array_buffer_binding               FLAG_BIT_0
-#define _BIND_FLAG_BIT_gl_copy_read_buffer_binding           FLAG_BIT_1
-#define _BIND_FLAG_BIT_gl_copy_write_buffer_binding          FLAG_BIT_1
-#define _BIND_FLAG_BIT_gl_element_array_buffer_binding       FLAG_BIT_1
-#define _BIND_FLAG_BIT_gl_pixel_pack_buffer_binding          FLAG_BIT_1
-#define _BIND_FLAG_BIT_gl_pixel_unpack_buffer_binding        FLAG_BIT_1
-#define _BIND_FLAG_BIT_gl_transform_feedback_buffer_binding  FLAG_BIT_1
-#define _BIND_FLAG_BIT_gl_uniform_buffer_binding             FLAG_BIT_1
-#define _BIND_FLAG_BIT_gl_framebuffer_binding                FLAG_BIT_2
-#define _BIND_FLAG_BIT_gl_renderbuffer_binding               FLAG_BIT_3
-#define _BIND_FLAG_BIT_gl_framebuffer_binding_read           FLAG_BIT_4
-#define _BIND_FLAG_BIT_gl_framebuffer_binding_draw           FLAG_BIT_5
+   unsigned char           _bind_flag1;
+#define _BIND_FLAG1_BIT_gl_array_buffer_binding               FLAG_BIT_0
+#define _BIND_FLAG1_BIT_gl_element_array_buffer_binding       FLAG_BIT_1
+#define _BIND_FLAG1_BIT_gl_framebuffer_binding                FLAG_BIT_2
+#define _BIND_FLAG1_BIT_gl_renderbuffer_binding               FLAG_BIT_3
+#define _BIND_FLAG1_BIT_gl_framebuffer_binding_read           FLAG_BIT_4
+#define _BIND_FLAG1_BIT_gl_framebuffer_binding_draw           FLAG_BIT_5
+
+	unsigned char           _bind_flag2;
+#define _BIND_FLAG2_BIT_gl_copy_read_buffer_binding           FLAG_BIT_0
+#define _BIND_FLAG2_BIT_gl_copy_write_buffer_binding          FLAG_BIT_1
+#define _BIND_FLAG2_BIT_gl_pixel_pack_buffer_binding          FLAG_BIT_2
+#define _BIND_FLAG2_BIT_gl_pixel_unpack_buffer_binding        FLAG_BIT_3
+#define _BIND_FLAG2_BIT_gl_transform_feedback_buffer_binding  FLAG_BIT_4
+#define _BIND_FLAG2_BIT_gl_uniform_buffer_binding             FLAG_BIT_5
 
 	unsigned char           _enable_flag1;
 #define _ENABLE_FLAG1_BIT_gl_blend        FLAG_BIT_0

@@ -81,6 +81,10 @@ _COREGL_EXT_SYMBOL(EGLBoolean, eglSwapBuffersRegionEXT, (EGLDisplay dpy, EGLSurf
 
 /* Fastpath Verified extensions */
 //_COREGL_EXT_SYMBOL_FASTPATH_PASS(eglSwapBuffersRegionSEC)
+_COREGL_EXT_SYMBOL_FASTPATH_PASS(eglCreateSyncKHR)
+_COREGL_EXT_SYMBOL_FASTPATH_PASS(eglDestroySyncKHR)
+_COREGL_EXT_SYMBOL_FASTPATH_PASS(eglClientWaitSyncKHR)
+_COREGL_EXT_SYMBOL_FASTPATH_PASS(eglGetSyncAttribKHR)
 
 /* Fastpath Blocked extensions */
 //_COREGL_EXT_SYMBOL_FASTPATH_BLOCK()

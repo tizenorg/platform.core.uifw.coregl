@@ -1374,6 +1374,14 @@ fastpath_init_context_states(GLGlueContext *ctx)
 		{
 			COREGL_WRN("\E[40;31;1mNumber of texture unit is too big! (%d-%d)\E[0m\n", MAX_TEXTURE_UNITS, initial_ctx->gl_num_tex_units[0]);
 		}
+		if (initial_ctx->gl_num_transform_feedback_separate_attribs[0] > MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS)
+		{
+			COREGL_WRN("\E[40;31;1mNumber of transform feedback separate attrib is too big! (%d-%d)\E[0m\n", MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS, initial_ctx->gl_num_transform_feedback_separate_attribs[0]);
+		}
+		if (initial_ctx->gl_num_uniform_buffer_bindings[0] > MAX_UNIFORM_BUFFER_BINDINGS)
+		{
+			COREGL_WRN("\E[40;31;1mNumber of uniform buffer binding is too big! (%d-%d)\E[0m\n", MAX_UNIFORM_BUFFER_BINDINGS, initial_ctx->gl_num_uniform_buffer_bindings[0]);
+		}
 	}
 
 	{
@@ -1536,14 +1544,48 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 #endif // COREGL_USE_MODULE_TRACEPATH
 
 	//------------------//
-	// _bind_flag
-	flag = oldctx->_bind_flag | newctx->_bind_flag;
+	// _bind_flag1
+	flag = oldctx->_bind_flag1 | newctx->_bind_flag1;
 	if (flag)
 	{
 		STATE_COMPARE(gl_array_buffer_binding[0])
 		{
 			CHECK_GL_ERROR(_orig_fastpath_glBindBuffer(GL_ARRAY_BUFFER, newctx->gl_array_buffer_binding[0]))
 		}
+		STATE_COMPARE(gl_element_array_buffer_binding[0])
+		{
+			CHECK_GL_ERROR(_orig_fastpath_glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, newctx->gl_element_array_buffer_binding[0]))
+		}
+
+		if (newctx->gl_framebuffer_binding_read_used == 1)
+		{
+			STATE_COMPARE(gl_framebuffer_binding_read[0])
+			{
+				CHECK_GL_ERROR(_orig_fastpath_glBindFramebuffer(GL_READ_FRAMEBUFFER, newctx->gl_framebuffer_binding_read[0]))
+			}
+			STATE_COMPARE(gl_framebuffer_binding_draw[0])
+			{
+				CHECK_GL_ERROR(_orig_fastpath_glBindFramebuffer(GL_DRAW_FRAMEBUFFER, newctx->gl_framebuffer_binding_draw[0]))
+			}
+		}
+		else
+		{
+			STATE_COMPARE(gl_framebuffer_binding[0])
+			{
+				CHECK_GL_ERROR(_orig_fastpath_glBindFramebuffer(GL_FRAMEBUFFER, newctx->gl_framebuffer_binding[0]))
+			}
+		}
+		STATE_COMPARE(gl_renderbuffer_binding[0])
+		{
+			CHECK_GL_ERROR(_orig_fastpath_glBindRenderbuffer(GL_RENDERBUFFER, newctx->gl_renderbuffer_binding[0]))
+		}
+	}
+
+	//------------------//
+	// _bind_flag2
+	flag = oldctx->_bind_flag2 | newctx->_bind_flag2;
+	if (flag)
+	{
 		STATE_COMPARE(gl_copy_read_buffer_binding[0])
 		{
 			CHECK_GL_ERROR(_orig_fastpath_glBindBuffer(GL_COPY_READ_BUFFER, newctx->gl_copy_read_buffer_binding[0]))
@@ -1551,10 +1593,6 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 		STATE_COMPARE(gl_copy_write_buffer_binding[0])
 		{
 			CHECK_GL_ERROR(_orig_fastpath_glBindBuffer(GL_COPY_WRITE_BUFFER, newctx->gl_copy_write_buffer_binding[0]))
-		}
-		STATE_COMPARE(gl_element_array_buffer_binding[0])
-		{
-			CHECK_GL_ERROR(_orig_fastpath_glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, newctx->gl_element_array_buffer_binding[0]))
 		}
 		STATE_COMPARE(gl_pixel_pack_buffer_binding[0])
 		{
@@ -1572,30 +1610,7 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 		{
 			CHECK_GL_ERROR(_orig_fastpath_glBindBuffer(GL_UNIFORM_BUFFER, newctx->gl_uniform_buffer_binding[0]))
 		}
-		if (newctx->gl_framebuffer_binding_read_used == 1)
-		{
-			STATE_COMPARE(gl_framebuffer_binding_read[0])
-			{
-				CHECK_GL_ERROR(_orig_fastpath_glBindFramebuffer(GL_READ_FRAMEBUFFER_ANGLE, newctx->gl_framebuffer_binding_read[0]))
-			}
-			STATE_COMPARE(gl_framebuffer_binding_draw[0])
-			{
-				CHECK_GL_ERROR(_orig_fastpath_glBindFramebuffer(GL_DRAW_FRAMEBUFFER_ANGLE, newctx->gl_framebuffer_binding_draw[0]))
-			}
-		}
-		else
-		{
-			STATE_COMPARE(gl_framebuffer_binding[0])
-			{
-				CHECK_GL_ERROR(_orig_fastpath_glBindFramebuffer(GL_FRAMEBUFFER, newctx->gl_framebuffer_binding[0]))
-			}
-		}
-		STATE_COMPARE(gl_renderbuffer_binding[0])
-		{
-			CHECK_GL_ERROR(_orig_fastpath_glBindRenderbuffer(GL_RENDERBUFFER, newctx->gl_renderbuffer_binding[0]))
-		}
 	}
-
 #ifdef COREGL_USE_MODULE_TRACEPATH
 	tracepath_api_trace_end("eglMakeCurrent(FP bind buffers)", trace_hint_bindbuffers, 0);
 #endif // COREGL_USE_MODULE_TRACEPATH

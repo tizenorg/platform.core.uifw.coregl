@@ -838,28 +838,28 @@ fastpath_glBindBuffer(GLenum target, GLuint buffer)
 	switch (target)
 	{
 		case GL_ARRAY_BUFFER:
-			STATE_PROC(gl_array_buffer_binding, _bind_flag, _BIND_FLAG_BIT);
+			STATE_PROC(gl_array_buffer_binding, _bind_flag1, _BIND_FLAG1_BIT);
 			break;
 		case GL_COPY_READ_BUFFER:
-			STATE_PROC_WITH_CHECK(gl_copy_read_buffer_binding, _bind_flag, _BIND_FLAG_BIT);
+			STATE_PROC_WITH_CHECK(gl_copy_read_buffer_binding, _bind_flag2, _BIND_FLAG2_BIT);
 			break;
 		case GL_COPY_WRITE_BUFFER:
-			STATE_PROC_WITH_CHECK(gl_copy_write_buffer_binding, _bind_flag, _BIND_FLAG_BIT);
+			STATE_PROC_WITH_CHECK(gl_copy_write_buffer_binding, _bind_flag2, _BIND_FLAG2_BIT);
 			break;
 		case GL_ELEMENT_ARRAY_BUFFER:
-			STATE_PROC(gl_element_array_buffer_binding, _bind_flag, _BIND_FLAG_BIT);
+			STATE_PROC(gl_element_array_buffer_binding, _bind_flag1, _BIND_FLAG1_BIT);
 			break;
 		case GL_PIXEL_PACK_BUFFER:
-			STATE_PROC_WITH_CHECK(gl_pixel_pack_buffer_binding, _bind_flag, _BIND_FLAG_BIT);
+			STATE_PROC_WITH_CHECK(gl_pixel_pack_buffer_binding, _bind_flag2, _BIND_FLAG2_BIT);
 			break;
 		case GL_PIXEL_UNPACK_BUFFER:
-			STATE_PROC_WITH_CHECK(gl_pixel_unpack_buffer_binding, _bind_flag, _BIND_FLAG_BIT);
+			STATE_PROC_WITH_CHECK(gl_pixel_unpack_buffer_binding, _bind_flag2, _BIND_FLAG2_BIT);
 			break;
 		case GL_TRANSFORM_FEEDBACK_BUFFER:
-			STATE_PROC_WITH_CHECK(gl_transform_feedback_buffer_binding, _bind_flag, _BIND_FLAG_BIT);
+			STATE_PROC_WITH_CHECK(gl_transform_feedback_buffer_binding, _bind_flag2, _BIND_FLAG2_BIT);
 			break;
 		case GL_UNIFORM_BUFFER:
-			STATE_PROC_WITH_CHECK(gl_uniform_buffer_binding, _bind_flag, _BIND_FLAG_BIT);
+			STATE_PROC_WITH_CHECK(gl_uniform_buffer_binding, _bind_flag2, _BIND_FLAG2_BIT);
 			break;
 		default:
 			_set_gl_error(GL_INVALID_ENUM);
@@ -951,42 +951,42 @@ fastpath_glDeleteBuffers(GLsizei n, const GLuint* buffers)
 
 					if (cur_gctx->gl_array_buffer_binding[0] == objid_array[i])
 					{
-						cur_gctx->_bind_flag &= (~_BIND_FLAG_BIT_gl_array_buffer_binding);
+						cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_array_buffer_binding);
 						cur_gctx->gl_array_buffer_binding[0] = 0;
 					}
 					if (cur_gctx->gl_copy_read_buffer_binding[0] == objid_array[i])
 					{
-						cur_gctx->_bind_flag &= (~_BIND_FLAG_BIT_gl_copy_read_buffer_binding);
+						cur_gctx->_bind_flag2 &= (~_BIND_FLAG2_BIT_gl_copy_read_buffer_binding);
 						cur_gctx->gl_copy_read_buffer_binding[0] = 0;
 					}
 					if (cur_gctx->gl_copy_write_buffer_binding[0] == objid_array[i])
 					{
-						cur_gctx->_bind_flag &= (~_BIND_FLAG_BIT_gl_copy_write_buffer_binding);
+						cur_gctx->_bind_flag2 &= (~_BIND_FLAG2_BIT_gl_copy_write_buffer_binding);
 						cur_gctx->gl_copy_write_buffer_binding[0] = 0;
 					}
 					if (cur_gctx->gl_element_array_buffer_binding[0] == objid_array[i])
 					{
-						cur_gctx->_bind_flag &= (~_BIND_FLAG_BIT_gl_element_array_buffer_binding);
+						cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_element_array_buffer_binding);
 						cur_gctx->gl_element_array_buffer_binding[0] = 0;
 					}
 					if (cur_gctx->gl_pixel_pack_buffer_binding[0] == objid_array[i])
 					{
-						cur_gctx->_bind_flag &= (~_BIND_FLAG_BIT_gl_pixel_pack_buffer_binding);
+						cur_gctx->_bind_flag2 &= (~_BIND_FLAG2_BIT_gl_pixel_pack_buffer_binding);
 						cur_gctx->gl_pixel_pack_buffer_binding[0] = 0;
 					}
 					if (cur_gctx->gl_pixel_unpack_buffer_binding[0] == objid_array[i])
 					{
-						cur_gctx->_bind_flag &= (~_BIND_FLAG_BIT_gl_pixel_unpack_buffer_binding);
+						cur_gctx->_bind_flag2 &= (~_BIND_FLAG2_BIT_gl_pixel_unpack_buffer_binding);
 						cur_gctx->gl_pixel_unpack_buffer_binding[0] = 0;
 					}
 					if (cur_gctx->gl_transform_feedback_buffer_binding[0] == objid_array[i])
 					{
-						cur_gctx->_bind_flag &= (~_BIND_FLAG_BIT_gl_transform_feedback_buffer_binding);
+						cur_gctx->_bind_flag2 &= (~_BIND_FLAG2_BIT_gl_transform_feedback_buffer_binding);
 						cur_gctx->gl_transform_feedback_buffer_binding[0] = 0;
 					}
 					if (cur_gctx->gl_uniform_buffer_binding[0] == objid_array[i])
 					{
-						cur_gctx->_bind_flag &= (~_BIND_FLAG_BIT_gl_uniform_buffer_binding);
+						cur_gctx->_bind_flag2 &= (~_BIND_FLAG2_BIT_gl_uniform_buffer_binding);
 						cur_gctx->gl_uniform_buffer_binding[0] = 0;
 					}
 
@@ -1075,9 +1075,9 @@ fastpath_glBindFramebuffer(GLenum target, GLuint framebuffer)
 				IF_GL_SUCCESS(_orig_fastpath_glBindFramebuffer(target, real_obj))
 				{
 					if (real_obj == 0)
-						current_ctx->_bind_flag &= (~_BIND_FLAG_BIT_gl_framebuffer_binding_read);
+						current_ctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_framebuffer_binding_read);
 					else
-						current_ctx->_bind_flag |= _BIND_FLAG_BIT_gl_framebuffer_binding_read;
+						current_ctx->_bind_flag1 |= _BIND_FLAG1_BIT_gl_framebuffer_binding_read;
 					current_ctx->gl_framebuffer_binding_read[0] = real_obj;
 				}
 			}
@@ -1086,9 +1086,9 @@ fastpath_glBindFramebuffer(GLenum target, GLuint framebuffer)
 				IF_GL_SUCCESS(_orig_fastpath_glBindFramebuffer(target, real_obj))
 				{
 					if (real_obj == 0)
-						current_ctx->_bind_flag &= (~_BIND_FLAG_BIT_gl_framebuffer_binding_draw);
+						current_ctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_framebuffer_binding_draw);
 					else
-						current_ctx->_bind_flag |= _BIND_FLAG_BIT_gl_framebuffer_binding_draw;
+						current_ctx->_bind_flag1 |= _BIND_FLAG1_BIT_gl_framebuffer_binding_draw;
 					current_ctx->gl_framebuffer_binding_draw[0] = real_obj;
 				}
 			}
@@ -1100,9 +1100,9 @@ fastpath_glBindFramebuffer(GLenum target, GLuint framebuffer)
 				IF_GL_SUCCESS(_orig_fastpath_glBindFramebuffer(target, real_obj))
 				{
 					if (real_obj == 0)
-						current_ctx->_bind_flag &= (~_BIND_FLAG_BIT_gl_framebuffer_binding);
+						current_ctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_framebuffer_binding);
 					else
-						current_ctx->_bind_flag |= _BIND_FLAG_BIT_gl_framebuffer_binding;
+						current_ctx->_bind_flag1 |= _BIND_FLAG1_BIT_gl_framebuffer_binding;
 					current_ctx->gl_framebuffer_binding[0] = real_obj;
 				}
 			}
@@ -1115,9 +1115,9 @@ fastpath_glBindFramebuffer(GLenum target, GLuint framebuffer)
 			IF_GL_SUCCESS(_orig_fastpath_glBindFramebuffer(target, real_obj))
 			{
 				if (real_obj == 0)
-					current_ctx->_bind_flag &= (~_BIND_FLAG_BIT_gl_framebuffer_binding_read);
+					current_ctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_framebuffer_binding_read);
 				else
-					current_ctx->_bind_flag |= _BIND_FLAG_BIT_gl_framebuffer_binding_read;
+					current_ctx->_bind_flag1 |= _BIND_FLAG1_BIT_gl_framebuffer_binding_read;
 				current_ctx->gl_framebuffer_binding_read[0] = real_obj;
 			}
 		}
@@ -1129,9 +1129,9 @@ fastpath_glBindFramebuffer(GLenum target, GLuint framebuffer)
 			IF_GL_SUCCESS(_orig_fastpath_glBindFramebuffer(target, real_obj))
 			{
 				if (real_obj == 0)
-					current_ctx->_bind_flag &= (~_BIND_FLAG_BIT_gl_framebuffer_binding_draw);
+					current_ctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_framebuffer_binding_draw);
 				else
-					current_ctx->_bind_flag |= _BIND_FLAG_BIT_gl_framebuffer_binding_draw;
+					current_ctx->_bind_flag1 |= _BIND_FLAG1_BIT_gl_framebuffer_binding_draw;
 				current_ctx->gl_framebuffer_binding_draw[0] = real_obj;
 			}
 		}
@@ -1223,17 +1223,17 @@ fastpath_glDeleteFramebuffers(GLsizei n, const GLuint* framebuffers)
 
 					if (cur_gctx->gl_framebuffer_binding[0] == objid_array[i])
 					{
-						cur_gctx->_bind_flag &= (~_BIND_FLAG_BIT_gl_framebuffer_binding);
+						cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_framebuffer_binding);
 						cur_gctx->gl_framebuffer_binding[0] = 0;
 					}
 					if (cur_gctx->gl_framebuffer_binding_read[0] == objid_array[i])
 					{
-						cur_gctx->_bind_flag &= (~_BIND_FLAG_BIT_gl_framebuffer_binding_read);
+						cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_framebuffer_binding_read);
 						cur_gctx->gl_framebuffer_binding_read[0] = 0;
 					}
 					if (cur_gctx->gl_framebuffer_binding_draw[0] == objid_array[i])
 					{
-						cur_gctx->_bind_flag &= (~_BIND_FLAG_BIT_gl_framebuffer_binding_draw);
+						cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_framebuffer_binding_draw);
 						cur_gctx->gl_framebuffer_binding_draw[0] = 0;
 					}
 
@@ -1320,9 +1320,9 @@ fastpath_glBindRenderbuffer(GLenum target, GLuint renderbuffer)
 			IF_GL_SUCCESS(_orig_fastpath_glBindRenderbuffer(target, real_obj))
 			{
 				if (real_obj == 0)
-					current_ctx->_bind_flag &= (~_BIND_FLAG_BIT_gl_renderbuffer_binding);
+					current_ctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_renderbuffer_binding);
 				else
-					current_ctx->_bind_flag |= _BIND_FLAG_BIT_gl_renderbuffer_binding;
+					current_ctx->_bind_flag1 |= _BIND_FLAG1_BIT_gl_renderbuffer_binding;
 				current_ctx->gl_renderbuffer_binding[0] = real_obj;
 			}
 		}
@@ -1439,7 +1439,7 @@ fastpath_glDeleteRenderbuffers(GLsizei n, const GLuint* renderbuffers)
 
 					if (cur_gctx->gl_renderbuffer_binding[0] == objid_array[i])
 					{
-						cur_gctx->_bind_flag &= (~_BIND_FLAG_BIT_gl_renderbuffer_binding);
+						cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_renderbuffer_binding);
 						cur_gctx->gl_renderbuffer_binding[0] = 0;
 					}
 
@@ -5026,10 +5026,10 @@ fastpath_glBindBufferBase(GLenum target, GLuint index, GLuint buffer)
 	switch (target)
 	{
 		case GL_TRANSFORM_FEEDBACK_BUFFER:
-			STATE_PROC(gl_transform_feedback_buffer_binding, _bind_flag, _BIND_FLAG_BIT);
+			STATE_PROC(gl_transform_feedback_buffer_binding, _bind_flag2, _BIND_FLAG2_BIT);
 			break;
 		case GL_UNIFORM_BUFFER:
-			STATE_PROC(gl_uniform_buffer_binding, _bind_flag, _BIND_FLAG_BIT);
+			STATE_PROC(gl_uniform_buffer_binding, _bind_flag2, _BIND_FLAG2_BIT);
 			break;
 		default:
 			_set_gl_error(GL_INVALID_ENUM);
@@ -5068,7 +5068,7 @@ fastpath_glBindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr 
 		{ \
 			IF_GL_SUCCESS(_orig_fastpath_glBindBufferRange(target, index, real_obj, offset, size)) \
 			{ \
-				current_ctx->_bind_flag |= _BIND_FLAG_BIT_##gl_state; \
+				current_ctx->_bind_flag2 |= _BIND_FLAG2_BIT_##gl_state; \
 				current_ctx->gl_state##_array[index] = real_obj; \
 				current_ctx->gl_state##_array_offset[index] = offset; \
 				current_ctx->gl_state##_array_size[index] = size; \
