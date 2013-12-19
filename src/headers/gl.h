@@ -733,6 +733,7 @@ typedef struct __GLsync *GLsync;
 #define GL_TIMEOUT_IGNORED                               0xFFFFFFFFFFFFFFFFull
 #define GL_VERTEX_ATTRIB_ARRAY_DIVISOR                   0x88FE
 #define GL_ANY_SAMPLES_PASSED                            0x8C2F
+#define GL_TEXTURE_EXTERNAL_OES                          0x8D65
 #define GL_ANY_SAMPLES_PASSED_CONSERVATIVE               0x8D6A
 #define GL_SAMPLER_BINDING                               0x8919
 #define GL_RGB10_A2UI                                    0x906F

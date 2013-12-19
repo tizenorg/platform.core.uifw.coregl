@@ -1849,6 +1849,11 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 				CHECK_GL_ERROR(_orig_fastpath_glActiveTexture(GL_TEXTURE0 + i))
 				CHECK_GL_ERROR(_orig_fastpath_glBindTexture(GL_TEXTURE_CUBE_MAP, newctx->gl_tex_cube_state[i]))
 			}
+			STATE_COMPARE(gl_tex_external_oes_state[i])
+			{
+				CHECK_GL_ERROR(_orig_fastpath_glActiveTexture(GL_TEXTURE0 + i))
+				CHECK_GL_ERROR(_orig_fastpath_glBindTexture(GL_TEXTURE_EXTERNAL_OES, newctx->gl_tex_external_oes_state[i]))
+			}
 		}
 
 		// Restore active texture

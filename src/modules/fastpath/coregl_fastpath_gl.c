@@ -526,6 +526,9 @@ fastpath_glBindTexture(GLenum target, GLuint texture)
 		case GL_TEXTURE_CUBE_MAP:
 			STATE_PROC(gl_tex_cube_state, _tex_flag1, _TEX_FLAG1_BIT);
 			break;
+		case GL_TEXTURE_EXTERNAL_OES:
+			STATE_PROC(gl_tex_external_oes_state, _tex_flag1, _TEX_FLAG1_BIT);
+			break;
 		default:
 			_set_gl_error(GL_INVALID_ENUM);
 			break;
@@ -741,6 +744,8 @@ fastpath_glDeleteTextures(GLsizei n, const GLuint* textures)
 							cur_gctx->gl_tex_2d_array_state[j] = 0;
 						if (cur_gctx->gl_tex_cube_state[j] == objid_array[i])
 							cur_gctx->gl_tex_cube_state[j] = 0;
+						if (cur_gctx->gl_tex_external_oes_state[j] == objid_array[i])
+							cur_gctx->gl_tex_external_oes_state[j] = 0;
 					}
 
 					current = current->next;
@@ -4013,6 +4018,9 @@ fastpath_glEGLImageTargetTexture2DOES(GLenum target, GLeglImageOES image)
 			break;
 		case GL_TEXTURE_CUBE_MAP:
 			current_ctx->gl_tex_cube_state[tex_idx] = -1;
+			break;
+		case GL_TEXTURE_EXTERNAL_OES:
+			current_ctx->gl_tex_external_oes_state[tex_idx] = -1;
 			break;
 		default:
 			_set_gl_error(GL_INVALID_ENUM);

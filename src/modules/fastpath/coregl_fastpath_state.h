@@ -114,6 +114,9 @@ GLUE_STATE(GLuint, gl_tex_2d_array_state, INITIAL_CTX->gl_num_tex_units[0], MAX_
 GLUE_STATE(GLuint, gl_tex_cube_state, INITIAL_CTX->gl_num_tex_units[0], MAX_TEXTURE_UNITS,
            SET_N(INITIAL_CTX->gl_num_tex_units[0], 1, SET_1(0)),
            _state_get_texture_states(GL_TEXTURE_BINDING_CUBE_MAP, (GLint *)value);)
+GLUE_STATE(GLuint, gl_tex_external_oes_state, INITIAL_CTX->gl_num_tex_units[0], MAX_TEXTURE_UNITS,
+           SET_N(INITIAL_CTX->gl_num_tex_units[0], 1, SET_1(0)),
+           _state_get_texture_states(GL_TEXTURE_EXTERNAL_OES, (GLint *)value);)
 
 GLUE_STATE(GLenum, gl_active_texture, 1, 1, SET_1(GL_TEXTURE0), _sym_glGetIntegerv(GL_ACTIVE_TEXTURE, (GLint *)value))
 GLUE_STATE(GLenum, gl_generate_mipmap_hint, 1, 1, SET_1(GL_DONT_CARE), _sym_glGetIntegerv(GL_GENERATE_MIPMAP_HINT, (GLint *)value))

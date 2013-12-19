@@ -269,6 +269,7 @@ typedef struct _GLGlueContext
 #define _TEX_FLAG1_BIT_gl_tex_3d_state           FLAG_BIT_3
 #define _TEX_FLAG1_BIT_gl_tex_2d_array_state     FLAG_BIT_4
 #define _TEX_FLAG1_BIT_gl_tex_cube_state         FLAG_BIT_5
+#define _TEX_FLAG1_BIT_gl_tex_external_oes_state FLAG_BIT_6
 
 	unsigned char           _blend_flag;
 #define _BLEND_FLAG_BIT_gl_blend_color           FLAG_BIT_0
