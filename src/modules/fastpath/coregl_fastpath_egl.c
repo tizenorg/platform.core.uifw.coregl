@@ -1355,12 +1355,14 @@ fastpath_eglCreateImageKHR (EGLDisplay dpy, EGLContext ctx, EGLenum target, EGLC
 {
 	void *ret = NULL;
 	EGLContext real_ctx = EGL_NO_CONTEXT;
+	GLuint real_obj = 0;
 
 	_COREGL_FASTPATH_FUNC_BEGIN();
 
 	if (ctx != NULL && ctx != EGL_NO_CONTEXT)
 	{
 		GLGlueContext *gctx = (GLGlueContext *)ctx;
+		GLuint glue_obj = (GLuint)buffer;
 
 		if (gctx->magic != MAGIC_GLFAST)
 		{
@@ -1371,8 +1373,37 @@ fastpath_eglCreateImageKHR (EGLDisplay dpy, EGLContext ctx, EGLenum target, EGLC
 			AST(gctx->cstate != NULL);
 			real_ctx = gctx->cstate->rctx;
 		}
+
+		switch(target)
+		{
+			case EGL_GL_TEXTURE_2D_KHR:
+			case EGL_GL_TEXTURE_CUBE_MAP_POSITIVE_X_KHR:
+			case EGL_GL_TEXTURE_CUBE_MAP_NEGATIVE_X_KHR:
+			case EGL_GL_TEXTURE_CUBE_MAP_POSITIVE_Y_KHR:
+			case EGL_GL_TEXTURE_CUBE_MAP_NEGATIVE_Y_KHR:
+			case EGL_GL_TEXTURE_CUBE_MAP_POSITIVE_Z_KHR:
+			case EGL_GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_KHR:
+			case EGL_GL_TEXTURE_3D_KHR:
+			case EGL_GL_RENDERBUFFER_KHR:
+				if((GLuint )buffer == 0)
+				{
+					COREGL_ERR("\E[40;31;1m fastpath_eglCreateImageKHR buffer object NULL \E[0m\n");
+					real_obj = 0;
+				} else {
+					real_obj = fastpath_ostate_get_object(&gctx->ostate, GL_OBJECT_TYPE_TEXTURE, (GLuint )buffer);
+				}
+				break;
+			default:
+				COREGL_ERR("\E[40;31;1mError Not supported target NULL client buffer\E[0m\n");
+			    goto finish;
+		}
+
+	} else  {
+		real_obj = (GLuint )buffer;
 	}
-	ret = _orig_fastpath_eglCreateImageKHR(dpy, real_ctx, target, buffer, attrib_list);
+
+	ret = _orig_fastpath_eglCreateImageKHR(dpy, real_ctx, target, (EGLClientBuffer)real_obj, attrib_list);
+
 
 	goto finish;
 
