@@ -1061,7 +1061,46 @@ finish:
 	return ret;
 }
 
+EGLDisplay
+fastpath_eglGetCurrentDisplay(void)
+{
+	MY_MODULE_TSTATE *tstate = NULL;
+	EGLDisplay dpy = EGL_NO_DISPLAY;
 
+	GET_MY_TSTATE(tstate, get_current_thread_state());
+
+	if (tstate != NULL)
+	{
+		// Special eject condition for binding API
+		if(tstate->binded_api != EGL_OPENGL_ES_API)
+		{
+			return _orig_fastpath_eglGetCurrentDisplay();
+		}
+
+		_COREGL_FASTPATH_FUNC_BEGIN();
+
+		if (tstate->cstate != NULL)
+		{
+			dpy = tstate->cstate->rdpy;
+
+		} else
+		{
+			COREGL_WRN("\E[40;31;1mError fastpath_eglGetCurrentDisplay No context state \E[0m\n");
+		}
+
+		_COREGL_FASTPATH_FUNC_END();
+
+	} else
+	{
+		COREGL_WRN("\E[40;31;1mError fastpath_eglGetCurrentDisplay No thread state \E[0m\n");
+	}
+
+	goto finish;
+
+finish:
+
+	return dpy;
+}
 
 EGLBoolean
 fastpath_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLContext ctx)

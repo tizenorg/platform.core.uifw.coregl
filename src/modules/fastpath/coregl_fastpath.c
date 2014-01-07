@@ -272,6 +272,7 @@ fastpath_apply_overrides_egl(int enable)
 	COREGL_OVERRIDE(fastpath_, eglReleaseThread);
 	COREGL_OVERRIDE(fastpath_, eglGetCurrentSurface);
 	COREGL_OVERRIDE(fastpath_, eglTerminate);
+	COREGL_OVERRIDE(fastpath_, eglGetCurrentDisplay);
 
 }
 
