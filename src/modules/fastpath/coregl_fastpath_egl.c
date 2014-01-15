@@ -1242,14 +1242,16 @@ fastpath_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLCon
 			goto finish;
 		}
 
-		if (tstate->cstate != NULL && tstate->cstate->data != NULL)
-			_remove_context_ref((GLGlueContext *)tstate->cstate->data, &ctx_list_access_mutex);
+		// Update references only when the contexts are different
+		if(tstate->cstate != gctx->cstate)  {
+			if (tstate->cstate != NULL && tstate->cstate->data != NULL)
+				_remove_context_ref((GLGlueContext *)tstate->cstate->data, &ctx_list_access_mutex);
 
-		AST(tstate->cstate != gctx->cstate);
-		tstate->cstate = gctx->cstate;
+			tstate->cstate = gctx->cstate;
 
-		if (tstate->cstate->data != NULL)
-			_add_context_ref((GLGlueContext *)tstate->cstate->data);
+			if (tstate->cstate->data != NULL)
+				_add_context_ref((GLGlueContext *)tstate->cstate->data);
+		}
 
 		tstate->rsurf_draw = draw;
 		tstate->rsurf_read = read;
