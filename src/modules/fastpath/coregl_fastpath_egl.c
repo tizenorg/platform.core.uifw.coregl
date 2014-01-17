@@ -1083,16 +1083,10 @@ fastpath_eglGetCurrentDisplay(void)
 		{
 			dpy = tstate->cstate->rdpy;
 
-		} else
-		{
-			COREGL_WRN("\E[40;31;1mError fastpath_eglGetCurrentDisplay No context state \E[0m\n");
 		}
 
 		_COREGL_FASTPATH_FUNC_END();
 
-	} else
-	{
-		COREGL_WRN("\E[40;31;1mError fastpath_eglGetCurrentDisplay No thread state \E[0m\n");
 	}
 
 	goto finish;
