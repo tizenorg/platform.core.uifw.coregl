@@ -1089,6 +1089,34 @@ finish:
 	return ret;
 }
 
+
+/* Check if the context's state contains object of a given type */
+GLuint
+fastpath_ostate_has_object_type(GL_Object_State *ostate, GL_Object_Type type)
+{
+	GLuint ret = _COREGL_INT_INIT_VALUE;
+
+	GL_Object_Hash_Base *hash_base = NULL;
+	GL_Object *object = NULL;
+	hash_base = _lock_gl_object_hash(ostate, type);
+
+	if(hash_base->hash_field == 0)
+	{
+		ret = 0;
+		goto finish;
+	}
+
+	FIND_OBJ_FROM_HASH_WITH_VERIFY(hash_base, 1, object);
+
+	ret = object->real_id;
+	goto finish;
+
+finish:
+	_unlock_gl_object_hash(ostate, type);
+	return ret;
+}
+
+
 GLint
 fastpath_ostate_set_object_tag(GL_Object_State *ostate, GL_Object_Type type, GLuint glue_name, GLvoid *tag)
 {
@@ -2074,7 +2102,13 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 		}
 		STATES_COMPARE(gl_draw_buffers, 16 * sizeof(GLenum))
 		{
-			CHECK_GL_ERROR(_orig_fastpath_glDrawBuffers(16, newctx->gl_draw_buffers))
+			int drawBuffSize = 16;
+			/* If the  context has only default framebuffer, then size of glDrawBuffers can only be 1 */
+			if(fastpath_ostate_has_object_type(&newctx->ostate, GL_OBJECT_TYPE_FRAMEBUFFER) == 0) {
+				drawBuffSize = 1;
+			}
+
+			CHECK_GL_ERROR(_orig_fastpath_glDrawBuffers(drawBuffSize, newctx->gl_draw_buffers))
 		}
 		STATE_COMPARE(gl_vertex_array_binding[0])
 		{
