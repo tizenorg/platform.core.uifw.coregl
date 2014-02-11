@@ -2,6 +2,15 @@
 #error GLUE_STATE_NOT_DEFINED
 #endif
 
+#ifndef _COREGL_START_API
+#define _COREGL_START_API(version)
+#endif
+
+#ifndef _COREGL_END_API
+#define _COREGL_END_API(version)
+#endif
+
+
 #define SET_1(v1)               value[0] = v1;
 #define SET_2(v1, v2)           value[0] = v1; value[1] = v2;
 #define SET_3(v1, v2, v3)       value[0] = v1; value[1] = v2; value[2] = v3;
@@ -45,6 +54,7 @@ GLUE_STATE(GLuint, gl_pixel_unpack_buffer_binding, 1, 1, SET_1(0), _sym_glGetInt
 GLUE_STATE(GLuint, gl_transform_feedback_buffer_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, (GLint *)value);)
 GLUE_STATE(GLuint, gl_uniform_buffer_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_UNIFORM_BUFFER_BINDING, (GLint *)value);)
 
+_COREGL_START_API(COREGL_GLAPI_3)
 GLUE_STATE(GLuint, gl_transform_feedback_buffer_binding_array, INITIAL_CTX->gl_num_transform_feedback_separate_attribs[0], MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS,
 	_state_get_transform_feedback_buffer_bindings(value); /* DEFAULT NOT EFFECT */,
 	_state_get_transform_feedback_buffer_bindings(value);)
@@ -68,6 +78,7 @@ GLUE_STATE(GLintptr, gl_uniform_buffer_binding_array_offset, INITIAL_CTX->gl_num
 GLUE_STATE(GLsizeiptr, gl_uniform_buffer_binding_array_size, INITIAL_CTX->gl_num_uniform_buffer_bindings[0], MAX_UNIFORM_BUFFER_BINDINGS,
 	_state_get_uniform_buffer_bindings_size(value); /* DEFAULT NOT EFFECT */,
 	_state_get_uniform_buffer_bindings_size(value);)
+_COREGL_END_API(COREGL_GLAPI_3)
 
 GLUE_STATE(GLuint, gl_framebuffer_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint *)value);)
 GLUE_STATE(GLuint, gl_framebuffer_binding_read, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING_ANGLE, (GLint *)value);)
@@ -214,6 +225,8 @@ GLUE_STATE(GLvoidptr, gl_vertex_array_pointer, INITIAL_CTX->gl_num_vertex_attrib
 GLUE_STATE(GLfloat, gl_vertex_attrib_value, 4 * INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 4, SET_4(0, 0, 0, 1)),
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 4, _sym_glGetVertexAttribfv(i, GL_CURRENT_VERTEX_ATTRIB, (GLfloat *)value);))
+
+_COREGL_START_API(COREGL_GLAPI_3)
 GLUE_STATE(GLint, gl_vertex_attrib_value_integer, 4 * INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 4, SET_4(0, 0, 0, GET_INT_FROM_FLOAT(1.0f))),
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 4, _sym_glGetVertexAttribIiv(i, GL_CURRENT_VERTEX_ATTRIB, (GLint *)value);))
@@ -230,4 +243,5 @@ GLUE_STATE(GLuint, gl_vertex_array_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(G
 GLUE_STATE(GLuint, gl_transform_feedback_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_TRANSFORM_FEEDBACK_BINDING, (GLint *)value);)
 GLUE_STATE(GLboolean, gl_transform_feedback_active, 1, 1, SET_1(0), _sym_glGetBooleanv(GL_TRANSFORM_FEEDBACK_ACTIVE, (GLboolean *)value);)
 GLUE_STATE(GLboolean, gl_transform_feedback_paused, 1, 1, SET_1(0), _sym_glGetBooleanv(GL_TRANSFORM_FEEDBACK_PAUSED, (GLboolean *)value);)
+_COREGL_END_API(COREGL_GLAPI_3)
 

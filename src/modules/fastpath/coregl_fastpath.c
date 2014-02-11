@@ -26,6 +26,7 @@ GLGlueContext      *initial_ctx = NULL;
 Mutex               ctx_list_access_mutex = MUTEX_INITIALIZER;
 
 GLContext_List     *glctx_list = NULL;
+static int          api_gl_version=COREGL_GLAPI_2;
 
 static void
 _state_get_texture_states(GLenum pname, GLint *params)
@@ -279,9 +280,15 @@ fastpath_apply_overrides_egl(int enable)
 void
 fastpath_apply_overrides_gl(int enable)
 {
-#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_INIT_ORIGINAL(_orig_fastpath_, FUNC_NAME);
+#define _COREGL_START_API(version) api_gl_version = version;
+#define _COREGL_END_API(version) api_gl_version = COREGL_GLAPI_2;
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     \
+   if(api_gl_version <= driver_gl_version) COREGL_INIT_ORIGINAL(_orig_fastpath_, FUNC_NAME);
+
 # include "../../headers/sym_gl.h"
 #undef _COREGL_SYMBOL
+#undef _COREGL_START_API
+#undef _COREGL_END_API
 
 	if (debug_nofp != 1)
 	{
@@ -420,63 +427,66 @@ fastpath_apply_overrides_gl(int enable)
 		COREGL_OVERRIDE(fastpath_, glEGLImageTargetTexture2DOES);
 		COREGL_OVERRIDE(fastpath_, glFramebufferTexture3DOES);
 
-		COREGL_OVERRIDE(fastpath_, glReadBuffer);
+		/* Start overriding GLES 3.0 */
+		if(driver_gl_version >= COREGL_GLAPI_3) {
+			COREGL_OVERRIDE(fastpath_, glReadBuffer);
 
-		COREGL_OVERRIDE(fastpath_, glGenQueries);
-		COREGL_OVERRIDE(fastpath_, glDeleteQueries);
-		COREGL_OVERRIDE(fastpath_, glIsQuery);
-		COREGL_OVERRIDE(fastpath_, glBeginQuery);
-		COREGL_OVERRIDE(fastpath_, glGetQueryiv);
-		COREGL_OVERRIDE(fastpath_, glGetQueryObjectuiv);
-		COREGL_OVERRIDE(fastpath_, glDrawBuffers);
-		COREGL_OVERRIDE(fastpath_, glFramebufferTextureLayer);
+			COREGL_OVERRIDE(fastpath_, glGenQueries);
+			COREGL_OVERRIDE(fastpath_, glDeleteQueries);
+			COREGL_OVERRIDE(fastpath_, glIsQuery);
+			COREGL_OVERRIDE(fastpath_, glBeginQuery);
+			COREGL_OVERRIDE(fastpath_, glGetQueryiv);
+			COREGL_OVERRIDE(fastpath_, glGetQueryObjectuiv);
+			COREGL_OVERRIDE(fastpath_, glDrawBuffers);
+			COREGL_OVERRIDE(fastpath_, glFramebufferTextureLayer);
 
-		COREGL_OVERRIDE(fastpath_, glBindVertexArray);
-		COREGL_OVERRIDE(fastpath_, glDeleteVertexArrays);
-		COREGL_OVERRIDE(fastpath_, glGenVertexArrays);
-		COREGL_OVERRIDE(fastpath_, glIsVertexArray);
+			COREGL_OVERRIDE(fastpath_, glBindVertexArray);
+			COREGL_OVERRIDE(fastpath_, glDeleteVertexArrays);
+			COREGL_OVERRIDE(fastpath_, glGenVertexArrays);
+			COREGL_OVERRIDE(fastpath_, glIsVertexArray);
 
-		COREGL_OVERRIDE(fastpath_, glGetIntegeri_v);
+			COREGL_OVERRIDE(fastpath_, glGetIntegeri_v);
 
-		COREGL_OVERRIDE(fastpath_, glBindTransformFeedback);
-		COREGL_OVERRIDE(fastpath_, glDeleteTransformFeedbacks);
-		COREGL_OVERRIDE(fastpath_, glGenTransformFeedbacks);
-		COREGL_OVERRIDE(fastpath_, glIsTransformFeedback);
+			COREGL_OVERRIDE(fastpath_, glBindTransformFeedback);
+			COREGL_OVERRIDE(fastpath_, glDeleteTransformFeedbacks);
+			COREGL_OVERRIDE(fastpath_, glGenTransformFeedbacks);
+			COREGL_OVERRIDE(fastpath_, glIsTransformFeedback);
 
-		COREGL_OVERRIDE(fastpath_, glBindBufferRange);
-		COREGL_OVERRIDE(fastpath_, glBindBufferBase);
-		COREGL_OVERRIDE(fastpath_, glTransformFeedbackVaryings);
-		COREGL_OVERRIDE(fastpath_, glGetTransformFeedbackVarying);
-		COREGL_OVERRIDE(fastpath_, glVertexAttribIPointer);
-		COREGL_OVERRIDE(fastpath_, glVertexAttribI4i);
-		COREGL_OVERRIDE(fastpath_, glVertexAttribI4ui);
-		COREGL_OVERRIDE(fastpath_, glVertexAttribI4iv);
-		COREGL_OVERRIDE(fastpath_, glVertexAttribI4uiv);
-		COREGL_OVERRIDE(fastpath_, glGetUniformuiv);
-		COREGL_OVERRIDE(fastpath_, glGetFragDataLocation);
-		COREGL_OVERRIDE(fastpath_, glGetStringi);
-		COREGL_OVERRIDE(fastpath_, glGetUniformIndices);
-		COREGL_OVERRIDE(fastpath_, glGetActiveUniformsiv);
-		COREGL_OVERRIDE(fastpath_, glGetUniformBlockIndex);
-		COREGL_OVERRIDE(fastpath_, glGetActiveUniformBlockiv);
-		COREGL_OVERRIDE(fastpath_, glGetActiveUniformBlockName);
-		COREGL_OVERRIDE(fastpath_, glUniformBlockBinding);
-		COREGL_OVERRIDE(fastpath_, glGetInteger64v);
-		COREGL_OVERRIDE(fastpath_, glGetInteger64i_v);
-		COREGL_OVERRIDE(fastpath_, glGenSamplers);
-		COREGL_OVERRIDE(fastpath_, glDeleteSamplers);
-		COREGL_OVERRIDE(fastpath_, glIsSampler);
-		COREGL_OVERRIDE(fastpath_, glBindSampler);
-		COREGL_OVERRIDE(fastpath_, glSamplerParameteri);
-		COREGL_OVERRIDE(fastpath_, glSamplerParameteriv);
-		COREGL_OVERRIDE(fastpath_, glSamplerParameterf);
-		COREGL_OVERRIDE(fastpath_, glSamplerParameterfv);
-		COREGL_OVERRIDE(fastpath_, glGetSamplerParameteriv);
-		COREGL_OVERRIDE(fastpath_, glGetSamplerParameterfv);
-		COREGL_OVERRIDE(fastpath_, glVertexAttribDivisor);
-		COREGL_OVERRIDE(fastpath_, glGetProgramBinary);
-		COREGL_OVERRIDE(fastpath_, glProgramBinary);
-		COREGL_OVERRIDE(fastpath_, glProgramParameteri);
+			COREGL_OVERRIDE(fastpath_, glBindBufferRange);
+			COREGL_OVERRIDE(fastpath_, glBindBufferBase);
+			COREGL_OVERRIDE(fastpath_, glTransformFeedbackVaryings);
+			COREGL_OVERRIDE(fastpath_, glGetTransformFeedbackVarying);
+			COREGL_OVERRIDE(fastpath_, glVertexAttribIPointer);
+			COREGL_OVERRIDE(fastpath_, glVertexAttribI4i);
+			COREGL_OVERRIDE(fastpath_, glVertexAttribI4ui);
+			COREGL_OVERRIDE(fastpath_, glVertexAttribI4iv);
+			COREGL_OVERRIDE(fastpath_, glVertexAttribI4uiv);
+			COREGL_OVERRIDE(fastpath_, glGetUniformuiv);
+			COREGL_OVERRIDE(fastpath_, glGetFragDataLocation);
+			COREGL_OVERRIDE(fastpath_, glGetStringi);
+			COREGL_OVERRIDE(fastpath_, glGetUniformIndices);
+			COREGL_OVERRIDE(fastpath_, glGetActiveUniformsiv);
+			COREGL_OVERRIDE(fastpath_, glGetUniformBlockIndex);
+			COREGL_OVERRIDE(fastpath_, glGetActiveUniformBlockiv);
+			COREGL_OVERRIDE(fastpath_, glGetActiveUniformBlockName);
+			COREGL_OVERRIDE(fastpath_, glUniformBlockBinding);
+			COREGL_OVERRIDE(fastpath_, glGetInteger64v);
+			COREGL_OVERRIDE(fastpath_, glGetInteger64i_v);
+			COREGL_OVERRIDE(fastpath_, glGenSamplers);
+			COREGL_OVERRIDE(fastpath_, glDeleteSamplers);
+			COREGL_OVERRIDE(fastpath_, glIsSampler);
+			COREGL_OVERRIDE(fastpath_, glBindSampler);
+			COREGL_OVERRIDE(fastpath_, glSamplerParameteri);
+			COREGL_OVERRIDE(fastpath_, glSamplerParameteriv);
+			COREGL_OVERRIDE(fastpath_, glSamplerParameterf);
+			COREGL_OVERRIDE(fastpath_, glSamplerParameterfv);
+			COREGL_OVERRIDE(fastpath_, glGetSamplerParameteriv);
+			COREGL_OVERRIDE(fastpath_, glGetSamplerParameterfv);
+			COREGL_OVERRIDE(fastpath_, glVertexAttribDivisor);
+			COREGL_OVERRIDE(fastpath_, glGetProgramBinary);
+			COREGL_OVERRIDE(fastpath_, glProgramBinary);
+			COREGL_OVERRIDE(fastpath_, glProgramParameteri);
+		} // End of GLES 3.0
 
 	}
 	else
@@ -1242,31 +1252,37 @@ fastpath_dump_context_states(GLGlueContext *ctx, int force_output)
 
 #define PRINTF_CHAR(type) PRINTF_CHAR_##type
 
+#define _COREGL_START_API(version) api_gl_version = version;
+#define _COREGL_END_API(version) api_gl_version = COREGL_GLAPI_2;
 #define INITIAL_CTX initial_ctx
 #define GLUE_STATE(TYPE, NAME, SIZE, ARRAY_SIZE, DEFAULT_STMT, GET_STMT)  \
    { \
       TYPE valuedata[SIZE]; \
       TYPE *value = NULL; \
-      value = valuedata; GET_STMT; value = valuedata; \
-      TRACE("\E[40;37;1m %-30.30s : (\E[0m ", #NAME); \
-      for (int i = 0; i < SIZE; i++) \
-      { \
-         if (i > 0) { \
-            if (i % 4 == 0) \
-               TRACE("\n %-30.30s     ", "");\
-            else \
-               TRACE(", "); \
+      if(api_gl_version <= driver_gl_version) { \
+         value = valuedata; GET_STMT; value = valuedata; \
+         TRACE("\E[40;37;1m %-30.30s : (\E[0m ", #NAME); \
+         for (int i = 0; i < SIZE; i++) \
+         { \
+            if (i > 0) { \
+               if (i % 4 == 0) \
+                  TRACE("\n %-30.30s     ", "");\
+               else \
+                  TRACE(", "); \
+            } \
+            if (ctx->NAME[i] != value[i]) { TRACE("\E[40;31;1m"); } \
+               TRACE(PRINTF_CHAR(TYPE), ctx->NAME[i]); \
+               TRACE("["PRINTF_CHAR(TYPE)"]", value[i]); \
+            if (ctx->NAME[i] != value[i]) { TRACE("\E[0m"); } \
          } \
-         if (ctx->NAME[i] != value[i]) { TRACE("\E[40;31;1m"); } \
-         TRACE(PRINTF_CHAR(TYPE), ctx->NAME[i]); \
-         TRACE("["PRINTF_CHAR(TYPE)"]", value[i]); \
-         if (ctx->NAME[i] != value[i]) { TRACE("\E[0m"); } \
+         TRACE(" \E[40;37;1m)\E[0m\n"); \
       } \
-      TRACE(" \E[40;37;1m)\E[0m\n"); \
    }
 # include "coregl_fastpath_state.h"
 #undef GLUE_STATE
 #undef INITIAL_CTX
+#undef _COREGL_START_API
+#undef _COREGL_END_API
 
 	TRACE("\E[0;40;34m========================================================================================================================\E[0m\n");
 	TRACE("\n");
@@ -1300,6 +1316,8 @@ fastpath_init_context_states(GLGlueContext *ctx)
 		AST(initial_ctx != NULL);
 
 //#define FORCE_DEFAULT_VALUE
+#define _COREGL_START_API(version) api_gl_version = version;
+#define _COREGL_END_API(version) api_gl_version = COREGL_GLAPI_2;
 #ifdef FORCE_DEFAULT_VALUE
 # define INITIAL_CTX initial_ctx
 # define GLUE_STATE(TYPE, NAME, SIZE, ARRAY_SIZE, DEFAULT_STMT, GET_STMT)  \
@@ -1308,21 +1326,23 @@ fastpath_init_context_states(GLGlueContext *ctx)
          TYPE valuedata[SIZE]; \
          TYPE *value = NULL; \
          memset(valuedata, 0xcc, sizeof(TYPE) * SIZE); \
-         value = valuedata; DEFAULT_STMT; value = valuedata; \
-         for (i = 0; i < SIZE; i++) \
-         { \
-            if (*((char *)(&value[i])) == 0xcc) \
+         if(api_gl_version <= driver_gl_version) { \
+            value = valuedata; DEFAULT_STMT; value = valuedata; \
+            for (i = 0; i < SIZE; i++) \
             { \
-               memset(&value[i], 0xaa, sizeof(TYPE)); \
-               value = valuedata; DEFAULT_STMT; value = valuedata; \
-               if (*((char *)(&value[i])) == 0xaa) \
+               if (*((char *)(&value[i])) == 0xcc) \
                { \
-                  COREGL_WRN("\E[40;31;1mGL-state '"#NAME"' cannot be retrieved\E[0m\n"); \
-                  break; \
+                  memset(&value[i], 0xaa, sizeof(TYPE)); \
+                  value = valuedata; DEFAULT_STMT; value = valuedata; \
+                  if (*((char *)(&value[i])) == 0xaa) \
+                  { \
+                     COREGL_WRN("\E[40;31;1mGL-state '"#NAME"' cannot be retrieved\E[0m\n"); \
+                     break; \
+                  } \
                } \
+               initial_ctx->NAME[i] = value[i]; \
             } \
-            initial_ctx->NAME[i] = value[i]; \
-         } \
+        }\
       }
 #  include "coregl_fastpath_state.h"
 # undef GLUE_STATE
@@ -1347,53 +1367,57 @@ fastpath_init_context_states(GLGlueContext *ctx)
          TYPE *value = NULL; \
          _sym_glGetError(); \
          memset(valuedata, 0xcc, sizeof(TYPE) * SIZE); \
-         do { \
-            try_step++; \
-            SET_GLUE_VALUE(GET_STMT, DEFAULT_STMT); \
-            if (_sym_glGetError() == GL_INVALID_ENUM) \
-            { \
-					initial_ctx->NAME##_used = 0; \
-					value = valuedata; DEFAULT_STMT; value = valuedata; \
-	            break; \
-            } \
-				initial_ctx->NAME##_used = 1; \
-            for (i = 0; i < SIZE; i++) \
-            { \
-               if (*((char *)(&value[i])) == 0xcc) \
+         if(api_gl_version <= driver_gl_version) { \
+            do { \
+               try_step++; \
+               SET_GLUE_VALUE(GET_STMT, DEFAULT_STMT); \
+               if (_sym_glGetError() == GL_INVALID_ENUM) \
                { \
-                  memset(&value[i], 0xaa, sizeof(TYPE)); \
-                  SET_GLUE_VALUE(GET_STMT, DEFAULT_STMT); \
-                  if (*((char *)(&value[i])) == 0xaa) \
-                  { \
-                     try_step++; \
-                     if (try_step == 2) \
-                     { \
-                        COREGL_WRN("\E[40;31;1mGL-state '"#NAME"' cannot be retrieved\E[0m\n"); \
-                     } \
-                     break; \
-                  } \
+                  initial_ctx->NAME##_used = 0; \
+                  value = valuedata; DEFAULT_STMT; value = valuedata; \
+                  break; \
                } \
-               initial_ctx->NAME[i] = value[i]; \
-            } \
-            if (try_step != 2) \
-            { \
-               value = valuedata; DEFAULT_STMT; value = valuedata; \
+               initial_ctx->NAME##_used = 1; \
                for (i = 0; i < SIZE; i++) \
                { \
-                  if (initial_ctx->NAME[i] != value[i]) \
+                  if (*((char *)(&value[i])) == 0xcc) \
                   { \
-                     COREGL_WRN("GL-state '"#NAME"'[%d] value ["PRINTF_CHAR(TYPE)"] is different from SPEC-DEFAULT ["PRINTF_CHAR(TYPE)"]\n", i, initial_ctx->NAME[i], value[i]); \
+                     memset(&value[i], 0xaa, sizeof(TYPE)); \
+                     SET_GLUE_VALUE(GET_STMT, DEFAULT_STMT); \
+                     if (*((char *)(&value[i])) == 0xaa) \
+                     { \
+                        try_step++; \
+                        if (try_step == 2) \
+                        { \
+                           COREGL_WRN("\E[40;31;1mGL-state '"#NAME"' cannot be retrieved\E[0m\n"); \
+                        } \
+                        break; \
+                     } \
+                  } \
+                  initial_ctx->NAME[i] = value[i]; \
+               } \
+               if (try_step != 2) \
+               { \
+                  value = valuedata; DEFAULT_STMT; value = valuedata; \
+                  for (i = 0; i < SIZE; i++) \
+                  { \
+                     if (initial_ctx->NAME[i] != value[i]) \
+                     { \
+                        COREGL_WRN("GL-state '"#NAME"'[%d] value ["PRINTF_CHAR(TYPE)"] is different from SPEC-DEFAULT ["PRINTF_CHAR(TYPE)"]\n", i, initial_ctx->NAME[i], value[i]); \
+                     } \
                   } \
                } \
             } \
-         } \
-         while (try_step == 2); \
+            while (try_step == 2); \
+         }\
       }
 #  include "coregl_fastpath_state.h"
 # undef SET_GLUE_VALUE
 # undef GLUE_STATE
 # undef INITIAL_CTX
 #endif
+# undef _COREGL_END_API
+# undef _COREGL_START_API
 
 		if (initial_ctx->gl_num_vertex_attribs[0] > MAX_VERTEX_ATTRIBS)
 		{
@@ -1415,16 +1439,22 @@ fastpath_init_context_states(GLGlueContext *ctx)
 
 	{
 		int i;
+#define _COREGL_START_API(version) api_gl_version = version;
+#define _COREGL_END_API(version) api_gl_version = COREGL_GLAPI_2;
 #define INITIAL_CTX initial_ctx
 #define GLUE_STATE(TYPE, NAME, SIZE, ARRAY_SIZE, DEFAULT_STMT, GET_STMT)  \
+      if(api_gl_version <= driver_gl_version) { \
          for (i = 0; i < SIZE; i++) \
          { \
             ctx->NAME[i] = initial_ctx->NAME[i]; \
             ctx->NAME##_used = initial_ctx->NAME##_used; \
-         }
+         }\
+      }
 # include "coregl_fastpath_state.h"
 #undef GLUE_STATE
 #undef INITIAL_CTX
+#undef _COREGL_START_API
+#undef _COREGL_END_API
 	}
 
 	ctx->initialized = 1;

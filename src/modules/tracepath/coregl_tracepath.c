@@ -8,6 +8,8 @@
 #include <unistd.h>
 
 #include <dlfcn.h>
+static int         api_gl_version;
+
 
 #define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*_orig_tracepath_##FUNC_NAME) PARAM_LIST = NULL;
 #include "../../headers/sym.h"
@@ -389,13 +391,19 @@ tracepath_apply_overrides_egl(int enable)
 void
 tracepath_apply_overrides_gl(int enable)
 {
-#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_INIT_ORIGINAL(_orig_tracepath_, FUNC_NAME);
+#define _COREGL_START_API(version) api_gl_version = version;
+#define _COREGL_END_API(version) api_gl_version = COREGL_GLAPI_2;
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     \
+	if(api_gl_version <= driver_gl_version) COREGL_INIT_ORIGINAL(_orig_tracepath_, FUNC_NAME);
 # include "../../headers/sym_gl.h"
 #undef _COREGL_SYMBOL
 
-#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_OVERRIDE(tracepath_, FUNC_NAME);
+#define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST) \
+	if(api_gl_version <= driver_gl_version) COREGL_OVERRIDE(tracepath_, FUNC_NAME);
 # include "../../headers/sym_gl.h"
 #undef _COREGL_SYMBOL
+#undef _COREGL_START_API
+#undef _COREGL_END_API
 }
 
 #undef OVERRIDE

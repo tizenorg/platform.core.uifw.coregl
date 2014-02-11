@@ -29,6 +29,13 @@
 #define _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(FUNC_NAME)
 #endif
 
+#ifndef _COREGL_START_API
+#define _COREGL_START_API(VERSION)
+#endif
+
+#ifndef _COREGL_END_API
+#define _COREGL_END_API(VERSION)
+#endif
 /* OpenGL ES 2.0 */
 _COREGL_SYMBOL(void, glActiveTexture, (GLenum texture))
 _COREGL_SYMBOL(void, glAttachShader, (GLuint program, GLuint shader))
@@ -174,6 +181,7 @@ _COREGL_SYMBOL(void, glVertexAttribPointer, (GLuint index, GLint size, GLenum ty
 _COREGL_SYMBOL(void, glViewport, (GLint x, GLint y, GLsizei width, GLsizei height))
 
 /* OpenGL ES 3.0 */
+_COREGL_START_API(COREGL_GLAPI_3)
 _COREGL_SYMBOL(void, glReadBuffer, (GLenum mode))
 _COREGL_SYMBOL(void, glDrawRangeElements, (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid* indices))
 _COREGL_SYMBOL(void, glTexImage3D, (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid* pixels))
@@ -278,6 +286,7 @@ _COREGL_SYMBOL(void, glInvalidateSubFramebuffer, (GLenum target, GLsizei numAtta
 _COREGL_SYMBOL(void, glTexStorage2D, (GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height))
 _COREGL_SYMBOL(void, glTexStorage3D, (GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth))
 _COREGL_SYMBOL(void, glGetInternalformativ, (GLenum target, GLenum internalformat, GLenum pname, GLsizei bufSize, GLint* params))
+_COREGL_END_API(COREGL_GLAPI_3)
 
 
 /* Extensions */
@@ -547,3 +556,10 @@ _COREGL_EXT_SYMBOL_FASTPATH_BLOCK(glBlitFramebuffer)
 #undef _COREGL_EXT_SYMBOL_FASTPATH_BLOCK
 #endif
 
+#ifdef _COREGL_START_API
+#undef _COREGL_START_API
+#endif
+
+#ifdef _COREGL_END_API
+#undef _COREGL_END_API
+#endif

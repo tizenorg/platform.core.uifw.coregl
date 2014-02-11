@@ -11,6 +11,8 @@
 
 void               *egl_lib_handle;
 void               *gl_lib_handle;
+int                 driver_gl_version=COREGL_GLAPI_2;
+static int          api_gl_version=COREGL_GLAPI_2;
 
 #ifndef _COREGL_VENDOR_EGL_LIB_PATH
 #define _COREGL_VENDOR_EGL_LIB_PATH "/usr/lib/driver/libEGL.so" /* DEFAULT EGL PATH */
@@ -84,16 +86,20 @@ _sym_missing()
 }
 
 #define FINDSYM(libhandle, getproc, dst, sym) \
-   if (!dst || (void *)dst == (void *)_sym_missing) \
-		if (getproc) dst = (__typeof__(dst))getproc(sym); \
-   if (!dst || (void *)dst == (void *)_sym_missing) \
-		dst = (__typeof__(dst))dlsym(libhandle, sym); \
-	if (!dst) dst = (__typeof__(dst))_sym_missing;
+   if(api_gl_version <= driver_gl_version) { \
+      if (!dst || (void *)dst == (void *)_sym_missing) \
+		  if (getproc) dst = (__typeof__(dst))getproc(sym); \
+      if (!dst || (void *)dst == (void *)_sym_missing) \
+		  dst = (__typeof__(dst))dlsym(libhandle, sym); \
+	  if (!dst) dst = (__typeof__(dst))_sym_missing;\
+   }
 
 static int
 _glue_sym_init(void)
 {
 
+#define _COREGL_START_API(version) 		api_gl_version = version;
+#define _COREGL_END_API(version) 		api_gl_version = COREGL_GLAPI_2;
 #define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST) \
     FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME);
 #define _COREGL_EXT_SYMBOL_ALIAS(FUNC_NAME, ALIAS_NAME) \
@@ -103,6 +109,8 @@ _glue_sym_init(void)
 
 #undef _COREGL_EXT_SYMBOL_ALIAS
 #undef _COREGL_SYMBOL
+#undef _COREGL_START_API
+#undef _COREGL_END_API
 
 	return 1;
 }
@@ -111,6 +119,8 @@ static int
 _gl_sym_init(void)
 {
 
+#define _COREGL_START_API(version) 		api_gl_version = version;
+#define _COREGL_END_API(version)		api_gl_version = COREGL_GLAPI_2;
 #define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST) \
     FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME);
 #define _COREGL_EXT_SYMBOL_ALIAS(FUNC_NAME, ALIAS_NAME) \
@@ -120,6 +130,8 @@ _gl_sym_init(void)
 
 #undef _COREGL_EXT_SYMBOL_ALIAS
 #undef _COREGL_SYMBOL
+#undef _COREGL_START_API
+#undef _COREGL_END_API
 
 	return 1;
 }
@@ -167,6 +179,16 @@ _gl_lib_init(void)
 		COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> %s)\E[0m\n", _COREGL_VENDOR_GL_LIB_PATH);
 		return 0;
 	}
+
+	// test for a GLES 3.0 symbol
+	if (dlsym(gl_lib_handle, "glReadBuffer"))
+	{
+		COREGL_LOG("[CoreGL] Driver GL version 3.0 \n");
+		driver_gl_version = COREGL_GLAPI_3;
+	}else {
+		COREGL_LOG("[CoreGL] Driver GL version 2.0 \n");
+	}
+
 	//------------------------------------------------//
 
 	if (!_glue_sym_init()) return 0;

@@ -8,6 +8,7 @@
 #undef _COREGL_SYMBOL
 
 extern int export_initialized;
+extern int driver_gl_version;
 
 extern void     init_export();
 extern void     clean_overrides();

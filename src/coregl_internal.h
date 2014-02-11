@@ -68,6 +68,9 @@ static inline GLuint GET_UINT_FROM_FLOAT(GLfloat value) { return *((GLint *)&val
 typedef GLvoid *     GLvoidptr;
 typedef GLuint       GLuintmask;
 
+#define COREGL_GLAPI_3	3
+#define COREGL_GLAPI_2	2
+
 #define _COREGL_INT_INIT_VALUE -3
 
 #define COREGL_OVERRIDE_API(mangle, func, prefix) \
