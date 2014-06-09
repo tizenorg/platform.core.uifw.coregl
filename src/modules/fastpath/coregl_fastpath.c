@@ -424,7 +424,6 @@ fastpath_apply_overrides_gl(int enable)
 		COREGL_OVERRIDE(fastpath_, glProgramParameteriEXT);
 
 		COREGL_OVERRIDE(fastpath_, glFramebufferTexture2DMultisampleEXT);
-		COREGL_OVERRIDE(fastpath_, glEGLImageTargetTexture2DOES);
 		COREGL_OVERRIDE(fastpath_, glFramebufferTexture3DOES);
 
 		/* Start overriding GLES 3.0 */

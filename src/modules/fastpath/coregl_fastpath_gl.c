@@ -4000,41 +4000,6 @@ finish:
 	_COREGL_FASTPATH_FUNC_END();
 }
 
-void
-fastpath_glEGLImageTargetTexture2DOES(GLenum target, GLeglImageOES image)
-{
-	int tex_idx;
-
-	DEFINE_FASTPAH_GL_FUNC();
-	_COREGL_FASTPATH_FUNC_BEGIN();
-	INIT_FASTPATH_GL_FUNC();
-
-	tex_idx = current_ctx->gl_active_texture[0] - GL_TEXTURE0;
-
-	switch (target)
-	{
-		case GL_TEXTURE_2D:
-			current_ctx->gl_tex_2d_state[tex_idx] = -1;
-			break;
-		case GL_TEXTURE_CUBE_MAP:
-			current_ctx->gl_tex_cube_state[tex_idx] = -1;
-			break;
-		case GL_TEXTURE_EXTERNAL_OES:
-			current_ctx->gl_tex_external_oes_state[tex_idx] = -1;
-			break;
-		default:
-			_set_gl_error(GL_INVALID_ENUM);
-			goto finish;
-	}
-
-	_orig_fastpath_glEGLImageTargetTexture2DOES(target, image);
-
-	goto finish;
-
-finish:
-	_COREGL_FASTPATH_FUNC_END();
-}
-
 #define TRANS_VALUE(index, value) \
 { \
 	switch (get_type) \
