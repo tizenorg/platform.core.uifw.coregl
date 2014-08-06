@@ -8,7 +8,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
-int kill(pid_t pid, int sig);
+#include <assert.h>
 
 #ifdef COREGL_FASTPATH_TRACE_CONTEXT_INFO
 
@@ -1500,7 +1500,7 @@ fastpath_eglGetProcAddress(const char* procname)
 #undef _COREGL_EXT_SYMBOL_FASTPATH_BLOCK
 
 		COREGL_ERR("\E[40;31;1mFASTPATH can't support '%s' (will be terminated with Illegal instruction!)\E[0m\n", procname);
-		kill(getpid(), SIGILL);
+		assert(0);
 	}
 
 	goto finish;

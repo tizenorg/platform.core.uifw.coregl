@@ -7,7 +7,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
-int kill(pid_t pid, int sig);
 
 
 #define CURR_STATE_COMPARE(curr_state, state ) \
