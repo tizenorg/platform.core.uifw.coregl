@@ -13,7 +13,6 @@ Requires(postun): /sbin/ldconfig
 %ifarch %{ix86}
 BuildRequires:  simulator-opengl-devel
 %else
-BuildRequires:  pkgconfig(gles11)
 BuildRequires:  pkgconfig(gles20)
 BuildRequires:  pkgconfig(xfixes)
 BuildRequires:  opengl-es-devel

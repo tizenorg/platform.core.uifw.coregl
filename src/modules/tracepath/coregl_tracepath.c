@@ -443,8 +443,8 @@ tracepath_dump_context_states(int force_output)
 #define PRINTF_CHAR_GLsizei "%10u"
 #define PRINTF_CHAR_GLuint "%10u"
 #define PRINTF_CHAR_GLuintmask "0x%8X"
-#define PRINTF_CHAR_GLintptr "0x%8X"
-#define PRINTF_CHAR_GLsizeiptr "%10d"
+#define PRINTF_CHAR_GLintptr "%10ld"
+#define PRINTF_CHAR_GLsizeiptr "%10ld"
 
 #define PRINTF_CHAR_GLclampf "%10.6f"
 #define PRINTF_CHAR_GLfloat "%10.6f"

@@ -1397,7 +1397,6 @@ fastpath_eglCreateImageKHR (EGLDisplay dpy, EGLContext ctx, EGLenum target, EGLC
 	if (ctx != NULL && ctx != EGL_NO_CONTEXT)
 	{
 		GLGlueContext *gctx = (GLGlueContext *)ctx;
-		GLuint glue_obj = (GLuint)buffer;
 
 		if (gctx->magic != MAGIC_GLFAST)
 		{

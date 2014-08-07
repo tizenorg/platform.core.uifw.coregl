@@ -5679,7 +5679,6 @@ finish:
 void
 fastpath_glSamplerParameteri(GLuint sampler, GLenum pname, GLint param)
 {
-	GLboolean ret = GL_FALSE;
 	GLuint real_obj;
 
 	DEFINE_FASTPAH_GL_FUNC();
@@ -5688,7 +5687,6 @@ fastpath_glSamplerParameteri(GLuint sampler, GLenum pname, GLint param)
 
 	if (GET_REAL_OBJ(GL_OBJECT_TYPE_SAMPLER, sampler, &real_obj) != 1)
 	{
-		ret = GL_FALSE;
 		goto finish;
 	}
 
@@ -5703,7 +5701,6 @@ finish:
 void
 fastpath_glSamplerParameteriv(GLuint sampler, GLenum pname, const GLint* param)
 {
-	GLboolean ret = GL_FALSE;
 	GLuint real_obj;
 
 	DEFINE_FASTPAH_GL_FUNC();
@@ -5712,7 +5709,6 @@ fastpath_glSamplerParameteriv(GLuint sampler, GLenum pname, const GLint* param)
 
 	if (GET_REAL_OBJ(GL_OBJECT_TYPE_SAMPLER, sampler, &real_obj) != 1)
 	{
-		ret = GL_FALSE;
 		goto finish;
 	}
 
@@ -5727,7 +5723,6 @@ finish:
 void
 fastpath_glSamplerParameterf(GLuint sampler, GLenum pname, GLfloat param)
 {
-	GLboolean ret = GL_FALSE;
 	GLuint real_obj;
 
 	DEFINE_FASTPAH_GL_FUNC();
@@ -5736,7 +5731,6 @@ fastpath_glSamplerParameterf(GLuint sampler, GLenum pname, GLfloat param)
 
 	if (GET_REAL_OBJ(GL_OBJECT_TYPE_SAMPLER, sampler, &real_obj) != 1)
 	{
-		ret = GL_FALSE;
 		goto finish;
 	}
 
@@ -5751,7 +5745,6 @@ finish:
 void
 fastpath_glSamplerParameterfv(GLuint sampler, GLenum pname, const GLfloat* param)
 {
-	GLboolean ret = GL_FALSE;
 	GLuint real_obj;
 
 	DEFINE_FASTPAH_GL_FUNC();
@@ -5760,7 +5753,6 @@ fastpath_glSamplerParameterfv(GLuint sampler, GLenum pname, const GLfloat* param
 
 	if (GET_REAL_OBJ(GL_OBJECT_TYPE_SAMPLER, sampler, &real_obj) != 1)
 	{
-		ret = GL_FALSE;
 		goto finish;
 	}
 
@@ -5775,7 +5767,6 @@ finish:
 void
 fastpath_glGetSamplerParameteriv(GLuint sampler, GLenum pname, GLint* params)
 {
-	GLboolean ret = GL_FALSE;
 	GLuint real_obj;
 
 	DEFINE_FASTPAH_GL_FUNC();
@@ -5784,7 +5775,6 @@ fastpath_glGetSamplerParameteriv(GLuint sampler, GLenum pname, GLint* params)
 
 	if (GET_REAL_OBJ(GL_OBJECT_TYPE_SAMPLER, sampler, &real_obj) != 1)
 	{
-		ret = GL_FALSE;
 		goto finish;
 	}
 
@@ -5799,7 +5789,6 @@ finish:
 void
 fastpath_glGetSamplerParameterfv(GLuint sampler, GLenum pname, GLfloat* params)
 {
-	GLboolean ret = GL_FALSE;
 	GLuint real_obj;
 
 	DEFINE_FASTPAH_GL_FUNC();
@@ -5808,7 +5797,6 @@ fastpath_glGetSamplerParameterfv(GLuint sampler, GLenum pname, GLfloat* params)
 
 	if (GET_REAL_OBJ(GL_OBJECT_TYPE_SAMPLER, sampler, &real_obj) != 1)
 	{
-		ret = GL_FALSE;
 		goto finish;
 	}
 
