@@ -1,82 +1,61 @@
-Name: coregl
-Version: 0.1.9
-Release: 1
-ExclusiveArch:  %arm
-Summary: coregl
-Group: Graphics
-License: TO_BE/FILLED_IN
-URL: http://www.tizen.org
-Source0: %{name}-%{version}.tar.gz
-Requires(post): /sbin/ldconfig
-Requires(postun): /sbin/ldconfig
-#Patch1: patchfile.patch
-%ifarch %{ix86}
-BuildRequires:  simulator-opengl-devel
-%else
+Name:			coregl
+Summary:		CoreGL FastPath Optimization 
+Version:		0.1.10
+Release:		1
+ExclusiveArch:	%arm
+Group:			Graphics
+License:		TO_BE/FILLED_IN
+URL:			http://www.tizen.org
+Source:			%{name}-%{version}.tar.gz
+
 BuildRequires:  pkgconfig(gles20)
 BuildRequires:  pkgconfig(xfixes)
-BuildRequires:  opengl-es-devel
-%endif
 BuildRequires:  pkgconfig(x11)
 BuildRequires:  cmake
 BuildRequires:  pkgconfig(dlog)
-BuildRequires:  sec-product-features
 
 %description
-This package contains the GLESv2.0/EGL 
+CoreGL provides the following capabilities:
+- Support for driver-independent optimization (FastPath)
+- EGL/OpenGL ES debugging
+- Performance logging
+
+Supported versions:
+- EGL 1.4
+- OpenGL ES 2.0, 3.0
 
 %prep
 %setup -q -n %{name}-%{version}
 
 %build
-
-%if 0%{?sec_product_feature_graphics_adreno}
-%global extra_option -DUSE_ADRENO=TRUE
-%endif
-
 cmake . -DCMAKE_INSTALL_PREFIX=/usr %{?extra_option}
-
 make %{?jobs:-j%jobs}
 
 %install
-
 mkdir -p %{buildroot}/usr/lib
-mkdir -p %{buildroot}/usr/include/EGL
-mkdir -p %{buildroot}/usr/include/GLES2
 cp %{_builddir}/%{name}-%{version}/libCOREGL.so.4.0 %{buildroot}%{_libdir}/libCOREGL.so.4.0
 cp %{_builddir}/%{name}-%{version}/libEGL.so.1.4 %{buildroot}%{_libdir}/libEGL.so.1.4
 cp %{_builddir}/%{name}-%{version}/libGLESv2.so.2.0 %{buildroot}%{_libdir}/libGLESv2.so.2.0
+ln -sf libCOREGL.so.4.0 %{buildroot}%{_libdir}/libCOREGL.so.4
+ln -sf libCOREGL.so.4 %{buildroot}%{_libdir}/libCOREGL.so
+ln -sf libEGL.so.1.4 %{buildroot}%{_libdir}/libEGL.so.1
+ln -sf libEGL.so.1 %{buildroot}%{_libdir}/libEGL.so
+ln -sf driver/libGLESv1_CM.so.1.1 %{buildroot}%{_libdir}/libGLESv1_CM.so.1.1
+ln -sf libGLESv1_CM.so.1.1 %{buildroot}%{_libdir}/libGLESv1_CM.so.1
+ln -sf libGLESv1_CM.so.1 %{buildroot}%{_libdir}/libGLESv1_CM.so
+ln -sf libGLESv2.so.2.0 %{buildroot}%{_libdir}/libGLESv2.so.2
+ln -sf libGLESv2.so.2 %{buildroot}%{_libdir}/libGLESv2.so
 
 %clean
 rm -rf %{buildroot}
 
-%post
+%post -p /sbin/ldconfig
 
-init_coregl()
-{
-    cd /usr/lib
-
-    rm -f ./libEGL.so
-    rm -f ./libEGL.so.1
-    rm -f ./libGLESv2.so
-    rm -f ./libGLESv2.so.2
-    rm -f ./libCOREGL.so
-    rm -f ./libCOREGL.so.4
-    ln -s libCOREGL.so.4.0 libCOREGL.so.4
-    ln -s libCOREGL.so.4 libCOREGL.so
-    ln -s libEGL.so.1.4 libEGL.so.1
-    ln -s libEGL.so.1 libEGL.so
-    ln -s libGLESv2.so.2.0 libGLESv2.so.2
-    ln -s libGLESv2.so.2 libGLESv2.so
-
-    cd -
-}
-
-init_coregl
 %postun -p /sbin/ldconfig
 
 %files
 %defattr(-,root,root,-)
 %{_libdir}/libCOREGL.so*
 %{_libdir}/libEGL.so*
+%{_libdir}/libGLESv1_CM.so*
 %{_libdir}/libGLESv2.so*
