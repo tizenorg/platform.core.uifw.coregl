@@ -8,6 +8,6 @@ includedir=@INCLUDEDIR@
 Name: coregl
 Description: SAMSUNG Linux platform application library
 Version: @VERSION@
-Requires: x11 dlog gles20
+Requires: x11 dlog
 Libs: -L${libdir} -lcoregl
 Cflags: -I${includedir} -I${includedir}/coregl

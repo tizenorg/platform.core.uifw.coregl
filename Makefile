@@ -2,10 +2,11 @@ CC = gcc
 
 COMPILE_DATE = "\"`git log -1 --pretty=format:%ci`\""
 
-VENDOR_EGL_LIB_PATH = "\"/usr/lib/egl/libEGL.so\""
-VENDOR_GL_LIB_PATH = "\"/usr/lib/egl/libGLESv2.so\""
+VENDOR_EGL_LIB_PATH = "\"/usr/lib/driver/libEGL.so\""
+VENDOR_GL_LIB_PATH = "\"/usr/lib/driver/libGLESv2.so\""
 
 CFLAGS = -g -O2 -fvisibility=hidden -fPIC -fno-strict-aliasing -Wall -std=c99 -D_COREGL_COMPILE_DATE=$(COMPILE_DATE)
+CFLAGS += -I./include_KHR
 CFLAGS += -D_COREGL_VENDOR_EGL_LIB_PATH=$(VENDOR_EGL_LIB_PATH)
 CFLAGS += -D_COREGL_VENDOR_GL_LIB_PATH=$(VENDOR_GL_LIB_PATH)
 CFLAGS += `pkg-config --cflags dlog`

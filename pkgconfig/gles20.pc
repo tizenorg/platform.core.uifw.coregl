@@ -1,0 +1,11 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: gles20
+Description: OpenGL-ES 2.0 Library for ARM Mali 400MP
+Version: 0.1
+Requires:
+Libs: -L${libdir} -lGLESv2 -lEGL
+Cflags: -I${includedir}
