@@ -1,3 +1,5 @@
+%define BYPASS_COREGL 1
+
 Name:			coregl
 Summary:		CoreGL FastPath Optimization 
 Version:		0.1.10
@@ -8,9 +10,11 @@ License:		Apache 2.0
 URL:			http://www.tizen.org
 Source:			%{name}-%{version}.tar.gz
 
+%if "%{BYPASS_COREGL}" != "1"
 BuildRequires:  pkgconfig(xfixes)
 BuildRequires:  pkgconfig(x11)
 BuildRequires:  cmake
+%endif
 BuildRequires:  pkgconfig(dlog)
 
 %description
@@ -37,17 +41,25 @@ packages that requires OpenGL ES 1.1 or 2.0 acceleration.
 %setup -q -n %{name}-%{version}
 
 %build
+%if "%{BYPASS_COREGL}" != "1"
 cmake . -DCMAKE_INSTALL_PREFIX=/usr %{?extra_option}
 make %{?jobs:-j%jobs}
+%endif
 
 %install
 # release pkg
 mkdir -p %{buildroot}%{_libdir}/pkgconfig
+
+%if "%{BYPASS_COREGL}" != "1"
 cp libCOREGL.so.4.0					%{buildroot}%{_libdir}/
-cp libEGL.so.1.4					%{buildroot}%{_libdir}/
-cp libGLESv2.so.2.0					%{buildroot}%{_libdir}/
 ln -sf libCOREGL.so.4.0				%{buildroot}%{_libdir}/libCOREGL.so.4
 ln -sf libCOREGL.so.4				%{buildroot}%{_libdir}/libCOREGL.so
+cp libEGL.so.1.4					%{buildroot}%{_libdir}/
+cp libGLESv2.so.2.0					%{buildroot}%{_libdir}/
+%else
+ln -sf driver/libEGL.so.1.4			%{buildroot}%{_libdir}/libEGL.so.1.4
+ln -sf driver/libGLESv2.so.2.0		%{buildroot}%{_libdir}/libGLESv2.so.2.0
+%endif
 ln -sf libEGL.so.1.4				%{buildroot}%{_libdir}/libEGL.so.1
 ln -sf libEGL.so.1					%{buildroot}%{_libdir}/libEGL.so
 ln -sf driver/libGLESv1_CM.so.1.1	%{buildroot}%{_libdir}/libGLESv1_CM.so.1.1
@@ -74,7 +86,9 @@ rm -rf %{buildroot}
 %files
 %manifest packaging/coregl.manifest
 %defattr(-,root,root,-)
+%if "%{BYPASS_COREGL}" != "1"
 %{_libdir}/libCOREGL.so*
+%endif
 %{_libdir}/libEGL.so*
 %{_libdir}/libGLESv1_CM.so*
 %{_libdir}/libGLESv2.so*
