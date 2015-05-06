@@ -1,4 +1,4 @@
-%define BYPASS_COREGL 1
+%define BYPASS_COREGL 0
 
 Name:			coregl
 Summary:		CoreGL FastPath Optimization 
