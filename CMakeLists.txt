@@ -77,8 +77,8 @@ SET(GLES2_SRCS_common
 #SET(HEADERS_common src/coregl_export.h src/coregl_fastpath.h src/coregl_fastpath_state.h src/coregl.h src/coregl_internal.h src/coregl_thread_pthread.h src/coregl_wrappath.h)
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(pkg_common REQUIRED x11)
 pkg_check_modules(dlog REQUIRED dlog)
+pkg_check_modules(libpng REQUIRED libpng)
 
 INCLUDE_DIRECTORIES(${dlog_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(${dlog_INCLUDEDIR})

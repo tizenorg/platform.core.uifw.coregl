@@ -1,7 +1,7 @@
 %define BYPASS_COREGL 0
 
 Name:			coregl
-Summary:		CoreGL FastPath Optimization 
+Summary:		CoreGL FastPath Optimization
 Version:		0.1.10
 Release:		02
 ExclusiveArch:	%arm
@@ -10,12 +10,9 @@ License:		Apache 2.0
 URL:			http://www.tizen.org
 Source:			%{name}-%{version}.tar.gz
 
-%if "%{BYPASS_COREGL}" != "1"
-BuildRequires:  pkgconfig(xfixes)
-BuildRequires:  pkgconfig(x11)
 BuildRequires:  cmake
-%endif
 BuildRequires:  pkgconfig(dlog)
+BuildRequires:  pkgconfig(libpng)
 
 %description
 CoreGL provides the following capabilities:

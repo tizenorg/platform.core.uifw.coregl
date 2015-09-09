@@ -1128,7 +1128,7 @@ finish:
 	return;
 }
 
-#include "png.h"
+#include <png.h>
 
 void *png_lib_handle = NULL;
 
@@ -1187,7 +1187,7 @@ _dump_surface(int force_output, int type, const char *position, Surface_Data *sd
 
 	if (!png_lib_handle)
 	{
-		png_lib_handle = dlopen("libpng.so.3", RTLD_NOW);
+		png_lib_handle = dlopen("libpng16.so.16", RTLD_NOW);
 
 		dl_png_create_write_struct = dlsym(png_lib_handle, "png_create_write_struct");
 		dl_png_destroy_write_struct = dlsym(png_lib_handle, "png_destroy_write_struct");

@@ -345,6 +345,8 @@ void
 tracepath_glBindTexture(GLenum target, GLuint texture)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
+
+        _COREGL_TRACE_SURFACE(0, 1, "GLBINDTEXTURE");
 	_orig_tracepath_glBindTexture(target, texture);
 
 	goto finish;
@@ -3896,6 +3898,7 @@ void
 tracepath_glEGLImageTargetTexture2DOES(GLenum target, GLeglImageOES image)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_COREGL_TRACE_SURFACE(0, 1, "TEXTURE2DOES");
 	_orig_tracepath_glEGLImageTargetTexture2DOES(target, image);
 	goto finish;
 
