@@ -4,7 +4,7 @@ Name:			coregl
 Summary:		CoreGL FastPath Optimization
 Version:		0.1.10
 Release:		02
-ExclusiveArch:	%arm
+ExclusiveArch:	%arm aarch64
 Group:			Graphics
 License:		Apache 2.0
 URL:			http://www.tizen.org

@@ -111,7 +111,7 @@ typedef void *EGLNativePixmapType;
 #else
 /* 20140708-sw815.ha: enable compilation even for unsupported platforms */
 /* #error "Platform not recognized" */
-typedef int   EGLNativeDisplayType;
+typedef void *EGLNativeDisplayType;
 typedef void *EGLNativeWindowType;
 typedef void *EGLNativePixmapType;
 
