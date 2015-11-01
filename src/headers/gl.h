@@ -767,6 +767,13 @@ typedef struct __GLsync *GLsync;
 #define GL_NUM_SAMPLE_COUNTS                             0x9380
 #define GL_TEXTURE_IMMUTABLE_LEVELS                      0x82DF
 
+/* GLES 3.1 */
+#define GL_COMPUTE_SHADER                 0x91B9
+#define GL_ACTIVE_PROGRAM                 0x8259
+#define GL_PROGRAM_PIPELINE_BINDING       0x825A
+#define GL_MAX_COMPUTE_WORK_GROUP_COUNT   0x91BE
+
+
 //---------------------------//
 // GLES extension defines
 /* GL_OES_EGL_image */

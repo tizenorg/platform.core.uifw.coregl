@@ -487,6 +487,73 @@ fastpath_apply_overrides_gl(int enable)
 			COREGL_OVERRIDE(fastpath_, glProgramParameteri);
 		} // End of GLES 3.0
 
+		if(driver_gl_version >= COREGL_GLAPI_31)
+		{
+			COREGL_OVERRIDE(fastpath_, glCreateShaderProgramv);
+			COREGL_OVERRIDE(fastpath_, glGenProgramPipelines);
+			COREGL_OVERRIDE(fastpath_, glGetProgramPipelineiv);
+			COREGL_OVERRIDE(fastpath_, glBindProgramPipeline);
+			COREGL_OVERRIDE(fastpath_, glDeleteProgramPipelines);
+			COREGL_OVERRIDE(fastpath_, glIsProgramPipeline);
+			COREGL_OVERRIDE(fastpath_, glValidateProgramPipeline);
+			COREGL_OVERRIDE(fastpath_, glGetProgramPipelineInfoLog);
+			COREGL_OVERRIDE(fastpath_, glDispatchCompute);
+			COREGL_OVERRIDE(fastpath_, glDispatchComputeIndirect);
+			COREGL_OVERRIDE(fastpath_, glGetProgramInterfaceiv);
+			COREGL_OVERRIDE(fastpath_, glGetProgramResourceIndex);
+			COREGL_OVERRIDE(fastpath_, glGetProgramResourceName);
+			COREGL_OVERRIDE(fastpath_, glGetProgramResourceiv);
+			COREGL_OVERRIDE(fastpath_, glGetProgramResourceLocation);
+			COREGL_OVERRIDE(fastpath_, glUseProgramStages);
+			COREGL_OVERRIDE(fastpath_, glActiveShaderProgram);
+			COREGL_OVERRIDE(fastpath_, glProgramUniform1iv);
+			COREGL_OVERRIDE(fastpath_, glProgramUniform2iv);
+			COREGL_OVERRIDE(fastpath_, glProgramUniform3iv);
+			COREGL_OVERRIDE(fastpath_, glProgramUniform4iv);
+			COREGL_OVERRIDE(fastpath_, glProgramUniform1fv);
+			COREGL_OVERRIDE(fastpath_, glProgramUniform2fv);
+			COREGL_OVERRIDE(fastpath_, glProgramUniform3fv);
+			COREGL_OVERRIDE(fastpath_, glProgramUniform4fv);
+			COREGL_OVERRIDE(fastpath_, glProgramUniformMatrix2fv);
+			COREGL_OVERRIDE(fastpath_, glProgramUniformMatrix3fv);
+			COREGL_OVERRIDE(fastpath_, glProgramUniformMatrix4fv);
+			COREGL_OVERRIDE(fastpath_, glProgramUniform1i);
+			COREGL_OVERRIDE(fastpath_, glProgramUniform2i);
+			COREGL_OVERRIDE(fastpath_, glProgramUniform3i);
+			COREGL_OVERRIDE(fastpath_, glProgramUniform4i);
+			COREGL_OVERRIDE(fastpath_, glProgramUniform1f);
+			COREGL_OVERRIDE(fastpath_, glProgramUniform2f);
+			COREGL_OVERRIDE(fastpath_, glProgramUniform3f);
+			COREGL_OVERRIDE(fastpath_, glProgramUniform4f);
+			COREGL_OVERRIDE(fastpath_, glProgramUniform1uiv);
+			COREGL_OVERRIDE(fastpath_, glProgramUniform2uiv);
+			COREGL_OVERRIDE(fastpath_, glProgramUniform3uiv);
+			COREGL_OVERRIDE(fastpath_, glProgramUniform4uiv);
+			COREGL_OVERRIDE(fastpath_, glProgramUniform1ui);
+			COREGL_OVERRIDE(fastpath_, glProgramUniform2ui);
+			COREGL_OVERRIDE(fastpath_, glProgramUniform3ui);
+			COREGL_OVERRIDE(fastpath_, glProgramUniform4ui);
+			COREGL_OVERRIDE(fastpath_, glProgramUniformMatrix2x3fv);
+			COREGL_OVERRIDE(fastpath_, glProgramUniformMatrix3x2fv);
+			COREGL_OVERRIDE(fastpath_, glProgramUniformMatrix4x2fv);
+			COREGL_OVERRIDE(fastpath_, glProgramUniformMatrix2x4fv);
+			COREGL_OVERRIDE(fastpath_, glProgramUniformMatrix3x4fv);
+			COREGL_OVERRIDE(fastpath_, glProgramUniformMatrix4x3fv);
+			COREGL_OVERRIDE(fastpath_, glBindImageTexture);
+			COREGL_OVERRIDE(fastpath_, glGetBooleani_v);
+			COREGL_OVERRIDE(fastpath_, glMemoryBarrier);
+			COREGL_OVERRIDE(fastpath_, glMemoryBarrierByRegion);
+			COREGL_OVERRIDE(fastpath_, glTexStorage2DMultisample);
+			COREGL_OVERRIDE(fastpath_, glGetMultisamplefv);
+			COREGL_OVERRIDE(fastpath_, glSampleMaski);
+			COREGL_OVERRIDE(fastpath_, glGetTexLevelParameteriv);
+			COREGL_OVERRIDE(fastpath_, glGetTexLevelParameterfv);
+			COREGL_OVERRIDE(fastpath_, glBindVertexBuffer);
+			COREGL_OVERRIDE(fastpath_, glVertexAttribFormat);
+			COREGL_OVERRIDE(fastpath_, glVertexAttribIFormat);
+			COREGL_OVERRIDE(fastpath_, glVertexAttribBinding);
+			COREGL_OVERRIDE(fastpath_, glVertexBindingDivisor);
+		}
 	}
 	else
 	{
@@ -524,6 +591,9 @@ _lock_gl_object_hash(GL_Object_State *ostate, GL_Object_Type type)
 			return &ostate->shared->sampler;
 		case GL_OBJECT_TYPE_TRANSFORMFEEDBACK:
 			return &ostate->transformfeedback;
+		case GL_OBJECT_TYPE_PROGRAMPIPELINE:
+			AST(mutex_lock(&ostate->shared->access_mutex) == 1);
+			return &ostate->shared->programpipeline;
 		default:
 			return NULL;
 	}
@@ -539,6 +609,7 @@ _unlock_gl_object_hash(GL_Object_State *ostate, GL_Object_Type type)
 		case GL_OBJECT_TYPE_RENDERBUFFER:
 		case GL_OBJECT_TYPE_PROGRAM:
 		case GL_OBJECT_TYPE_SAMPLER:
+		case GL_OBJECT_TYPE_PROGRAMPIPELINE:
 			AST(mutex_unlock(&ostate->shared->access_mutex) == 1);
 		default:
 			break;
@@ -573,6 +644,9 @@ _lock_gl_object_hash_real(GL_Object_State *ostate, GL_Object_Type type)
 			return &ostate->shared->sampler_real;
 		case GL_OBJECT_TYPE_TRANSFORMFEEDBACK:
 			return &ostate->transformfeedback_real;
+		case GL_OBJECT_TYPE_PROGRAMPIPELINE:
+			AST(mutex_lock(&ostate->shared->real_access_mutex) == 1);
+			return &ostate->shared->programpipeline_real;
 		default:
 			return NULL;
 	}
@@ -588,6 +662,7 @@ _unlock_gl_object_hash_real(GL_Object_State *ostate, GL_Object_Type type)
 		case GL_OBJECT_TYPE_RENDERBUFFER:
 		case GL_OBJECT_TYPE_PROGRAM:
 		case GL_OBJECT_TYPE_SAMPLER:
+		case GL_OBJECT_TYPE_PROGRAMPIPELINE:
 			AST(mutex_unlock(&ostate->shared->real_access_mutex) == 1);
 			break;
 		default:
@@ -772,12 +847,14 @@ fastpath_sostate_init(GL_Shared_Object_State *sostate)
 	HASH_INIT(sostate->renderbuffer);
 	HASH_INIT(sostate->program);
 	HASH_INIT(sostate->sampler);
+	HASH_INIT(sostate->programpipeline);
 
 	HASH_INIT(sostate->texture_real);
 	HASH_INIT(sostate->buffer_real);
 	HASH_INIT(sostate->renderbuffer_real);
 	HASH_INIT(sostate->program_real);
 	HASH_INIT(sostate->sampler_real);
+	HASH_INIT(sostate->programpipeline_real);
 }
 
 #undef HASH_INIT
@@ -890,12 +967,15 @@ fastpath_sostate_deinit(GL_Shared_Object_State *sostate)
 	HASH_DEINIT(sostate->renderbuffer, 1);
 	HASH_DEINIT(sostate->program, 1);
 	HASH_DEINIT(sostate->sampler, 1);
+	HASH_DEINIT(sostate->programpipeline, 1);
 
 	HASH_DEINIT(sostate->texture_real, 0);
 	HASH_DEINIT(sostate->buffer_real, 0);
 	HASH_DEINIT(sostate->renderbuffer_real, 0);
 	HASH_DEINIT(sostate->program_real, 0);
 	HASH_DEINIT(sostate->sampler_real, 0);
+
+	HASH_DEINIT(sostate->programpipeline_real, 0);
 }
 
 #undef HASH_DEINIT
@@ -1610,6 +1690,10 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 		}
 		STATE_COMPARE(gl_element_array_buffer_binding[0])
 		{
+			STATE_COMPARE(gl_vertex_array_binding[0])
+			{
+				CHECK_GL_ERROR(_orig_fastpath_glBindVertexArray(newctx->gl_vertex_array_binding[0]))
+			}
 			CHECK_GL_ERROR(_orig_fastpath_glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, newctx->gl_element_array_buffer_binding[0]))
 		}
 
@@ -2136,10 +2220,6 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 			}
 
 			CHECK_GL_ERROR(_orig_fastpath_glDrawBuffers(drawBuffSize, newctx->gl_draw_buffers))
-		}
-		STATE_COMPARE(gl_vertex_array_binding[0])
-		{
-			CHECK_GL_ERROR(_orig_fastpath_glBindVertexArray(newctx->gl_vertex_array_binding[0]))
 		}
 
 		if (oldctx->gl_transform_feedback_active[0] == GL_TRUE && oldctx->gl_transform_feedback_paused[0] == GL_FALSE)

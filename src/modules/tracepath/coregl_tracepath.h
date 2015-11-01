@@ -127,9 +127,8 @@ extern void                deinit_modules_tstate_tracepath(GLThreadState *tstate
 
 
 extern void                tracepath_apply_overrides();
-extern void                tracepath_apply_overrides_egl();
-extern void                tracepath_apply_overrides_gl();
-
+extern void                tracepath_apply_overrides_egl(int enable);
+extern void                tracepath_apply_overrides_gl(int enable);
 extern void                tracepath_dump_context_states(int force_output);
 
 extern void               *tracepath_api_trace_begin(const char *name, void *hint, int trace_total_time);

@@ -1536,3 +1536,405 @@ glGetInternalformativ(GLenum target, GLenum internalformat, GLenum pname, GLsize
 	ovr_glGetInternalformativ(target, internalformat, pname, bufSize, params);
 }
 
+/* GLES3.1 API */
+GLuint
+glCreateShaderProgramv(GLenum type,  GLsizei count,   const GLchar *const*strings)
+{
+	return ovr_glCreateShaderProgramv(type, count, strings);
+}
+
+void
+glGenProgramPipelines( GLsizei n,  GLuint *pipelines)
+{
+	ovr_glGenProgramPipelines(n, pipelines);
+}
+
+void
+glBindProgramPipeline( GLuint pipeline)
+{
+	ovr_glBindProgramPipeline(pipeline);
+}
+
+void
+glGetProgramPipelineiv(GLuint pipeline, GLenum pname, GLint *params)
+{
+	ovr_glGetProgramPipelineiv(pipeline, pname, params);
+}
+
+void
+glDeleteProgramPipelines(GLsizei n, GLuint const *pipelines)
+{
+	ovr_glDeleteProgramPipelines(n, pipelines);
+}
+
+GLboolean
+glIsProgramPipeline( GLuint pipeline)
+{
+	return ovr_glIsProgramPipeline(pipeline);
+}
+
+void
+glValidateProgramPipeline(GLuint pipeline)
+{
+	ovr_glValidateProgramPipeline(pipeline);
+}
+
+void
+glGetProgramPipelineInfoLog(GLuint pipeline, GLsizei bufSize, GLsizei *length, GLchar *infoLog)
+{
+	ovr_glGetProgramPipelineInfoLog(pipeline, bufSize, length, infoLog);
+}
+
+void
+glDispatchCompute(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z)
+{
+	ovr_glDispatchCompute(num_groups_x, num_groups_y, num_groups_z);
+}
+
+void
+glDispatchComputeIndirect( GLintptr indirect)
+{
+	ovr_glDispatchComputeIndirect(indirect);
+}
+
+void
+glDrawArraysIndirect(GLenum mode, GLvoid const *indirect)
+{
+	ovr_glDrawArraysIndirect(mode, indirect);
+}
+
+void
+glDrawElementsIndirect(GLenum mode, GLenum type, GLvoid const *indirect)
+{
+	ovr_glDrawElementsIndirect(mode, type, indirect);
+}
+
+void
+glFramebufferParameteri(GLenum target, GLenum pname, GLint param)
+{
+	ovr_glFramebufferParameteri(target, pname, param);
+}
+
+void
+glGetFramebufferParameteriv( GLenum target,  GLenum pname,  GLint * params)
+{
+	ovr_glGetFramebufferParameteriv(target,  pname,  params);
+}
+
+void
+glGetProgramInterfaceiv(GLuint program,  GLenum programInterface,  GLenum pname,  GLint * params)
+{
+	ovr_glGetProgramInterfaceiv(program, programInterface, pname, params);
+}
+
+GLuint
+glGetProgramResourceIndex( GLuint program,  GLenum programInterface,  const char * name)
+{
+	return ovr_glGetProgramResourceIndex(program,  programInterface,  name);
+}
+
+void
+glGetProgramResourceName(GLuint program, GLenum programInterface, GLuint index, GLsizei bufSize, GLsizei *length, GLchar *name)
+{
+	ovr_glGetProgramResourceName(program, programInterface, index, bufSize, length, name);
+}
+
+void
+glGetProgramResourceiv( GLuint program,  GLenum programInterface,  GLuint index,  GLsizei propCount,  const GLenum * props,  GLsizei bufSize,  GLsizei * length,  GLint * params)
+{
+	ovr_glGetProgramResourceiv(program,  programInterface,  index,  propCount,  props,  bufSize,  length,  params);
+}
+
+GLint
+glGetProgramResourceLocation(GLuint program, GLenum programInterface, GLchar const *name)
+{
+	return ovr_glGetProgramResourceLocation(program, programInterface, name);
+}
+
+void
+glUseProgramStages(GLuint pipeline, GLbitfield stages, GLuint program)
+{
+	ovr_glUseProgramStages(pipeline, stages, program);
+}
+
+void
+glProgramUniform1iv(GLuint program, GLint location, GLsizei count, const GLint *value)
+{
+	ovr_glProgramUniform1iv(program, location, count, value);
+}
+
+void
+glProgramUniform2iv(GLuint program, GLint location, GLsizei count, const GLint *value)
+{
+	ovr_glProgramUniform2iv(program, location, count, value);
+}
+
+void
+glProgramUniform3iv(GLuint program, GLint location, GLsizei count, const GLint *value)
+{
+	ovr_glProgramUniform3iv(program, location, count, value);
+}
+
+void
+glProgramUniform4iv(GLuint program, GLint location, GLsizei count, const GLint *value)
+{
+	ovr_glProgramUniform4iv(program, location, count, value);
+}
+
+void
+glProgramUniform1fv(GLuint program, GLint location, GLsizei count, const GLfloat *value)
+{
+	ovr_glProgramUniform1fv(program, location, count, value);
+}
+
+void
+glProgramUniform2fv(GLuint program, GLint location, GLsizei count, const GLfloat *value)
+{
+	ovr_glProgramUniform2fv(program, location, count, value);
+}
+
+void
+glProgramUniform3fv(GLuint program, GLint location, GLsizei count, const GLfloat *value)
+{
+	ovr_glProgramUniform3fv(program, location, count, value);
+}
+
+void
+glProgramUniform4fv(GLuint program, GLint location, GLsizei count, const GLfloat *value)
+{
+	ovr_glProgramUniform4fv(program, location, count, value);
+}
+
+void
+glProgramUniformMatrix2fv(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+{
+	ovr_glProgramUniformMatrix2fv(program, location, count, transpose, value);
+}
+
+void
+glProgramUniformMatrix3fv(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+{
+	ovr_glProgramUniformMatrix3fv(program, location, count, transpose, value);
+}
+
+void
+glProgramUniformMatrix4fv(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+{
+	ovr_glProgramUniformMatrix4fv(program, location, count, transpose, value);
+}
+
+void
+glProgramUniform1i(GLuint program, GLint location, GLint x)
+{
+	ovr_glProgramUniform1i(program, location, x);
+}
+
+void
+glProgramUniform2i(GLuint program, GLint location, GLint x, GLint y)
+{
+	ovr_glProgramUniform2i(program, location, x, y);
+}
+
+void
+glProgramUniform3i(GLuint program, GLint location, GLint x, GLint y, GLint z)
+{
+	ovr_glProgramUniform3i(program, location, x, y, z);
+}
+
+void
+glProgramUniform4i(GLuint program, GLint location, GLint x, GLint y, GLint z, GLint w)
+{
+	ovr_glProgramUniform4i(program, location, x, y, z, w);
+}
+
+void
+glProgramUniform1f(GLuint program, GLint location, GLfloat x)
+{
+	ovr_glProgramUniform1f(program, location, x);
+}
+
+void
+glProgramUniform2f(GLuint program, GLint location, GLfloat x, GLfloat y)
+{
+	ovr_glProgramUniform2f(program, location, x, y);
+}
+
+void
+glProgramUniform3f(GLuint program, GLint location, GLfloat x, GLfloat y, GLfloat z)
+{
+	ovr_glProgramUniform3f(program, location, x, y, z);
+}
+
+void
+glProgramUniform4f(GLuint program, GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+{
+	ovr_glProgramUniform4f(program, location, x, y, z, w);
+}
+
+void
+glProgramUniform1ui(GLuint program, GLint location, GLuint x)
+{
+	ovr_glProgramUniform1ui(program, location, x);
+}
+
+void
+glProgramUniform2ui(GLuint program, GLint location, GLuint x, GLuint y)
+{
+	ovr_glProgramUniform2ui(program, location, x, y);
+}
+
+void
+glProgramUniform3ui(GLuint program, GLint location, GLuint x, GLuint y, GLuint z)
+{
+	ovr_glProgramUniform3ui(program, location, x, y, z);
+}
+
+void
+glProgramUniform4ui(GLuint program, GLint location, GLuint x, GLuint y, GLuint z, GLuint w)
+{
+	ovr_glProgramUniform4ui(program, location, x, y, z, w);
+}
+
+void
+glProgramUniform1uiv(GLuint program, GLint location, GLsizei count, const GLuint *value)
+{
+	ovr_glProgramUniform1uiv(program, location, count, value);
+}
+
+void
+glProgramUniform2uiv(GLuint program, GLint location, GLsizei count, const GLuint *value)
+{
+	ovr_glProgramUniform2uiv(program, location, count, value);
+}
+
+void
+glProgramUniform3uiv(GLuint program, GLint location, GLsizei count, const GLuint *value)
+{
+	ovr_glProgramUniform3uiv(program, location, count, value);
+}
+
+void
+glProgramUniform4uiv(GLuint program, GLint location, GLsizei count, const GLuint *value)
+{
+	ovr_glProgramUniform4uiv(program, location, count, value);
+}
+
+void
+glProgramUniformMatrix2x3fv(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+{
+	ovr_glProgramUniformMatrix2x3fv(program, location, count, transpose, value);
+}
+
+void
+glProgramUniformMatrix3x2fv(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+{
+	ovr_glProgramUniformMatrix3x2fv(program, location, count, transpose, value);
+}
+
+void
+glProgramUniformMatrix4x3fv(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+{
+	ovr_glProgramUniformMatrix4x3fv(program, location, count, transpose, value);
+}
+
+void
+glProgramUniformMatrix3x4fv(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+{
+	ovr_glProgramUniformMatrix3x4fv(program, location, count, transpose, value);
+}
+
+void
+glProgramUniformMatrix2x4fv(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+{
+	ovr_glProgramUniformMatrix2x4fv(program, location, count, transpose, value);
+}
+
+void
+glProgramUniformMatrix4x2fv(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+{
+	ovr_glProgramUniformMatrix4x2fv(program, location, count, transpose, value);
+}
+
+void
+glBindImageTexture (GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format)
+{
+	ovr_glBindImageTexture (unit, texture, level, layered, layer, access, format);
+}
+
+void
+glGetBooleani_v (GLenum target, GLuint index, GLboolean *data)
+{
+	ovr_glGetBooleani_v (target, index, data);
+}
+
+void
+glMemoryBarrier (GLbitfield barriers)
+{
+	ovr_glMemoryBarrier (barriers);
+}
+
+void
+glMemoryBarrierByRegion (GLbitfield barriers)
+{
+	ovr_glMemoryBarrierByRegion (barriers);
+}
+
+void
+glTexStorage2DMultisample (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height, GLboolean fixedsamplelocations)
+{
+	ovr_glTexStorage2DMultisample (target, samples, internalformat, width, height, fixedsamplelocations);
+}
+
+void
+glGetMultisamplefv (GLenum pname, GLuint index, GLfloat *val)
+{
+	ovr_glGetMultisamplefv (pname, index, val);
+}
+
+void
+glSampleMaski (GLuint maskNumber, GLbitfield mask)
+{
+	ovr_glSampleMaski (maskNumber, mask);
+}
+
+void
+glGetTexLevelParameteriv (GLenum target, GLint level, GLenum pname, GLint *params)
+{
+	ovr_glGetTexLevelParameteriv (target, level, pname, params);
+}
+
+void
+glGetTexLevelParameterfv (GLenum target, GLint level, GLenum pname, GLfloat *params)
+{
+	ovr_glGetTexLevelParameterfv (target, level, pname, params);
+}
+
+void
+glBindVertexBuffer (GLuint bindingindex, GLuint buffer, GLintptr offset, GLsizei stride)
+{
+	ovr_glBindVertexBuffer (bindingindex, buffer, offset, stride);
+}
+
+void
+glVertexAttribFormat (GLuint attribindex, GLint size, GLenum type, GLboolean normalized, GLuint relativeoffset)
+{
+	ovr_glVertexAttribFormat (attribindex, size, type, normalized, relativeoffset);
+}
+
+void
+glVertexAttribIFormat (GLuint attribindex, GLint size, GLenum type, GLuint relativeoffset)
+{
+	ovr_glVertexAttribIFormat (attribindex, size, type, relativeoffset);
+}
+
+void
+glVertexAttribBinding (GLuint attribindex, GLuint bindingindex)
+{
+	ovr_glVertexAttribBinding (attribindex, bindingindex);
+}
+
+void
+glVertexBindingDivisor (GLuint bindingindex, GLuint divisor)
+{
+	ovr_glVertexBindingDivisor (bindingindex, divisor);
+}

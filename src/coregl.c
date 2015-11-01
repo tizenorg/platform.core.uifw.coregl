@@ -181,11 +181,18 @@ _gl_lib_init(void)
 	}
 
 	// test for a GLES 3.0 symbol
-	if (dlsym(gl_lib_handle, "glReadBuffer"))
+	if (dlsym(gl_lib_handle, "glBindProgramPipeline"))
+	{
+		COREGL_LOG("[CoreGL] Driver GL version 3.1 \n");
+		driver_gl_version = COREGL_GLAPI_31;
+	}
+	else if (dlsym(gl_lib_handle, "glReadBuffer"))
 	{
 		COREGL_LOG("[CoreGL] Driver GL version 3.0 \n");
 		driver_gl_version = COREGL_GLAPI_3;
-	}else {
+	}
+	else
+	{
 		COREGL_LOG("[CoreGL] Driver GL version 2.0 \n");
 	}
 

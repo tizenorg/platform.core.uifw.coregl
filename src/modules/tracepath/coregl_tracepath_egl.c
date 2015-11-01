@@ -1085,3 +1085,48 @@ finish:
 	return ret;
 }
 
+EGLBoolean
+tracepath_eglBindWaylandDisplayWL(EGLDisplay dpy, void* display)
+{
+	EGLBoolean ret = EGL_FALSE;
+
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	ret = _orig_tracepath_eglBindWaylandDisplayWL(dpy, display);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+	return ret;
+}
+
+EGLBoolean
+tracepath_eglUnbindWaylandDisplayWL(EGLDisplay dpy, void* display)
+{
+	EGLBoolean ret = EGL_FALSE;
+
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	ret = _orig_tracepath_eglUnbindWaylandDisplayWL(dpy, display);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+	return ret;
+}
+
+
+EGLBoolean
+tracepath_eglQueryWaylandBufferWL(EGLDisplay dpy, void* buffer, EGLint attribute, EGLint *value)
+{
+	EGLBoolean ret = EGL_FALSE;
+
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	ret = _orig_tracepath_eglQueryWaylandBufferWL(dpy, buffer, attribute, value);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+	return ret;
+}

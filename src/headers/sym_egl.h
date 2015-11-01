@@ -79,6 +79,12 @@ _COREGL_EXT_SYMBOL(EGLBoolean, eglSwapBuffersWithDamageEXT, (EGLDisplay dpy, EGL
 
 _COREGL_EXT_SYMBOL(EGLBoolean, eglSwapBuffersRegionEXT, (EGLDisplay dpy, EGLSurface surface, EGLint numRects, const EGLint *rects))
 
+_COREGL_EXT_SYMBOL(EGLBoolean, eglBindWaylandDisplayWL, (EGLDisplay dpy, void* display))
+
+_COREGL_EXT_SYMBOL(EGLBoolean, eglUnbindWaylandDisplayWL, (EGLDisplay dpy, void* display))
+
+_COREGL_EXT_SYMBOL(EGLBoolean, eglQueryWaylandBufferWL, (EGLDisplay dpy, void* buffer, EGLint attribute, EGLint *value))
+
 /* Fastpath Verified extensions */
 //_COREGL_EXT_SYMBOL_FASTPATH_PASS(eglSwapBuffersRegionSEC)
 _COREGL_EXT_SYMBOL_FASTPATH_PASS(eglCreateSyncKHR)

@@ -70,6 +70,7 @@ mkdir -p %{buildroot}%{_includedir}
 cp -a include_KHR/EGL				%{buildroot}%{_includedir}
 cp -a include_KHR/GLES				%{buildroot}%{_includedir}
 cp -a include_KHR/GLES2				%{buildroot}%{_includedir}
+cp -a include_KHR/GLES3				%{buildroot}%{_includedir}
 cp -a include_KHR/KHR				%{buildroot}%{_includedir}
 cp -a pkgconfig/*.pc				%{buildroot}%{_libdir}/pkgconfig/
 
@@ -95,5 +96,6 @@ rm -rf %{buildroot}
 %{_includedir}/EGL/*
 %{_includedir}/GLES/*
 %{_includedir}/GLES2/*
+%{_includedir}/GLES3/*
 %{_includedir}/KHR/*
 %{_libdir}/pkgconfig/*.pc

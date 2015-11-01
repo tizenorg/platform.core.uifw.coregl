@@ -18,7 +18,7 @@
 #define SET_N(n, inc, stmt) \
    { \
       int i; \
-      for (i = 0; i < n; i++) \
+      for (i = 0; i < (int)n; i++) \
       { \
          stmt \
          value += inc; \
@@ -198,7 +198,7 @@ GLUE_STATE(GLint, gl_scissor_box, 4, 4,
 GLUE_STATE(GLuint, gl_vertex_array_buf_id, INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, SET_1(0)),
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, _sym_glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, (GLint *)value);))
-GLUE_STATE(GLboolean, gl_vertex_array_enabled, INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
+GLUE_STATE(GLint, gl_vertex_array_enabled, INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, SET_1(GL_FALSE)),
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, _sym_glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_ENABLED, (GLint *)value);))
 GLUE_STATE(GLint, gl_vertex_array_size, INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
@@ -210,10 +210,10 @@ GLUE_STATE(GLsizei, gl_vertex_array_stride, INITIAL_CTX->gl_num_vertex_attribs[0
 GLUE_STATE(GLenum, gl_vertex_array_type, INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, SET_1(GL_FLOAT)),
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, _sym_glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_TYPE, (GLint *)value);))
-GLUE_STATE(GLboolean, gl_vertex_array_normalized, INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
+GLUE_STATE(GLint, gl_vertex_array_normalized, INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, SET_1(GL_FALSE)),
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, _sym_glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, (GLint *)value);))
-GLUE_STATE(GLboolean, gl_vertex_array_integer, INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
+GLUE_STATE(GLint, gl_vertex_array_integer, INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, SET_1(GL_FALSE)),
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 1, _sym_glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_INTEGER, (GLint *)value);))
 GLUE_STATE(GLuint, gl_vertex_array_divisor, INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
@@ -229,10 +229,10 @@ GLUE_STATE(GLfloat, gl_vertex_attrib_value, 4 * INITIAL_CTX->gl_num_vertex_attri
 _COREGL_START_API(COREGL_GLAPI_3)
 GLUE_STATE(GLint, gl_vertex_attrib_value_integer, 4 * INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 4, SET_4(0, 0, 0, GET_INT_FROM_FLOAT(1.0f))),
-           SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 4, _sym_glGetVertexAttribIiv(i, GL_CURRENT_VERTEX_ATTRIB, (GLint *)value);))
+           SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 4, SET_4(0, 0, 0, GET_INT_FROM_FLOAT(1.0f))))
 GLUE_STATE(GLuint, gl_vertex_attrib_value_unsigned_integer, 4 * INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
            SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 4, SET_4(0, 0, 0, GET_UINT_FROM_FLOAT(1.0f))),
-           SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 4, _sym_glGetVertexAttribIuiv(i, GL_CURRENT_VERTEX_ATTRIB, (GLuint *)value);))
+           SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 4, SET_4(0, 0, 0, GET_INT_FROM_FLOAT(1.0f))))
 
 // MISC FLAG 3
 GLUE_STATE(GLenum, gl_read_buffer, 1, 1, SET_1(GL_BACK), _sym_glGetIntegerv(GL_READ_BUFFER, (GLint *)value);)
@@ -240,6 +240,7 @@ GLUE_STATE(GLenum, gl_draw_buffers, INITIAL_CTX->gl_num_draw_buffers[0], 16,
            SET_1(GL_BACK); value++; SET_N(INITIAL_CTX->gl_num_draw_buffers[0] - 1, 1, SET_1(GL_NONE)),
            _state_get_draw_buffers(value);)
 GLUE_STATE(GLuint, gl_vertex_array_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_VERTEX_ARRAY_BINDING, (GLint *)value);)
+GLUE_STATE(GLuint, gl_program_pipeline_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_PROGRAM_PIPELINE_BINDING, (GLint *)value);)
 GLUE_STATE(GLuint, gl_transform_feedback_binding, 1, 1, SET_1(0), _sym_glGetIntegerv(GL_TRANSFORM_FEEDBACK_BINDING, (GLint *)value);)
 GLUE_STATE(GLboolean, gl_transform_feedback_active, 1, 1, SET_1(0), _sym_glGetBooleanv(GL_TRANSFORM_FEEDBACK_ACTIVE, (GLboolean *)value);)
 GLUE_STATE(GLboolean, gl_transform_feedback_paused, 1, 1, SET_1(0), _sym_glGetBooleanv(GL_TRANSFORM_FEEDBACK_PAUSED, (GLboolean *)value);)

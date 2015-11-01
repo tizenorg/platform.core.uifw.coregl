@@ -127,6 +127,7 @@ typedef struct
 #define GL_OBJECT_TYPE_VERTEXARRAY         0x6000000
 #define GL_OBJECT_TYPE_SAMPLER             0x7000000
 #define GL_OBJECT_TYPE_TRANSFORMFEEDBACK   0x8000000
+#define GL_OBJECT_TYPE_PROGRAMPIPELINE     0x9000000
 #define GL_OBJECT_TYPE_UNKNOWN             0xFFFFFFF
 
 typedef struct _GL_Object
@@ -167,12 +168,15 @@ typedef struct _GL_Shared_Object_State
 	GL_Object_Hash_Base      renderbuffer;
 	GL_Object_Hash_Base      program;
 	GL_Object_Hash_Base      sampler;
+	GL_Object_Hash_Base      programpipeline;
 
 	GL_Object_Hash_Base      texture_real;
 	GL_Object_Hash_Base      buffer_real;
 	GL_Object_Hash_Base      renderbuffer_real;
 	GL_Object_Hash_Base      program_real;
 	GL_Object_Hash_Base      sampler_real;
+
+	GL_Object_Hash_Base      programpipeline_real;
 } GL_Shared_Object_State;
 
 typedef struct _GL_Object_State
@@ -331,6 +335,8 @@ typedef struct _GLGlueContext
 #define _MISC_FLAG3_BIT_gl_vertex_array_binding              FLAG_BIT_2
 #define _MISC_FLAG3_BIT_gl_transform_feedback_binding        FLAG_BIT_3
 #define _MISC_FLAG3_BIT_gl_transform_feedback                FLAG_BIT_4
+#define _MISC_FLAG3_BIT_gl_draw_range_elements               FLAG_BIT_5
+#define _MISC_FLAG3_BIT_gl_program_pipeline_binding          FLAG_BIT_6
 
 	unsigned char           _vattrib_flag;
 #define _VATTRIB_FLAG_BIT_gl_vertex_attrib_value             FLAG_BIT_0
