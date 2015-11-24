@@ -1,0 +1,11 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=/usr/lib
+includedir=/usr/include
+
+Name: egl
+Description: CoreGL EGL library
+Version: 0.1
+Requires:
+Libs: -L${libdir} -lEGL
+Cflags: -I${includedir}

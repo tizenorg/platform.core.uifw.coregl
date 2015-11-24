@@ -4,7 +4,7 @@ libdir=${exec_prefix}/lib
 includedir=${prefix}/include
 
 Name: glesv1_cm
-Description: OpenGL-ES 1.1 Library for ARM Mali 400MP
+Description: CoreGL OpenGL-ES 1.1 Library
 Version: 0.1
 Requires:
 Libs: -L${libdir} -lGLESv1_CM -lEGL
