@@ -1184,6 +1184,7 @@ _dump_surface(int force_output, int type, const char *position, Surface_Data *sd
 	png_struct *png = NULL;
 	png_info *info = NULL;
 	png_byte **rows = NULL;
+	GLenum ret_value = _COREGL_INT_INIT_VALUE;
 
 	if (!png_lib_handle)
 	{
@@ -1308,7 +1309,11 @@ _dump_surface(int force_output, int type, const char *position, Surface_Data *sd
 			_orig_tracepath_glGetIntegerv(GL_FRAMEBUFFER_BINDING, &oldfb);
 			_orig_tracepath_glBindFramebuffer(GL_FRAMEBUFFER, sdata->fbo);
 
-			if (_orig_tracepath_glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE)
+			if(driver_gl_version >=2)
+				ret_value = _orig_tracepath_glCheckFramebufferStatus(GL_FRAMEBUFFER);
+			else
+				ret_value = _orig_tracepath_glCheckFramebufferStatusOES(GL_FRAMEBUFFER);
+			if (ret_value == GL_FRAMEBUFFER_COMPLETE)
 			{
 				_orig_tracepath_glBindFramebuffer(GL_FRAMEBUFFER, oldfb);
 				width = sdata->tex_w;
@@ -1348,10 +1353,16 @@ _dump_surface(int force_output, int type, const char *position, Surface_Data *sd
 
 				_orig_tracepath_glBindFramebuffer(GL_FRAMEBUFFER, sdata->fbo);
 				int atttype = _COREGL_INT_INIT_VALUE;
-			   _orig_tracepath_glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &atttype);
+				if(driver_gl_version >=2)
+			   		_orig_tracepath_glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &atttype);
+				else
+					_orig_tracepath_glGetFramebufferAttachmentParameterivOES(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &atttype);
 				AST(atttype != sdata->tex);
 				int attname = _COREGL_INT_INIT_VALUE;
-			   _orig_tracepath_glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &attname);
+				if(driver_gl_version >=2)
+			   		_orig_tracepath_glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &attname);
+				else
+					_orig_tracepath_glGetFramebufferAttachmentParameterivOES(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &attname);
 				switch (atttype)
 				{
 					case GL_TEXTURE:

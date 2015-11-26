@@ -688,6 +688,7 @@ GL_API void GL_APIENTRY glLoadMatrixxOES (const GLfixed *m);
 GL_API void GL_APIENTRY glMaterialxOES (GLenum face, GLenum pname, GLfixed param);
 GL_API void GL_APIENTRY glMaterialxvOES (GLenum face, GLenum pname, const GLfixed *params);
 GL_API void GL_APIENTRY glMultMatrixxOES (const GLfixed *m);
+GL_API void GL_APIENTRY glMultiTexCoord4bOES (GLenum target, GLbyte s, GLbyte t, GLbyte r, GLbyte q);
 GL_API void GL_APIENTRY glMultiTexCoord4xOES (GLenum target, GLfixed s, GLfixed t, GLfixed r, GLfixed q);
 GL_API void GL_APIENTRY glNormal3xOES (GLfixed nx, GLfixed ny, GLfixed nz);
 GL_API void GL_APIENTRY glOrthoxOES (GLfixed left, GLfixed right, GLfixed bottom, GLfixed top, GLfixed zNear, GLfixed zFar);
@@ -743,6 +744,7 @@ typedef void (GL_APIENTRYP PFNGLTEXENVXVOESPROC) (GLenum target, GLenum pname, c
 typedef void (GL_APIENTRYP PFNGLTEXPARAMETERXOESPROC) (GLenum target, GLenum pname, GLfixed param);
 typedef void (GL_APIENTRYP PFNGLTEXPARAMETERXVOESPROC) (GLenum target, GLenum pname, const GLfixed *params);
 typedef void (GL_APIENTRYP PFNGLTRANSLATEXOESPROC) (GLfixed x, GLfixed y, GLfixed z);
+typedef void (GL_APIENTRYP PFNGLMULTITEXCOORD4BOESPROC) (GLenum target, GLbyte s, GLbyte t, GLbyte r, GLbyte q);
 #endif
 
 /* GL_OES_framebuffer_object */

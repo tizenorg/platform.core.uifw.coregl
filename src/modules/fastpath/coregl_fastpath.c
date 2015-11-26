@@ -417,15 +417,51 @@ fastpath_apply_overrides_gl(int enable)
 		COREGL_OVERRIDE(fastpath_, glProgramUniformMatrix2fvEXT);
 		COREGL_OVERRIDE(fastpath_, glProgramUniformMatrix3fvEXT);
 		COREGL_OVERRIDE(fastpath_, glProgramUniformMatrix4fvEXT);
-		COREGL_OVERRIDE(fastpath_, glProgramParameteriEXT);
-		COREGL_OVERRIDE(fastpath_, glProgramParameteriEXT);
-		COREGL_OVERRIDE(fastpath_, glProgramParameteriEXT);
-		COREGL_OVERRIDE(fastpath_, glProgramParameteriEXT);
-		COREGL_OVERRIDE(fastpath_, glProgramParameteriEXT);
 
 		COREGL_OVERRIDE(fastpath_, glFramebufferTexture2DMultisampleEXT);
 		COREGL_OVERRIDE(fastpath_, glFramebufferTexture3DOES);
 
+		COREGL_OVERRIDE(fastpath_, glBindFramebufferOES);
+		COREGL_OVERRIDE(fastpath_, glBindRenderbufferOES);
+		COREGL_OVERRIDE(fastpath_, glClearBufferfi);
+		COREGL_OVERRIDE(fastpath_, glClearBufferfv);
+		COREGL_OVERRIDE(fastpath_, glClearBufferiv);
+		COREGL_OVERRIDE(fastpath_, glClearBufferuiv);
+		COREGL_OVERRIDE(fastpath_, glDeleteFramebuffersOES);
+		COREGL_OVERRIDE(fastpath_, glDeleteRenderbuffersOES);
+		COREGL_OVERRIDE(fastpath_, glDepthRangefOES);
+		COREGL_OVERRIDE(fastpath_, glDepthRangexOES);
+		COREGL_OVERRIDE(fastpath_, glFramebufferParameteri);
+		COREGL_OVERRIDE(fastpath_, glGetFramebufferParameteriv);
+		COREGL_OVERRIDE(fastpath_, glFramebufferRenderbufferOES);
+		COREGL_OVERRIDE(fastpath_, glFramebufferTexture2DOES);
+		COREGL_OVERRIDE(fastpath_, glGenFramebuffersOES);
+		COREGL_OVERRIDE(fastpath_, glGenRenderbuffersOES);
+		COREGL_OVERRIDE(fastpath_, glGetFramebufferAttachmentParameterivOES);
+		COREGL_OVERRIDE(fastpath_, glGetQueryObjecti64vEXT);
+		COREGL_OVERRIDE(fastpath_, glGetQueryObjectivEXT);
+		COREGL_OVERRIDE(fastpath_, glGetQueryObjectui64vEXT);
+		COREGL_OVERRIDE(fastpath_, glGetQueryObjectuivEXT);
+		COREGL_OVERRIDE(fastpath_, glGetQueryivEXT);
+		COREGL_OVERRIDE(fastpath_, glBeginQueryEXT);
+		COREGL_OVERRIDE(fastpath_, glDeleteQueriesEXT);
+		COREGL_OVERRIDE(fastpath_, glGenQueriesEXT);
+		COREGL_OVERRIDE(fastpath_, glIsFramebufferOES);
+		COREGL_OVERRIDE(fastpath_, glIsQueryEXT);
+		COREGL_OVERRIDE(fastpath_, glIsRenderbufferOES);
+		COREGL_OVERRIDE(fastpath_, glBlendEquationOES);
+		COREGL_OVERRIDE(fastpath_, glBlendEquationSeparateOES);
+		COREGL_OVERRIDE(fastpath_, glBlendFuncSeparateOES);
+		COREGL_OVERRIDE(fastpath_, glPolygonOffsetxOES);
+		COREGL_OVERRIDE(fastpath_, glLineWidthxOES);
+		COREGL_OVERRIDE(fastpath_, glSampleCoveragexOES);
+		COREGL_OVERRIDE(fastpath_, glQueryCounterEXT);
+		COREGL_OVERRIDE(fastpath_, glBindVertexArrayOES);
+		COREGL_OVERRIDE(fastpath_, glDeleteVertexArraysOES);
+		COREGL_OVERRIDE(fastpath_, glGenVertexArraysOES);
+		COREGL_OVERRIDE(fastpath_, glIsVertexArrayOES);
+		COREGL_OVERRIDE(fastpath_, glClearDepthfOES );
+		COREGL_OVERRIDE(fastpath_, glClearDepthxOES );
 		/* Start overriding GLES 3.0 */
 		if(driver_gl_version >= COREGL_GLAPI_3) {
 			COREGL_OVERRIDE(fastpath_, glReadBuffer);
@@ -1701,18 +1737,27 @@ fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx)
 		{
 			STATE_COMPARE(gl_framebuffer_binding_read[0])
 			{
-				CHECK_GL_ERROR(_orig_fastpath_glBindFramebuffer(GL_READ_FRAMEBUFFER, newctx->gl_framebuffer_binding_read[0]))
+				if(driver_gl_version >=2)
+					CHECK_GL_ERROR(_orig_fastpath_glBindFramebuffer(GL_READ_FRAMEBUFFER, newctx->gl_framebuffer_binding_read[0]))
+				else
+					CHECK_GL_ERROR(_orig_fastpath_glBindFramebufferOES(GL_READ_FRAMEBUFFER, newctx->gl_framebuffer_binding_read[0]))
 			}
 			STATE_COMPARE(gl_framebuffer_binding_draw[0])
 			{
-				CHECK_GL_ERROR(_orig_fastpath_glBindFramebuffer(GL_DRAW_FRAMEBUFFER, newctx->gl_framebuffer_binding_draw[0]))
+				if(driver_gl_version >=2)
+					CHECK_GL_ERROR(_orig_fastpath_glBindFramebuffer(GL_DRAW_FRAMEBUFFER, newctx->gl_framebuffer_binding_draw[0]))
+				else
+					CHECK_GL_ERROR(_orig_fastpath_glBindFramebufferOES(GL_DRAW_FRAMEBUFFER, newctx->gl_framebuffer_binding_draw[0]))
 			}
 		}
 		else
 		{
 			STATE_COMPARE(gl_framebuffer_binding[0])
 			{
-				CHECK_GL_ERROR(_orig_fastpath_glBindFramebuffer(GL_FRAMEBUFFER, newctx->gl_framebuffer_binding[0]))
+				if(driver_gl_version >=2)
+					CHECK_GL_ERROR(_orig_fastpath_glBindFramebuffer(GL_FRAMEBUFFER, newctx->gl_framebuffer_binding[0]))
+				else
+					CHECK_GL_ERROR(_orig_fastpath_glBindFramebufferOES(GL_FRAMEBUFFER, newctx->gl_framebuffer_binding[0]))
 			}
 		}
 		STATE_COMPARE(gl_renderbuffer_binding[0])

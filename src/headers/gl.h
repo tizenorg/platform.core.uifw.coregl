@@ -25,7 +25,9 @@ typedef khronos_float_t  GLclampf;
 typedef khronos_int32_t  GLfixed;
 typedef khronos_intptr_t GLintptr;
 typedef khronos_ssize_t  GLsizeiptr;
+typedef khronos_int32_t  GLclampx;
 
+typedef void (GL_APIENTRY  *GLDEBUGPROCKHR)(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,const void *userParam);
 /* OpenGL ES 3.0 */
 
 typedef unsigned short   GLhalf;

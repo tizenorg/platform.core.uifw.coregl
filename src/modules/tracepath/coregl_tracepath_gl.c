@@ -2370,7 +2370,7 @@ finish:
 }
 
 void
-tracepath_glTexImage3DOES(GLenum target, GLint level, GLint GLinternalFormat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels)
+tracepath_glTexImage3DOES(GLenum target, GLint level, GLenum GLinternalFormat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const void *pixels)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glTexImage3DOES(target, level, GLinternalFormat, width, height, depth, border, format, type, pixels);
@@ -4350,7 +4350,7 @@ tracepath_glFramebufferTexture3DOES(GLenum target, GLenum attachment, GLenum tex
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
 }
-
+/*
 void
 tracepath_glBlitFramebufferANGLE(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter)
 {
@@ -4454,6 +4454,7 @@ finish:
 	}
 #endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 }
+*/
 
 
 void
@@ -5325,3 +5326,1338 @@ void tracepath_glVertexBindingDivisor (GLuint bindingindex, GLuint divisor)
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
 }
+void
+tracepath_glBindFramebufferOES(GLenum target, GLuint framebuffer)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	if (unlikely(trace_surface_flag == 1))
+	{
+		GLint oldfb;
+		_orig_tracepath_glGetIntegerv(GL_FRAMEBUFFER_BINDING, &oldfb);
+		if (oldfb != 0)
+		{
+			_COREGL_TRACE_SURFACE(0, 2, "GLBINDFBO");
+		}
+
+		tracepath_fbdump_update(0);
+	}
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
+
+	_orig_tracepath_glBindFramebufferOES(target, framebuffer);
+
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	if (unlikely(trace_surface_flag == 1))
+	{
+		tracepath_fbdump_update(1);
+	}
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glBindRenderbufferOES(GLenum target, GLuint renderbuffer)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glBindRenderbufferOES(target, renderbuffer);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glDeleteFramebuffersOES(GLsizei n, const GLuint* framebuffers)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	tracepath_fbdump_update(0);
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
+
+	_orig_tracepath_glDeleteFramebuffersOES(n, framebuffers);
+
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	tracepath_fbdump_update(1);
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glDeleteRenderbuffersOES(GLsizei n, const GLuint* renderbuffers)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	tracepath_fbdump_update(0);
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
+
+	_orig_tracepath_glDeleteRenderbuffersOES(n, renderbuffers);
+
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	tracepath_fbdump_update(1);
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+#ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
+	if (trace_mem_flag == 1)
+	{
+		MY_MODULE_TSTATE *tstate = NULL;
+
+		GET_MY_TSTATE(tstate, get_current_thread_state());
+		AST(tstate != NULL);
+		if (tstate->ctx != NULL)
+		{
+			for (int i = 0; i < n; i++)
+			{
+				if (renderbuffers[i] == 0) continue;
+				_remove_glbuf_object(tstate->ctx->sostate->glbuf_rb, renderbuffers[i], "Renderbuffer");
+			}
+		}
+	}
+#endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
+}
+
+void
+tracepath_glDepthRangefOES(GLclampf zNear, GLclampf zFar)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glDepthRangefOES(zNear, zFar);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glDepthRangexOES(GLclampx zNear, GLclampx zFar)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glDepthRangexOES(zNear, zFar);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glFramebufferRenderbufferOES(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	tracepath_fbdump_update(0);
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
+
+	_orig_tracepath_glFramebufferRenderbufferOES(target, attachment, renderbuffertarget, renderbuffer);
+
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	tracepath_fbdump_update(1);
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glFramebufferTexture2DOES(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	tracepath_fbdump_update(0);
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
+
+	_orig_tracepath_glFramebufferTexture2DOES(target, attachment, textarget, texture, level);
+
+#ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
+	tracepath_fbdump_update(1);
+#endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glGenFramebuffersOES(GLsizei n, GLuint* framebuffers)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGenFramebuffersOES(n, framebuffers);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glGenRenderbuffersOES(GLsizei n, GLuint* renderbuffers)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGenRenderbuffersOES(n, renderbuffers);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+#ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
+	if (trace_mem_flag == 1)
+	{
+		MY_MODULE_TSTATE *tstate = NULL;
+
+		GET_MY_TSTATE(tstate, get_current_thread_state());
+		AST(tstate != NULL);
+		if (tstate->ctx != NULL)
+		{
+			for (int i = 0; i < n; i++)
+			{
+				if (renderbuffers[i] == 0) continue;
+				_add_glbuf_object(tstate->ctx->sostate->glbuf_rb, renderbuffers[i], "Renderbuffer", 0, 0, 0, "Unknown");
+			}
+		}
+	}
+#endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
+}
+
+void
+tracepath_glGetFramebufferAttachmentParameterivOES(GLenum target, GLenum attachment, GLenum pname, GLint* params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGetFramebufferAttachmentParameterivOES(target, attachment, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glGetQueryObjecti64vEXT(GLuint id, GLenum pname, GLint64 *params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGetQueryObjecti64vEXT(id, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glGetQueryObjectivEXT(GLuint id, GLenum pname, GLint *params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGetQueryObjectivEXT(id, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glGetQueryObjectui64vEXT(GLuint id, GLenum pname, GLuint64 *params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGetQueryObjectui64vEXT(id, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glGetQueryObjectuivEXT(GLuint id, GLenum pname, GLuint* params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGetQueryObjectuivEXT(id, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glGetQueryivEXT(GLenum target, GLenum pname, GLint* params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGetQueryivEXT(target, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glBeginQueryEXT(GLenum target, GLuint id)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glBeginQueryEXT(target, id);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+
+void
+tracepath_glDeleteQueriesEXT(GLsizei n, const GLuint* ids)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glDeleteQueriesEXT(n, ids);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glGenQueriesEXT(GLsizei n, GLuint* ids)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGenQueriesEXT(n, ids);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+GLboolean
+tracepath_glIsFramebufferOES(GLuint framebuffer)
+{
+	GLboolean ret = GL_FALSE;
+
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	ret = _orig_tracepath_glIsFramebufferOES(framebuffer);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+	return ret;
+}
+
+GLboolean
+tracepath_glIsQueryEXT(GLuint id)
+{
+	GLboolean ret = GL_FALSE;
+
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	ret = _orig_tracepath_glIsQueryEXT(id);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+	return ret;
+}
+
+GLboolean
+tracepath_glIsRenderbufferOES(GLuint renderbuffer)
+{
+	GLboolean ret;
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	ret = _orig_tracepath_glIsRenderbufferOES(renderbuffer);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+	return ret;
+}
+
+void
+tracepath_glEndQueryEXT(GLenum target)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glEndQueryEXT(target);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glAlphaFuncxOES(GLenum func, GLclampx ref)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glAlphaFuncxOES(func, ref);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glBlendBarrierKHR()
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glBlendBarrierKHR();
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glBlendEquationOES(GLenum mode)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glBlendEquationOES(mode);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glBlendEquationSeparateOES(GLenum modeRGB, GLenum modeAlpha)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glBlendEquationSeparateOES(modeRGB, modeAlpha);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glBlendFuncSeparateOES(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glBlendFuncSeparateOES(srcRGB, dstRGB, srcAlpha, dstAlpha);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+GLenum tracepath_glCheckFramebufferStatusOES(GLenum target)
+{
+	GLenum ret = _COREGL_INT_INIT_VALUE;
+
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	ret = _orig_tracepath_glCheckFramebufferStatusOES(target);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+   return ret;
+}
+
+
+void tracepath_glClearColorxOES(GLclampx red, GLclampx green, GLclampx blue, GLclampx alpha)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glClearColorxOES(red, green, blue, alpha);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glClearDepthfOES(GLclampf depth)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glClearDepthfOES(depth);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glClearDepthxOES(GLclampx depth)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glClearDepthxOES(depth);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glClipPlanefOES(GLenum plane, GLfloat const *equation)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glClipPlanefOES(plane, equation);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+
+void tracepath_glClipPlanexOES(GLenum plane, GLfixed const *equation)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glClipPlanexOES(plane, equation);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glColor4xOES(GLfixed red, GLfixed green, GLfixed blue, GLfixed alpha)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glColor4xOES(red, green, blue, alpha);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glDebugMessageCallback(GLDEBUGPROCKHR callback, void const *userParam)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glDebugMessageCallback(callback, userParam);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glDebugMessageInsert(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar const *buf)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glDebugMessageInsert(source, type, id, severity, length, buf);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glDebugMessageControl(GLenum source, GLenum type, GLenum severity, GLsizei count, GLuint const *ids, GLboolean enabled)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glDebugMessageControl(source, type, severity, count, ids,  enabled);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glFogxOES(GLenum pname, GLfixed param)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glFogxOES(pname, param);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glFogxvOES(GLenum pname, GLfixed const *params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glFogxvOES(pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glFrustumxOES(GLfixed left, GLfixed right, GLfixed bottom, GLfixed top, GLfixed zNear, GLfixed zFar)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glFrustumxOES(left, right, bottom, top, zNear, zFar);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glFrustumfOES(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glFrustumfOES(left, right, bottom, top, zNear, zFar);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glGenerateMipmapOES(GLenum target)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGenerateMipmapOES(target);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glGetClipPlanefOES(GLenum pname, GLfloat eqn[4])
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGetClipPlanefOES(pname, eqn);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glGetClipPlanexOES(GLenum pname, GLfixed eqn[4])
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGetClipPlanexOES(pname, eqn);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+GLuint tracepath_glGetDebugMessageLog(GLuint count, GLsizei bufsize, GLenum *sources, GLenum *types, GLuint *ids, GLenum *severities, GLsizei *lengths, GLchar *messageLog)
+{
+	GLuint ret = GL_INVALID_INDEX;
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	ret =  _orig_tracepath_glGetDebugMessageLog(count, bufsize, sources, types, ids, severities, lengths, messageLog);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+	return ret;
+}
+
+void tracepath_glGetFixedvOES(GLenum pname, GLfixed *params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGetFixedvOES(pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glGetLightxvOES(GLenum light, GLenum pname, GLfixed *params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGetLightxvOES(light, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glGetMaterialxvOES(GLenum face, GLenum pname, GLfixed *params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGetMaterialxvOES(face, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glGetObjectLabel(GLenum identifier, GLuint name, GLsizei bufSize, GLsizei *length, GLchar *label)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGetObjectLabel(identifier, name, bufSize, length, label);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glGetObjectPtrLabel(void const *ptr, GLsizei bufSize, GLsizei *length, GLchar *label)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGetObjectPtrLabel(ptr, bufSize, length, label);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glGetPointervKHR(GLenum pname, GLvoid **params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGetPointervKHR(pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glGetRenderbufferParameterivOES(GLenum target, GLenum pname, GLint *params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGetRenderbufferParameterivOES(target, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glGetTexEnvxvOES(GLenum env, GLenum pname, GLfixed *params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGetTexEnvxvOES(env, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glGetTexParameterxvOES(GLenum target, GLenum pname, GLfixed *params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGetTexParameterxvOES(target, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+
+void
+tracepath_glLightModelxOES (GLenum pname, GLfixed param)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glLightModelxOES (pname, param);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+
+void
+tracepath_glLightModelxvOES (GLenum pname, const GLfixed *params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glLightModelxvOES (pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+
+void
+tracepath_glLightxOES (GLenum light, GLenum pname, GLfixed param)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glLightxOES (light, pname, param);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+
+void
+tracepath_glLightxvOES (GLenum light, GLenum pname, const GLfixed *params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glLightxvOES (light, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glLineWidthxOES (GLfixed width)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glLineWidthxOES (width);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glLoadMatrixxOES (const GLfixed *m)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glLoadMatrixxOES (m);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glMaterialxOES (GLenum face, GLenum pname, GLfixed param)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glMaterialxOES (face, pname, param);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glMaterialxvOES (GLenum face, GLenum pname, const GLfixed *params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glMaterialxvOES (face, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glMultMatrixxOES (const GLfixed *m)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glMultMatrixxOES (m);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glMultiTexCoord4bOES (GLenum target, GLbyte s, GLbyte t, GLbyte r, GLbyte q)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glMultiTexCoord4bOES (target, s, t, r, q);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glMultiTexCoord4xOES (GLenum target, GLfixed s, GLfixed t, GLfixed r, GLfixed q)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glMultiTexCoord4xOES (target, s, t, r, q);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glNormal3xOES (GLfixed nx, GLfixed ny, GLfixed nz)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glNormal3xOES (nx, ny, nz);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glObjectLabel (GLenum identifier, GLuint name, GLsizei length, const GLchar *label)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glObjectLabel (identifier, name, length, label);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glObjectPtrLabel (const void *ptr, GLsizei length, const GLchar *label)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glObjectPtrLabel (ptr, length, label);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glOrthofOES (GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glOrthofOES (left, right, bottom, top, zNear, zFar);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glOrthoxOES (GLfixed left, GLfixed right, GLfixed bottom, GLfixed top, GLfixed zNear, GLfixed zFar)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glOrthoxOES (left, right, bottom, top, zNear, zFar);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glPointParameterxOES (GLenum pname, GLfixed param)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glPointParameterxOES (pname, param);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glPointParameterxvOES (GLenum pname, const GLfixed *params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glPointParameterxvOES (pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glPointSizexOES (GLfixed size)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glPointSizexOES (size);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glPolygonOffsetxOES (GLfixed factor, GLfixed units)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glPolygonOffsetxOES (factor, units);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glPopDebugGroup (void)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glPopDebugGroup ();
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glPushDebugGroup (GLenum source, GLuint id, GLsizei length, const GLchar *message)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glPushDebugGroup (source, id, length, message);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glQueryCounterEXT (GLuint id, GLenum target)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glQueryCounterEXT (id, target);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glRenderbufferStorageOES (GLenum target, GLenum internalformat, GLsizei width, GLsizei height)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glRenderbufferStorageOES (target, internalformat, width, height);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glRotatexOES (GLfixed angle, GLfixed x, GLfixed y, GLfixed z)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glRotatexOES (angle, x, y, z);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glSampleCoveragexOES (GLclampx value, GLboolean invert)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glSampleCoveragexOES (value, invert);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glScalexOES (GLfixed x, GLfixed y, GLfixed z)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glScalexOES (x, y, z);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glTexEnvxOES (GLenum target, GLenum pname, GLfixed param)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glTexEnvxOES (target, pname, param);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glTexEnvxvOES (GLenum target, GLenum pname, const GLfixed *params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glTexEnvxvOES (target, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glTexParameterxOES (GLenum target, GLenum pname, GLfixed param)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glTexParameterxOES (target, pname, param);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glTexParameterxvOES (GLenum target, GLenum pname, const GLfixed *params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glTexParameterxvOES (target, pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glTexStorage2DEXT (GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glTexStorage2DEXT (target, levels, internalformat, width, height);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glTexStorage3DEXT (GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glTexStorage3DEXT (target, levels, internalformat, width, height, depth);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glTexStorage3DMultisampleOES (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLboolean fixedsamplelocations)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glTexStorage3DMultisampleOES (target, samples, internalformat, width, height, depth, fixedsamplelocations);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glTranslatexOES (GLfixed x, GLfixed y, GLfixed z)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glTranslatexOES (x, y, z);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glBindVertexArrayOES(GLuint array)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glBindVertexArrayOES(array);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glDeleteVertexArraysOES(GLsizei n, const GLuint* arrays)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glDeleteVertexArraysOES(n, arrays);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glGenVertexArraysOES(GLsizei n, GLuint* arrays)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGenVertexArraysOES(n, arrays);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+GLboolean
+tracepath_glIsVertexArrayOES(GLuint array)
+{
+	GLboolean ret = GL_FALSE;
+
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	ret = _orig_tracepath_glIsVertexArrayOES(array);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+	return ret;
+}
+
+void tracepath_glDebugMessageCallbackKHR(GLDEBUGPROCKHR callback, void const *userParam)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glDebugMessageCallbackKHR(callback, userParam);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+
+void tracepath_glDebugMessageControlKHR(GLenum source, GLenum type, GLenum severity, GLsizei count, GLuint const *ids, GLboolean enabled)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glDebugMessageControlKHR(source, type, severity, count, ids,  enabled);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glDebugMessageInsertKHR(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar const *buf)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glDebugMessageInsertKHR(source, type, id, severity, length, buf);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+GLuint tracepath_glGetDebugMessageLogKHR(GLuint count, GLsizei bufsize, GLenum *sources, GLenum *types, GLuint *ids, GLenum *severities, GLsizei *lengths, GLchar *messageLog)
+{
+	GLuint ret = GL_INVALID_INDEX;
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	ret =  _orig_tracepath_glGetDebugMessageLogKHR(count, bufsize, sources, types, ids, severities, lengths, messageLog);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+	return ret;
+}
+
+void tracepath_glGetObjectLabelKHR(GLenum identifier, GLuint name, GLsizei bufSize, GLsizei *length, GLchar *label)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGetObjectLabelKHR(identifier, name, bufSize, length, label);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void tracepath_glGetObjectPtrLabelKHR(void const *ptr, GLsizei bufSize, GLsizei *length, GLchar *label)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGetObjectPtrLabelKHR(ptr, bufSize, length, label);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glGetPointerv(GLenum pname, GLvoid **params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGetPointerv(pname, params);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glObjectLabelKHR (GLenum identifier, GLuint name, GLsizei length, const GLchar *label)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glObjectLabelKHR (identifier, name, length, label);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glObjectPtrLabelKHR (const void *ptr, GLsizei length, const GLchar *label)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glObjectPtrLabelKHR (ptr, length, label);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glPopDebugGroupKHR (void)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glPopDebugGroupKHR ();
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glPushDebugGroupKHR (GLenum source, GLuint id, GLsizei length, const GLchar *message)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glPushDebugGroupKHR (source, id, length, message);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+

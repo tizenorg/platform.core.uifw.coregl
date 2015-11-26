@@ -1610,17 +1610,20 @@ coregl_api_glProgramUniform1iv(GLuint program, GLint location, GLsizei count, co
 	ovr_glProgramUniform1iv(program, location, count, value);
 }
 
+
 void
 coregl_api_glProgramUniform2iv(GLuint program, GLint location, GLsizei count, const GLint *value)
 {
 	ovr_glProgramUniform2iv(program, location, count, value);
 }
 
+
 void
 coregl_api_glProgramUniform3iv(GLuint program, GLint location, GLsizei count, const GLint *value)
 {
 	ovr_glProgramUniform3iv(program, location, count, value);
 }
+
 
 void
 coregl_api_glProgramUniform4iv(GLuint program, GLint location, GLsizei count, const GLint *value)
@@ -1634,17 +1637,20 @@ coregl_api_glProgramUniform1fv(GLuint program, GLint location, GLsizei count, co
 	ovr_glProgramUniform1fv(program, location, count, value);
 }
 
+
 void
 coregl_api_glProgramUniform2fv(GLuint program, GLint location, GLsizei count, const GLfloat *value)
 {
 	ovr_glProgramUniform2fv(program, location, count, value);
 }
 
+
 void
 coregl_api_glProgramUniform3fv(GLuint program, GLint location, GLsizei count, const GLfloat *value)
 {
 	ovr_glProgramUniform3fv(program, location, count, value);
 }
+
 
 void
 coregl_api_glProgramUniform4fv(GLuint program, GLint location, GLsizei count, const GLfloat *value)
@@ -1658,11 +1664,13 @@ coregl_api_glProgramUniformMatrix2fv(GLuint program, GLint location, GLsizei cou
 	ovr_glProgramUniformMatrix2fv(program, location, count, transpose, value);
 }
 
+
 void
 coregl_api_glProgramUniformMatrix3fv(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
 {
 	ovr_glProgramUniformMatrix3fv(program, location, count, transpose, value);
 }
+
 
 void
 coregl_api_glProgramUniformMatrix4fv(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
@@ -1676,11 +1684,13 @@ coregl_api_glProgramUniform1i(GLuint program, GLint location, GLint x)
 	ovr_glProgramUniform1i(program, location, x);
 }
 
+
 void
 coregl_api_glProgramUniform2i(GLuint program, GLint location, GLint x, GLint y)
 {
 	ovr_glProgramUniform2i(program, location, x, y);
 }
+
 
 void
 coregl_api_glProgramUniform3i(GLuint program, GLint location, GLint x, GLint y, GLint z)
@@ -1688,11 +1698,13 @@ coregl_api_glProgramUniform3i(GLuint program, GLint location, GLint x, GLint y, 
 	ovr_glProgramUniform3i(program, location, x, y, z);
 }
 
+
 void
 coregl_api_glProgramUniform4i(GLuint program, GLint location, GLint x, GLint y, GLint z, GLint w)
 {
 	ovr_glProgramUniform4i(program, location, x, y, z, w);
 }
+
 
 void
 coregl_api_glProgramUniform1f(GLuint program, GLint location, GLfloat x)
@@ -1700,17 +1712,20 @@ coregl_api_glProgramUniform1f(GLuint program, GLint location, GLfloat x)
 	ovr_glProgramUniform1f(program, location, x);
 }
 
+
 void
 coregl_api_glProgramUniform2f(GLuint program, GLint location, GLfloat x, GLfloat y)
 {
 	ovr_glProgramUniform2f(program, location, x, y);
 }
 
+
 void
 coregl_api_glProgramUniform3f(GLuint program, GLint location, GLfloat x, GLfloat y, GLfloat z)
 {
 	ovr_glProgramUniform3f(program, location, x, y, z);
 }
+
 
 void
 coregl_api_glProgramUniform4f(GLuint program, GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
@@ -1748,17 +1763,20 @@ coregl_api_glProgramUniform1uiv(GLuint program, GLint location, GLsizei count, c
 	ovr_glProgramUniform1uiv(program, location, count, value);
 }
 
+
 void
 coregl_api_glProgramUniform2uiv(GLuint program, GLint location, GLsizei count, const GLuint *value)
 {
 	ovr_glProgramUniform2uiv(program, location, count, value);
 }
 
+
 void
 coregl_api_glProgramUniform3uiv(GLuint program, GLint location, GLsizei count, const GLuint *value)
 {
 	ovr_glProgramUniform3uiv(program, location, count, value);
 }
+
 
 void
 coregl_api_glProgramUniform4uiv(GLuint program, GLint location, GLsizei count, const GLuint *value)
@@ -1885,3 +1903,12 @@ coregl_api_glVertexBindingDivisor (GLuint bindingindex, GLuint divisor)
 {
 	ovr_glVertexBindingDivisor (bindingindex, divisor);
 }
+
+void
+coregl_api_glGetPointerv(GLenum pname, GLvoid **params)
+{
+	ovr_glGetPointerv(pname, params);
+}
+
+
+
