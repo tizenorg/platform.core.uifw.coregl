@@ -27,6 +27,8 @@ Supported versions:
 Summary:		Development files for EGL 1.4 and OpenGL ES 1.1 and 2.0
 Group:			Graphics
 Requires:		%{name} = %{version}-%{release}
+Requires:		libgbm-devel
+Requires:		libwayland-egl
 
 %description devel
 This package contains the development libraries and header files needed by
