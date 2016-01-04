@@ -16,12 +16,25 @@ SET(GLES2_VERSION "${GLES2_VERSION_MAJOR}.${GLES2_VERSION_MINOR}")
 SET(BUILD_ARCH "$ENV{RPM_ARCH}")
 
 IF(${BUILD_ARCH} MATCHES "aarch64")
+SET(LIB "lib64")
 SET(LIBDIR "/usr/lib64")
 ELSEIF(${BUILD_ARCH} MATCHES "x86_64")
+SET(LIB "lib64")
 SET(LIBDIR "/usr/lib64")
 ELSE(${BUILD_ARCH} MATCHES "aarch64")
+SET(LIB "lib")
 SET(LIBDIR "/usr/lib")
 ENDIF(${BUILD_ARCH} MATCHES "aarch64")
+
+#################################################################
+# Build Package Config File
+# ------------------------------
+CONFIGURE_FILE(pkgconfig/egl.pc.in pkgconfig/egl.pc @ONLY)
+CONFIGURE_FILE(pkgconfig/gles11.pc.in pkgconfig/gles11.pc @ONLY)
+CONFIGURE_FILE(pkgconfig/gles20.pc.in pkgconfig/gles20.pc @ONLY)
+CONFIGURE_FILE(pkgconfig/glesv1_cm.pc.in pkgconfig/glesv1_cm.pc @ONLY)
+CONFIGURE_FILE(pkgconfig/glesv1.pc.in pkgconfig/glesv1.pc @ONLY)
+CONFIGURE_FILE(pkgconfig/glesv2.pc.in pkgconfig/glesv2.pc @ONLY)
 
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include_KHR)
 

@@ -1,9 +1,9 @@
 prefix=/usr
 exec_prefix=${prefix}
-libdir=${exec_prefix}/lib
+libdir=${exec_prefix}/@LIB@
 includedir=${prefix}/include
 
-Name: glesv2
+Name: gles20
 Description: CoreGL OpenGL-ES 2.0 Library
 Version: 0.1
 Requires:

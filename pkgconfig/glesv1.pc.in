@@ -1,9 +1,9 @@
 prefix=/usr
 exec_prefix=${prefix}
-libdir=${exec_prefix}/lib
+libdir=${exec_prefix}/@LIB@
 includedir=${prefix}/include
 
-Name: glesv1_cm
+Name: glesv1
 Description: CoreGL OpenGL-ES 1.1 Library
 Version: 0.1
 Requires:

@@ -1,7 +1,7 @@
 prefix=/usr
 exec_prefix=${prefix}
-libdir=/usr/lib
-includedir=/usr/include
+libdir=${exec_prefix}/@LIB@
+includedir=${prefix}/include
 
 Name: egl
 Description: CoreGL EGL library
