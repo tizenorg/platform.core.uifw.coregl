@@ -137,15 +137,21 @@ _create_program_object(GL_Object_State *ostate, int is_program, GLenum shader_ty
 	if (real_obj != 0)
 	{
 		ret = fastpath_ostate_create_object(ostate, GL_OBJECT_TYPE_PROGRAM, real_obj);
-
 		Program_object_attached_tag *poat = NULL;
-		poat = (Program_object_attached_tag *)calloc(1, sizeof(Program_object_attached_tag));
-		AST(poat != NULL);
 
-		poat->is_deleting = 0;
-		poat->shader_count = 0;
+		if (ret != _COREGL_INT_INIT_VALUE)
+                {
+                        poat = (Program_object_attached_tag *)calloc(1, sizeof(Program_object_attached_tag));
+                        if (poat == NULL)
+                        {
+                                AST(poat != NULL);
+                                fastpath_ostate_remove_object(ostate, GL_OBJECT_TYPE_PROGRAM, ret);
+                        }
+                        poat->is_deleting = 0;
+                        poat->shader_count = 0;
 
-		fastpath_ostate_set_object_tag(ostate, GL_OBJECT_TYPE_PROGRAM, ret, poat);
+                        fastpath_ostate_set_object_tag(ostate, GL_OBJECT_TYPE_PROGRAM, ret, poat);
+                }
 	}
 
 	return ret;
@@ -203,7 +209,11 @@ _detach_program_object(GL_Object_State *ostate, GLuint real_object, int is_progr
 			if (poat->is_deleting == 0)
 			{
 				poat->is_deleting = 1;
+                                /* Ref count increased when glCreateProgram/initial attach */
 				fastpath_ostate_remove_object(ostate, GL_OBJECT_TYPE_PROGRAM, object);
+                                /* Ref count increased when glCreateProgram/create object */
+                                /* So, we have to call the under function twice.*/
+                                fastpath_ostate_remove_object(ostate, GL_OBJECT_TYPE_PROGRAM, object);
 			}
 		}
 		else

@@ -1107,23 +1107,35 @@ fastpath_ostate_create_object(GL_Object_State *ostate, GL_Object_Type type, GLui
 
 	{
 		GL_Object *newobj = (GL_Object *)calloc(1, sizeof(GL_Object));
-		AST(newobj != NULL);
+		if (newobj == NULL)
+			goto finish;
 		newobj->id = (int)type + newid;
 		newobj->real_id = real_name;
 		newobj->ref_count = 1;
-		ret = newobj->id;
+
 
 		GL_Object_Hash *newobj_hash = (GL_Object_Hash *)calloc(1, sizeof(GL_Object_Hash));
-		AST(newobj_hash != NULL);
+		if (newobj_hash == NULL)
+		{
+			free(newobj);
+			goto finish;
+		}
 		newobj_hash->item = newobj;
 		newobj_hash->hash_key = newid;
 		_add_hash(hash_base, newobj_hash);
 
 		GL_Object_Hash *newobj_hash_real = (GL_Object_Hash *)calloc(1, sizeof(GL_Object_Hash));
-		AST(newobj_hash_real != NULL);
+		if (newobj_hash_real == NULL)
+		{
+			free(newobj);
+			free(newobj_hash);
+			goto finish;
+		}
 		newobj_hash_real->item = newobj;
 		newobj_hash_real->hash_key = real_name;
 		_add_hash(hash_base_real, newobj_hash_real);
+
+		ret = newobj->id;
 	}
 
 	_ostate_hash_check(hash_base);
@@ -1211,7 +1223,6 @@ finish:
 	_unlock_gl_object_hash(ostate, type);
 	return ret;
 }
-
 
 /* Check if the context's state contains object of a given type */
 GLuint
