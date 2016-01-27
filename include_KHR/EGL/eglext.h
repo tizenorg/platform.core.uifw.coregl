@@ -567,6 +567,11 @@ EGLAPI EGLSurface EGLAPIENTRY eglCreatePlatformPixmapSurfaceEXT (EGLDisplay dpy,
 #define EGL_PLATFORM_WAYLAND_EXT          0x31D8
 #endif /* EGL_EXT_platform_wayland */
 
+#ifndef EGL_EXT_platform_tbm
+#define EGL_EXT_platform_tbm 1
+#define EGL_PLATFORM_TBM_EXT          0x31D9
+#endif /* EGL_EXT_platform_tbm */
+
 #ifndef EGL_EXT_platform_x11
 #define EGL_EXT_platform_x11 1
 #define EGL_PLATFORM_X11_EXT              0x31D5
