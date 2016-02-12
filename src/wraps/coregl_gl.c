@@ -840,6 +840,12 @@ glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, const GLf
 }
 
 void
+glActiveShaderProgram(GLuint pipeline, GLuint program)
+{
+	ovr_glActiveShaderProgram(pipeline, program);
+}
+
+void
 glUseProgram(GLuint program)
 {
 	ovr_glUseProgram(program);
