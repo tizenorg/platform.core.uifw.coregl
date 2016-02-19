@@ -58,10 +58,8 @@ remove_from_general_trace_list(General_Trace_List **gtl, void *value)
 
 	current = *gtl;
 
-	while (current != NULL)
-	{
-		if (current->value == value)
-		{
+	while (current != NULL) {
+		if (current->value == value) {
 			if (priv == NULL)
 				*gtl = current->next;
 			else

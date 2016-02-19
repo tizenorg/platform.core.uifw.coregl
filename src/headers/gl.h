@@ -27,7 +27,9 @@ typedef khronos_intptr_t GLintptr;
 typedef khronos_ssize_t  GLsizeiptr;
 typedef khronos_int32_t  GLclampx;
 
-typedef void (GL_APIENTRY  *GLDEBUGPROCKHR)(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,const void *userParam);
+typedef void (GL_APIENTRY  *GLDEBUGPROCKHR)(GLenum source, GLenum type,
+		GLuint id, GLenum severity, GLsizei length, const GLchar *message,
+		const void *userParam);
 /* OpenGL ES 3.0 */
 
 typedef unsigned short   GLhalf;
@@ -780,7 +782,7 @@ typedef struct __GLsync *GLsync;
 // GLES extension defines
 /* GL_OES_EGL_image */
 #ifndef GL_OES_EGL_image
-typedef void* GLeglImageOES;
+typedef void *GLeglImageOES;
 #endif
 
 #ifndef EGL_SEC_image_map

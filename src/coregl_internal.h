@@ -53,8 +53,14 @@
        fflush(trace_fp)
 #define _COREGL_TRACE_OUTPUT_INTERVAL_SEC 5
 
-static inline GLint GET_INT_FROM_FLOAT(GLfloat value) { return (GLint)value; }
-static inline GLuint GET_UINT_FROM_FLOAT(GLfloat value) { return (GLuint)value; }
+static inline GLint GET_INT_FROM_FLOAT(GLfloat value)
+{
+	return (GLint)value;
+}
+static inline GLuint GET_UINT_FROM_FLOAT(GLfloat value)
+{
+	return (GLuint)value;
+}
 
 
 #ifdef COREGL_DEBUG
@@ -65,7 +71,7 @@ static inline GLuint GET_UINT_FROM_FLOAT(GLfloat value) { return (GLuint)value; 
      if (expr)
 #endif
 
-typedef GLvoid *     GLvoidptr;
+typedef GLvoid      *GLvoidptr;
 typedef GLuint       GLuintmask;
 
 #define COREGL_GLAPI_31	4
@@ -83,8 +89,7 @@ typedef EGLContext     GLContext;
 
 #define COREGL_GL_NO_CONTEXT EGL_NO_CONTEXT
 
-typedef struct _GLThreadState
-{
+typedef struct _GLThreadState {
 	int                      thread_id;
 	void                    *module_data[COREGL_MAX_MODULES];
 } GLThreadState;
@@ -94,8 +99,7 @@ extern void                *egl_lib_handle;
 
 #include "coregl_thread_pthread.h"
 
-typedef struct _General_Trace_List
-{
+typedef struct _General_Trace_List {
 	void                          *value;
 	struct _General_Trace_List    *next;
 } General_Trace_List;
@@ -153,8 +157,10 @@ extern void                deinit_modules_tstate(GLThreadState *tstate);
 
 
 // Debug & Trace functions
-extern int                 add_to_general_trace_list(General_Trace_List **gtl, void *value);
-extern int                 remove_from_general_trace_list(General_Trace_List **gtl, void *value);
+extern int                 add_to_general_trace_list(General_Trace_List **gtl,
+		void *value);
+extern int                 remove_from_general_trace_list(
+	General_Trace_List **gtl, void *value);
 
 #endif // COREGL_INTERNAL_H
 

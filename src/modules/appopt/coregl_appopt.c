@@ -37,8 +37,7 @@ init_modules_tstate_appopt(GLThreadState *tstate)
 void
 deinit_modules_tstate_appopt(GLThreadState *tstate)
 {
-	if (tstate->module_data[MY_MODULE_ID] != NULL)
-	{
+	if (tstate->module_data[MY_MODULE_ID] != NULL) {
 		free(tstate->module_data[MY_MODULE_ID]);
 		tstate->module_data[MY_MODULE_ID] = NULL;
 	}

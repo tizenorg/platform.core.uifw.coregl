@@ -2,8 +2,7 @@
 
 #include <stdlib.h>
 
-struct _Glbuf_Data
-{
+struct _Glbuf_Data {
 	int obj_idx;
 	int width;
 	int height;
@@ -17,14 +16,10 @@ static void
 __addhash_glbuf_object(Glbuf_Data **glbuf, Glbuf_Data *target)
 {
 	Glbuf_Data *data = glbuf[target->obj_idx % MTD_GLBUF_HASH_ARRAY];
-	if (data == NULL)
-	{
+	if (data == NULL) {
 		glbuf[target->obj_idx % MTD_GLBUF_HASH_ARRAY] = target;
-	}
-	else
-	{
-		while (data->next != NULL)
-		{
+	} else {
+		while (data->next != NULL) {
 			AST(data->obj_idx != target->obj_idx);
 			data = data->next;
 		}
@@ -42,10 +37,8 @@ __removehash_glbuf_object(Glbuf_Data **glbuf, Glbuf_Data **target)
 {
 	Glbuf_Data *data = glbuf[(*target)->obj_idx % MTD_GLBUF_HASH_ARRAY];
 	Glbuf_Data *prev = NULL;
-	while (data != NULL)
-	{
-		if (data->obj_idx == (*target)->obj_idx)
-		{
+	while (data != NULL) {
+		if (data->obj_idx == (*target)->obj_idx) {
 			if (prev != NULL)
 				prev->next = data->next;
 			else
@@ -68,8 +61,7 @@ static Glbuf_Data *
 __findhash_glbuf_object(Glbuf_Data **glbuf, int obj_idx)
 {
 	Glbuf_Data *data = glbuf[obj_idx % MTD_GLBUF_HASH_ARRAY];
-	while (data != NULL)
-	{
+	while (data != NULL) {
 		if (data->obj_idx == obj_idx)
 			break;
 		data = data->next;
@@ -85,12 +77,10 @@ tracepath_glbuf_clear(Glbuf_Data **glbuf)
 {
 	int i;
 
-	for (i = 0; i < MTD_GLBUF_HASH_ARRAY; i++)
-	{
+	for (i = 0; i < MTD_GLBUF_HASH_ARRAY; i++) {
 		Glbuf_Data *data = glbuf[i];
 
-		while (data)
-		{
+		while (data) {
 			Glbuf_Data *delitm = data;
 			data = data->next;
 			free(delitm);
@@ -100,21 +90,20 @@ tracepath_glbuf_clear(Glbuf_Data **glbuf)
 }
 
 static void
-_add_glbuf_object(Glbuf_Data **glbuf, int obj_idx, const char *obj_type, int width, int height, int bpp, const char *format)
+_add_glbuf_object(Glbuf_Data **glbuf, int obj_idx, const char *obj_type,
+		  int width, int height, int bpp, const char *format)
 {
 	Glbuf_Data *data = __findhash_glbuf_object(glbuf, obj_idx);
-	if (data == NULL)
-	{
+	if (data == NULL) {
 		data = (Glbuf_Data *)calloc(1, sizeof(Glbuf_Data));
 		data->obj_idx = obj_idx;
 		__addhash_glbuf_object(glbuf, data);
-	}
-	else
-	{
+	} else {
 		// Update
 		{
 			char ment[MAX_TRACE_NAME_LENGTH];
-			sprintf(ment, "%s(%4dx%4d %s)", obj_type, data->width, data->height, data->format);
+			sprintf(ment, "%s(%4dx%4d %s)", obj_type, data->width, data->height,
+				data->format);
 			_COREGL_TRACE_MEM_REMOVE(ment, data->width * data->height * data->bpp);
 		}
 	}
@@ -126,7 +115,8 @@ _add_glbuf_object(Glbuf_Data **glbuf, int obj_idx, const char *obj_type, int wid
 
 	{
 		char ment[MAX_TRACE_NAME_LENGTH];
-		sprintf(ment, "%s(%4dx%4d %s)", obj_type, data->width, data->height, data->format);
+		sprintf(ment, "%s(%4dx%4d %s)", obj_type, data->width, data->height,
+			data->format);
 		_COREGL_TRACE_MEM_ADD(ment, data->width * data->height * data->bpp);
 	}
 	goto finish;
@@ -139,15 +129,16 @@ static void
 _remove_glbuf_object(Glbuf_Data **glbuf, int obj_idx, const char *obj_type)
 {
 	Glbuf_Data *data = __findhash_glbuf_object(glbuf, obj_idx);
-	if (data == NULL)
-	{
-		COREGL_WRN("\E[40;31;1mError deleting %s object %d. (is not created)\E[0m\n", obj_type, obj_idx);
+	if (data == NULL) {
+		COREGL_WRN("\E[40;31;1mError deleting %s object %d. (is not created)\E[0m\n",
+			   obj_type, obj_idx);
 		return;
 	}
 
 	{
 		char ment[MAX_TRACE_NAME_LENGTH];
-		sprintf(ment, "%s(%4dx%4d %s)", obj_type, data->width, data->height, data->format);
+		sprintf(ment, "%s(%4dx%4d %s)", obj_type, data->width, data->height,
+			data->format);
 		_COREGL_TRACE_MEM_REMOVE(ment, data->width * data->height * data->bpp);
 	}
 
@@ -161,56 +152,58 @@ finish:
 
 #ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
 void
-_surface_trace_set(int set, GLint fbname, GLenum attachment, MY_MODULE_TSTATE *tstate)
+_surface_trace_set(int set, GLint fbname, GLenum attachment,
+		   MY_MODULE_TSTATE *tstate)
 {
 	int atttype = _COREGL_INT_INIT_VALUE;
-   _orig_tracepath_glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, attachment, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &atttype);
+	_orig_tracepath_glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER,
+			attachment, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &atttype);
 	AST(atttype != _COREGL_INT_INIT_VALUE);
 	int attname = _COREGL_INT_INIT_VALUE;
-   _orig_tracepath_glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, attachment, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &attname);
+	_orig_tracepath_glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER,
+			attachment, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &attname);
 	AST(attname != _COREGL_INT_INIT_VALUE);
-	if (set == 1)
-	{
-		switch (atttype)
+	if (set == 1) {
+		switch (atttype) {
+		case GL_TEXTURE:
+			//COREGL_LOG("FBO DUMPING BEGIN = (TEX)0x%X\n", attname);
 		{
-			case GL_TEXTURE:
-				//COREGL_LOG("FBO DUMPING BEGIN = (TEX)0x%X\n", attname);
-				{
-					char name[256];
-					sprintf(name, "FBOTEX_0x%X", attname);
-					tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, fbname, attname, 0, -1, -1, -1, NULL);
-				}
-				break;
-			case GL_RENDERBUFFER:
-				//COREGL_LOG("FBO DUMPING BEGIN = (RB)0x%X\n", attname);
-				{
-					char name[256];
-					sprintf(name, "FBORB_0x%X", attname);
-					tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, fbname, 0, attname, -1, -1, -1, NULL);
-				}
-				break;
+			char name[256];
+			sprintf(name, "FBOTEX_0x%X", attname);
+			tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle,
+						    tstate->surf_draw, fbname, attname, 0, -1, -1, -1, NULL);
 		}
-	}
-	else
-	{
-		switch (atttype)
+		break;
+		case GL_RENDERBUFFER:
+			//COREGL_LOG("FBO DUMPING BEGIN = (RB)0x%X\n", attname);
 		{
-			case GL_TEXTURE:
-				//COREGL_LOG("FBO DUMPING END = (TEX)0x%X\n", attname);
-				{
-					char name[256];
-					sprintf(name, "FBOTEX_0x%X", attname);
-					tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, 0, attname, 0, -1, -1, -1, NULL);
-				}
-				break;
-			case GL_RENDERBUFFER:
-				//COREGL_LOG("FBO DUMPING END = (RB)0x%X\n", attname);
-				{
-					char name[256];
-					sprintf(name, "FBORB_0x%X", attname);
-					tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, 0, 0, attname, -1, -1, -1, NULL);
-				}
-				break;
+			char name[256];
+			sprintf(name, "FBORB_0x%X", attname);
+			tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle,
+						    tstate->surf_draw, fbname, 0, attname, -1, -1, -1, NULL);
+		}
+		break;
+		}
+	} else {
+		switch (atttype) {
+		case GL_TEXTURE:
+			//COREGL_LOG("FBO DUMPING END = (TEX)0x%X\n", attname);
+		{
+			char name[256];
+			sprintf(name, "FBOTEX_0x%X", attname);
+			tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle,
+						    tstate->surf_draw, 0, attname, 0, -1, -1, -1, NULL);
+		}
+		break;
+		case GL_RENDERBUFFER:
+			//COREGL_LOG("FBO DUMPING END = (RB)0x%X\n", attname);
+		{
+			char name[256];
+			sprintf(name, "FBORB_0x%X", attname);
+			tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle,
+						    tstate->surf_draw, 0, 0, attname, -1, -1, -1, NULL);
+		}
+		break;
 		}
 	}
 }
@@ -218,19 +211,16 @@ _surface_trace_set(int set, GLint fbname, GLenum attachment, MY_MODULE_TSTATE *t
 void
 tracepath_fbdump_update(GLint set)
 {
-	if (trace_surface_flag == 1)
-	{
+	if (trace_surface_flag == 1) {
 		GLint fbname = _COREGL_INT_INIT_VALUE;
 		_orig_tracepath_glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbname);
 		AST(fbname != _COREGL_INT_INIT_VALUE);
-		if (fbname != 0)
-		{
+		if (fbname != 0) {
 			MY_MODULE_TSTATE *tstate = NULL;
 
 			GET_MY_TSTATE(tstate, get_current_thread_state());
 			AST(tstate != NULL);
-			if (tstate->ctx != NULL)
-			{
+			if (tstate->ctx != NULL) {
 				_surface_trace_set(set, fbname, GL_COLOR_ATTACHMENT0, tstate);
 //				_surface_trace_set(set, fbname, GL_DEPTH_ATTACHMENT, tstate);
 //				_surface_trace_set(set, fbname, GL_STENCIL_ATTACHMENT, tstate);
@@ -272,7 +262,7 @@ finish:
 }
 
 void
-tracepath_glBindAttribLocation(GLuint program, GLuint index, const char* name)
+tracepath_glBindAttribLocation(GLuint program, GLuint index, const char *name)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glBindAttribLocation(program, index, name);
@@ -301,12 +291,10 @@ tracepath_glBindFramebuffer(GLenum target, GLuint framebuffer)
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 
 #ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
-	if (unlikely(trace_surface_flag == 1))
-	{
+	if (unlikely(trace_surface_flag == 1)) {
 		GLint oldfb;
 		_orig_tracepath_glGetIntegerv(GL_FRAMEBUFFER_BINDING, &oldfb);
-		if (oldfb != 0)
-		{
+		if (oldfb != 0) {
 			_COREGL_TRACE_SURFACE(0, 2, "GLBINDFBO");
 		}
 
@@ -317,8 +305,7 @@ tracepath_glBindFramebuffer(GLenum target, GLuint framebuffer)
 	_orig_tracepath_glBindFramebuffer(target, framebuffer);
 
 #ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
-	if (unlikely(trace_surface_flag == 1))
-	{
+	if (unlikely(trace_surface_flag == 1)) {
 		tracepath_fbdump_update(1);
 	}
 #endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
@@ -346,7 +333,7 @@ tracepath_glBindTexture(GLenum target, GLuint texture)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 
-        _COREGL_TRACE_SURFACE(0, 1, "GLBINDTEXTURE");
+	_COREGL_TRACE_SURFACE(0, 1, "GLBINDTEXTURE");
 	_orig_tracepath_glBindTexture(target, texture);
 
 	goto finish;
@@ -356,7 +343,8 @@ finish:
 }
 
 void
-tracepath_glBlendColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
+tracepath_glBlendColor(GLclampf red, GLclampf green, GLclampf blue,
+		       GLclampf alpha)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glBlendColor(red, green, blue, alpha);
@@ -404,7 +392,8 @@ finish:
 }
 
 void
-tracepath_glBlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
+tracepath_glBlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha,
+			      GLenum dstAlpha)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glBlendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha);
@@ -416,7 +405,8 @@ finish:
 }
 
 void
-tracepath_glBufferData(GLenum target, GLsizeiptr size, const void* data, GLenum usage)
+tracepath_glBufferData(GLenum target, GLsizeiptr size, const void *data,
+		       GLenum usage)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glBufferData(target, size, data, usage);
@@ -428,7 +418,8 @@ finish:
 }
 
 void
-tracepath_glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, const void* data)
+tracepath_glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size,
+			  const void *data)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glBufferSubData(target, offset, size, data);
@@ -467,7 +458,8 @@ finish:
 }
 
 void
-tracepath_glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
+tracepath_glClearColor(GLclampf red, GLclampf green, GLclampf blue,
+		       GLclampf alpha)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glClearColor(red, green, blue, alpha);
@@ -503,7 +495,8 @@ finish:
 }
 
 void
-tracepath_glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
+tracepath_glColorMask(GLboolean red, GLboolean green, GLboolean blue,
+		      GLboolean alpha)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glColorMask(red, green, blue, alpha);
@@ -527,10 +520,13 @@ finish:
 }
 
 void
-tracepath_glCompressedTexImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void* data)
+tracepath_glCompressedTexImage2D(GLenum target, GLint level,
+				 GLenum internalformat, GLsizei width, GLsizei height, GLint border,
+				 GLsizei imageSize, const void *data)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glCompressedTexImage2D(target, level, internalformat, width, height, border, imageSize, data);
+	_orig_tracepath_glCompressedTexImage2D(target, level, internalformat, width,
+					       height, border, imageSize, data);
 
 	goto finish;
 
@@ -539,10 +535,13 @@ finish:
 }
 
 void
-tracepath_glCompressedTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const void* data)
+tracepath_glCompressedTexSubImage2D(GLenum target, GLint level, GLint xoffset,
+				    GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize,
+				    const void *data)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glCompressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, imageSize, data);
+	_orig_tracepath_glCompressedTexSubImage2D(target, level, xoffset, yoffset,
+			width, height, format, imageSize, data);
 
 	goto finish;
 
@@ -551,10 +550,12 @@ finish:
 }
 
 void
-tracepath_glCopyTexImage2D(GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border)
+tracepath_glCopyTexImage2D(GLenum target, GLint level, GLenum internalformat,
+			   GLint x, GLint y, GLsizei width, GLsizei height, GLint border)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glCopyTexImage2D(target, level, internalformat, x, y, width, height, border);
+	_orig_tracepath_glCopyTexImage2D(target, level, internalformat, x, y, width,
+					 height, border);
 
 	goto finish;
 
@@ -563,10 +564,12 @@ finish:
 }
 
 void
-tracepath_glCopyTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height)
+tracepath_glCopyTexSubImage2D(GLenum target, GLint level, GLint xoffset,
+			      GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glCopyTexSubImage2D(target, level, xoffset, yoffset, x, y, width, height);
+	_orig_tracepath_glCopyTexSubImage2D(target, level, xoffset, yoffset, x, y,
+					    width, height);
 
 	goto finish;
 
@@ -616,7 +619,7 @@ finish:
 }
 
 void
-tracepath_glDeleteBuffers(GLsizei n, const GLuint* buffers)
+tracepath_glDeleteBuffers(GLsizei n, const GLuint *buffers)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glDeleteBuffers(n, buffers);
@@ -628,7 +631,7 @@ finish:
 }
 
 void
-tracepath_glDeleteFramebuffers(GLsizei n, const GLuint* framebuffers)
+tracepath_glDeleteFramebuffers(GLsizei n, const GLuint *framebuffers)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 
@@ -661,7 +664,7 @@ finish:
 }
 
 void
-tracepath_glDeleteRenderbuffers(GLsizei n, const GLuint* renderbuffers)
+tracepath_glDeleteRenderbuffers(GLsizei n, const GLuint *renderbuffers)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 
@@ -680,18 +683,16 @@ tracepath_glDeleteRenderbuffers(GLsizei n, const GLuint* renderbuffers)
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
 #ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
-	if (trace_mem_flag == 1)
-	{
+	if (trace_mem_flag == 1) {
 		MY_MODULE_TSTATE *tstate = NULL;
 
 		GET_MY_TSTATE(tstate, get_current_thread_state());
 		AST(tstate != NULL);
-		if (tstate->ctx != NULL)
-		{
-			for (int i = 0; i < n; i++)
-			{
+		if (tstate->ctx != NULL) {
+			for (int i = 0; i < n; i++) {
 				if (renderbuffers[i] == 0) continue;
-				_remove_glbuf_object(tstate->ctx->sostate->glbuf_rb, renderbuffers[i], "Renderbuffer");
+				_remove_glbuf_object(tstate->ctx->sostate->glbuf_rb, renderbuffers[i],
+						     "Renderbuffer");
 			}
 		}
 	}
@@ -711,7 +712,7 @@ finish:
 }
 
 void
-tracepath_glDeleteTextures(GLsizei n, const GLuint* textures)
+tracepath_glDeleteTextures(GLsizei n, const GLuint *textures)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 
@@ -730,16 +731,13 @@ tracepath_glDeleteTextures(GLsizei n, const GLuint* textures)
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
 #ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
-	if (trace_mem_flag == 1)
-	{
+	if (trace_mem_flag == 1) {
 		MY_MODULE_TSTATE *tstate = NULL;
 
 		GET_MY_TSTATE(tstate, get_current_thread_state());
 		AST(tstate != NULL);
-		if (tstate->ctx != NULL)
-		{
-			for (int i = 0; i < n; i++)
-			{
+		if (tstate->ctx != NULL) {
+			for (int i = 0; i < n; i++) {
 				if (textures[i] == 0) continue;
 				_remove_glbuf_object(tstate->ctx->sostate->glbuf_tex, textures[i], "Texture");
 			}
@@ -831,28 +829,30 @@ tracepath_glDrawArrays(GLenum mode, GLint first, GLsizei count)
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
 #ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
-	if (trace_surface_flag == 1)
-	{
+	if (trace_surface_flag == 1) {
 		GLint fbname = _COREGL_INT_INIT_VALUE;
 		_orig_tracepath_glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbname);
 		AST(fbname != _COREGL_INT_INIT_VALUE);
-		if (fbname == 0)
-		{
+		if (fbname == 0) {
 			char name[256];
 			EGLint btype;
-			_orig_tracepath_eglQuerySurface(_orig_tracepath_eglGetCurrentDisplay(), _orig_tracepath_eglGetCurrentSurface(EGL_DRAW), EGL_RENDER_BUFFER, &btype);
+			_orig_tracepath_eglQuerySurface(_orig_tracepath_eglGetCurrentDisplay(),
+							_orig_tracepath_eglGetCurrentSurface(EGL_DRAW), EGL_RENDER_BUFFER, &btype);
 			if (btype == EGL_SINGLE_BUFFER)
 				sprintf(name, "EGLPIXMAP_%p", _orig_tracepath_eglGetCurrentSurface(EGL_DRAW));
 			else
 				sprintf(name, "EGLWINDOW_%p", _orig_tracepath_eglGetCurrentSurface(EGL_DRAW));
-			tracepath_surface_trace_add(name, _orig_tracepath_eglGetCurrentDisplay(), _orig_tracepath_eglGetCurrentContext(), _orig_tracepath_eglGetCurrentSurface(EGL_DRAW), 0, 0, 0, 0, 0, 0, NULL);
+			tracepath_surface_trace_add(name, _orig_tracepath_eglGetCurrentDisplay(),
+						    _orig_tracepath_eglGetCurrentContext(),
+						    _orig_tracepath_eglGetCurrentSurface(EGL_DRAW), 0, 0, 0, 0, 0, 0, NULL);
 		}
-   }
+	}
 #endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 }
 
 void
-tracepath_glDrawElements(GLenum mode, GLsizei count, GLenum type, const void* indices)
+tracepath_glDrawElements(GLenum mode, GLsizei count, GLenum type,
+			 const void *indices)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glDrawElements(mode, count, type, indices);
@@ -862,23 +862,24 @@ tracepath_glDrawElements(GLenum mode, GLsizei count, GLenum type, const void* in
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
 #ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
-	if (trace_surface_flag == 1)
-	{
+	if (trace_surface_flag == 1) {
 		GLint fbname = _COREGL_INT_INIT_VALUE;
 		_orig_tracepath_glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbname);
 		AST(fbname != _COREGL_INT_INIT_VALUE);
-		if (fbname == 0)
-		{
+		if (fbname == 0) {
 			char name[256];
 			EGLint btype;
-			_orig_tracepath_eglQuerySurface(_orig_tracepath_eglGetCurrentDisplay(), _orig_tracepath_eglGetCurrentSurface(EGL_DRAW), EGL_RENDER_BUFFER, &btype);
+			_orig_tracepath_eglQuerySurface(_orig_tracepath_eglGetCurrentDisplay(),
+							_orig_tracepath_eglGetCurrentSurface(EGL_DRAW), EGL_RENDER_BUFFER, &btype);
 			if (btype == EGL_SINGLE_BUFFER)
 				sprintf(name, "EGLPIXMAP_%p", _orig_tracepath_eglGetCurrentSurface(EGL_DRAW));
 			else
 				sprintf(name, "EGLWINDOW_%p", _orig_tracepath_eglGetCurrentSurface(EGL_DRAW));
-			tracepath_surface_trace_add(name, _orig_tracepath_eglGetCurrentDisplay(), _orig_tracepath_eglGetCurrentContext(), _orig_tracepath_eglGetCurrentSurface(EGL_DRAW), 0, 0, 0, 0, 0, 0, NULL);
+			tracepath_surface_trace_add(name, _orig_tracepath_eglGetCurrentDisplay(),
+						    _orig_tracepath_eglGetCurrentContext(),
+						    _orig_tracepath_eglGetCurrentSurface(EGL_DRAW), 0, 0, 0, 0, 0, 0, NULL);
 		}
-   }
+	}
 #endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 }
 
@@ -939,7 +940,8 @@ finish:
 }
 
 void
-tracepath_glFramebufferRenderbuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)
+tracepath_glFramebufferRenderbuffer(GLenum target, GLenum attachment,
+				    GLenum renderbuffertarget, GLuint renderbuffer)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 
@@ -947,7 +949,8 @@ tracepath_glFramebufferRenderbuffer(GLenum target, GLenum attachment, GLenum ren
 	tracepath_fbdump_update(0);
 #endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 
-	_orig_tracepath_glFramebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer);
+	_orig_tracepath_glFramebufferRenderbuffer(target, attachment,
+			renderbuffertarget, renderbuffer);
 
 #ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
 	tracepath_fbdump_update(1);
@@ -960,7 +963,8 @@ finish:
 }
 
 void
-tracepath_glFramebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)
+tracepath_glFramebufferTexture2D(GLenum target, GLenum attachment,
+				 GLenum textarget, GLuint texture, GLint level)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 
@@ -968,7 +972,8 @@ tracepath_glFramebufferTexture2D(GLenum target, GLenum attachment, GLenum textar
 	tracepath_fbdump_update(0);
 #endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 
-	_orig_tracepath_glFramebufferTexture2D(target, attachment, textarget, texture, level);
+	_orig_tracepath_glFramebufferTexture2D(target, attachment, textarget, texture,
+					       level);
 
 #ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
 	tracepath_fbdump_update(1);
@@ -993,7 +998,7 @@ finish:
 }
 
 void
-tracepath_glGetVertexAttribfv(GLuint index, GLenum pname, GLfloat* params)
+tracepath_glGetVertexAttribfv(GLuint index, GLenum pname, GLfloat *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetVertexAttribfv(index, pname, params);
@@ -1006,7 +1011,7 @@ finish:
 }
 
 void
-tracepath_glGetVertexAttribiv(GLuint index, GLenum pname, GLint* params)
+tracepath_glGetVertexAttribiv(GLuint index, GLenum pname, GLint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetVertexAttribiv(index, pname, params);
@@ -1019,7 +1024,7 @@ finish:
 }
 
 void
-tracepath_glGetVertexAttribPointerv(GLuint index, GLenum pname, void** pointer)
+tracepath_glGetVertexAttribPointerv(GLuint index, GLenum pname, void **pointer)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetVertexAttribPointerv(index, pname, pointer);
@@ -1045,7 +1050,7 @@ finish:
 }
 
 void
-tracepath_glGenBuffers(GLsizei n, GLuint* buffers)
+tracepath_glGenBuffers(GLsizei n, GLuint *buffers)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGenBuffers(n, buffers);
@@ -1069,7 +1074,7 @@ finish:
 }
 
 void
-tracepath_glGenFramebuffers(GLsizei n, GLuint* framebuffers)
+tracepath_glGenFramebuffers(GLsizei n, GLuint *framebuffers)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGenFramebuffers(n, framebuffers);
@@ -1081,7 +1086,7 @@ finish:
 }
 
 void
-tracepath_glGenRenderbuffers(GLsizei n, GLuint* renderbuffers)
+tracepath_glGenRenderbuffers(GLsizei n, GLuint *renderbuffers)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGenRenderbuffers(n, renderbuffers);
@@ -1091,18 +1096,16 @@ tracepath_glGenRenderbuffers(GLsizei n, GLuint* renderbuffers)
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
 #ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
-	if (trace_mem_flag == 1)
-	{
+	if (trace_mem_flag == 1) {
 		MY_MODULE_TSTATE *tstate = NULL;
 
 		GET_MY_TSTATE(tstate, get_current_thread_state());
 		AST(tstate != NULL);
-		if (tstate->ctx != NULL)
-		{
-			for (int i = 0; i < n; i++)
-			{
+		if (tstate->ctx != NULL) {
+			for (int i = 0; i < n; i++) {
 				if (renderbuffers[i] == 0) continue;
-				_add_glbuf_object(tstate->ctx->sostate->glbuf_rb, renderbuffers[i], "Renderbuffer", 0, 0, 0, "Unknown");
+				_add_glbuf_object(tstate->ctx->sostate->glbuf_rb, renderbuffers[i],
+						  "Renderbuffer", 0, 0, 0, "Unknown");
 			}
 		}
 	}
@@ -1110,7 +1113,7 @@ finish:
 }
 
 void
-tracepath_glGenTextures(GLsizei n, GLuint* textures)
+tracepath_glGenTextures(GLsizei n, GLuint *textures)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGenTextures(n, textures);
@@ -1120,18 +1123,16 @@ tracepath_glGenTextures(GLsizei n, GLuint* textures)
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
 #ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
-	if (trace_mem_flag == 1)
-	{
+	if (trace_mem_flag == 1) {
 		MY_MODULE_TSTATE *tstate = NULL;
 
 		GET_MY_TSTATE(tstate, get_current_thread_state());
 		AST(tstate != NULL);
-		if (tstate->ctx != NULL)
-		{
-			for (int i = 0; i < n; i++)
-			{
+		if (tstate->ctx != NULL) {
+			for (int i = 0; i < n; i++) {
 				if (textures[i] == 0) continue;
-				_add_glbuf_object(tstate->ctx->sostate->glbuf_tex, textures[i], "Texture", 0, 0, 0, "Unknown");
+				_add_glbuf_object(tstate->ctx->sostate->glbuf_tex, textures[i], "Texture", 0, 0,
+						  0, "Unknown");
 			}
 		}
 	}
@@ -1139,10 +1140,12 @@ finish:
 }
 
 void
-tracepath_glGetActiveAttrib(GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, char* name)
+tracepath_glGetActiveAttrib(GLuint program, GLuint index, GLsizei bufsize,
+			    GLsizei *length, GLint *size, GLenum *type, char *name)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glGetActiveAttrib(program, index, bufsize, length, size, type, name);
+	_orig_tracepath_glGetActiveAttrib(program, index, bufsize, length, size, type,
+					  name);
 
 	goto finish;
 
@@ -1151,10 +1154,12 @@ finish:
 }
 
 void
-tracepath_glGetActiveUniform(GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, char* name)
+tracepath_glGetActiveUniform(GLuint program, GLuint index, GLsizei bufsize,
+			     GLsizei *length, GLint *size, GLenum *type, char *name)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glGetActiveUniform(program, index, bufsize, length, size, type, name);
+	_orig_tracepath_glGetActiveUniform(program, index, bufsize, length, size, type,
+					   name);
 
 	goto finish;
 
@@ -1163,7 +1168,8 @@ finish:
 }
 
 void
-tracepath_glGetAttachedShaders(GLuint program, GLsizei maxcount, GLsizei* count, GLuint* shaders)
+tracepath_glGetAttachedShaders(GLuint program, GLsizei maxcount, GLsizei *count,
+			       GLuint *shaders)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetAttachedShaders(program, maxcount, count, shaders);
@@ -1175,7 +1181,7 @@ finish:
 }
 
 int
-tracepath_glGetAttribLocation(GLuint program, const char* name)
+tracepath_glGetAttribLocation(GLuint program, const char *name)
 {
 	int ret = _COREGL_INT_INIT_VALUE;
 	_COREGL_TRACEPATH_FUNC_BEGIN();
@@ -1189,7 +1195,7 @@ finish:
 }
 
 void
-tracepath_glGetBooleanv(GLenum pname, GLboolean* params)
+tracepath_glGetBooleanv(GLenum pname, GLboolean *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetBooleanv(pname, params);
@@ -1201,7 +1207,7 @@ finish:
 }
 
 void
-tracepath_glGetBufferParameteriv(GLenum target, GLenum pname, GLint* params)
+tracepath_glGetBufferParameteriv(GLenum target, GLenum pname, GLint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetBufferParameteriv(target, pname, params);
@@ -1227,7 +1233,7 @@ finish:
 }
 
 void
-tracepath_glGetFloatv(GLenum pname, GLfloat* params)
+tracepath_glGetFloatv(GLenum pname, GLfloat *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetFloatv(pname, params);
@@ -1239,10 +1245,12 @@ finish:
 }
 
 void
-tracepath_glGetFramebufferAttachmentParameteriv(GLenum target, GLenum attachment, GLenum pname, GLint* params)
+tracepath_glGetFramebufferAttachmentParameteriv(GLenum target,
+		GLenum attachment, GLenum pname, GLint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glGetFramebufferAttachmentParameteriv(target, attachment, pname, params);
+	_orig_tracepath_glGetFramebufferAttachmentParameteriv(target, attachment, pname,
+			params);
 
 	goto finish;
 
@@ -1251,7 +1259,7 @@ finish:
 }
 
 void
-tracepath_glGetIntegerv(GLenum pname, GLint* params)
+tracepath_glGetIntegerv(GLenum pname, GLint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetIntegerv(pname, params);
@@ -1263,7 +1271,7 @@ finish:
 }
 
 void
-tracepath_glGetProgramiv(GLuint program, GLenum pname, GLint* params)
+tracepath_glGetProgramiv(GLuint program, GLenum pname, GLint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetProgramiv(program, pname, params);
@@ -1275,7 +1283,8 @@ finish:
 }
 
 void
-tracepath_glGetProgramInfoLog(GLuint program, GLsizei bufsize, GLsizei* length, char* infolog)
+tracepath_glGetProgramInfoLog(GLuint program, GLsizei bufsize, GLsizei *length,
+			      char *infolog)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetProgramInfoLog(program, bufsize, length, infolog);
@@ -1287,7 +1296,8 @@ finish:
 }
 
 void
-tracepath_glGetRenderbufferParameteriv(GLenum target, GLenum pname, GLint* params)
+tracepath_glGetRenderbufferParameteriv(GLenum target, GLenum pname,
+				       GLint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetRenderbufferParameteriv(target, pname, params);
@@ -1299,7 +1309,7 @@ finish:
 }
 
 void
-tracepath_glGetShaderiv(GLuint shader, GLenum pname, GLint* params)
+tracepath_glGetShaderiv(GLuint shader, GLenum pname, GLint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetShaderiv(shader, pname, params);
@@ -1311,7 +1321,8 @@ finish:
 }
 
 void
-tracepath_glGetShaderInfoLog(GLuint shader, GLsizei bufsize, GLsizei* length, char* infolog)
+tracepath_glGetShaderInfoLog(GLuint shader, GLsizei bufsize, GLsizei *length,
+			     char *infolog)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetShaderInfoLog(shader, bufsize, length, infolog);
@@ -1323,10 +1334,12 @@ finish:
 }
 
 void
-tracepath_glGetShaderPrecisionFormat(GLenum shadertype, GLenum precisiontype, GLint* range, GLint* precision)
+tracepath_glGetShaderPrecisionFormat(GLenum shadertype, GLenum precisiontype,
+				     GLint *range, GLint *precision)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glGetShaderPrecisionFormat(shadertype, precisiontype, range, precision);
+	_orig_tracepath_glGetShaderPrecisionFormat(shadertype, precisiontype, range,
+			precision);
 
 	goto finish;
 
@@ -1335,7 +1348,8 @@ finish:
 }
 
 void
-tracepath_glGetShaderSource(GLuint shader, GLsizei bufsize, GLsizei* length, char* source)
+tracepath_glGetShaderSource(GLuint shader, GLsizei bufsize, GLsizei *length,
+			    char *source)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetShaderSource(shader, bufsize, length, source);
@@ -1362,7 +1376,7 @@ finish:
 }
 
 void
-tracepath_glGetTexParameterfv(GLenum target, GLenum pname, GLfloat* params)
+tracepath_glGetTexParameterfv(GLenum target, GLenum pname, GLfloat *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetTexParameterfv(target, pname, params);
@@ -1374,7 +1388,7 @@ finish:
 }
 
 void
-tracepath_glGetTexParameteriv(GLenum target, GLenum pname, GLint* params)
+tracepath_glGetTexParameteriv(GLenum target, GLenum pname, GLint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetTexParameteriv(target, pname, params);
@@ -1386,7 +1400,7 @@ finish:
 }
 
 void
-tracepath_glGetUniformfv(GLuint program, GLint location, GLfloat* params)
+tracepath_glGetUniformfv(GLuint program, GLint location, GLfloat *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetUniformfv(program, location, params);
@@ -1398,7 +1412,7 @@ finish:
 }
 
 void
-tracepath_glGetUniformiv(GLuint program, GLint location, GLint* params)
+tracepath_glGetUniformiv(GLuint program, GLint location, GLint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetUniformiv(program, location, params);
@@ -1409,7 +1423,7 @@ finish:
 	_COREGL_TRACEPATH_FUNC_END();
 }
 int
-tracepath_glGetUniformLocation(GLuint program, const char* name)
+tracepath_glGetUniformLocation(GLuint program, const char *name)
 {
 	int ret = _COREGL_INT_INIT_VALUE;
 
@@ -1573,7 +1587,8 @@ finish:
 }
 
 void
-tracepath_glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void* pixels)
+tracepath_glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height,
+		       GLenum format, GLenum type, void *pixels)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glReadPixels(x, y, width, height, format, type, pixels);
@@ -1597,7 +1612,8 @@ finish:
 }
 
 void
-tracepath_glRenderbufferStorage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height)
+tracepath_glRenderbufferStorage(GLenum target, GLenum internalformat,
+				GLsizei width, GLsizei height)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 
@@ -1608,14 +1624,12 @@ tracepath_glRenderbufferStorage(GLenum target, GLenum internalformat, GLsizei wi
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
 #ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
-	if (trace_mem_flag == 1)
-	{
+	if (trace_mem_flag == 1) {
 		MY_MODULE_TSTATE *tstate = NULL;
 
 		GET_MY_TSTATE(tstate, get_current_thread_state());
 		AST(tstate != NULL);
-		if (tstate->ctx != NULL)
-		{
+		if (tstate->ctx != NULL) {
 			int objidx = _COREGL_INT_INIT_VALUE;
 			_orig_tracepath_glGetIntegerv(GL_RENDERBUFFER_BINDING, &objidx);
 			AST(objidx != _COREGL_INT_INIT_VALUE);
@@ -1623,65 +1637,116 @@ finish:
 			// Detect byte per pixel
 			int bpp = 0;
 			char formatment[80];
-			switch (internalformat)
-			{
-				case GL_ALPHA: sprintf(formatment, "ALPHA"); bpp = 1; break;
-				case GL_LUMINANCE: sprintf(formatment, "LUMINANCE"); bpp = 1; break;
-				case GL_LUMINANCE_ALPHA: sprintf(formatment, "LUMINANCE_ALPHA"); bpp = 1; break;
-				case GL_RGB: sprintf(formatment, "RGB"); bpp = 2; break;
-				case GL_RGBA: sprintf(formatment, "RGBA"); bpp = 4; break;
-				case 0x80E1: sprintf(formatment, "BGRA_EXT"); bpp = 4; break;
-				case 0x84F9: sprintf(formatment, "DEPTH_STENCIL_OES"); bpp = 4; break;
-				case GL_DEPTH_COMPONENT : sprintf(formatment, "DEPTH_COMPONENT"); bpp = 1; break;
-				case 0x81A5: sprintf(formatment, "DEPTH_COMPONENT16_ARB"); bpp = 2; break;
-				case 0x81A6: sprintf(formatment, "DEPTH_COMPONENT24_ARB"); bpp = 3; break;
-				case 0x81A7: sprintf(formatment, "DEPTH_COMPONENT32_ARB"); bpp = 4; break;
-				case 0x8D46 : sprintf(formatment, "STENCIL_INDEX1_OES"); bpp = 1; break;
-				case 0x8D47 : sprintf(formatment, "STENCIL_INDEX4_OES"); bpp = 1; break;
-				case 0x8D48 : sprintf(formatment, "STENCIL_INDEX8_OES"); bpp = 1; break;
-				default: sprintf(formatment, "0x%X", internalformat); bpp = 0; break;
+			switch (internalformat) {
+			case GL_ALPHA:
+				sprintf(formatment, "ALPHA");
+				bpp = 1;
+				break;
+			case GL_LUMINANCE:
+				sprintf(formatment, "LUMINANCE");
+				bpp = 1;
+				break;
+			case GL_LUMINANCE_ALPHA:
+				sprintf(formatment, "LUMINANCE_ALPHA");
+				bpp = 1;
+				break;
+			case GL_RGB:
+				sprintf(formatment, "RGB");
+				bpp = 2;
+				break;
+			case GL_RGBA:
+				sprintf(formatment, "RGBA");
+				bpp = 4;
+				break;
+			case 0x80E1:
+				sprintf(formatment, "BGRA_EXT");
+				bpp = 4;
+				break;
+			case 0x84F9:
+				sprintf(formatment, "DEPTH_STENCIL_OES");
+				bpp = 4;
+				break;
+			case GL_DEPTH_COMPONENT :
+				sprintf(formatment, "DEPTH_COMPONENT");
+				bpp = 1;
+				break;
+			case 0x81A5:
+				sprintf(formatment, "DEPTH_COMPONENT16_ARB");
+				bpp = 2;
+				break;
+			case 0x81A6:
+				sprintf(formatment, "DEPTH_COMPONENT24_ARB");
+				bpp = 3;
+				break;
+			case 0x81A7:
+				sprintf(formatment, "DEPTH_COMPONENT32_ARB");
+				bpp = 4;
+				break;
+			case 0x8D46 :
+				sprintf(formatment, "STENCIL_INDEX1_OES");
+				bpp = 1;
+				break;
+			case 0x8D47 :
+				sprintf(formatment, "STENCIL_INDEX4_OES");
+				bpp = 1;
+				break;
+			case 0x8D48 :
+				sprintf(formatment, "STENCIL_INDEX8_OES");
+				bpp = 1;
+				break;
+			default:
+				sprintf(formatment, "0x%X", internalformat);
+				bpp = 0;
+				break;
 			}
 
-			_add_glbuf_object(tstate->ctx->sostate->glbuf_rb, objidx, "Renderbuffer", width, height, bpp, formatment);
+			_add_glbuf_object(tstate->ctx->sostate->glbuf_rb, objidx, "Renderbuffer", width,
+					  height, bpp, formatment);
 		}
 	}
 #endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
 #ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
-	if (trace_surface_flag == 1)
-	{
+	if (trace_surface_flag == 1) {
 		MY_MODULE_TSTATE *tstate = NULL;
 
 		GET_MY_TSTATE(tstate, get_current_thread_state());
 		AST(tstate != NULL);
-		if (tstate->ctx != NULL)
-		{
+		if (tstate->ctx != NULL) {
 			int objidx = _COREGL_INT_INIT_VALUE;
 			_orig_tracepath_glGetIntegerv(GL_RENDERBUFFER_BINDING, &objidx);
 			AST(objidx != _COREGL_INT_INIT_VALUE);
 
 			{
 				int channel = 0;
-				switch (internalformat)
-				{
-					case GL_ALPHA:
-					case GL_LUMINANCE:
-					case GL_DEPTH_COMPONENT :
-					case 0x81A5:
-					case 0x81A6:
-					case 0x81A7:
-					case 0x8D46 :
-					case 0x8D47 :
-					case 0x8D48 : channel = 1; break;
-					case GL_LUMINANCE_ALPHA:
-					case 0x84F9: channel = 2; break;
-					case GL_RGB: channel = 3; break;
-					case GL_RGBA:
-					case 0x80E1: channel = 4; break;
+				switch (internalformat) {
+				case GL_ALPHA:
+				case GL_LUMINANCE:
+				case GL_DEPTH_COMPONENT :
+				case 0x81A5:
+				case 0x81A6:
+				case 0x81A7:
+				case 0x8D46 :
+				case 0x8D47 :
+				case 0x8D48 :
+					channel = 1;
+					break;
+				case GL_LUMINANCE_ALPHA:
+				case 0x84F9:
+					channel = 2;
+					break;
+				case GL_RGB:
+					channel = 3;
+					break;
+				case GL_RGBA:
+				case 0x80E1:
+					channel = 4;
+					break;
 				}
 
 				char name[256];
 				sprintf(name, "FBORB_%d", objidx);
-				tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, -1, 0, objidx, width, height, channel, NULL);
+				tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle,
+							    tstate->surf_draw, -1, 0, objidx, width, height, channel, NULL);
 			}
 		}
 	}
@@ -1713,7 +1778,8 @@ finish:
 }
 
 void
-tracepath_glShaderBinary(GLsizei n, const GLuint* shaders, GLenum binaryformat, const void* binary, GLsizei length)
+tracepath_glShaderBinary(GLsizei n, const GLuint *shaders, GLenum binaryformat,
+			 const void *binary, GLsizei length)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glShaderBinary(n, shaders, binaryformat, binary, length);
@@ -1725,7 +1791,8 @@ finish:
 }
 
 void
-tracepath_glShaderSource(GLuint shader, GLsizei count, const char** string, const GLint* length)
+tracepath_glShaderSource(GLuint shader, GLsizei count, const char **string,
+			 const GLint *length)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glShaderSource(shader, count, string, length);
@@ -1749,7 +1816,8 @@ finish:
 }
 
 void
-tracepath_glStencilFuncSeparate(GLenum face, GLenum func, GLint ref, GLuint mask)
+tracepath_glStencilFuncSeparate(GLenum face, GLenum func, GLint ref,
+				GLuint mask)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glStencilFuncSeparate(face, func, ref, mask);
@@ -1797,7 +1865,8 @@ finish:
 }
 
 void
-tracepath_glStencilOpSeparate(GLenum face, GLenum fail, GLenum zfail, GLenum zpass)
+tracepath_glStencilOpSeparate(GLenum face, GLenum fail, GLenum zfail,
+			      GLenum zpass)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glStencilOpSeparate(face, fail, zfail, zpass);
@@ -1809,24 +1878,25 @@ finish:
 }
 
 void
-tracepath_glTexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* pixels)
+tracepath_glTexImage2D(GLenum target, GLint level, GLint internalformat,
+		       GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type,
+		       const void *pixels)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
+	_orig_tracepath_glTexImage2D(target, level, internalformat, width, height,
+				     border, format, type, pixels);
 
 	goto finish;
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
 #ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
-	if (trace_mem_flag == 1)
-	{
+	if (trace_mem_flag == 1) {
 		MY_MODULE_TSTATE *tstate = NULL;
 
 		GET_MY_TSTATE(tstate, get_current_thread_state());
 		AST(tstate != NULL);
-		if (tstate->ctx != NULL)
-		{
+		if (tstate->ctx != NULL) {
 			int objidx = _COREGL_INT_INIT_VALUE;
 			_orig_tracepath_glGetIntegerv(GL_TEXTURE_BINDING_2D, &objidx);
 			AST(objidx != _COREGL_INT_INIT_VALUE);
@@ -1834,65 +1904,116 @@ finish:
 			// Detect byte per pixel
 			int bpp = 0;
 			char formatment[80];
-			switch (internalformat)
-			{
-				case GL_ALPHA: sprintf(formatment, "ALPHA"); bpp = 1; break;
-				case GL_LUMINANCE: sprintf(formatment, "LUMINANCE"); bpp = 1; break;
-				case GL_LUMINANCE_ALPHA: sprintf(formatment, "LUMINANCE_ALPHA"); bpp = 1; break;
-				case GL_RGB: sprintf(formatment, "RGB"); bpp = 2; break;
-				case GL_RGBA: sprintf(formatment, "RGBA"); bpp = 4; break;
-				case 0x80E1: sprintf(formatment, "BGRA_EXT"); bpp = 4; break;
-				case 0x84F9: sprintf(formatment, "DEPTH_STENCIL_OES"); bpp = 4; break;
-				case GL_DEPTH_COMPONENT : sprintf(formatment, "DEPTH_COMPONENT"); bpp = 1; break;
-				case 0x81A5: sprintf(formatment, "DEPTH_COMPONENT16_ARB"); bpp = 2; break;
-				case 0x81A6: sprintf(formatment, "DEPTH_COMPONENT24_ARB"); bpp = 3; break;
-				case 0x81A7: sprintf(formatment, "DEPTH_COMPONENT32_ARB"); bpp = 4; break;
-				case 0x8D46 : sprintf(formatment, "STENCIL_INDEX1_OES"); bpp = 1; break;
-				case 0x8D47 : sprintf(formatment, "STENCIL_INDEX4_OES"); bpp = 1; break;
-				case 0x8D48 : sprintf(formatment, "STENCIL_INDEX8_OES"); bpp = 1; break;
-				default: sprintf(formatment, "0x%X", internalformat); bpp = 0; break;
+			switch (internalformat) {
+			case GL_ALPHA:
+				sprintf(formatment, "ALPHA");
+				bpp = 1;
+				break;
+			case GL_LUMINANCE:
+				sprintf(formatment, "LUMINANCE");
+				bpp = 1;
+				break;
+			case GL_LUMINANCE_ALPHA:
+				sprintf(formatment, "LUMINANCE_ALPHA");
+				bpp = 1;
+				break;
+			case GL_RGB:
+				sprintf(formatment, "RGB");
+				bpp = 2;
+				break;
+			case GL_RGBA:
+				sprintf(formatment, "RGBA");
+				bpp = 4;
+				break;
+			case 0x80E1:
+				sprintf(formatment, "BGRA_EXT");
+				bpp = 4;
+				break;
+			case 0x84F9:
+				sprintf(formatment, "DEPTH_STENCIL_OES");
+				bpp = 4;
+				break;
+			case GL_DEPTH_COMPONENT :
+				sprintf(formatment, "DEPTH_COMPONENT");
+				bpp = 1;
+				break;
+			case 0x81A5:
+				sprintf(formatment, "DEPTH_COMPONENT16_ARB");
+				bpp = 2;
+				break;
+			case 0x81A6:
+				sprintf(formatment, "DEPTH_COMPONENT24_ARB");
+				bpp = 3;
+				break;
+			case 0x81A7:
+				sprintf(formatment, "DEPTH_COMPONENT32_ARB");
+				bpp = 4;
+				break;
+			case 0x8D46 :
+				sprintf(formatment, "STENCIL_INDEX1_OES");
+				bpp = 1;
+				break;
+			case 0x8D47 :
+				sprintf(formatment, "STENCIL_INDEX4_OES");
+				bpp = 1;
+				break;
+			case 0x8D48 :
+				sprintf(formatment, "STENCIL_INDEX8_OES");
+				bpp = 1;
+				break;
+			default:
+				sprintf(formatment, "0x%X", internalformat);
+				bpp = 0;
+				break;
 			}
 
-			_add_glbuf_object(tstate->ctx->sostate->glbuf_tex, objidx, "Texture", width, height, bpp, formatment);
+			_add_glbuf_object(tstate->ctx->sostate->glbuf_tex, objidx, "Texture", width,
+					  height, bpp, formatment);
 		}
 	}
 #endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
 #ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
-	if (trace_surface_flag == 1)
-	{
+	if (trace_surface_flag == 1) {
 		MY_MODULE_TSTATE *tstate = NULL;
 
 		GET_MY_TSTATE(tstate, get_current_thread_state());
 		AST(tstate != NULL);
-		if (tstate->ctx != NULL)
-		{
+		if (tstate->ctx != NULL) {
 			int objidx = _COREGL_INT_INIT_VALUE;
 			_orig_tracepath_glGetIntegerv(GL_TEXTURE_BINDING_2D, &objidx);
 			AST(objidx != _COREGL_INT_INIT_VALUE);
 
 			{
 				int channel = 0;
-				switch (internalformat)
-				{
-					case GL_ALPHA:
-					case GL_LUMINANCE:
-					case GL_DEPTH_COMPONENT :
-					case 0x81A5:
-					case 0x81A6:
-					case 0x81A7:
-					case 0x8D46 :
-					case 0x8D47 :
-					case 0x8D48 : channel = 1; break;
-					case GL_LUMINANCE_ALPHA:
-					case 0x84F9: channel = 2; break;
-					case GL_RGB: channel = 3; break;
-					case GL_RGBA:
-					case 0x80E1: channel = 4; break;
+				switch (internalformat) {
+				case GL_ALPHA:
+				case GL_LUMINANCE:
+				case GL_DEPTH_COMPONENT :
+				case 0x81A5:
+				case 0x81A6:
+				case 0x81A7:
+				case 0x8D46 :
+				case 0x8D47 :
+				case 0x8D48 :
+					channel = 1;
+					break;
+				case GL_LUMINANCE_ALPHA:
+				case 0x84F9:
+					channel = 2;
+					break;
+				case GL_RGB:
+					channel = 3;
+					break;
+				case GL_RGBA:
+				case 0x80E1:
+					channel = 4;
+					break;
 				}
 
 				char name[256];
 				sprintf(name, "FBOTEX_0x%X", objidx);
-				tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, -1, objidx, 0, width, height, channel, NULL);
+				tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle,
+							    tstate->surf_draw, -1, objidx, 0, width, height, channel, NULL);
 			}
 		}
 	}
@@ -1912,7 +2033,7 @@ finish:
 }
 
 void
-tracepath_glTexParameterfv(GLenum target, GLenum pname, const GLfloat* params)
+tracepath_glTexParameterfv(GLenum target, GLenum pname, const GLfloat *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glTexParameterfv(target, pname, params);
@@ -1936,7 +2057,7 @@ finish:
 }
 
 void
-tracepath_glTexParameteriv(GLenum target, GLenum pname, const GLint* params)
+tracepath_glTexParameteriv(GLenum target, GLenum pname, const GLint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glTexParameteriv(target, pname, params);
@@ -1948,10 +2069,13 @@ finish:
 }
 
 void
-tracepath_glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void* pixels)
+tracepath_glTexSubImage2D(GLenum target, GLint level, GLint xoffset,
+			  GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type,
+			  const void *pixels)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
+	_orig_tracepath_glTexSubImage2D(target, level, xoffset, yoffset, width, height,
+					format, type, pixels);
 
 	goto finish;
 
@@ -1972,7 +2096,7 @@ finish:
 }
 
 void
-tracepath_glUniform1fv(GLint location, GLsizei count, const GLfloat* v)
+tracepath_glUniform1fv(GLint location, GLsizei count, const GLfloat *v)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glUniform1fv(location, count, v);
@@ -1996,7 +2120,7 @@ finish:
 }
 
 void
-tracepath_glUniform1iv(GLint location, GLsizei count, const GLint* v)
+tracepath_glUniform1iv(GLint location, GLsizei count, const GLint *v)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glUniform1iv(location, count, v);
@@ -2020,7 +2144,7 @@ finish:
 }
 
 void
-tracepath_glUniform2fv(GLint location, GLsizei count, const GLfloat* v)
+tracepath_glUniform2fv(GLint location, GLsizei count, const GLfloat *v)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glUniform2fv(location, count, v);
@@ -2044,7 +2168,7 @@ finish:
 }
 
 void
-tracepath_glUniform2iv(GLint location, GLsizei count, const GLint* v)
+tracepath_glUniform2iv(GLint location, GLsizei count, const GLint *v)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glUniform2iv(location, count, v);
@@ -2068,7 +2192,7 @@ finish:
 }
 
 void
-tracepath_glUniform3fv(GLint location, GLsizei count, const GLfloat* v)
+tracepath_glUniform3fv(GLint location, GLsizei count, const GLfloat *v)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glUniform3fv(location, count, v);
@@ -2092,7 +2216,7 @@ finish:
 }
 
 void
-tracepath_glUniform3iv(GLint location, GLsizei count, const GLint* v)
+tracepath_glUniform3iv(GLint location, GLsizei count, const GLint *v)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glUniform3iv(location, count, v);
@@ -2104,7 +2228,8 @@ finish:
 }
 
 void
-tracepath_glUniform4f(GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+tracepath_glUniform4f(GLint location, GLfloat x, GLfloat y, GLfloat z,
+		      GLfloat w)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glUniform4f(location, x, y, z, w);
@@ -2116,7 +2241,7 @@ finish:
 }
 
 void
-tracepath_glUniform4fv(GLint location, GLsizei count, const GLfloat* v)
+tracepath_glUniform4fv(GLint location, GLsizei count, const GLfloat *v)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glUniform4fv(location, count, v);
@@ -2140,7 +2265,7 @@ finish:
 }
 
 void
-tracepath_glUniform4iv(GLint location, GLsizei count, const GLint* v)
+tracepath_glUniform4iv(GLint location, GLsizei count, const GLint *v)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glUniform4iv(location, count, v);
@@ -2152,7 +2277,8 @@ finish:
 }
 
 void
-tracepath_glUniformMatrix2fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+tracepath_glUniformMatrix2fv(GLint location, GLsizei count, GLboolean transpose,
+			     const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glUniformMatrix2fv(location, count, transpose, value);
@@ -2164,7 +2290,8 @@ finish:
 }
 
 void
-tracepath_glUniformMatrix3fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+tracepath_glUniformMatrix3fv(GLint location, GLsizei count, GLboolean transpose,
+			     const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glUniformMatrix3fv(location, count, transpose, value);
@@ -2176,7 +2303,8 @@ finish:
 }
 
 void
-tracepath_glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+tracepath_glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose,
+			     const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glUniformMatrix4fv(location, count, transpose, value);
@@ -2224,7 +2352,7 @@ finish:
 }
 
 void
-tracepath_glVertexAttrib1fv(GLuint index, const GLfloat* values)
+tracepath_glVertexAttrib1fv(GLuint index, const GLfloat *values)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glVertexAttrib1fv(index, values);
@@ -2248,7 +2376,7 @@ finish:
 }
 
 void
-tracepath_glVertexAttrib2fv(GLuint index, const GLfloat* values)
+tracepath_glVertexAttrib2fv(GLuint index, const GLfloat *values)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glVertexAttrib2fv(index, values);
@@ -2272,7 +2400,7 @@ finish:
 }
 
 void
-tracepath_glVertexAttrib3fv(GLuint index, const GLfloat* values)
+tracepath_glVertexAttrib3fv(GLuint index, const GLfloat *values)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glVertexAttrib3fv(index, values);
@@ -2284,7 +2412,8 @@ finish:
 }
 
 void
-tracepath_glVertexAttrib4f(GLuint index, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+tracepath_glVertexAttrib4f(GLuint index, GLfloat x, GLfloat y, GLfloat z,
+			   GLfloat w)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glVertexAttrib4f(index, x, y, z, w);
@@ -2296,7 +2425,7 @@ finish:
 }
 
 void
-tracepath_glVertexAttrib4fv(GLuint index, const GLfloat* values)
+tracepath_glVertexAttrib4fv(GLuint index, const GLfloat *values)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glVertexAttrib4fv(index, values);
@@ -2308,10 +2437,12 @@ finish:
 }
 
 void
-tracepath_glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* pointer)
+tracepath_glVertexAttribPointer(GLuint index, GLint size, GLenum type,
+				GLboolean normalized, GLsizei stride, const void *pointer)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glVertexAttribPointer(index, size, type, normalized, stride, pointer);
+	_orig_tracepath_glVertexAttribPointer(index, size, type, normalized, stride,
+					      pointer);
 
 	goto finish;
 
@@ -2346,7 +2477,8 @@ finish:
 }
 
 void
-tracepath_glDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid* indices)
+tracepath_glDrawRangeElements(GLenum mode, GLuint start, GLuint end,
+			      GLsizei count, GLenum type, const GLvoid *indices)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glDrawRangeElements(mode, start, end, count, type, indices);
@@ -2358,10 +2490,13 @@ finish:
 }
 
 void
-tracepath_glTexImage3D(GLenum target, GLint level, GLint GLinternalFormat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels)
+tracepath_glTexImage3D(GLenum target, GLint level, GLint GLinternalFormat,
+		       GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format,
+		       GLenum type, const GLvoid *pixels)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glTexImage3D(target, level, GLinternalFormat, width, height, depth, border, format, type, pixels);
+	_orig_tracepath_glTexImage3D(target, level, GLinternalFormat, width, height,
+				     depth, border, format, type, pixels);
 
 	goto finish;
 
@@ -2370,10 +2505,13 @@ finish:
 }
 
 void
-tracepath_glTexImage3DOES(GLenum target, GLint level, GLenum GLinternalFormat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const void *pixels)
+tracepath_glTexImage3DOES(GLenum target, GLint level, GLenum GLinternalFormat,
+			  GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format,
+			  GLenum type, const void *pixels)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glTexImage3DOES(target, level, GLinternalFormat, width, height, depth, border, format, type, pixels);
+	_orig_tracepath_glTexImage3DOES(target, level, GLinternalFormat, width, height,
+					depth, border, format, type, pixels);
 
 	goto finish;
 
@@ -2382,10 +2520,13 @@ finish:
 }
 
 void
-tracepath_glTexSubImage3D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const GLvoid *pixels)
+tracepath_glTexSubImage3D(GLenum target, GLint level, GLint xoffset,
+			  GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth,
+			  GLenum format, GLenum type, const GLvoid *pixels)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, pixels);
+	_orig_tracepath_glTexSubImage3D(target, level, xoffset, yoffset, zoffset, width,
+					height, depth, format, type, pixels);
 
 	goto finish;
 
@@ -2394,10 +2535,13 @@ finish:
 }
 
 void
-tracepath_glTexSubImage3DOES(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const GLvoid *pixels)
+tracepath_glTexSubImage3DOES(GLenum target, GLint level, GLint xoffset,
+			     GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth,
+			     GLenum format, GLenum type, const GLvoid *pixels)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glTexSubImage3DOES(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, pixels);
+	_orig_tracepath_glTexSubImage3DOES(target, level, xoffset, yoffset, zoffset,
+					   width, height, depth, format, type, pixels);
 
 	goto finish;
 
@@ -2406,10 +2550,12 @@ finish:
 }
 
 void
-tracepath_glCopyTexSubImage3D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height)
+tracepath_glCopyTexSubImage3D(GLenum target, GLint level, GLint xoffset,
+			      GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glCopyTexSubImage3D(target, level, xoffset, yoffset, zoffset, x, y, width, height);
+	_orig_tracepath_glCopyTexSubImage3D(target, level, xoffset, yoffset, zoffset, x,
+					    y, width, height);
 
 	goto finish;
 
@@ -2418,10 +2564,12 @@ finish:
 }
 
 void
-tracepath_glCopyTexSubImage3DOES(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height)
+tracepath_glCopyTexSubImage3DOES(GLenum target, GLint level, GLint xoffset,
+				 GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glCopyTexSubImage3DOES(target, level, xoffset, yoffset, zoffset, x, y, width, height);
+	_orig_tracepath_glCopyTexSubImage3DOES(target, level, xoffset, yoffset, zoffset,
+					       x, y, width, height);
 
 	goto finish;
 
@@ -2430,10 +2578,13 @@ finish:
 }
 
 void
-tracepath_glCompressedTexImage3D(GLenum target, GLint level, GLenum GLinternalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLsizei imageSize, const GLvoid *data)
+tracepath_glCompressedTexImage3D(GLenum target, GLint level,
+				 GLenum GLinternalformat, GLsizei width, GLsizei height, GLsizei depth,
+				 GLint border, GLsizei imageSize, const GLvoid *data)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glCompressedTexImage3D(target, level, GLinternalformat, width, height, depth, border, imageSize, data);
+	_orig_tracepath_glCompressedTexImage3D(target, level, GLinternalformat, width,
+					       height, depth, border, imageSize, data);
 
 	goto finish;
 
@@ -2442,10 +2593,13 @@ finish:
 }
 
 void
-tracepath_glCompressedTexImage3DOES(GLenum target, GLint level, GLenum GLinternalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLsizei imageSize, const GLvoid *data)
+tracepath_glCompressedTexImage3DOES(GLenum target, GLint level,
+				    GLenum GLinternalformat, GLsizei width, GLsizei height, GLsizei depth,
+				    GLint border, GLsizei imageSize, const GLvoid *data)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glCompressedTexImage3DOES(target, level, GLinternalformat, width, height, depth, border, imageSize, data);
+	_orig_tracepath_glCompressedTexImage3DOES(target, level, GLinternalformat,
+			width, height, depth, border, imageSize, data);
 
 	goto finish;
 
@@ -2454,10 +2608,13 @@ finish:
 }
 
 void
-tracepath_glCompressedTexSubImage3D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const GLvoid *data)
+tracepath_glCompressedTexSubImage3D(GLenum target, GLint level, GLint xoffset,
+				    GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth,
+				    GLenum format, GLsizei imageSize, const GLvoid *data)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glCompressedTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, data);
+	_orig_tracepath_glCompressedTexSubImage3D(target, level, xoffset, yoffset,
+			zoffset, width, height, depth, format, imageSize, data);
 
 	goto finish;
 
@@ -2466,10 +2623,13 @@ finish:
 }
 
 void
-tracepath_glCompressedTexSubImage3DOES(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const GLvoid *data)
+tracepath_glCompressedTexSubImage3DOES(GLenum target, GLint level,
+				       GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height,
+				       GLsizei depth, GLenum format, GLsizei imageSize, const GLvoid *data)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glCompressedTexSubImage3DOES(target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, data);
+	_orig_tracepath_glCompressedTexSubImage3DOES(target, level, xoffset, yoffset,
+			zoffset, width, height, depth, format, imageSize, data);
 
 	goto finish;
 
@@ -2478,7 +2638,7 @@ finish:
 }
 
 void
-tracepath_glGenQueries(GLsizei n, GLuint* ids)
+tracepath_glGenQueries(GLsizei n, GLuint *ids)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGenQueries(n, ids);
@@ -2490,7 +2650,7 @@ finish:
 }
 
 void
-tracepath_glDeleteQueries(GLsizei n, const GLuint* ids)
+tracepath_glDeleteQueries(GLsizei n, const GLuint *ids)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glDeleteQueries(n, ids);
@@ -2541,7 +2701,7 @@ finish:
 }
 
 void
-tracepath_glGetQueryiv(GLenum target, GLenum pname, GLint* params)
+tracepath_glGetQueryiv(GLenum target, GLenum pname, GLint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetQueryiv(target, pname, params);
@@ -2553,7 +2713,7 @@ finish:
 }
 
 void
-tracepath_glGetQueryObjectuiv(GLuint id, GLenum pname, GLuint* params)
+tracepath_glGetQueryObjectuiv(GLuint id, GLenum pname, GLuint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetQueryObjectuiv(id, pname, params);
@@ -2580,7 +2740,7 @@ finish:
 }
 
 void
-tracepath_glGetBufferPointerv(GLenum target, GLenum pname, GLvoid** params)
+tracepath_glGetBufferPointerv(GLenum target, GLenum pname, GLvoid **params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetBufferPointerv(target, pname, params);
@@ -2592,7 +2752,7 @@ finish:
 }
 
 void
-tracepath_glDrawBuffers(GLsizei n, const GLenum* bufs)
+tracepath_glDrawBuffers(GLsizei n, const GLenum *bufs)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glDrawBuffers(n, bufs);
@@ -2604,7 +2764,8 @@ finish:
 }
 
 void
-tracepath_glUniformMatrix2x3fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+tracepath_glUniformMatrix2x3fv(GLint location, GLsizei count,
+			       GLboolean transpose, const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glUniformMatrix2x3fv(location, count, transpose, value);
@@ -2616,7 +2777,8 @@ finish:
 }
 
 void
-tracepath_glUniformMatrix3x2fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+tracepath_glUniformMatrix3x2fv(GLint location, GLsizei count,
+			       GLboolean transpose, const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glUniformMatrix3x2fv(location, count, transpose, value);
@@ -2628,7 +2790,8 @@ finish:
 }
 
 void
-tracepath_glUniformMatrix2x4fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+tracepath_glUniformMatrix2x4fv(GLint location, GLsizei count,
+			       GLboolean transpose, const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glUniformMatrix2x4fv(location, count, transpose, value);
@@ -2640,7 +2803,8 @@ finish:
 }
 
 void
-tracepath_glUniformMatrix4x2fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+tracepath_glUniformMatrix4x2fv(GLint location, GLsizei count,
+			       GLboolean transpose, const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glUniformMatrix4x2fv(location, count, transpose, value);
@@ -2652,7 +2816,8 @@ finish:
 }
 
 void
-tracepath_glUniformMatrix3x4fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+tracepath_glUniformMatrix3x4fv(GLint location, GLsizei count,
+			       GLboolean transpose, const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glUniformMatrix3x4fv(location, count, transpose, value);
@@ -2664,7 +2829,8 @@ finish:
 }
 
 void
-tracepath_glUniformMatrix4x3fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
+tracepath_glUniformMatrix4x3fv(GLint location, GLsizei count,
+			       GLboolean transpose, const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glUniformMatrix4x3fv(location, count, transpose, value);
@@ -2676,10 +2842,13 @@ finish:
 }
 
 void
-tracepath_glBlitFramebuffer(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter)
+tracepath_glBlitFramebuffer(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1,
+			    GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask,
+			    GLenum filter)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
+	_orig_tracepath_glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0,
+					  dstX1, dstY1, mask, filter);
 
 	goto finish;
 
@@ -2688,24 +2857,24 @@ finish:
 }
 
 void
-tracepath_glRenderbufferStorageMultisample(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height)
+tracepath_glRenderbufferStorageMultisample(GLenum target, GLsizei samples,
+		GLenum internalformat, GLsizei width, GLsizei height)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glRenderbufferStorageMultisample(target, samples, internalformat, width, height);
+	_orig_tracepath_glRenderbufferStorageMultisample(target, samples,
+			internalformat, width, height);
 
 	goto finish;
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
 #ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
-	if (trace_mem_flag == 1)
-	{
+	if (trace_mem_flag == 1) {
 		MY_MODULE_TSTATE *tstate = NULL;
 
 		GET_MY_TSTATE(tstate, get_current_thread_state());
 		AST(tstate != NULL);
-		if (tstate->ctx != NULL)
-		{
+		if (tstate->ctx != NULL) {
 			int objidx = _COREGL_INT_INIT_VALUE;
 			_orig_tracepath_glGetIntegerv(GL_RENDERBUFFER_BINDING, &objidx);
 			AST(objidx != _COREGL_INT_INIT_VALUE);
@@ -2713,65 +2882,116 @@ finish:
 			// Detect byte per pixel
 			int bpp = 0;
 			char formatment[80];
-			switch (internalformat)
-			{
-				case GL_ALPHA: sprintf(formatment, "ALPHA"); bpp = 1; break;
-				case GL_LUMINANCE: sprintf(formatment, "LUMINANCE"); bpp = 1; break;
-				case GL_LUMINANCE_ALPHA: sprintf(formatment, "LUMINANCE_ALPHA"); bpp = 1; break;
-				case GL_RGB: sprintf(formatment, "RGB"); bpp = 2; break;
-				case GL_RGBA: sprintf(formatment, "RGBA"); bpp = 4; break;
-				case 0x80E1: sprintf(formatment, "BGRA_EXT"); bpp = 4; break;
-				case 0x84F9: sprintf(formatment, "DEPTH_STENCIL_OES"); bpp = 4; break;
-				case GL_DEPTH_COMPONENT : sprintf(formatment, "DEPTH_COMPONENT"); bpp = 1; break;
-				case 0x81A5: sprintf(formatment, "DEPTH_COMPONENT16_ARB"); bpp = 2; break;
-				case 0x81A6: sprintf(formatment, "DEPTH_COMPONENT24_ARB"); bpp = 3; break;
-				case 0x81A7: sprintf(formatment, "DEPTH_COMPONENT32_ARB"); bpp = 4; break;
-				case 0x8D46 : sprintf(formatment, "STENCIL_INDEX1_OES"); bpp = 1; break;
-				case 0x8D47 : sprintf(formatment, "STENCIL_INDEX4_OES"); bpp = 1; break;
-				case 0x8D48 : sprintf(formatment, "STENCIL_INDEX8_OES"); bpp = 1; break;
-				default: sprintf(formatment, "0x%X", internalformat); bpp = 0; break;
+			switch (internalformat) {
+			case GL_ALPHA:
+				sprintf(formatment, "ALPHA");
+				bpp = 1;
+				break;
+			case GL_LUMINANCE:
+				sprintf(formatment, "LUMINANCE");
+				bpp = 1;
+				break;
+			case GL_LUMINANCE_ALPHA:
+				sprintf(formatment, "LUMINANCE_ALPHA");
+				bpp = 1;
+				break;
+			case GL_RGB:
+				sprintf(formatment, "RGB");
+				bpp = 2;
+				break;
+			case GL_RGBA:
+				sprintf(formatment, "RGBA");
+				bpp = 4;
+				break;
+			case 0x80E1:
+				sprintf(formatment, "BGRA_EXT");
+				bpp = 4;
+				break;
+			case 0x84F9:
+				sprintf(formatment, "DEPTH_STENCIL_OES");
+				bpp = 4;
+				break;
+			case GL_DEPTH_COMPONENT :
+				sprintf(formatment, "DEPTH_COMPONENT");
+				bpp = 1;
+				break;
+			case 0x81A5:
+				sprintf(formatment, "DEPTH_COMPONENT16_ARB");
+				bpp = 2;
+				break;
+			case 0x81A6:
+				sprintf(formatment, "DEPTH_COMPONENT24_ARB");
+				bpp = 3;
+				break;
+			case 0x81A7:
+				sprintf(formatment, "DEPTH_COMPONENT32_ARB");
+				bpp = 4;
+				break;
+			case 0x8D46 :
+				sprintf(formatment, "STENCIL_INDEX1_OES");
+				bpp = 1;
+				break;
+			case 0x8D47 :
+				sprintf(formatment, "STENCIL_INDEX4_OES");
+				bpp = 1;
+				break;
+			case 0x8D48 :
+				sprintf(formatment, "STENCIL_INDEX8_OES");
+				bpp = 1;
+				break;
+			default:
+				sprintf(formatment, "0x%X", internalformat);
+				bpp = 0;
+				break;
 			}
 
-			_add_glbuf_object(tstate->ctx->sostate->glbuf_rb, objidx, "Renderbuffer", width, height, bpp, formatment);
+			_add_glbuf_object(tstate->ctx->sostate->glbuf_rb, objidx, "Renderbuffer", width,
+					  height, bpp, formatment);
 		}
 	}
 #endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
 #ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
-	if (trace_surface_flag == 1)
-	{
+	if (trace_surface_flag == 1) {
 		MY_MODULE_TSTATE *tstate = NULL;
 
 		GET_MY_TSTATE(tstate, get_current_thread_state());
 		AST(tstate != NULL);
-		if (tstate->ctx != NULL)
-		{
+		if (tstate->ctx != NULL) {
 			int objidx = _COREGL_INT_INIT_VALUE;
 			_orig_tracepath_glGetIntegerv(GL_RENDERBUFFER_BINDING, &objidx);
 			AST(objidx != _COREGL_INT_INIT_VALUE);
 
 			{
 				int channel = 0;
-				switch (internalformat)
-				{
-					case GL_ALPHA:
-					case GL_LUMINANCE:
-					case GL_DEPTH_COMPONENT :
-					case 0x81A5:
-					case 0x81A6:
-					case 0x81A7:
-					case 0x8D46 :
-					case 0x8D47 :
-					case 0x8D48 : channel = 1; break;
-					case GL_LUMINANCE_ALPHA:
-					case 0x84F9: channel = 2; break;
-					case GL_RGB: channel = 3; break;
-					case GL_RGBA:
-					case 0x80E1: channel = 4; break;
+				switch (internalformat) {
+				case GL_ALPHA:
+				case GL_LUMINANCE:
+				case GL_DEPTH_COMPONENT :
+				case 0x81A5:
+				case 0x81A6:
+				case 0x81A7:
+				case 0x8D46 :
+				case 0x8D47 :
+				case 0x8D48 :
+					channel = 1;
+					break;
+				case GL_LUMINANCE_ALPHA:
+				case 0x84F9:
+					channel = 2;
+					break;
+				case GL_RGB:
+					channel = 3;
+					break;
+				case GL_RGBA:
+				case 0x80E1:
+					channel = 4;
+					break;
 				}
 
 				char name[256];
 				sprintf(name, "FBORB_0x%X", objidx);
-				tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, -1, 0, objidx, width, height, channel, NULL);
+				tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle,
+							    tstate->surf_draw, -1, 0, objidx, width, height, channel, NULL);
 			}
 		}
 	}
@@ -2779,24 +2999,24 @@ finish:
 }
 
 void
-tracepath_glRenderbufferStorageMultisampleEXT(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height)
+tracepath_glRenderbufferStorageMultisampleEXT(GLenum target, GLsizei samples,
+		GLenum internalformat, GLsizei width, GLsizei height)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glRenderbufferStorageMultisampleEXT(target, samples, internalformat, width, height);
+	_orig_tracepath_glRenderbufferStorageMultisampleEXT(target, samples,
+			internalformat, width, height);
 
 	goto finish;
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
 #ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
-	if (trace_mem_flag == 1)
-	{
+	if (trace_mem_flag == 1) {
 		MY_MODULE_TSTATE *tstate = NULL;
 
 		GET_MY_TSTATE(tstate, get_current_thread_state());
 		AST(tstate != NULL);
-		if (tstate->ctx != NULL)
-		{
+		if (tstate->ctx != NULL) {
 			int objidx = _COREGL_INT_INIT_VALUE;
 			_orig_tracepath_glGetIntegerv(GL_RENDERBUFFER_BINDING, &objidx);
 			AST(objidx != _COREGL_INT_INIT_VALUE);
@@ -2804,65 +3024,116 @@ finish:
 			// Detect byte per pixel
 			int bpp = 0;
 			char formatment[80];
-			switch (internalformat)
-			{
-				case GL_ALPHA: sprintf(formatment, "ALPHA"); bpp = 1; break;
-				case GL_LUMINANCE: sprintf(formatment, "LUMINANCE"); bpp = 1; break;
-				case GL_LUMINANCE_ALPHA: sprintf(formatment, "LUMINANCE_ALPHA"); bpp = 1; break;
-				case GL_RGB: sprintf(formatment, "RGB"); bpp = 2; break;
-				case GL_RGBA: sprintf(formatment, "RGBA"); bpp = 4; break;
-				case 0x80E1: sprintf(formatment, "BGRA_EXT"); bpp = 4; break;
-				case 0x84F9: sprintf(formatment, "DEPTH_STENCIL_OES"); bpp = 4; break;
-				case GL_DEPTH_COMPONENT : sprintf(formatment, "DEPTH_COMPONENT"); bpp = 1; break;
-				case 0x81A5: sprintf(formatment, "DEPTH_COMPONENT16_ARB"); bpp = 2; break;
-				case 0x81A6: sprintf(formatment, "DEPTH_COMPONENT24_ARB"); bpp = 3; break;
-				case 0x81A7: sprintf(formatment, "DEPTH_COMPONENT32_ARB"); bpp = 4; break;
-				case 0x8D46 : sprintf(formatment, "STENCIL_INDEX1_OES"); bpp = 1; break;
-				case 0x8D47 : sprintf(formatment, "STENCIL_INDEX4_OES"); bpp = 1; break;
-				case 0x8D48 : sprintf(formatment, "STENCIL_INDEX8_OES"); bpp = 1; break;
-				default: sprintf(formatment, "0x%X", internalformat); bpp = 0; break;
+			switch (internalformat) {
+			case GL_ALPHA:
+				sprintf(formatment, "ALPHA");
+				bpp = 1;
+				break;
+			case GL_LUMINANCE:
+				sprintf(formatment, "LUMINANCE");
+				bpp = 1;
+				break;
+			case GL_LUMINANCE_ALPHA:
+				sprintf(formatment, "LUMINANCE_ALPHA");
+				bpp = 1;
+				break;
+			case GL_RGB:
+				sprintf(formatment, "RGB");
+				bpp = 2;
+				break;
+			case GL_RGBA:
+				sprintf(formatment, "RGBA");
+				bpp = 4;
+				break;
+			case 0x80E1:
+				sprintf(formatment, "BGRA_EXT");
+				bpp = 4;
+				break;
+			case 0x84F9:
+				sprintf(formatment, "DEPTH_STENCIL_OES");
+				bpp = 4;
+				break;
+			case GL_DEPTH_COMPONENT :
+				sprintf(formatment, "DEPTH_COMPONENT");
+				bpp = 1;
+				break;
+			case 0x81A5:
+				sprintf(formatment, "DEPTH_COMPONENT16_ARB");
+				bpp = 2;
+				break;
+			case 0x81A6:
+				sprintf(formatment, "DEPTH_COMPONENT24_ARB");
+				bpp = 3;
+				break;
+			case 0x81A7:
+				sprintf(formatment, "DEPTH_COMPONENT32_ARB");
+				bpp = 4;
+				break;
+			case 0x8D46 :
+				sprintf(formatment, "STENCIL_INDEX1_OES");
+				bpp = 1;
+				break;
+			case 0x8D47 :
+				sprintf(formatment, "STENCIL_INDEX4_OES");
+				bpp = 1;
+				break;
+			case 0x8D48 :
+				sprintf(formatment, "STENCIL_INDEX8_OES");
+				bpp = 1;
+				break;
+			default:
+				sprintf(formatment, "0x%X", internalformat);
+				bpp = 0;
+				break;
 			}
 
-			_add_glbuf_object(tstate->ctx->sostate->glbuf_rb, objidx, "Renderbuffer", width, height, bpp, formatment);
+			_add_glbuf_object(tstate->ctx->sostate->glbuf_rb, objidx, "Renderbuffer", width,
+					  height, bpp, formatment);
 		}
 	}
 #endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
 #ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
-	if (trace_surface_flag == 1)
-	{
+	if (trace_surface_flag == 1) {
 		MY_MODULE_TSTATE *tstate = NULL;
 
 		GET_MY_TSTATE(tstate, get_current_thread_state());
 		AST(tstate != NULL);
-		if (tstate->ctx != NULL)
-		{
+		if (tstate->ctx != NULL) {
 			int objidx = _COREGL_INT_INIT_VALUE;
 			_orig_tracepath_glGetIntegerv(GL_RENDERBUFFER_BINDING, &objidx);
 			AST(objidx != _COREGL_INT_INIT_VALUE);
 
 			{
 				int channel = 0;
-				switch (internalformat)
-				{
-					case GL_ALPHA:
-					case GL_LUMINANCE:
-					case GL_DEPTH_COMPONENT :
-					case 0x81A5:
-					case 0x81A6:
-					case 0x81A7:
-					case 0x8D46 :
-					case 0x8D47 :
-					case 0x8D48 : channel = 1; break;
-					case GL_LUMINANCE_ALPHA:
-					case 0x84F9: channel = 2; break;
-					case GL_RGB: channel = 3; break;
-					case GL_RGBA:
-					case 0x80E1: channel = 4; break;
+				switch (internalformat) {
+				case GL_ALPHA:
+				case GL_LUMINANCE:
+				case GL_DEPTH_COMPONENT :
+				case 0x81A5:
+				case 0x81A6:
+				case 0x81A7:
+				case 0x8D46 :
+				case 0x8D47 :
+				case 0x8D48 :
+					channel = 1;
+					break;
+				case GL_LUMINANCE_ALPHA:
+				case 0x84F9:
+					channel = 2;
+					break;
+				case GL_RGB:
+					channel = 3;
+					break;
+				case GL_RGBA:
+				case 0x80E1:
+					channel = 4;
+					break;
 				}
 
 				char name[256];
 				sprintf(name, "FBORB_0x%X", objidx);
-				tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle, tstate->surf_draw, -1, 0, objidx, width, height, channel, NULL);
+				tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle,
+							    tstate->surf_draw, -1, 0, objidx, width, height, channel, NULL);
 			}
 		}
 	}
@@ -2870,7 +3141,8 @@ finish:
 }
 
 void
-tracepath_glFramebufferTextureLayer(GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer)
+tracepath_glFramebufferTextureLayer(GLenum target, GLenum attachment,
+				    GLuint texture, GLint level, GLint layer)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 
@@ -2878,7 +3150,8 @@ tracepath_glFramebufferTextureLayer(GLenum target, GLenum attachment, GLuint tex
 	tracepath_fbdump_update(0);
 #endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 
-	_orig_tracepath_glFramebufferTextureLayer(target, attachment, texture, level, layer);
+	_orig_tracepath_glFramebufferTextureLayer(target, attachment, texture, level,
+			layer);
 
 #ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
 	tracepath_fbdump_update(1);
@@ -2890,10 +3163,11 @@ finish:
 	_COREGL_TRACEPATH_FUNC_END();
 }
 
-GLvoid*
-tracepath_glMapBufferRange(GLenum target, GLintptr offset, GLsizeiptr length, GLbitfield access)
+GLvoid *
+tracepath_glMapBufferRange(GLenum target, GLintptr offset, GLsizeiptr length,
+			   GLbitfield access)
 {
-	GLvoid* ret = NULL;
+	GLvoid *ret = NULL;
 
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	ret = _orig_tracepath_glMapBufferRange(target, offset, length, access);
@@ -2906,7 +3180,8 @@ finish:
 }
 
 void
-tracepath_glFlushMappedBufferRange(GLenum target, GLintptr offset, GLsizeiptr length)
+tracepath_glFlushMappedBufferRange(GLenum target, GLintptr offset,
+				   GLsizeiptr length)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glFlushMappedBufferRange(target, offset, length);
@@ -2930,7 +3205,7 @@ finish:
 }
 
 void
-tracepath_glDeleteVertexArrays(GLsizei n, const GLuint* arrays)
+tracepath_glDeleteVertexArrays(GLsizei n, const GLuint *arrays)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glDeleteVertexArrays(n, arrays);
@@ -2942,7 +3217,7 @@ finish:
 }
 
 void
-tracepath_glGenVertexArrays(GLsizei n, GLuint* arrays)
+tracepath_glGenVertexArrays(GLsizei n, GLuint *arrays)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGenVertexArrays(n, arrays);
@@ -2969,7 +3244,7 @@ finish:
 }
 
 void
-tracepath_glGetIntegeri_v(GLenum target, GLuint index, GLint* data)
+tracepath_glGetIntegeri_v(GLenum target, GLuint index, GLint *data)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetIntegeri_v(target, index, data);
@@ -3005,7 +3280,8 @@ finish:
 }
 
 void
-tracepath_glBindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size)
+tracepath_glBindBufferRange(GLenum target, GLuint index, GLuint buffer,
+			    GLintptr offset, GLsizeiptr size)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glBindBufferRange(target, index, buffer, offset, size);
@@ -3029,10 +3305,12 @@ finish:
 }
 
 void
-tracepath_glTransformFeedbackVaryings(GLuint program, GLsizei count, const GLchar* const* varyings, GLenum bufferMode)
+tracepath_glTransformFeedbackVaryings(GLuint program, GLsizei count,
+				      const GLchar *const *varyings, GLenum bufferMode)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glTransformFeedbackVaryings(program, count, varyings, bufferMode);
+	_orig_tracepath_glTransformFeedbackVaryings(program, count, varyings,
+			bufferMode);
 
 	goto finish;
 
@@ -3041,10 +3319,12 @@ finish:
 }
 
 void
-tracepath_glGetTransformFeedbackVarying(GLuint program, GLuint index, GLsizei bufSize, GLsizei* length, GLsizei* size, GLenum* type, GLchar* name)
+tracepath_glGetTransformFeedbackVarying(GLuint program, GLuint index,
+					GLsizei bufSize, GLsizei *length, GLsizei *size, GLenum *type, GLchar *name)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glGetTransformFeedbackVarying(program, index, bufSize, length, size, type, name);
+	_orig_tracepath_glGetTransformFeedbackVarying(program, index, bufSize, length,
+			size, type, name);
 
 	goto finish;
 
@@ -3053,7 +3333,8 @@ finish:
 }
 
 void
-tracepath_glVertexAttribIPointer(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid* pointer)
+tracepath_glVertexAttribIPointer(GLuint index, GLint size, GLenum type,
+				 GLsizei stride, const GLvoid *pointer)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glVertexAttribIPointer(index, size, type, stride, pointer);
@@ -3065,7 +3346,7 @@ finish:
 }
 
 void
-tracepath_glGetVertexAttribIiv(GLuint index, GLenum pname, GLint* params)
+tracepath_glGetVertexAttribIiv(GLuint index, GLenum pname, GLint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetVertexAttribIiv(index, pname, params);
@@ -3077,7 +3358,7 @@ finish:
 }
 
 void
-tracepath_glGetVertexAttribIuiv(GLuint index, GLenum pname, GLuint* params)
+tracepath_glGetVertexAttribIuiv(GLuint index, GLenum pname, GLuint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetVertexAttribIuiv(index, pname, params);
@@ -3101,7 +3382,8 @@ finish:
 }
 
 void
-tracepath_glVertexAttribI4ui(GLuint index, GLuint x, GLuint y, GLuint z, GLuint w)
+tracepath_glVertexAttribI4ui(GLuint index, GLuint x, GLuint y, GLuint z,
+			     GLuint w)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glVertexAttribI4ui(index, x, y, z, w);
@@ -3113,7 +3395,7 @@ finish:
 }
 
 void
-tracepath_glVertexAttribI4iv(GLuint index, const GLint* v)
+tracepath_glVertexAttribI4iv(GLuint index, const GLint *v)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glVertexAttribI4iv(index, v);
@@ -3125,7 +3407,7 @@ finish:
 }
 
 void
-tracepath_glVertexAttribI4uiv(GLuint index, const GLuint* v)
+tracepath_glVertexAttribI4uiv(GLuint index, const GLuint *v)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glVertexAttribI4uiv(index, v);
@@ -3137,7 +3419,7 @@ finish:
 }
 
 void
-tracepath_glGetUniformuiv(GLuint program, GLint location, GLuint* params)
+tracepath_glGetUniformuiv(GLuint program, GLint location, GLuint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetUniformuiv(program, location, params);
@@ -3200,7 +3482,8 @@ finish:
 }
 
 void
-tracepath_glUniform4ui(GLint location, GLuint v0, GLuint v1, GLuint v2, GLuint v3)
+tracepath_glUniform4ui(GLint location, GLuint v0, GLuint v1, GLuint v2,
+		       GLuint v3)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glUniform4ui(location, v0, v1, v2, v3);
@@ -3212,7 +3495,7 @@ finish:
 }
 
 void
-tracepath_glUniform1uiv(GLint location, GLsizei count, const GLuint* value)
+tracepath_glUniform1uiv(GLint location, GLsizei count, const GLuint *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glUniform1uiv(location, count, value);
@@ -3224,7 +3507,7 @@ finish:
 }
 
 void
-tracepath_glUniform2uiv(GLint location, GLsizei count, const GLuint* value)
+tracepath_glUniform2uiv(GLint location, GLsizei count, const GLuint *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glUniform2uiv(location, count, value);
@@ -3236,7 +3519,7 @@ finish:
 }
 
 void
-tracepath_glUniform3uiv(GLint location, GLsizei count, const GLuint* value)
+tracepath_glUniform3uiv(GLint location, GLsizei count, const GLuint *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glUniform3uiv(location, count, value);
@@ -3248,7 +3531,7 @@ finish:
 }
 
 void
-tracepath_glUniform4uiv(GLint location, GLsizei count, const GLuint* value)
+tracepath_glUniform4uiv(GLint location, GLsizei count, const GLuint *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glUniform4uiv(location, count, value);
@@ -3260,7 +3543,7 @@ finish:
 }
 
 void
-tracepath_glClearBufferiv(GLenum buffer, GLint drawbuffer, const GLint* value)
+tracepath_glClearBufferiv(GLenum buffer, GLint drawbuffer, const GLint *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glClearBufferiv(buffer, drawbuffer, value);
@@ -3272,7 +3555,7 @@ finish:
 }
 
 void
-tracepath_glClearBufferuiv(GLenum buffer, GLint drawbuffer, const GLuint* value)
+tracepath_glClearBufferuiv(GLenum buffer, GLint drawbuffer, const GLuint *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glClearBufferuiv(buffer, drawbuffer, value);
@@ -3284,7 +3567,7 @@ finish:
 }
 
 void
-tracepath_glClearBufferfv(GLenum buffer, GLint drawbuffer, const GLfloat* value)
+tracepath_glClearBufferfv(GLenum buffer, GLint drawbuffer, const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glClearBufferfv(buffer, drawbuffer, value);
@@ -3296,7 +3579,8 @@ finish:
 }
 
 void
-tracepath_glClearBufferfi(GLenum buffer, GLint drawbuffer, GLfloat depth, GLint stencil)
+tracepath_glClearBufferfi(GLenum buffer, GLint drawbuffer, GLfloat depth,
+			  GLint stencil)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glClearBufferfi(buffer, drawbuffer, depth, stencil);
@@ -3307,10 +3591,10 @@ finish:
 	_COREGL_TRACEPATH_FUNC_END();
 }
 
-const GLubyte*
+const GLubyte *
 tracepath_glGetStringi(GLenum name, GLuint index)
 {
-	const GLubyte* ret = NULL;
+	const GLubyte *ret = NULL;
 
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	ret = _orig_tracepath_glGetStringi(name, index);
@@ -3323,10 +3607,12 @@ finish:
 }
 
 void
-tracepath_glCopyBufferSubData(GLenum readTarget, GLenum writeTarget, GLintptr readOffset, GLintptr writeOffset, GLsizeiptr size)
+tracepath_glCopyBufferSubData(GLenum readTarget, GLenum writeTarget,
+			      GLintptr readOffset, GLintptr writeOffset, GLsizeiptr size)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glCopyBufferSubData(readTarget, writeTarget, readOffset, writeOffset, size);
+	_orig_tracepath_glCopyBufferSubData(readTarget, writeTarget, readOffset,
+					    writeOffset, size);
 
 	goto finish;
 
@@ -3335,10 +3621,12 @@ finish:
 }
 
 void
-tracepath_glGetUniformIndices(GLuint program, GLsizei uniformCount, const GLchar* const* uniformNames, GLuint* uniformIndices)
+tracepath_glGetUniformIndices(GLuint program, GLsizei uniformCount,
+			      const GLchar *const *uniformNames, GLuint *uniformIndices)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glGetUniformIndices(program, uniformCount, uniformNames, uniformIndices);
+	_orig_tracepath_glGetUniformIndices(program, uniformCount, uniformNames,
+					    uniformIndices);
 
 	goto finish;
 
@@ -3347,10 +3635,12 @@ finish:
 }
 
 void
-tracepath_glGetActiveUniformsiv(GLuint program, GLsizei uniformCount, const GLuint* uniformIndices, GLenum pname, GLint* params)
+tracepath_glGetActiveUniformsiv(GLuint program, GLsizei uniformCount,
+				const GLuint *uniformIndices, GLenum pname, GLint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glGetActiveUniformsiv(program, uniformCount, uniformIndices, pname, params);
+	_orig_tracepath_glGetActiveUniformsiv(program, uniformCount, uniformIndices,
+					      pname, params);
 
 	goto finish;
 
@@ -3359,7 +3649,7 @@ finish:
 }
 
 GLuint
-tracepath_glGetUniformBlockIndex(GLuint program, const GLchar* uniformBlockName)
+tracepath_glGetUniformBlockIndex(GLuint program, const GLchar *uniformBlockName)
 {
 	GLuint ret = _COREGL_INT_INIT_VALUE;
 
@@ -3374,10 +3664,12 @@ finish:
 }
 
 void
-tracepath_glGetActiveUniformBlockiv(GLuint program, GLuint uniformBlockIndex, GLenum pname, GLint* params)
+tracepath_glGetActiveUniformBlockiv(GLuint program, GLuint uniformBlockIndex,
+				    GLenum pname, GLint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glGetActiveUniformBlockiv(program, uniformBlockIndex, pname, params);
+	_orig_tracepath_glGetActiveUniformBlockiv(program, uniformBlockIndex, pname,
+			params);
 
 	goto finish;
 
@@ -3386,10 +3678,12 @@ finish:
 }
 
 void
-tracepath_glGetActiveUniformBlockName(GLuint program, GLuint uniformBlockIndex, GLsizei bufSize, GLsizei* length, GLchar* uniformBlockName)
+tracepath_glGetActiveUniformBlockName(GLuint program, GLuint uniformBlockIndex,
+				      GLsizei bufSize, GLsizei *length, GLchar *uniformBlockName)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glGetActiveUniformBlockName(program, uniformBlockIndex, bufSize, length, uniformBlockName);
+	_orig_tracepath_glGetActiveUniformBlockName(program, uniformBlockIndex, bufSize,
+			length, uniformBlockName);
 
 	goto finish;
 
@@ -3398,10 +3692,12 @@ finish:
 }
 
 void
-tracepath_glUniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding)
+tracepath_glUniformBlockBinding(GLuint program, GLuint uniformBlockIndex,
+				GLuint uniformBlockBinding)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glUniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
+	_orig_tracepath_glUniformBlockBinding(program, uniformBlockIndex,
+					      uniformBlockBinding);
 
 	goto finish;
 
@@ -3410,7 +3706,8 @@ finish:
 }
 
 void
-tracepath_glDrawArraysInstanced(GLenum mode, GLint first, GLsizei count, GLsizei instanceCount)
+tracepath_glDrawArraysInstanced(GLenum mode, GLint first, GLsizei count,
+				GLsizei instanceCount)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glDrawArraysInstanced(mode, first, count, instanceCount);
@@ -3422,10 +3719,12 @@ finish:
 }
 
 void
-tracepath_glDrawElementsInstanced(GLenum mode, GLsizei count, GLenum type, const GLvoid* indices, GLsizei instanceCount)
+tracepath_glDrawElementsInstanced(GLenum mode, GLsizei count, GLenum type,
+				  const GLvoid *indices, GLsizei instanceCount)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glDrawElementsInstanced(mode, count, type, indices, instanceCount);
+	_orig_tracepath_glDrawElementsInstanced(mode, count, type, indices,
+						instanceCount);
 
 	goto finish;
 
@@ -3503,7 +3802,7 @@ finish:
 }
 
 void
-tracepath_glGetInteger64v(GLenum pname, GLint64* params)
+tracepath_glGetInteger64v(GLenum pname, GLint64 *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetInteger64v(pname, params);
@@ -3515,7 +3814,8 @@ finish:
 }
 
 void
-tracepath_glGetSynciv(GLsync sync, GLenum pname, GLsizei bufSize, GLsizei* length, GLint* values)
+tracepath_glGetSynciv(GLsync sync, GLenum pname, GLsizei bufSize,
+		      GLsizei *length, GLint *values)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetSynciv(sync, pname, bufSize, length, values);
@@ -3527,7 +3827,7 @@ finish:
 }
 
 void
-tracepath_glGetInteger64i_v(GLenum target, GLuint index, GLint64* data)
+tracepath_glGetInteger64i_v(GLenum target, GLuint index, GLint64 *data)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetInteger64i_v(target, index, data);
@@ -3539,7 +3839,7 @@ finish:
 }
 
 void
-tracepath_glGetBufferParameteri64v(GLenum target, GLenum pname, GLint64* params)
+tracepath_glGetBufferParameteri64v(GLenum target, GLenum pname, GLint64 *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetBufferParameteri64v(target, pname, params);
@@ -3551,7 +3851,7 @@ finish:
 }
 
 void
-tracepath_glGenSamplers(GLsizei n, GLuint* samplers)
+tracepath_glGenSamplers(GLsizei n, GLuint *samplers)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGenSamplers(n, samplers);
@@ -3563,7 +3863,7 @@ finish:
 }
 
 void
-tracepath_glDeleteSamplers(GLsizei n, const GLuint* samplers)
+tracepath_glDeleteSamplers(GLsizei n, const GLuint *samplers)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glDeleteSamplers(n, samplers);
@@ -3614,7 +3914,7 @@ finish:
 }
 
 void
-tracepath_glSamplerParameteriv(GLuint sampler, GLenum pname, const GLint* param)
+tracepath_glSamplerParameteriv(GLuint sampler, GLenum pname, const GLint *param)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glSamplerParameteriv(sampler, pname, param);
@@ -3638,7 +3938,8 @@ finish:
 }
 
 void
-tracepath_glSamplerParameterfv(GLuint sampler, GLenum pname, const GLfloat* param)
+tracepath_glSamplerParameterfv(GLuint sampler, GLenum pname,
+			       const GLfloat *param)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glSamplerParameterfv(sampler, pname, param);
@@ -3650,7 +3951,7 @@ finish:
 }
 
 void
-tracepath_glGetSamplerParameteriv(GLuint sampler, GLenum pname, GLint* params)
+tracepath_glGetSamplerParameteriv(GLuint sampler, GLenum pname, GLint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetSamplerParameteriv(sampler, pname, params);
@@ -3662,7 +3963,7 @@ finish:
 }
 
 void
-tracepath_glGetSamplerParameterfv(GLuint sampler, GLenum pname, GLfloat* params)
+tracepath_glGetSamplerParameterfv(GLuint sampler, GLenum pname, GLfloat *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetSamplerParameterfv(sampler, pname, params);
@@ -3698,7 +3999,7 @@ finish:
 }
 
 void
-tracepath_glDeleteTransformFeedbacks(GLsizei n, const GLuint* ids)
+tracepath_glDeleteTransformFeedbacks(GLsizei n, const GLuint *ids)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glDeleteTransformFeedbacks(n, ids);
@@ -3710,7 +4011,7 @@ finish:
 }
 
 void
-tracepath_glGenTransformFeedbacks(GLsizei n, GLuint* ids)
+tracepath_glGenTransformFeedbacks(GLsizei n, GLuint *ids)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGenTransformFeedbacks(n, ids);
@@ -3761,10 +4062,12 @@ finish:
 }
 
 void
-tracepath_glGetProgramBinary(GLuint program, GLsizei bufSize, GLsizei* length, GLenum* binaryFormat, GLvoid* binary)
+tracepath_glGetProgramBinary(GLuint program, GLsizei bufSize, GLsizei *length,
+			     GLenum *binaryFormat, GLvoid *binary)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glGetProgramBinary(program, bufSize, length, binaryFormat, binary);
+	_orig_tracepath_glGetProgramBinary(program, bufSize, length, binaryFormat,
+					   binary);
 
 	goto finish;
 
@@ -3773,10 +4076,12 @@ finish:
 }
 
 void
-tracepath_glGetProgramBinaryOES(GLuint program, GLsizei bufSize, GLsizei* length, GLenum* binaryFormat, GLvoid* binary)
+tracepath_glGetProgramBinaryOES(GLuint program, GLsizei bufSize,
+				GLsizei *length, GLenum *binaryFormat, GLvoid *binary)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glGetProgramBinaryOES(program, bufSize, length, binaryFormat, binary);
+	_orig_tracepath_glGetProgramBinaryOES(program, bufSize, length, binaryFormat,
+					      binary);
 
 	goto finish;
 
@@ -3785,7 +4090,8 @@ finish:
 }
 
 void
-tracepath_glProgramBinary(GLuint program, GLenum binaryFormat, const GLvoid* binary, GLsizei length)
+tracepath_glProgramBinary(GLuint program, GLenum binaryFormat,
+			  const GLvoid *binary, GLsizei length)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramBinary(program, binaryFormat, binary, length);
@@ -3797,7 +4103,8 @@ finish:
 }
 
 void
-tracepath_glProgramBinaryOES(GLuint program, GLenum binaryFormat, const GLvoid* binary, GLsizei length)
+tracepath_glProgramBinaryOES(GLuint program, GLenum binaryFormat,
+			     const GLvoid *binary, GLsizei length)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramBinaryOES(program, binaryFormat, binary, length);
@@ -3821,7 +4128,8 @@ finish:
 }
 
 void
-tracepath_glInvalidateFramebuffer(GLenum target, GLsizei numAttachments, const GLenum* attachments)
+tracepath_glInvalidateFramebuffer(GLenum target, GLsizei numAttachments,
+				  const GLenum *attachments)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glInvalidateFramebuffer(target, numAttachments, attachments);
@@ -3833,7 +4141,8 @@ finish:
 }
 
 void
-tracepath_glDiscardFramebufferEXT(GLenum target, GLsizei numAttachments, const GLenum* attachments)
+tracepath_glDiscardFramebufferEXT(GLenum target, GLsizei numAttachments,
+				  const GLenum *attachments)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glDiscardFramebufferEXT(target, numAttachments, attachments);
@@ -3845,10 +4154,12 @@ finish:
 }
 
 void
-tracepath_glInvalidateSubFramebuffer(GLenum target, GLsizei numAttachments, const GLenum* attachments, GLint x, GLint y, GLsizei width, GLsizei height)
+tracepath_glInvalidateSubFramebuffer(GLenum target, GLsizei numAttachments,
+				     const GLenum *attachments, GLint x, GLint y, GLsizei width, GLsizei height)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glInvalidateSubFramebuffer(target, numAttachments, attachments, x, y, width, height);
+	_orig_tracepath_glInvalidateSubFramebuffer(target, numAttachments, attachments,
+			x, y, width, height);
 
 	goto finish;
 
@@ -3857,7 +4168,8 @@ finish:
 }
 
 void
-tracepath_glTexStorage2D(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height)
+tracepath_glTexStorage2D(GLenum target, GLsizei levels, GLenum internalformat,
+			 GLsizei width, GLsizei height)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glTexStorage2D(target, levels, internalformat, width, height);
@@ -3869,10 +4181,12 @@ finish:
 }
 
 void
-tracepath_glTexStorage3D(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth)
+tracepath_glTexStorage3D(GLenum target, GLsizei levels, GLenum internalformat,
+			 GLsizei width, GLsizei height, GLsizei depth)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glTexStorage3D(target, levels, internalformat, width, height, depth);
+	_orig_tracepath_glTexStorage3D(target, levels, internalformat, width, height,
+				       depth);
 
 	goto finish;
 
@@ -3881,10 +4195,12 @@ finish:
 }
 
 void
-tracepath_glGetInternalformativ(GLenum target, GLenum internalformat, GLenum pname, GLsizei bufSize, GLint* params)
+tracepath_glGetInternalformativ(GLenum target, GLenum internalformat,
+				GLenum pname, GLsizei bufSize, GLint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glGetInternalformativ(target, internalformat, pname, bufSize, params);
+	_orig_tracepath_glGetInternalformativ(target, internalformat, pname, bufSize,
+					      params);
 
 	goto finish;
 
@@ -3905,26 +4221,26 @@ tracepath_glEGLImageTargetTexture2DOES(GLenum target, GLeglImageOES image)
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
 #ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
-	if (trace_mem_flag == 1)
-	{
+	if (trace_mem_flag == 1) {
 		MY_MODULE_TSTATE *tstate = NULL;
 
 		GET_MY_TSTATE(tstate, get_current_thread_state());
 		AST(tstate != NULL);
-		if (tstate->ctx != NULL)
-		{
+		if (tstate->ctx != NULL) {
 			int objidx = _COREGL_INT_INIT_VALUE;
 			_orig_tracepath_glGetIntegerv(GL_TEXTURE_BINDING_2D, &objidx);
 			AST(objidx != _COREGL_INT_INIT_VALUE);
 
-			_add_glbuf_object(tstate->ctx->sostate->glbuf_tex, objidx, "Texture", 0, 0, 0, "Unknown");
+			_add_glbuf_object(tstate->ctx->sostate->glbuf_tex, objidx, "Texture", 0, 0, 0,
+					  "Unknown");
 		}
 	}
 #endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
 }
 
 void
-tracepath_glEGLImageTargetRenderbufferStorageOES(GLenum target, GLeglImageOES image)
+tracepath_glEGLImageTargetRenderbufferStorageOES(GLenum target,
+		GLeglImageOES image)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glEGLImageTargetRenderbufferStorageOES(target, image);
@@ -3933,26 +4249,26 @@ tracepath_glEGLImageTargetRenderbufferStorageOES(GLenum target, GLeglImageOES im
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
 #ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
-	if (trace_mem_flag == 1)
-	{
+	if (trace_mem_flag == 1) {
 		MY_MODULE_TSTATE *tstate = NULL;
 
 		GET_MY_TSTATE(tstate, get_current_thread_state());
 		AST(tstate != NULL);
-		if (tstate->ctx != NULL)
-		{
+		if (tstate->ctx != NULL) {
 			int objidx = _COREGL_INT_INIT_VALUE;
 			_orig_tracepath_glGetIntegerv(GL_RENDERBUFFER_BINDING, &objidx);
 			AST(objidx != _COREGL_INT_INIT_VALUE);
 
-			_add_glbuf_object(tstate->ctx->sostate->glbuf_rb, objidx, "Renderbuffer", 0, 0, 0, "Unknown");
+			_add_glbuf_object(tstate->ctx->sostate->glbuf_rb, objidx, "Renderbuffer", 0, 0,
+					  0, "Unknown");
 		}
 	}
 #endif // COREGL_TRACEPATH_TRACE_MEMUSE_INFO
 }
 
 void
-tracepath_glUseProgramStagesEXT(GLuint pipeline, GLbitfield stages, GLuint program)
+tracepath_glUseProgramStagesEXT(GLuint pipeline, GLbitfield stages,
+				GLuint program)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glUseProgramStagesEXT(pipeline, stages, program);
@@ -3976,7 +4292,8 @@ finish:
 }
 
 GLuint
-tracepath_glCreateShaderProgramvEXT(GLenum type, GLsizei count, const char **strings)
+tracepath_glCreateShaderProgramvEXT(GLenum type, GLsizei count,
+				    const char **strings)
 {
 	GLuint ret = _COREGL_INT_INIT_VALUE;
 
@@ -3987,7 +4304,7 @@ tracepath_glCreateShaderProgramvEXT(GLenum type, GLsizei count, const char **str
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
-   return ret;
+	return ret;
 }
 
 void
@@ -4038,7 +4355,7 @@ tracepath_glIsProgramPipelineEXT(GLuint pipeline)
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
-   return ret;
+	return ret;
 }
 
 void
@@ -4054,7 +4371,8 @@ finish:
 }
 
 void
-tracepath_glGetProgramPipelineivEXT(GLuint pipeline, GLenum pname, GLint *params)
+tracepath_glGetProgramPipelineivEXT(GLuint pipeline, GLenum pname,
+				    GLint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetProgramPipelineivEXT(pipeline, pname, params);
@@ -4078,7 +4396,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform2iEXT(GLuint program, GLint location, GLint x, GLint y)
+tracepath_glProgramUniform2iEXT(GLuint program, GLint location, GLint x,
+				GLint y)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform2iEXT(program, location, x, y);
@@ -4090,7 +4409,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform3iEXT(GLuint program, GLint location, GLint x, GLint y, GLint z)
+tracepath_glProgramUniform3iEXT(GLuint program, GLint location, GLint x,
+				GLint y, GLint z)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform3iEXT(program, location, x, y, z);
@@ -4102,7 +4422,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform4iEXT(GLuint program, GLint location, GLint x, GLint y, GLint z, GLint w)
+tracepath_glProgramUniform4iEXT(GLuint program, GLint location, GLint x,
+				GLint y, GLint z, GLint w)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform4iEXT(program, location, x, y, z, w);
@@ -4126,7 +4447,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform2fEXT(GLuint program, GLint location, GLfloat x, GLfloat y)
+tracepath_glProgramUniform2fEXT(GLuint program, GLint location, GLfloat x,
+				GLfloat y)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform2fEXT(program, location, x, y);
@@ -4138,7 +4460,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform3fEXT(GLuint program, GLint location, GLfloat x, GLfloat y, GLfloat z)
+tracepath_glProgramUniform3fEXT(GLuint program, GLint location, GLfloat x,
+				GLfloat y, GLfloat z)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform3fEXT(program, location, x, y, z);
@@ -4150,7 +4473,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform4fEXT(GLuint program, GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+tracepath_glProgramUniform4fEXT(GLuint program, GLint location, GLfloat x,
+				GLfloat y, GLfloat z, GLfloat w)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform4fEXT(program, location, x, y, z, w);
@@ -4162,7 +4486,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform1ivEXT(GLuint program, GLint location, GLsizei count, const GLint *value)
+tracepath_glProgramUniform1ivEXT(GLuint program, GLint location, GLsizei count,
+				 const GLint *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform1ivEXT(program, location, count, value);
@@ -4174,7 +4499,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform2ivEXT(GLuint program, GLint location, GLsizei count, const GLint *value)
+tracepath_glProgramUniform2ivEXT(GLuint program, GLint location, GLsizei count,
+				 const GLint *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform2ivEXT(program, location, count, value);
@@ -4186,7 +4512,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform3ivEXT(GLuint program, GLint location, GLsizei count, const GLint *value)
+tracepath_glProgramUniform3ivEXT(GLuint program, GLint location, GLsizei count,
+				 const GLint *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform3ivEXT(program, location, count, value);
@@ -4198,7 +4525,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform4ivEXT(GLuint program, GLint location, GLsizei count, const GLint *value)
+tracepath_glProgramUniform4ivEXT(GLuint program, GLint location, GLsizei count,
+				 const GLint *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform4ivEXT(program, location, count, value);
@@ -4210,7 +4538,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform1fvEXT(GLuint program, GLint location, GLsizei count, const GLfloat *value)
+tracepath_glProgramUniform1fvEXT(GLuint program, GLint location, GLsizei count,
+				 const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform1fvEXT(program, location, count, value);
@@ -4222,7 +4551,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform2fvEXT(GLuint program, GLint location, GLsizei count, const GLfloat *value)
+tracepath_glProgramUniform2fvEXT(GLuint program, GLint location, GLsizei count,
+				 const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform2fvEXT(program, location, count, value);
@@ -4234,7 +4564,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform3fvEXT(GLuint program, GLint location, GLsizei count, const GLfloat *value)
+tracepath_glProgramUniform3fvEXT(GLuint program, GLint location, GLsizei count,
+				 const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform3fvEXT(program, location, count, value);
@@ -4246,7 +4577,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform4fvEXT(GLuint program, GLint location, GLsizei count, const GLfloat *value)
+tracepath_glProgramUniform4fvEXT(GLuint program, GLint location, GLsizei count,
+				 const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform4fvEXT(program, location, count, value);
@@ -4258,10 +4590,12 @@ finish:
 }
 
 void
-tracepath_glProgramUniformMatrix2fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+tracepath_glProgramUniformMatrix2fvEXT(GLuint program, GLint location,
+				       GLsizei count, GLboolean transpose, const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glProgramUniformMatrix2fvEXT(program, location, count, transpose, value);
+	_orig_tracepath_glProgramUniformMatrix2fvEXT(program, location, count,
+			transpose, value);
 
 	goto finish;
 
@@ -4270,10 +4604,12 @@ finish:
 }
 
 void
-tracepath_glProgramUniformMatrix3fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+tracepath_glProgramUniformMatrix3fvEXT(GLuint program, GLint location,
+				       GLsizei count, GLboolean transpose, const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glProgramUniformMatrix3fvEXT(program, location, count, transpose, value);
+	_orig_tracepath_glProgramUniformMatrix3fvEXT(program, location, count,
+			transpose, value);
 
 	goto finish;
 
@@ -4282,10 +4618,12 @@ finish:
 }
 
 void
-tracepath_glProgramUniformMatrix4fvEXT(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+tracepath_glProgramUniformMatrix4fvEXT(GLuint program, GLint location,
+				       GLsizei count, GLboolean transpose, const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glProgramUniformMatrix4fvEXT(program, location, count, transpose, value);
+	_orig_tracepath_glProgramUniformMatrix4fvEXT(program, location, count,
+			transpose, value);
 
 	goto finish;
 
@@ -4306,10 +4644,12 @@ finish:
 }
 
 void
-tracepath_glGetProgramPipelineInfoLogEXT(GLuint pipeline, GLsizei bufSize, GLsizei *length, char *infoLog)
+tracepath_glGetProgramPipelineInfoLogEXT(GLuint pipeline, GLsizei bufSize,
+		GLsizei *length, char *infoLog)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glGetProgramPipelineInfoLogEXT(pipeline, bufSize, length, infoLog);
+	_orig_tracepath_glGetProgramPipelineInfoLogEXT(pipeline, bufSize, length,
+			infoLog);
 
 	goto finish;
 
@@ -4319,7 +4659,8 @@ finish:
 
 
 void
-tracepath_glFramebufferTexture2DMultisampleEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLsizei samples)
+tracepath_glFramebufferTexture2DMultisampleEXT(GLenum target, GLenum attachment,
+		GLenum textarget, GLuint texture, GLint level, GLsizei samples)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 
@@ -4327,7 +4668,8 @@ tracepath_glFramebufferTexture2DMultisampleEXT(GLenum target, GLenum attachment,
 	tracepath_fbdump_update(0);
 #endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 
-	_orig_tracepath_glFramebufferTexture2DMultisampleEXT(target, attachment, textarget, texture, level, samples);
+	_orig_tracepath_glFramebufferTexture2DMultisampleEXT(target, attachment,
+			textarget, texture, level, samples);
 
 #ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
 	tracepath_fbdump_update(1);
@@ -4340,10 +4682,12 @@ finish:
 }
 
 void
-tracepath_glFramebufferTexture3DOES(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset)
+tracepath_glFramebufferTexture3DOES(GLenum target, GLenum attachment,
+				    GLenum textarget, GLuint texture, GLint level, GLint zoffset)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glFramebufferTexture3DOES(target, attachment, textarget, texture, level, zoffset);
+	_orig_tracepath_glFramebufferTexture3DOES(target, attachment, textarget,
+			texture, level, zoffset);
 
 	goto finish;
 
@@ -4458,7 +4802,7 @@ finish:
 
 
 void
-tracepath_glGetBufferPointervOES(GLenum target, GLenum pname, GLvoid** params)
+tracepath_glGetBufferPointervOES(GLenum target, GLenum pname, GLvoid **params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetBufferPointervOES(target, pname, params);
@@ -4482,7 +4826,7 @@ tracepath_glMapBufferOES(GLenum target, GLenum access)
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
-   return ret;
+	return ret;
 }
 
 
@@ -4498,12 +4842,13 @@ tracepath_glUnmapBufferOES(GLenum target)
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
-   return ret;
+	return ret;
 }
 
 /* GLES3.1 API */
 void
-tracepath_glGetProgramPipelineInfoLog(GLuint pipeline, GLsizei bufSize, GLsizei *length, GLchar *infoLog)
+tracepath_glGetProgramPipelineInfoLog(GLuint pipeline, GLsizei bufSize,
+				      GLsizei *length, GLchar *infoLog)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetProgramPipelineInfoLog(pipeline, bufSize, length, infoLog);
@@ -4515,7 +4860,8 @@ finish:
 }
 
 GLuint
-tracepath_glCreateShaderProgramv(GLenum type,  GLsizei count,  const GLchar *const*strings)
+tracepath_glCreateShaderProgramv(GLenum type,  GLsizei count,
+				 const GLchar *const *strings)
 {
 	GLboolean ret = GL_FALSE;
 	_COREGL_TRACEPATH_FUNC_BEGIN();
@@ -4525,7 +4871,7 @@ tracepath_glCreateShaderProgramv(GLenum type,  GLsizei count,  const GLchar *con
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
-   return ret;
+	return ret;
 }
 
 void
@@ -4604,7 +4950,8 @@ finish:
 }
 
 void
-tracepath_glDispatchCompute(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z)
+tracepath_glDispatchCompute(GLuint num_groups_x, GLuint num_groups_y,
+			    GLuint num_groups_z)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glDispatchCompute(num_groups_x, num_groups_y, num_groups_z);
@@ -4640,7 +4987,8 @@ finish:
 }
 
 void
-tracepath_glDrawElementsIndirect(GLenum mode, GLenum type, GLvoid const *indirect)
+tracepath_glDrawElementsIndirect(GLenum mode, GLenum type,
+				 GLvoid const *indirect)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glDrawElementsIndirect(mode, type, indirect);
@@ -4664,7 +5012,8 @@ finish:
 }
 
 void
-tracepath_glGetFramebufferParameteriv( GLenum target,  GLenum pname,  GLint * params)
+tracepath_glGetFramebufferParameteriv( GLenum target,  GLenum pname,
+				       GLint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetFramebufferParameteriv(target,  pname,  params);
@@ -4676,10 +5025,12 @@ finish:
 }
 
 void
-tracepath_glGetProgramInterfaceiv(GLuint program,  GLenum programInterface,  GLenum pname,  GLint * params)
+tracepath_glGetProgramInterfaceiv(GLuint program,  GLenum programInterface,
+				  GLenum pname,  GLint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glGetProgramInterfaceiv(program, programInterface, pname, params);
+	_orig_tracepath_glGetProgramInterfaceiv(program, programInterface, pname,
+						params);
 
 	goto finish;
 
@@ -4688,11 +5039,13 @@ finish:
 }
 
 GLuint
-tracepath_glGetProgramResourceIndex( GLuint program,  GLenum programInterface,  const char * name)
+tracepath_glGetProgramResourceIndex( GLuint program,  GLenum programInterface,
+				     const char *name)
 {
 	GLuint ret = GL_INVALID_INDEX;
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	ret =  _orig_tracepath_glGetProgramResourceIndex(program,  programInterface,  name);
+	ret =  _orig_tracepath_glGetProgramResourceIndex(program,  programInterface,
+			name);
 
 	goto finish;
 
@@ -4702,11 +5055,13 @@ finish:
 }
 
 void
-tracepath_glGetProgramResourceName(GLuint program, GLenum programInterface, GLuint index, GLsizei bufSize, GLsizei *length, GLchar *name)
+tracepath_glGetProgramResourceName(GLuint program, GLenum programInterface,
+				   GLuint index, GLsizei bufSize, GLsizei *length, GLchar *name)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 
-	_orig_tracepath_glGetProgramResourceName(program, programInterface, index, bufSize, length, name);
+	_orig_tracepath_glGetProgramResourceName(program, programInterface, index,
+			bufSize, length, name);
 
 	goto finish;
 
@@ -4715,11 +5070,14 @@ finish:
 }
 
 void
-tracepath_glGetProgramResourceiv( GLuint program,  GLenum programInterface,  GLuint index,  GLsizei propCount,  const GLenum * props,  GLsizei bufSize,  GLsizei * length,  GLint * params)
+tracepath_glGetProgramResourceiv( GLuint program,  GLenum programInterface,
+				  GLuint index,  GLsizei propCount,  const GLenum *props,  GLsizei bufSize,
+				  GLsizei *length,  GLint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 
-	_orig_tracepath_glGetProgramResourceiv(program,  programInterface,  index,  propCount,  props,  bufSize,  length,  params);
+	_orig_tracepath_glGetProgramResourceiv(program,  programInterface,  index,
+					       propCount,  props,  bufSize,  length,  params);
 
 	goto finish;
 
@@ -4728,12 +5086,14 @@ finish:
 }
 
 GLint
-tracepath_glGetProgramResourceLocation(GLuint program, GLenum programInterface, GLchar const *name)
+tracepath_glGetProgramResourceLocation(GLuint program, GLenum programInterface,
+				       GLchar const *name)
 {
 	GLuint ret = -1;
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 
-	ret = _orig_tracepath_glGetProgramResourceLocation(program, programInterface, name);
+	ret = _orig_tracepath_glGetProgramResourceLocation(program, programInterface,
+			name);
 
 	goto finish;
 
@@ -4767,7 +5127,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform1iv(GLuint program, GLint location, GLsizei count, const GLint *value)
+tracepath_glProgramUniform1iv(GLuint program, GLint location, GLsizei count,
+			      const GLint *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform1iv(program, location, count, value);
@@ -4779,7 +5140,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform2iv(GLuint program, GLint location, GLsizei count, const GLint *value)
+tracepath_glProgramUniform2iv(GLuint program, GLint location, GLsizei count,
+			      const GLint *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform2iv(program, location, count, value);
@@ -4791,7 +5153,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform3iv(GLuint program, GLint location, GLsizei count, const GLint *value)
+tracepath_glProgramUniform3iv(GLuint program, GLint location, GLsizei count,
+			      const GLint *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform3iv(program, location, count, value);
@@ -4803,7 +5166,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform4iv(GLuint program, GLint location, GLsizei count, const GLint *value)
+tracepath_glProgramUniform4iv(GLuint program, GLint location, GLsizei count,
+			      const GLint *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform4iv(program, location, count, value);
@@ -4815,7 +5179,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform1fv(GLuint program, GLint location, GLsizei count, const GLfloat *value)
+tracepath_glProgramUniform1fv(GLuint program, GLint location, GLsizei count,
+			      const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform1fv(program, location, count, value);
@@ -4827,7 +5192,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform2fv(GLuint program, GLint location, GLsizei count, const GLfloat *value)
+tracepath_glProgramUniform2fv(GLuint program, GLint location, GLsizei count,
+			      const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform2fv(program, location, count, value);
@@ -4839,7 +5205,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform3fv(GLuint program, GLint location, GLsizei count, const GLfloat *value)
+tracepath_glProgramUniform3fv(GLuint program, GLint location, GLsizei count,
+			      const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform3fv(program, location, count, value);
@@ -4851,7 +5218,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform4fv(GLuint program, GLint location, GLsizei count, const GLfloat *value)
+tracepath_glProgramUniform4fv(GLuint program, GLint location, GLsizei count,
+			      const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform4fv(program, location, count, value);
@@ -4863,10 +5231,12 @@ finish:
 }
 
 void
-tracepath_glProgramUniformMatrix2fv(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+tracepath_glProgramUniformMatrix2fv(GLuint program, GLint location,
+				    GLsizei count, GLboolean transpose, const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glProgramUniformMatrix2fv(program, location, count, transpose, value);
+	_orig_tracepath_glProgramUniformMatrix2fv(program, location, count, transpose,
+			value);
 
 	goto finish;
 
@@ -4875,10 +5245,12 @@ finish:
 }
 
 void
-tracepath_glProgramUniformMatrix3fv(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+tracepath_glProgramUniformMatrix3fv(GLuint program, GLint location,
+				    GLsizei count, GLboolean transpose, const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glProgramUniformMatrix3fv(program, location, count, transpose, value);
+	_orig_tracepath_glProgramUniformMatrix3fv(program, location, count, transpose,
+			value);
 
 	goto finish;
 
@@ -4887,10 +5259,12 @@ finish:
 }
 
 void
-tracepath_glProgramUniformMatrix4fv(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+tracepath_glProgramUniformMatrix4fv(GLuint program, GLint location,
+				    GLsizei count, GLboolean transpose, const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glProgramUniformMatrix4fv(program, location, count, transpose, value);
+	_orig_tracepath_glProgramUniformMatrix4fv(program, location, count, transpose,
+			value);
 
 	goto finish;
 
@@ -4923,7 +5297,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform3i(GLuint program, GLint location, GLint x, GLint y, GLint z)
+tracepath_glProgramUniform3i(GLuint program, GLint location, GLint x, GLint y,
+			     GLint z)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform3i(program, location, x, y, z);
@@ -4935,7 +5310,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform4i(GLuint program, GLint location, GLint x, GLint y, GLint z, GLint w)
+tracepath_glProgramUniform4i(GLuint program, GLint location, GLint x, GLint y,
+			     GLint z, GLint w)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform4i(program, location, x, y, z, w);
@@ -4959,7 +5335,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform2f(GLuint program, GLint location, GLfloat x, GLfloat y)
+tracepath_glProgramUniform2f(GLuint program, GLint location, GLfloat x,
+			     GLfloat y)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform2f(program, location, x, y);
@@ -4971,7 +5348,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform3f(GLuint program, GLint location, GLfloat x, GLfloat y, GLfloat z)
+tracepath_glProgramUniform3f(GLuint program, GLint location, GLfloat x,
+			     GLfloat y, GLfloat z)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform3f(program, location, x, y, z);
@@ -4983,7 +5361,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform4f(GLuint program, GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+tracepath_glProgramUniform4f(GLuint program, GLint location, GLfloat x,
+			     GLfloat y, GLfloat z, GLfloat w)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform4f(program, location, x, y, z, w);
@@ -5007,7 +5386,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform2ui(GLuint program, GLint location, GLuint x, GLuint y)
+tracepath_glProgramUniform2ui(GLuint program, GLint location, GLuint x,
+			      GLuint y)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform2ui(program, location, x, y);
@@ -5019,7 +5399,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform3ui(GLuint program, GLint location, GLuint x, GLuint y, GLuint z)
+tracepath_glProgramUniform3ui(GLuint program, GLint location, GLuint x,
+			      GLuint y, GLuint z)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform3ui(program, location, x, y, z);
@@ -5031,7 +5412,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform4ui(GLuint program, GLint location, GLuint x, GLuint y, GLuint z, GLuint w)
+tracepath_glProgramUniform4ui(GLuint program, GLint location, GLuint x,
+			      GLuint y, GLuint z, GLuint w)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform4ui(program, location, x, y, z, w);
@@ -5043,7 +5425,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform1uiv(GLuint program, GLint location, GLsizei count, const GLuint *value)
+tracepath_glProgramUniform1uiv(GLuint program, GLint location, GLsizei count,
+			       const GLuint *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform1uiv(program, location, count, value);
@@ -5055,7 +5438,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform2uiv(GLuint program, GLint location, GLsizei count, const GLuint *value)
+tracepath_glProgramUniform2uiv(GLuint program, GLint location, GLsizei count,
+			       const GLuint *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform2uiv(program, location, count, value);
@@ -5067,7 +5451,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform3uiv(GLuint program, GLint location, GLsizei count, const GLuint *value)
+tracepath_glProgramUniform3uiv(GLuint program, GLint location, GLsizei count,
+			       const GLuint *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform3uiv(program, location, count, value);
@@ -5079,7 +5464,8 @@ finish:
 }
 
 void
-tracepath_glProgramUniform4uiv(GLuint program, GLint location, GLsizei count, const GLuint *value)
+tracepath_glProgramUniform4uiv(GLuint program, GLint location, GLsizei count,
+			       const GLuint *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glProgramUniform4uiv(program, location, count, value);
@@ -5091,10 +5477,12 @@ finish:
 }
 
 void
-tracepath_glProgramUniformMatrix2x3fv(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+tracepath_glProgramUniformMatrix2x3fv(GLuint program, GLint location,
+				      GLsizei count, GLboolean transpose, const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glProgramUniformMatrix2x3fv(program, location, count, transpose, value);
+	_orig_tracepath_glProgramUniformMatrix2x3fv(program, location, count, transpose,
+			value);
 
 	goto finish;
 
@@ -5103,10 +5491,12 @@ finish:
 }
 
 void
-tracepath_glProgramUniformMatrix3x2fv(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+tracepath_glProgramUniformMatrix3x2fv(GLuint program, GLint location,
+				      GLsizei count, GLboolean transpose, const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glProgramUniformMatrix3x2fv(program, location, count, transpose, value);
+	_orig_tracepath_glProgramUniformMatrix3x2fv(program, location, count, transpose,
+			value);
 
 	goto finish;
 
@@ -5115,10 +5505,12 @@ finish:
 }
 
 void
-tracepath_glProgramUniformMatrix4x2fv(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+tracepath_glProgramUniformMatrix4x2fv(GLuint program, GLint location,
+				      GLsizei count, GLboolean transpose, const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glProgramUniformMatrix4x2fv(program, location, count, transpose, value);
+	_orig_tracepath_glProgramUniformMatrix4x2fv(program, location, count, transpose,
+			value);
 
 	goto finish;
 
@@ -5127,10 +5519,12 @@ finish:
 }
 
 void
-tracepath_glProgramUniformMatrix2x4fv(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+tracepath_glProgramUniformMatrix2x4fv(GLuint program, GLint location,
+				      GLsizei count, GLboolean transpose, const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glProgramUniformMatrix2x4fv(program, location, count, transpose, value);
+	_orig_tracepath_glProgramUniformMatrix2x4fv(program, location, count, transpose,
+			value);
 
 	goto finish;
 
@@ -5139,10 +5533,12 @@ finish:
 }
 
 void
-tracepath_glProgramUniformMatrix3x4fv(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+tracepath_glProgramUniformMatrix3x4fv(GLuint program, GLint location,
+				      GLsizei count, GLboolean transpose, const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glProgramUniformMatrix3x4fv(program, location, count, transpose, value);
+	_orig_tracepath_glProgramUniformMatrix3x4fv(program, location, count, transpose,
+			value);
 
 	goto finish;
 
@@ -5151,10 +5547,12 @@ finish:
 }
 
 void
-tracepath_glProgramUniformMatrix4x3fv(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value)
+tracepath_glProgramUniformMatrix4x3fv(GLuint program, GLint location,
+				      GLsizei count, GLboolean transpose, const GLfloat *value)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glProgramUniformMatrix4x3fv(program, location, count, transpose, value);
+	_orig_tracepath_glProgramUniformMatrix4x3fv(program, location, count, transpose,
+			value);
 
 	goto finish;
 
@@ -5163,11 +5561,13 @@ finish:
 }
 
 void
-tracepath_glBindImageTexture(GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format)
+tracepath_glBindImageTexture(GLuint unit, GLuint texture, GLint level,
+			     GLboolean layered, GLint layer, GLenum access, GLenum format)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 
-	_orig_tracepath_glBindImageTexture(unit, texture, level, layered, layer, access, format);
+	_orig_tracepath_glBindImageTexture(unit, texture, level, layered, layer, access,
+					   format);
 
 	goto finish;
 
@@ -5211,10 +5611,13 @@ finish:
 }
 
 void
-tracepath_glTexStorage2DMultisample (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height, GLboolean fixedsamplelocations)
+tracepath_glTexStorage2DMultisample (GLenum target, GLsizei samples,
+				     GLenum internalformat, GLsizei width, GLsizei height,
+				     GLboolean fixedsamplelocations)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glTexStorage2DMultisample (target, samples, internalformat, width, height, fixedsamplelocations);
+	_orig_tracepath_glTexStorage2DMultisample (target, samples, internalformat,
+			width, height, fixedsamplelocations);
 
 	goto finish;
 
@@ -5247,7 +5650,8 @@ finish:
 }
 
 void
-tracepath_glGetTexLevelParameteriv (GLenum target, GLint level, GLenum pname, GLint *params)
+tracepath_glGetTexLevelParameteriv (GLenum target, GLint level, GLenum pname,
+				    GLint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetTexLevelParameteriv (target, level, pname, params);
@@ -5259,7 +5663,8 @@ finish:
 }
 
 void
-tracepath_glGetTexLevelParameterfv (GLenum target, GLint level, GLenum pname, GLfloat *params)
+tracepath_glGetTexLevelParameterfv (GLenum target, GLint level, GLenum pname,
+				    GLfloat *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetTexLevelParameterfv (target, level, pname, params);
@@ -5271,7 +5676,8 @@ finish:
 }
 
 void
-tracepath_glBindVertexBuffer (GLuint bindingindex, GLuint buffer, GLintptr offset, GLsizei stride)
+tracepath_glBindVertexBuffer (GLuint bindingindex, GLuint buffer,
+			      GLintptr offset, GLsizei stride)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glBindVertexBuffer (bindingindex, buffer, offset, stride);
@@ -5283,10 +5689,12 @@ finish:
 }
 
 
-void tracepath_glVertexAttribFormat (GLuint attribindex, GLint size, GLenum type, GLboolean normalized, GLuint relativeoffset)
+void tracepath_glVertexAttribFormat (GLuint attribindex, GLint size,
+				     GLenum type, GLboolean normalized, GLuint relativeoffset)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glVertexAttribFormat (attribindex, size, type, normalized, relativeoffset);
+	_orig_tracepath_glVertexAttribFormat (attribindex, size, type, normalized,
+					      relativeoffset);
 
 	goto finish;
 
@@ -5294,7 +5702,8 @@ finish:
 	_COREGL_TRACEPATH_FUNC_END();
 }
 
-void tracepath_glVertexAttribIFormat (GLuint attribindex, GLint size, GLenum type, GLuint relativeoffset)
+void tracepath_glVertexAttribIFormat (GLuint attribindex, GLint size,
+				      GLenum type, GLuint relativeoffset)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glVertexAttribIFormat (attribindex, size, type, relativeoffset);
@@ -5332,12 +5741,10 @@ tracepath_glBindFramebufferOES(GLenum target, GLuint framebuffer)
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 
 #ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
-	if (unlikely(trace_surface_flag == 1))
-	{
+	if (unlikely(trace_surface_flag == 1)) {
 		GLint oldfb;
 		_orig_tracepath_glGetIntegerv(GL_FRAMEBUFFER_BINDING, &oldfb);
-		if (oldfb != 0)
-		{
+		if (oldfb != 0) {
 			_COREGL_TRACE_SURFACE(0, 2, "GLBINDFBO");
 		}
 
@@ -5348,8 +5755,7 @@ tracepath_glBindFramebufferOES(GLenum target, GLuint framebuffer)
 	_orig_tracepath_glBindFramebufferOES(target, framebuffer);
 
 #ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
-	if (unlikely(trace_surface_flag == 1))
-	{
+	if (unlikely(trace_surface_flag == 1)) {
 		tracepath_fbdump_update(1);
 	}
 #endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
@@ -5373,7 +5779,7 @@ finish:
 }
 
 void
-tracepath_glDeleteFramebuffersOES(GLsizei n, const GLuint* framebuffers)
+tracepath_glDeleteFramebuffersOES(GLsizei n, const GLuint *framebuffers)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 
@@ -5394,7 +5800,7 @@ finish:
 }
 
 void
-tracepath_glDeleteRenderbuffersOES(GLsizei n, const GLuint* renderbuffers)
+tracepath_glDeleteRenderbuffersOES(GLsizei n, const GLuint *renderbuffers)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 
@@ -5413,18 +5819,16 @@ tracepath_glDeleteRenderbuffersOES(GLsizei n, const GLuint* renderbuffers)
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
 #ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
-	if (trace_mem_flag == 1)
-	{
+	if (trace_mem_flag == 1) {
 		MY_MODULE_TSTATE *tstate = NULL;
 
 		GET_MY_TSTATE(tstate, get_current_thread_state());
 		AST(tstate != NULL);
-		if (tstate->ctx != NULL)
-		{
-			for (int i = 0; i < n; i++)
-			{
+		if (tstate->ctx != NULL) {
+			for (int i = 0; i < n; i++) {
 				if (renderbuffers[i] == 0) continue;
-				_remove_glbuf_object(tstate->ctx->sostate->glbuf_rb, renderbuffers[i], "Renderbuffer");
+				_remove_glbuf_object(tstate->ctx->sostate->glbuf_rb, renderbuffers[i],
+						     "Renderbuffer");
 			}
 		}
 	}
@@ -5456,7 +5860,8 @@ finish:
 }
 
 void
-tracepath_glFramebufferRenderbufferOES(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)
+tracepath_glFramebufferRenderbufferOES(GLenum target, GLenum attachment,
+				       GLenum renderbuffertarget, GLuint renderbuffer)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 
@@ -5464,7 +5869,8 @@ tracepath_glFramebufferRenderbufferOES(GLenum target, GLenum attachment, GLenum 
 	tracepath_fbdump_update(0);
 #endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 
-	_orig_tracepath_glFramebufferRenderbufferOES(target, attachment, renderbuffertarget, renderbuffer);
+	_orig_tracepath_glFramebufferRenderbufferOES(target, attachment,
+			renderbuffertarget, renderbuffer);
 
 #ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
 	tracepath_fbdump_update(1);
@@ -5477,7 +5883,8 @@ finish:
 }
 
 void
-tracepath_glFramebufferTexture2DOES(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)
+tracepath_glFramebufferTexture2DOES(GLenum target, GLenum attachment,
+				    GLenum textarget, GLuint texture, GLint level)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 
@@ -5485,7 +5892,8 @@ tracepath_glFramebufferTexture2DOES(GLenum target, GLenum attachment, GLenum tex
 	tracepath_fbdump_update(0);
 #endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
 
-	_orig_tracepath_glFramebufferTexture2DOES(target, attachment, textarget, texture, level);
+	_orig_tracepath_glFramebufferTexture2DOES(target, attachment, textarget,
+			texture, level);
 
 #ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
 	tracepath_fbdump_update(1);
@@ -5498,7 +5906,7 @@ finish:
 }
 
 void
-tracepath_glGenFramebuffersOES(GLsizei n, GLuint* framebuffers)
+tracepath_glGenFramebuffersOES(GLsizei n, GLuint *framebuffers)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGenFramebuffersOES(n, framebuffers);
@@ -5510,7 +5918,7 @@ finish:
 }
 
 void
-tracepath_glGenRenderbuffersOES(GLsizei n, GLuint* renderbuffers)
+tracepath_glGenRenderbuffersOES(GLsizei n, GLuint *renderbuffers)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGenRenderbuffersOES(n, renderbuffers);
@@ -5520,18 +5928,16 @@ tracepath_glGenRenderbuffersOES(GLsizei n, GLuint* renderbuffers)
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
 #ifdef COREGL_TRACEPATH_TRACE_MEMUSE_INFO
-	if (trace_mem_flag == 1)
-	{
+	if (trace_mem_flag == 1) {
 		MY_MODULE_TSTATE *tstate = NULL;
 
 		GET_MY_TSTATE(tstate, get_current_thread_state());
 		AST(tstate != NULL);
-		if (tstate->ctx != NULL)
-		{
-			for (int i = 0; i < n; i++)
-			{
+		if (tstate->ctx != NULL) {
+			for (int i = 0; i < n; i++) {
 				if (renderbuffers[i] == 0) continue;
-				_add_glbuf_object(tstate->ctx->sostate->glbuf_rb, renderbuffers[i], "Renderbuffer", 0, 0, 0, "Unknown");
+				_add_glbuf_object(tstate->ctx->sostate->glbuf_rb, renderbuffers[i],
+						  "Renderbuffer", 0, 0, 0, "Unknown");
 			}
 		}
 	}
@@ -5539,10 +5945,12 @@ finish:
 }
 
 void
-tracepath_glGetFramebufferAttachmentParameterivOES(GLenum target, GLenum attachment, GLenum pname, GLint* params)
+tracepath_glGetFramebufferAttachmentParameterivOES(GLenum target,
+		GLenum attachment, GLenum pname, GLint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glGetFramebufferAttachmentParameterivOES(target, attachment, pname, params);
+	_orig_tracepath_glGetFramebufferAttachmentParameterivOES(target, attachment,
+			pname, params);
 
 	goto finish;
 
@@ -5587,7 +5995,7 @@ finish:
 }
 
 void
-tracepath_glGetQueryObjectuivEXT(GLuint id, GLenum pname, GLuint* params)
+tracepath_glGetQueryObjectuivEXT(GLuint id, GLenum pname, GLuint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetQueryObjectuivEXT(id, pname, params);
@@ -5599,7 +6007,7 @@ finish:
 }
 
 void
-tracepath_glGetQueryivEXT(GLenum target, GLenum pname, GLint* params)
+tracepath_glGetQueryivEXT(GLenum target, GLenum pname, GLint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetQueryivEXT(target, pname, params);
@@ -5624,7 +6032,7 @@ finish:
 
 
 void
-tracepath_glDeleteQueriesEXT(GLsizei n, const GLuint* ids)
+tracepath_glDeleteQueriesEXT(GLsizei n, const GLuint *ids)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glDeleteQueriesEXT(n, ids);
@@ -5636,7 +6044,7 @@ finish:
 }
 
 void
-tracepath_glGenQueriesEXT(GLsizei n, GLuint* ids)
+tracepath_glGenQueriesEXT(GLsizei n, GLuint *ids)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGenQueriesEXT(n, ids);
@@ -5747,7 +6155,8 @@ finish:
 	_COREGL_TRACEPATH_FUNC_END();
 }
 
-void tracepath_glBlendFuncSeparateOES(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
+void tracepath_glBlendFuncSeparateOES(GLenum srcRGB, GLenum dstRGB,
+				      GLenum srcAlpha, GLenum dstAlpha)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glBlendFuncSeparateOES(srcRGB, dstRGB, srcAlpha, dstAlpha);
@@ -5769,11 +6178,12 @@ GLenum tracepath_glCheckFramebufferStatusOES(GLenum target)
 
 finish:
 	_COREGL_TRACEPATH_FUNC_END();
-   return ret;
+	return ret;
 }
 
 
-void tracepath_glClearColorxOES(GLclampx red, GLclampx green, GLclampx blue, GLclampx alpha)
+void tracepath_glClearColorxOES(GLclampx red, GLclampx green, GLclampx blue,
+				GLclampx alpha)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glClearColorxOES(red, green, blue, alpha);
@@ -5829,7 +6239,8 @@ finish:
 	_COREGL_TRACEPATH_FUNC_END();
 }
 
-void tracepath_glColor4xOES(GLfixed red, GLfixed green, GLfixed blue, GLfixed alpha)
+void tracepath_glColor4xOES(GLfixed red, GLfixed green, GLfixed blue,
+			    GLfixed alpha)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glColor4xOES(red, green, blue, alpha);
@@ -5840,7 +6251,8 @@ finish:
 	_COREGL_TRACEPATH_FUNC_END();
 }
 
-void tracepath_glDebugMessageCallback(GLDEBUGPROCKHR callback, void const *userParam)
+void tracepath_glDebugMessageCallback(GLDEBUGPROCKHR callback,
+				      void const *userParam)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glDebugMessageCallback(callback, userParam);
@@ -5851,7 +6263,8 @@ finish:
 	_COREGL_TRACEPATH_FUNC_END();
 }
 
-void tracepath_glDebugMessageInsert(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar const *buf)
+void tracepath_glDebugMessageInsert(GLenum source, GLenum type, GLuint id,
+				    GLenum severity, GLsizei length, GLchar const *buf)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glDebugMessageInsert(source, type, id, severity, length, buf);
@@ -5862,10 +6275,12 @@ finish:
 	_COREGL_TRACEPATH_FUNC_END();
 }
 
-void tracepath_glDebugMessageControl(GLenum source, GLenum type, GLenum severity, GLsizei count, GLuint const *ids, GLboolean enabled)
+void tracepath_glDebugMessageControl(GLenum source, GLenum type,
+				     GLenum severity, GLsizei count, GLuint const *ids, GLboolean enabled)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glDebugMessageControl(source, type, severity, count, ids,  enabled);
+	_orig_tracepath_glDebugMessageControl(source, type, severity, count, ids,
+					      enabled);
 
 	goto finish;
 
@@ -5895,7 +6310,8 @@ finish:
 	_COREGL_TRACEPATH_FUNC_END();
 }
 
-void tracepath_glFrustumxOES(GLfixed left, GLfixed right, GLfixed bottom, GLfixed top, GLfixed zNear, GLfixed zFar)
+void tracepath_glFrustumxOES(GLfixed left, GLfixed right, GLfixed bottom,
+			     GLfixed top, GLfixed zNear, GLfixed zFar)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glFrustumxOES(left, right, bottom, top, zNear, zFar);
@@ -5906,7 +6322,8 @@ finish:
 	_COREGL_TRACEPATH_FUNC_END();
 }
 
-void tracepath_glFrustumfOES(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar)
+void tracepath_glFrustumfOES(GLfloat left, GLfloat right, GLfloat bottom,
+			     GLfloat top, GLfloat zNear, GLfloat zFar)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glFrustumfOES(left, right, bottom, top, zNear, zFar);
@@ -5950,11 +6367,14 @@ finish:
 	_COREGL_TRACEPATH_FUNC_END();
 }
 
-GLuint tracepath_glGetDebugMessageLog(GLuint count, GLsizei bufsize, GLenum *sources, GLenum *types, GLuint *ids, GLenum *severities, GLsizei *lengths, GLchar *messageLog)
+GLuint tracepath_glGetDebugMessageLog(GLuint count, GLsizei bufsize,
+				      GLenum *sources, GLenum *types, GLuint *ids, GLenum *severities,
+				      GLsizei *lengths, GLchar *messageLog)
 {
 	GLuint ret = GL_INVALID_INDEX;
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	ret =  _orig_tracepath_glGetDebugMessageLog(count, bufsize, sources, types, ids, severities, lengths, messageLog);
+	ret =  _orig_tracepath_glGetDebugMessageLog(count, bufsize, sources, types, ids,
+			severities, lengths, messageLog);
 	goto finish;
 
 finish:
@@ -5995,7 +6415,8 @@ finish:
 	_COREGL_TRACEPATH_FUNC_END();
 }
 
-void tracepath_glGetObjectLabel(GLenum identifier, GLuint name, GLsizei bufSize, GLsizei *length, GLchar *label)
+void tracepath_glGetObjectLabel(GLenum identifier, GLuint name, GLsizei bufSize,
+				GLsizei *length, GLchar *label)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetObjectLabel(identifier, name, bufSize, length, label);
@@ -6006,7 +6427,8 @@ finish:
 	_COREGL_TRACEPATH_FUNC_END();
 }
 
-void tracepath_glGetObjectPtrLabel(void const *ptr, GLsizei bufSize, GLsizei *length, GLchar *label)
+void tracepath_glGetObjectPtrLabel(void const *ptr, GLsizei bufSize,
+				   GLsizei *length, GLchar *label)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetObjectPtrLabel(ptr, bufSize, length, label);
@@ -6028,7 +6450,8 @@ finish:
 	_COREGL_TRACEPATH_FUNC_END();
 }
 
-void tracepath_glGetRenderbufferParameterivOES(GLenum target, GLenum pname, GLint *params)
+void tracepath_glGetRenderbufferParameterivOES(GLenum target, GLenum pname,
+		GLint *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetRenderbufferParameterivOES(target, pname, params);
@@ -6050,7 +6473,8 @@ finish:
 	_COREGL_TRACEPATH_FUNC_END();
 }
 
-void tracepath_glGetTexParameterxvOES(GLenum target, GLenum pname, GLfixed *params)
+void tracepath_glGetTexParameterxvOES(GLenum target, GLenum pname,
+				      GLfixed *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetTexParameterxvOES(target, pname, params);
@@ -6173,7 +6597,8 @@ finish:
 }
 
 void
-tracepath_glMultiTexCoord4bOES (GLenum target, GLbyte s, GLbyte t, GLbyte r, GLbyte q)
+tracepath_glMultiTexCoord4bOES (GLenum target, GLbyte s, GLbyte t, GLbyte r,
+				GLbyte q)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glMultiTexCoord4bOES (target, s, t, r, q);
@@ -6185,7 +6610,8 @@ finish:
 }
 
 void
-tracepath_glMultiTexCoord4xOES (GLenum target, GLfixed s, GLfixed t, GLfixed r, GLfixed q)
+tracepath_glMultiTexCoord4xOES (GLenum target, GLfixed s, GLfixed t, GLfixed r,
+				GLfixed q)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glMultiTexCoord4xOES (target, s, t, r, q);
@@ -6209,7 +6635,8 @@ finish:
 }
 
 void
-tracepath_glObjectLabel (GLenum identifier, GLuint name, GLsizei length, const GLchar *label)
+tracepath_glObjectLabel (GLenum identifier, GLuint name, GLsizei length,
+			 const GLchar *label)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glObjectLabel (identifier, name, length, label);
@@ -6220,7 +6647,8 @@ finish:
 }
 
 void
-tracepath_glObjectPtrLabel (const void *ptr, GLsizei length, const GLchar *label)
+tracepath_glObjectPtrLabel (const void *ptr, GLsizei length,
+			    const GLchar *label)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glObjectPtrLabel (ptr, length, label);
@@ -6232,7 +6660,8 @@ finish:
 }
 
 void
-tracepath_glOrthofOES (GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar)
+tracepath_glOrthofOES (GLfloat left, GLfloat right, GLfloat bottom, GLfloat top,
+		       GLfloat zNear, GLfloat zFar)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glOrthofOES (left, right, bottom, top, zNear, zFar);
@@ -6244,7 +6673,8 @@ finish:
 }
 
 void
-tracepath_glOrthoxOES (GLfixed left, GLfixed right, GLfixed bottom, GLfixed top, GLfixed zNear, GLfixed zFar)
+tracepath_glOrthoxOES (GLfixed left, GLfixed right, GLfixed bottom, GLfixed top,
+		       GLfixed zNear, GLfixed zFar)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glOrthoxOES (left, right, bottom, top, zNear, zFar);
@@ -6316,7 +6746,8 @@ finish:
 }
 
 void
-tracepath_glPushDebugGroup (GLenum source, GLuint id, GLsizei length, const GLchar *message)
+tracepath_glPushDebugGroup (GLenum source, GLuint id, GLsizei length,
+			    const GLchar *message)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glPushDebugGroup (source, id, length, message);
@@ -6340,10 +6771,12 @@ finish:
 }
 
 void
-tracepath_glRenderbufferStorageOES (GLenum target, GLenum internalformat, GLsizei width, GLsizei height)
+tracepath_glRenderbufferStorageOES (GLenum target, GLenum internalformat,
+				    GLsizei width, GLsizei height)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glRenderbufferStorageOES (target, internalformat, width, height);
+	_orig_tracepath_glRenderbufferStorageOES (target, internalformat, width,
+			height);
 
 	goto finish;
 
@@ -6424,7 +6857,8 @@ finish:
 }
 
 void
-tracepath_glTexParameterxvOES (GLenum target, GLenum pname, const GLfixed *params)
+tracepath_glTexParameterxvOES (GLenum target, GLenum pname,
+			       const GLfixed *params)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glTexParameterxvOES (target, pname, params);
@@ -6436,10 +6870,12 @@ finish:
 }
 
 void
-tracepath_glTexStorage2DEXT (GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height)
+tracepath_glTexStorage2DEXT (GLenum target, GLsizei levels,
+			     GLenum internalformat, GLsizei width, GLsizei height)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glTexStorage2DEXT (target, levels, internalformat, width, height);
+	_orig_tracepath_glTexStorage2DEXT (target, levels, internalformat, width,
+					   height);
 
 	goto finish;
 
@@ -6448,10 +6884,12 @@ finish:
 }
 
 void
-tracepath_glTexStorage3DEXT (GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth)
+tracepath_glTexStorage3DEXT (GLenum target, GLsizei levels,
+			     GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glTexStorage3DEXT (target, levels, internalformat, width, height, depth);
+	_orig_tracepath_glTexStorage3DEXT (target, levels, internalformat, width,
+					   height, depth);
 
 	goto finish;
 
@@ -6460,10 +6898,13 @@ finish:
 }
 
 void
-tracepath_glTexStorage3DMultisampleOES (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLboolean fixedsamplelocations)
+tracepath_glTexStorage3DMultisampleOES (GLenum target, GLsizei samples,
+					GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth,
+					GLboolean fixedsamplelocations)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glTexStorage3DMultisampleOES (target, samples, internalformat, width, height, depth, fixedsamplelocations);
+	_orig_tracepath_glTexStorage3DMultisampleOES (target, samples, internalformat,
+			width, height, depth, fixedsamplelocations);
 
 	goto finish;
 
@@ -6496,7 +6937,7 @@ finish:
 }
 
 void
-tracepath_glDeleteVertexArraysOES(GLsizei n, const GLuint* arrays)
+tracepath_glDeleteVertexArraysOES(GLsizei n, const GLuint *arrays)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glDeleteVertexArraysOES(n, arrays);
@@ -6508,7 +6949,7 @@ finish:
 }
 
 void
-tracepath_glGenVertexArraysOES(GLsizei n, GLuint* arrays)
+tracepath_glGenVertexArraysOES(GLsizei n, GLuint *arrays)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGenVertexArraysOES(n, arrays);
@@ -6534,7 +6975,8 @@ finish:
 	return ret;
 }
 
-void tracepath_glDebugMessageCallbackKHR(GLDEBUGPROCKHR callback, void const *userParam)
+void tracepath_glDebugMessageCallbackKHR(GLDEBUGPROCKHR callback,
+		void const *userParam)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glDebugMessageCallbackKHR(callback, userParam);
@@ -6546,10 +6988,12 @@ finish:
 }
 
 
-void tracepath_glDebugMessageControlKHR(GLenum source, GLenum type, GLenum severity, GLsizei count, GLuint const *ids, GLboolean enabled)
+void tracepath_glDebugMessageControlKHR(GLenum source, GLenum type,
+					GLenum severity, GLsizei count, GLuint const *ids, GLboolean enabled)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glDebugMessageControlKHR(source, type, severity, count, ids,  enabled);
+	_orig_tracepath_glDebugMessageControlKHR(source, type, severity, count, ids,
+			enabled);
 
 	goto finish;
 
@@ -6557,10 +7001,12 @@ finish:
 	_COREGL_TRACEPATH_FUNC_END();
 }
 
-void tracepath_glDebugMessageInsertKHR(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar const *buf)
+void tracepath_glDebugMessageInsertKHR(GLenum source, GLenum type, GLuint id,
+				       GLenum severity, GLsizei length, GLchar const *buf)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	_orig_tracepath_glDebugMessageInsertKHR(source, type, id, severity, length, buf);
+	_orig_tracepath_glDebugMessageInsertKHR(source, type, id, severity, length,
+						buf);
 
 	goto finish;
 
@@ -6568,11 +7014,14 @@ finish:
 	_COREGL_TRACEPATH_FUNC_END();
 }
 
-GLuint tracepath_glGetDebugMessageLogKHR(GLuint count, GLsizei bufsize, GLenum *sources, GLenum *types, GLuint *ids, GLenum *severities, GLsizei *lengths, GLchar *messageLog)
+GLuint tracepath_glGetDebugMessageLogKHR(GLuint count, GLsizei bufsize,
+		GLenum *sources, GLenum *types, GLuint *ids, GLenum *severities,
+		GLsizei *lengths, GLchar *messageLog)
 {
 	GLuint ret = GL_INVALID_INDEX;
 	_COREGL_TRACEPATH_FUNC_BEGIN();
-	ret =  _orig_tracepath_glGetDebugMessageLogKHR(count, bufsize, sources, types, ids, severities, lengths, messageLog);
+	ret =  _orig_tracepath_glGetDebugMessageLogKHR(count, bufsize, sources, types,
+			ids, severities, lengths, messageLog);
 	goto finish;
 
 finish:
@@ -6580,7 +7029,8 @@ finish:
 	return ret;
 }
 
-void tracepath_glGetObjectLabelKHR(GLenum identifier, GLuint name, GLsizei bufSize, GLsizei *length, GLchar *label)
+void tracepath_glGetObjectLabelKHR(GLenum identifier, GLuint name,
+				   GLsizei bufSize, GLsizei *length, GLchar *label)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetObjectLabelKHR(identifier, name, bufSize, length, label);
@@ -6591,7 +7041,8 @@ finish:
 	_COREGL_TRACEPATH_FUNC_END();
 }
 
-void tracepath_glGetObjectPtrLabelKHR(void const *ptr, GLsizei bufSize, GLsizei *length, GLchar *label)
+void tracepath_glGetObjectPtrLabelKHR(void const *ptr, GLsizei bufSize,
+				      GLsizei *length, GLchar *label)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glGetObjectPtrLabelKHR(ptr, bufSize, length, label);
@@ -6615,7 +7066,8 @@ finish:
 }
 
 void
-tracepath_glObjectLabelKHR (GLenum identifier, GLuint name, GLsizei length, const GLchar *label)
+tracepath_glObjectLabelKHR (GLenum identifier, GLuint name, GLsizei length,
+			    const GLchar *label)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glObjectLabelKHR (identifier, name, length, label);
@@ -6626,7 +7078,8 @@ finish:
 }
 
 void
-tracepath_glObjectPtrLabelKHR (const void *ptr, GLsizei length, const GLchar *label)
+tracepath_glObjectPtrLabelKHR (const void *ptr, GLsizei length,
+			       const GLchar *label)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glObjectPtrLabelKHR (ptr, length, label);
@@ -6650,7 +7103,8 @@ finish:
 }
 
 void
-tracepath_glPushDebugGroupKHR (GLenum source, GLuint id, GLsizei length, const GLchar *message)
+tracepath_glPushDebugGroupKHR (GLenum source, GLuint id, GLsizei length,
+			       const GLchar *message)
 {
 	_COREGL_TRACEPATH_FUNC_BEGIN();
 	_orig_tracepath_glPushDebugGroupKHR (source, id, length, message);

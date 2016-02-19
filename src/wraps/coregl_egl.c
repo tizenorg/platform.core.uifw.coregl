@@ -38,8 +38,7 @@ int
 coregl_glwrap_init()
 {
 	lib_handle = dlopen("libCOREGL.so", RTLD_NOW);
-	if (!lib_handle)
-	{
+	if (!lib_handle) {
 		LOGE(" \E[40;31;1m%s\E[0m\n\n", dlerror());
 		LOGE(" \E[40;31;1mInvalid library link! (Check linkage of libEGL -> libCOREGL)\E[0m\n");
 		return 0;
@@ -77,7 +76,7 @@ eglGetDisplay(EGLNativeDisplayType display_id)
 }
 
 EGLBoolean
-eglInitialize(EGLDisplay dpy, EGLint* major, EGLint* minor)
+eglInitialize(EGLDisplay dpy, EGLint *major, EGLint *minor)
 {
 	INIT_EXPORT();
 	return ovr_eglInitialize(dpy, major, minor);
@@ -91,21 +90,24 @@ eglTerminate(EGLDisplay dpy)
 }
 
 EGLBoolean
-eglGetConfigs(EGLDisplay dpy, EGLConfig *configs, EGLint config_size, EGLint *num_config)
+eglGetConfigs(EGLDisplay dpy, EGLConfig *configs, EGLint config_size,
+	      EGLint *num_config)
 {
 	INIT_EXPORT();
 	return ovr_eglGetConfigs(dpy, configs, config_size, num_config);
 }
 
 EGLBoolean
-eglChooseConfig(EGLDisplay dpy, const EGLint* attrib_list, EGLConfig* configs, EGLint config_size, EGLint* num_config)
+eglChooseConfig(EGLDisplay dpy, const EGLint *attrib_list, EGLConfig *configs,
+		EGLint config_size, EGLint *num_config)
 {
 	INIT_EXPORT();
 	return ovr_eglChooseConfig(dpy, attrib_list, configs, config_size, num_config);
 }
 
 EGLBoolean
-eglGetConfigAttrib(EGLDisplay dpy, EGLConfig config, EGLint attribute, EGLint *value)
+eglGetConfigAttrib(EGLDisplay dpy, EGLConfig config, EGLint attribute,
+		   EGLint *value)
 {
 	INIT_EXPORT();
 	return ovr_eglGetConfigAttrib(dpy, config, attribute, value);
@@ -113,21 +115,24 @@ eglGetConfigAttrib(EGLDisplay dpy, EGLConfig config, EGLint attribute, EGLint *v
 
 
 EGLSurface
-eglCreateWindowSurface(EGLDisplay dpy, EGLConfig config, EGLNativeWindowType win, const EGLint* attrib_list)
+eglCreateWindowSurface(EGLDisplay dpy, EGLConfig config,
+		       EGLNativeWindowType win, const EGLint *attrib_list)
 {
 	INIT_EXPORT();
 	return ovr_eglCreateWindowSurface(dpy, config, win, attrib_list);
 }
 
 EGLSurface
-eglCreatePbufferSurface(EGLDisplay dpy, EGLConfig config, const EGLint *attrib_list)
+eglCreatePbufferSurface(EGLDisplay dpy, EGLConfig config,
+			const EGLint *attrib_list)
 {
 	INIT_EXPORT();
 	return ovr_eglCreatePbufferSurface(dpy, config, attrib_list);
 }
 
 EGLSurface
-eglCreatePixmapSurface(EGLDisplay dpy, EGLConfig config, EGLNativePixmapType pixmap, const EGLint* attrib_list)
+eglCreatePixmapSurface(EGLDisplay dpy, EGLConfig config,
+		       EGLNativePixmapType pixmap, const EGLint *attrib_list)
 {
 	INIT_EXPORT();
 	return ovr_eglCreatePixmapSurface(dpy, config, pixmap, attrib_list);
@@ -141,7 +146,8 @@ eglDestroySurface(EGLDisplay dpy, EGLSurface surface)
 }
 
 EGLBoolean
-eglQuerySurface(EGLDisplay dpy, EGLSurface surface, EGLint attribute, EGLint *value)
+eglQuerySurface(EGLDisplay dpy, EGLSurface surface, EGLint attribute,
+		EGLint *value)
 {
 	INIT_EXPORT();
 	return ovr_eglQuerySurface(dpy, surface, attribute, value);
@@ -176,14 +182,17 @@ eglReleaseThread(void)
 }
 
 EGLSurface
-eglCreatePbufferFromClientBuffer(EGLDisplay dpy, EGLenum buftype, EGLClientBuffer buffer, EGLConfig config, const EGLint *attrib_list)
+eglCreatePbufferFromClientBuffer(EGLDisplay dpy, EGLenum buftype,
+				 EGLClientBuffer buffer, EGLConfig config, const EGLint *attrib_list)
 {
 	INIT_EXPORT();
-	return ovr_eglCreatePbufferFromClientBuffer(dpy, buftype, buffer, config, attrib_list);
+	return ovr_eglCreatePbufferFromClientBuffer(dpy, buftype, buffer, config,
+			attrib_list);
 }
 
 EGLBoolean
-eglSurfaceAttrib(EGLDisplay dpy, EGLSurface surface, EGLint attribute, EGLint value)
+eglSurfaceAttrib(EGLDisplay dpy, EGLSurface surface, EGLint attribute,
+		 EGLint value)
 {
 	INIT_EXPORT();
 	return ovr_eglSurfaceAttrib(dpy, surface, attribute, value);
@@ -211,7 +220,8 @@ eglSwapInterval(EGLDisplay dpy, EGLint interval)
 }
 
 EGLContext
-eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_context, const EGLint* attrib_list)
+eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_context,
+		 const EGLint *attrib_list)
 {
 	INIT_EXPORT();
 	return ovr_eglCreateContext(dpy, config, share_context, attrib_list);
@@ -288,7 +298,7 @@ eglCopyBuffers(EGLDisplay dpy, EGLSurface surface, EGLNativePixmapType target)
 }
 
 _eng_fn
-eglGetProcAddress(const char* procname)
+eglGetProcAddress(const char *procname)
 {
 	INIT_EXPORT();
 	return ovr_eglGetProcAddress(procname);

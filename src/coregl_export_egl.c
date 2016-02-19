@@ -37,7 +37,7 @@ coregl_api_eglGetDisplay(EGLNativeDisplayType display_id)
 }
 
 EGLBoolean
-coregl_api_eglInitialize(EGLDisplay dpy, EGLint* major, EGLint* minor)
+coregl_api_eglInitialize(EGLDisplay dpy, EGLint *major, EGLint *minor)
 {
 	INIT_EXPORT();
 	if (!export_initialized)
@@ -57,7 +57,8 @@ coregl_api_eglTerminate(EGLDisplay dpy)
 }
 
 EGLBoolean
-coregl_api_eglGetConfigs(EGLDisplay dpy, EGLConfig *configs, EGLint config_size, EGLint *num_config)
+coregl_api_eglGetConfigs(EGLDisplay dpy, EGLConfig *configs, EGLint config_size,
+			 EGLint *num_config)
 {
 	INIT_EXPORT();
 	if (!export_initialized)
@@ -67,7 +68,8 @@ coregl_api_eglGetConfigs(EGLDisplay dpy, EGLConfig *configs, EGLint config_size,
 }
 
 EGLBoolean
-coregl_api_eglChooseConfig(EGLDisplay dpy, const EGLint* attrib_list, EGLConfig* configs, EGLint config_size, EGLint* num_config)
+coregl_api_eglChooseConfig(EGLDisplay dpy, const EGLint *attrib_list,
+			   EGLConfig *configs, EGLint config_size, EGLint *num_config)
 {
 	INIT_EXPORT();
 	if (!export_initialized)
@@ -77,7 +79,8 @@ coregl_api_eglChooseConfig(EGLDisplay dpy, const EGLint* attrib_list, EGLConfig*
 }
 
 EGLBoolean
-coregl_api_eglGetConfigAttrib(EGLDisplay dpy, EGLConfig config, EGLint attribute, EGLint *value)
+coregl_api_eglGetConfigAttrib(EGLDisplay dpy, EGLConfig config,
+			      EGLint attribute, EGLint *value)
 {
 	INIT_EXPORT();
 	if (!export_initialized)
@@ -88,7 +91,8 @@ coregl_api_eglGetConfigAttrib(EGLDisplay dpy, EGLConfig config, EGLint attribute
 
 
 EGLSurface
-coregl_api_eglCreateWindowSurface(EGLDisplay dpy, EGLConfig config, EGLNativeWindowType win, const EGLint* attrib_list)
+coregl_api_eglCreateWindowSurface(EGLDisplay dpy, EGLConfig config,
+				  EGLNativeWindowType win, const EGLint *attrib_list)
 {
 	INIT_EXPORT();
 	if (!export_initialized)
@@ -98,7 +102,8 @@ coregl_api_eglCreateWindowSurface(EGLDisplay dpy, EGLConfig config, EGLNativeWin
 }
 
 EGLSurface
-coregl_api_eglCreatePbufferSurface(EGLDisplay dpy, EGLConfig config, const EGLint *attrib_list)
+coregl_api_eglCreatePbufferSurface(EGLDisplay dpy, EGLConfig config,
+				   const EGLint *attrib_list)
 {
 	INIT_EXPORT();
 	if (!export_initialized)
@@ -108,7 +113,8 @@ coregl_api_eglCreatePbufferSurface(EGLDisplay dpy, EGLConfig config, const EGLin
 }
 
 EGLSurface
-coregl_api_eglCreatePixmapSurface(EGLDisplay dpy, EGLConfig config, EGLNativePixmapType pixmap, const EGLint* attrib_list)
+coregl_api_eglCreatePixmapSurface(EGLDisplay dpy, EGLConfig config,
+				  EGLNativePixmapType pixmap, const EGLint *attrib_list)
 {
 	INIT_EXPORT();
 	if (!export_initialized)
@@ -128,7 +134,8 @@ coregl_api_eglDestroySurface(EGLDisplay dpy, EGLSurface surface)
 }
 
 EGLBoolean
-coregl_api_eglQuerySurface(EGLDisplay dpy, EGLSurface surface, EGLint attribute, EGLint *value)
+coregl_api_eglQuerySurface(EGLDisplay dpy, EGLSurface surface, EGLint attribute,
+			   EGLint *value)
 {
 	INIT_EXPORT();
 	if (!export_initialized)
@@ -178,17 +185,20 @@ coregl_api_eglReleaseThread(void)
 }
 
 EGLSurface
-coregl_api_eglCreatePbufferFromClientBuffer(EGLDisplay dpy, EGLenum buftype, EGLClientBuffer buffer, EGLConfig config, const EGLint *attrib_list)
+coregl_api_eglCreatePbufferFromClientBuffer(EGLDisplay dpy, EGLenum buftype,
+		EGLClientBuffer buffer, EGLConfig config, const EGLint *attrib_list)
 {
 	INIT_EXPORT();
 	if (!export_initialized)
 		return EGL_NO_SURFACE;
 	else
-		return ovr_eglCreatePbufferFromClientBuffer(dpy, buftype, buffer, config, attrib_list);
+		return ovr_eglCreatePbufferFromClientBuffer(dpy, buftype, buffer, config,
+				attrib_list);
 }
 
 EGLBoolean
-coregl_api_eglSurfaceAttrib(EGLDisplay dpy, EGLSurface surface, EGLint attribute, EGLint value)
+coregl_api_eglSurfaceAttrib(EGLDisplay dpy, EGLSurface surface,
+			    EGLint attribute, EGLint value)
 {
 	INIT_EXPORT();
 	if (!export_initialized)
@@ -228,7 +238,8 @@ coregl_api_eglSwapInterval(EGLDisplay dpy, EGLint interval)
 }
 
 EGLContext
-coregl_api_eglCreateContext(EGLDisplay dpy, EGLConfig config, EGLContext share_context, const EGLint* attrib_list)
+coregl_api_eglCreateContext(EGLDisplay dpy, EGLConfig config,
+			    EGLContext share_context, const EGLint *attrib_list)
 {
 	INIT_EXPORT();
 	if (!export_initialized)
@@ -248,7 +259,8 @@ coregl_api_eglDestroyContext(EGLDisplay dpy, EGLContext ctx)
 }
 
 EGLBoolean
-coregl_api_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLContext ctx)
+coregl_api_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read,
+			  EGLContext ctx)
 {
 	INIT_EXPORT();
 	if (!export_initialized)
@@ -288,7 +300,8 @@ coregl_api_eglGetCurrentDisplay(void)
 }
 
 EGLBoolean
-coregl_api_eglQueryContext(EGLDisplay dpy, EGLContext ctx, EGLint attribute, EGLint *value)
+coregl_api_eglQueryContext(EGLDisplay dpy, EGLContext ctx, EGLint attribute,
+			   EGLint *value)
 {
 	INIT_EXPORT();
 	if (!export_initialized)
@@ -327,7 +340,8 @@ coregl_api_eglSwapBuffers(EGLDisplay dpy, EGLSurface surface)
 }
 
 EGLBoolean
-coregl_api_eglCopyBuffers(EGLDisplay dpy, EGLSurface surface, EGLNativePixmapType target)
+coregl_api_eglCopyBuffers(EGLDisplay dpy, EGLSurface surface,
+			  EGLNativePixmapType target)
 {
 	INIT_EXPORT();
 	if (!export_initialized)
@@ -337,7 +351,7 @@ coregl_api_eglCopyBuffers(EGLDisplay dpy, EGLSurface surface, EGLNativePixmapTyp
 }
 
 _eng_fn
-coregl_api_eglGetProcAddress(const char* procname)
+coregl_api_eglGetProcAddress(const char *procname)
 {
 	INIT_EXPORT();
 	if (!export_initialized)
