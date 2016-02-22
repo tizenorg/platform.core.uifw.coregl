@@ -49,34 +49,30 @@
 #define MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS 64
 #define MAX_UNIFORM_BUFFER_BINDINGS 64
 
-typedef enum _Fastpath_Opt_Flag
-{
-    FP_UNKNOWN_PATH,
-    FP_NORMAL_PATH,
-    FP_FAST_PATH
+typedef enum _Fastpath_Opt_Flag {
+	FP_UNKNOWN_PATH,
+	FP_NORMAL_PATH,
+	FP_FAST_PATH
 } Fastpath_Opt_Flag;
 
 extern Fastpath_Opt_Flag   fp_opt;
 extern int                 debug_nofp;
 
-typedef struct _GLContextState
-{
+typedef struct _GLContextState {
 	int                      ref_count;
 	GLContext               *rctx;
 	GLDisplay               *rdpy;
 	void                    *data;
 } GLContextState;
 
-typedef struct _Fastpath_ThreadState
-{
+typedef struct _Fastpath_ThreadState {
 	EGLenum                  binded_api;
 	GLContextState          *cstate;
 	GLSurface               *rsurf_draw;
 	GLSurface               *rsurf_read;
 } Fastpath_ThreadState;
 
-typedef struct _GLContext_List
-{
+typedef struct _GLContext_List {
 	void                    *option;
 	int                      option_len;
 	int                      thread_id;
@@ -88,13 +84,11 @@ extern GLContext_List      *glctx_list;
 
 extern Mutex                ctx_list_access_mutex;
 
-typedef struct
-{
+typedef struct {
 	GLuint   tex_id;
 } GL_Texture_State;
 
-typedef struct
-{
+typedef struct {
 	GLboolean    modified;
 	GLboolean    enabled;
 	GLuint       buf_id;
@@ -105,8 +99,7 @@ typedef struct
 	const void  *pointer;
 } GL_Vertex_Array_State;
 
-typedef struct
-{
+typedef struct {
 	GLboolean   modified;
 	GLfloat     value[4];
 } GL_Vertex_Attrib;
@@ -130,8 +123,7 @@ typedef struct
 #define GL_OBJECT_TYPE_PROGRAMPIPELINE     0x9000000
 #define GL_OBJECT_TYPE_UNKNOWN             0xFFFFFFF
 
-typedef struct _GL_Object
-{
+typedef struct _GL_Object {
 	GLuint                            id;
 	GLuint                            real_id;
 	GLint                             ref_count;
@@ -140,15 +132,13 @@ typedef struct _GL_Object
 	struct _GL_Shared_Object_State  *parent;
 } GL_Object;
 
-typedef struct _GL_Object_Hash
-{
+typedef struct _GL_Object_Hash {
 	GLuint                           hash_key;
 	GL_Object                        *item;
 	struct _GL_Object_Hash          *next;
 } GL_Object_Hash;
 
-typedef struct _GL_Object_Hash_Base
-{
+typedef struct _GL_Object_Hash_Base {
 	GLuint                            hash_size;
 	GLuint                            item_size;
 	GLuint                            last_id;
@@ -156,8 +146,7 @@ typedef struct _GL_Object_Hash_Base
 	GL_Object_Hash                  **hash_field;
 } GL_Object_Hash_Base;
 
-typedef struct _GL_Shared_Object_State
-{
+typedef struct _GL_Shared_Object_State {
 	Mutex                    access_mutex;
 	Mutex                    real_access_mutex;
 	int                      ref_count;
@@ -179,8 +168,7 @@ typedef struct _GL_Shared_Object_State
 	GL_Object_Hash_Base      programpipeline_real;
 } GL_Shared_Object_State;
 
-typedef struct _GL_Object_State
-{
+typedef struct _GL_Object_State {
 	GL_Shared_Object_State  *shared;
 
 	GL_Object_Hash_Base      query;
@@ -194,8 +182,7 @@ typedef struct _GL_Object_State
 	GL_Object_Hash_Base      transformfeedback_real;
 } GL_Object_State;
 
-typedef struct _GLGlueContext
-{
+typedef struct _GLGlueContext {
 	int                     magic;
 	int                     initialized;
 	int                     surface_attached;
@@ -220,7 +207,7 @@ typedef struct _GLGlueContext
 
 
 
-   unsigned char           _bind_flag1;
+	unsigned char           _bind_flag1;
 #define _BIND_FLAG1_BIT_gl_array_buffer_binding               FLAG_BIT_0
 #define _BIND_FLAG1_BIT_gl_element_array_buffer_binding       FLAG_BIT_1
 #define _BIND_FLAG1_BIT_gl_framebuffer_binding                FLAG_BIT_2
@@ -356,8 +343,7 @@ typedef struct _GLGlueContext
 
 } GLGlueContext;
 
-typedef struct _GLGlueContext_List
-{
+typedef struct _GLGlueContext_List {
 	GLGlueContext              *gctx;
 	struct _GLGlueContext_List *prev;
 	struct _GLGlueContext_List *next;
@@ -370,36 +356,51 @@ extern GLGlueContext *initial_ctx;
 extern void                init_modules_fastpath();
 extern void                deinit_modules_fastpath();
 extern void                init_modules_tstate_fastpath(GLThreadState *tstate);
-extern void                deinit_modules_tstate_fastpath(GLThreadState *tstate);
+extern void                deinit_modules_tstate_fastpath(
+	GLThreadState *tstate);
 
 extern void                fastpath_apply_overrides();
 extern void                fastpath_apply_overrides_egl(int enable);
 extern void                fastpath_apply_overrides_gl(int enable);
 
 extern int                 fastpath_init_context_states(GLGlueContext *ctx);
-extern int                 fastpath_make_context_current(GLGlueContext *oldctx, GLGlueContext *newctx);
+extern int                 fastpath_make_context_current(GLGlueContext *oldctx,
+		GLGlueContext *newctx);
 
 #ifdef COREGL_FASTPATH_TRACE_STATE_INFO
-extern void                fastpath_dump_context_states(GLGlueContext *ctx, int force_output);
+extern void                fastpath_dump_context_states(GLGlueContext *ctx,
+		int force_output);
 #endif // COREGL_FASTPATH_TRACE_STATE_INFO
 
 // Context state functions
-extern int                 fastpath_add_context_state_to_list(const void *data, const int datalen, GLContextState *cstate, Mutex *mtx);
-extern int                 fastpath_remove_context_states_from_list(GLContextState *cstate, Mutex *mtx);
-extern GLContextState     *fastpath_get_context_state_from_list(const void *data, const int datalen, Mutex *mtx);
+extern int                 fastpath_add_context_state_to_list(const void *data,
+		const int datalen, GLContextState *cstate, Mutex *mtx);
+extern int                 fastpath_remove_context_states_from_list(
+	GLContextState *cstate, Mutex *mtx);
+extern GLContextState     *fastpath_get_context_state_from_list(
+	const void *data, const int datalen, Mutex *mtx);
 
 // Shared object state functions
 extern void                fastpath_ostate_init(GL_Object_State *ostate);
-extern void                fastpath_sostate_init(GL_Shared_Object_State *ostate);
+extern void                fastpath_sostate_init(GL_Shared_Object_State
+		*ostate);
 extern void                fastpath_ostate_deinit(GL_Object_State *ostate);
-extern void                fastpath_sostate_deinit(GL_Shared_Object_State *ostate);
-extern GLuint              fastpath_ostate_create_object(GL_Object_State *ostate, GL_Object_Type type, GLuint name);
-extern GLuint              fastpath_ostate_remove_object(GL_Object_State *ostate, GL_Object_Type type, GLuint glue_name);
-extern GLuint              fastpath_ostate_get_object(GL_Object_State *ostate, GL_Object_Type type, GLuint name);
-extern GLuint              fastpath_ostate_find_object(GL_Object_State *ostate, GL_Object_Type type, GLuint real_name);
-extern GLint               fastpath_ostate_use_object(GL_Object_State *ostate, GL_Object_Type type, GLuint glue_name);
-extern GLint               fastpath_ostate_set_object_tag(GL_Object_State *ostate, GL_Object_Type type, GLuint glue_name, GLvoid *tag);
-extern GLvoid             *fastpath_ostate_get_object_tag(GL_Object_State *ostate, GL_Object_Type type, GLuint glue_name);
+extern void                fastpath_sostate_deinit(GL_Shared_Object_State
+		*ostate);
+extern GLuint              fastpath_ostate_create_object(
+	GL_Object_State *ostate, GL_Object_Type type, GLuint name);
+extern GLuint              fastpath_ostate_remove_object(
+	GL_Object_State *ostate, GL_Object_Type type, GLuint glue_name);
+extern GLuint              fastpath_ostate_get_object(GL_Object_State *ostate,
+		GL_Object_Type type, GLuint name);
+extern GLuint              fastpath_ostate_find_object(GL_Object_State *ostate,
+		GL_Object_Type type, GLuint real_name);
+extern GLint               fastpath_ostate_use_object(GL_Object_State *ostate,
+		GL_Object_Type type, GLuint glue_name);
+extern GLint               fastpath_ostate_set_object_tag(
+	GL_Object_State *ostate, GL_Object_Type type, GLuint glue_name, GLvoid *tag);
+extern GLvoid             *fastpath_ostate_get_object_tag(
+	GL_Object_State *ostate, GL_Object_Type type, GLuint glue_name);
 
 // GL context management functions
 extern void                fastpath_release_gl_context(GLGlueContext *gctx);

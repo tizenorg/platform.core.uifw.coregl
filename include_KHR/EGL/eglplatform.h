@@ -89,9 +89,9 @@ typedef void *EGLNativePixmapType;
 
 struct egl_native_pixmap_t;
 
-typedef struct ANativeWindow*           EGLNativeWindowType;
-typedef struct egl_native_pixmap_t*     EGLNativePixmapType;
-typedef void*                           EGLNativeDisplayType;
+typedef struct ANativeWindow           *EGLNativeWindowType;
+typedef struct egl_native_pixmap_t     *EGLNativePixmapType;
+typedef void                           *EGLNativeDisplayType;
 
 /* 20140708-sw815.ha: add additional macro checking to verify X11 window system */
 /* #elif defined(__unix__) */

@@ -22,8 +22,7 @@
 # include "../../headers/sym.h"
 #undef _COREGL_SYMBOL
 
-typedef struct _Appopt_ThreadState
-{
+typedef struct _Appopt_ThreadState {
 	void				*_notusedyet;
 } Appopt_ThreadState;
 

@@ -11,8 +11,8 @@
 
 void               *egl_lib_handle;
 void               *gl_lib_handle;
-int                 driver_gl_version=COREGL_GLAPI_2;
-static int          api_gl_version=COREGL_GLAPI_2;
+int                 driver_gl_version = COREGL_GLAPI_2;
+static int          api_gl_version = COREGL_GLAPI_2;
 
 #ifndef _COREGL_VENDOR_EGL_LIB_PATH
 #define _COREGL_VENDOR_EGL_LIB_PATH "/usr/lib/driver/libEGL.so" /* DEFAULT EGL PATH */
@@ -44,8 +44,7 @@ cleanup_current_thread_state()
 
 	tstate = get_current_thread_state();
 
-	if (tstate != NULL)
-	{
+	if (tstate != NULL) {
 		COREGL_LOG("[COREGL] de-init thread state \n");
 		deinit_modules_tstate(tstate);
 		remove_from_general_trace_list(&thread_trace_list, tstate);
@@ -150,49 +149,44 @@ _gl_lib_init(void)
 	//------------------------------------------------//
 	// Open EGL Library as EGL is separate
 	egl_lib_handle = dlopen(_COREGL_VENDOR_EGL_LIB_PATH, RTLD_LAZY | RTLD_LOCAL);
-	if (!egl_lib_handle)
-	{
+	if (!egl_lib_handle) {
 		COREGL_ERR("\E[40;31;1m%s\E[0m\n\n", dlerror());
-		COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> %s)\E[0m\n", _COREGL_VENDOR_EGL_LIB_PATH);
+		COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> %s)\E[0m\n",
+			   _COREGL_VENDOR_EGL_LIB_PATH);
 		return 0;
 	}
 
 	// test for invalid linking egl
-	if (dlsym(egl_lib_handle, "coregl_symbol_exported"))
-	{
-		COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> %s)\E[0m\n", _COREGL_VENDOR_EGL_LIB_PATH);
+	if (dlsym(egl_lib_handle, "coregl_symbol_exported")) {
+		COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> %s)\E[0m\n",
+			   _COREGL_VENDOR_EGL_LIB_PATH);
 		return 0;
 	}
 
 	// use gl_lib handle for GL symbols
 	gl_lib_handle = dlopen(_COREGL_VENDOR_GL_LIB_PATH, RTLD_LAZY | RTLD_LOCAL);
-	if (!gl_lib_handle)
-	{
+	if (!gl_lib_handle) {
 		COREGL_ERR("\E[40;31;1m%s\E[0m\n\n", dlerror());
-		COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> %s)\E[0m\n", _COREGL_VENDOR_GL_LIB_PATH);
+		COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> %s)\E[0m\n",
+			   _COREGL_VENDOR_GL_LIB_PATH);
 		return 0;
 	}
 
 	// test for invalid linking gl
-	if (dlsym(gl_lib_handle, "coregl_symbol_exported"))
-	{
-		COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> %s)\E[0m\n", _COREGL_VENDOR_GL_LIB_PATH);
+	if (dlsym(gl_lib_handle, "coregl_symbol_exported")) {
+		COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> %s)\E[0m\n",
+			   _COREGL_VENDOR_GL_LIB_PATH);
 		return 0;
 	}
 
 	// test for a GLES 3.0 symbol
-	if (dlsym(gl_lib_handle, "glBindProgramPipeline"))
-	{
+	if (dlsym(gl_lib_handle, "glBindProgramPipeline")) {
 		COREGL_LOG("[CoreGL] Driver GL version 3.1 \n");
 		driver_gl_version = COREGL_GLAPI_31;
-	}
-	else if (dlsym(gl_lib_handle, "glReadBuffer"))
-	{
+	} else if (dlsym(gl_lib_handle, "glReadBuffer")) {
 		COREGL_LOG("[CoreGL] Driver GL version 3.0 \n");
 		driver_gl_version = COREGL_GLAPI_3;
-	}
-	else
-	{
+	} else {
 		COREGL_LOG("[CoreGL] Driver GL version 2.0 \n");
 	}
 
@@ -216,7 +210,8 @@ _gl_lib_deinit(void)
 int
 coregl_initialize()
 {
-	COREGL_LOG("[CoreGL] <%d> (%s) Library initializing...", getpid(), _COREGL_COMPILE_DATE);
+	COREGL_LOG("[CoreGL] <%d> (%s) Library initializing...", getpid(),
+		   _COREGL_COMPILE_DATE);
 
 	if (!_gl_lib_init()) return 0;
 
@@ -233,8 +228,7 @@ __attribute__((destructor))
 void
 coregl_terminate()
 {
-	if (export_initialized != 0)
-	{
+	if (export_initialized != 0) {
 		deinit_modules();
 
 		_gl_lib_deinit();

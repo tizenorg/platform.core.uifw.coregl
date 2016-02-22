@@ -7,7 +7,7 @@ int mutex_lock(Mutex *mt);
 int mutex_unlock(Mutex *mt);
 int get_current_thread();
 int set_current_thread_state(GLThreadState *tstate);
-GLThreadState * get_current_thread_state();
+GLThreadState *get_current_thread_state();
 //////////////////////////////////////////////////////////////////////////
 
 static Mutex            thread_key_mutex = MUTEX_INITIALIZER;
@@ -66,10 +66,8 @@ set_current_thread_state(GLThreadState *tstate)
 
 	AST(mutex_lock(&thread_key_mutex) == 1);
 
-	if (thread_key_inited == 0)
-	{
-		if (pthread_key_create(&thread_key, NULL) != 0)
-		{
+	if (thread_key_inited == 0) {
+		if (pthread_key_create(&thread_key, NULL) != 0) {
 			COREGL_ERR("Failed to create thread key.\n");
 			ret = 0;
 			goto finish;
@@ -77,8 +75,7 @@ set_current_thread_state(GLThreadState *tstate)
 		thread_key_inited = 1;
 	}
 
-	if (pthread_setspecific(thread_key, (void *)tstate) != 0)
-	{
+	if (pthread_setspecific(thread_key, (void *)tstate) != 0) {
 		COREGL_ERR("Failed to set thread data.\n");
 		ret = 0;
 		goto finish;
@@ -98,8 +95,7 @@ get_current_thread_state()
 {
 	GLThreadState *ret = NULL;
 
-	if (thread_key_inited)
-	{
+	if (thread_key_inited) {
 		ret = (GLThreadState *)pthread_getspecific(thread_key);
 	}
 	goto finish;

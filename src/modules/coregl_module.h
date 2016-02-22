@@ -6,8 +6,7 @@
 #define COREGL_USE_MODULE_APPOPT
 
 
-typedef enum
-{
+typedef enum {
 	COREGL_MODULE_TRACEPATH = 0,
 	COREGL_MODULE_FASTPATH = 1,
 	COREGL_MODULE_APPOPT = 2

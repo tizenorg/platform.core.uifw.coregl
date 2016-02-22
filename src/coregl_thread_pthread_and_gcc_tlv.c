@@ -7,7 +7,7 @@ int mutex_lock(Mutex *mt);
 int mutex_unlock(Mutex *mt);
 int get_current_thread();
 int set_current_thread_state(GLThreadState *tstate);
-GLThreadState * get_current_thread_state();
+GLThreadState *get_current_thread_state();
 //////////////////////////////////////////////////////////////////////////
 
 static __thread GLThreadState *per_thread_state = NULL;
