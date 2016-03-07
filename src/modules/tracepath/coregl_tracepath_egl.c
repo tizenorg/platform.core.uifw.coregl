@@ -668,21 +668,24 @@ finish:
 			AST(tstate != NULL);
 		}
 
-		Ctx_Data *oldctx = tstate->ctx;
+		if (tstate) {
 
-		if (ctx != EGL_NO_CONTEXT) {
-			tstate->ctx = tracepath_get_context(ctx);
-			if (tstate->ctx != NULL)
-				tstate->ctx->mc_count++;
-		} else {
-			tstate->ctx = NULL;
+			Ctx_Data *oldctx = tstate->ctx;
+
+			if (ctx != EGL_NO_CONTEXT) {
+				tstate->ctx = tracepath_get_context(ctx);
+				if (tstate->ctx != NULL)
+					tstate->ctx->mc_count++;
+			} else {
+				tstate->ctx = NULL;
+			}
+
+			if (oldctx != NULL)
+				tracepath_remove_context(oldctx->handle);
+
+			tstate->surf_draw = draw;
+			tstate->surf_read = read;
 		}
-
-		if (oldctx != NULL)
-			tracepath_remove_context(oldctx->handle);
-
-		tstate->surf_draw = draw;
-		tstate->surf_read = read;
 	}
 #ifdef COREGL_TRACEPATH_TRACE_STATE_INFO
 	if (unlikely(trace_state_flag == 1)) {
@@ -1083,7 +1086,6 @@ finish:
 	_COREGL_TRACEPATH_FUNC_END();
 	return ret;
 }
-
 
 EGLBoolean
 tracepath_eglQueryWaylandBufferWL(EGLDisplay dpy, void *buffer,

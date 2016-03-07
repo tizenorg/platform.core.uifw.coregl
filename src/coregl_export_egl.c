@@ -232,7 +232,7 @@ coregl_api_eglSwapInterval(EGLDisplay dpy, EGLint interval)
 {
 	INIT_EXPORT();
 	if (!export_initialized)
-		EGL_FALSE;
+		return EGL_FALSE;
 	else
 		return ovr_eglSwapInterval(dpy, interval);
 }
