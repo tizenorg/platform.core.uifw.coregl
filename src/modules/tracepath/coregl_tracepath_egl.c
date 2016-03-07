@@ -437,7 +437,7 @@ finish:
 #ifdef COREGL_TRACEPATH_TRACE_SURFACE_INFO
 	{
 		char name[256];
-		sprintf(name, "EGLSURFACE_%p", surface);
+		snprintf(name, sizeof(name), "EGLSURFACE_%p", surface);
 		tracepath_surface_trace_add(name, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL);
 	}
 #endif // COREGL_TRACEPATH_TRACE_SURFACE_INFO
@@ -609,7 +609,7 @@ finish:
 	if (unlikely(trace_ctx_flag == 1)) {
 		if (_orig_tracepath_eglCreateContext == _sym_eglCreateContext) {
 			char ment[256];
-			sprintf(ment, "eglCreateContext completed (EGLCTX=[%12p])", ret);
+			snprintf(ment, sizeof(ment), "eglCreateContext completed (EGLCTX=[%12p])", ret);
 			_dump_context_info(ment, 1);
 		}
 	}
@@ -637,7 +637,8 @@ finish:
 	if (unlikely(trace_ctx_flag == 1)) {
 		if (_orig_tracepath_eglDestroyContext == _sym_eglDestroyContext) {
 			char ment[256];
-			sprintf(ment, "eglDestroyContext completed (EGLCTX=[%12p])", ctx);
+			snprintf(ment, sizeof(ment), "eglDestroyContext completed (EGLCTX=[%12p])",
+				 ctx);
 			_dump_context_info(ment, 1);
 		}
 	}
@@ -697,8 +698,9 @@ finish:
 	if (unlikely(trace_ctx_flag == 1)) {
 		if (_orig_tracepath_eglMakeCurrent == _sym_eglMakeCurrent) {
 			char ment[256];
-			sprintf(ment, "eglMakeCurrent finished (EGLCTX=[%12p] Surf=[D:%12p R:%12p])",
-				ctx, draw, read);
+			snprintf(ment, sizeof(ment),
+				 "eglMakeCurrent finished (EGLCTX=[%12p] Surf=[D:%12p R:%12p])",
+				 ctx, draw, read);
 			_dump_context_info(ment, 0);
 		}
 	}

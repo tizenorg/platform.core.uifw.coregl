@@ -1221,12 +1221,14 @@ _dump_surface(int force_output, int type, const char *position,
 		}
 
 		if (trace_surface_sequence_sort_flag == 1)
-			sprintf(name, "[%d (%06d)%p-%p] %s %04d (%s).png", getpid(), alldumpcount,
-				sdata->display, sdata->context, sdata->trace_data.name, sdata->dump_count,
-				position);
+			snprintf(name, sizeof(name), "[%d (%06d)%p-%p] %s %04d (%s).png", getpid(),
+				 alldumpcount,
+				 sdata->display, sdata->context, sdata->trace_data.name, sdata->dump_count,
+				 position);
 		else
-			sprintf(name, "[%d %p-%p] %s %04d (%s).png", getpid(), sdata->display,
-				sdata->context, sdata->trace_data.name, sdata->dump_count, position);
+			snprintf(name, sizeof(name), "[%d %p-%p] %s %04d (%s).png", getpid(),
+				 sdata->display,
+				 sdata->context, sdata->trace_data.name, sdata->dump_count, position);
 
 		if (!strncmp(sdata->trace_data.name, "EGL", 3) && type != 2) {
 			// EGL
