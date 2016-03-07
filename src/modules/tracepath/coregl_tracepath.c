@@ -595,7 +595,7 @@ _get_trace_data(Trace_Data **ftd_table, size_t td_size, const char *name)
 	} else {
 		Trace_Data *newitm = NULL;
 		newitm = (Trace_Data *)calloc(1, td_size);
-		strcpy(newitm->name, name);
+		strncpy(newitm->name, name, strlen(name));
 		newitm->next = NULL;
 
 		if (prev != NULL) {
