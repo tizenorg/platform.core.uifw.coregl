@@ -5,7 +5,7 @@ Summary:		CoreGL FastPath Optimization
 Version:		0.1.10
 Release:		02
 Group:			Graphics
-License:		Apache 2.0
+License:		Apache-2.0 and MIT and SGI-B-2.0 and Zlib 
 URL:			http://www.tizen.org
 Source:			%{name}-%{version}.tar.gz
 
@@ -45,6 +45,14 @@ make %{?jobs:-j%jobs}
 %endif
 
 %install
+
+# for license notification
+mkdir -p %{buildroot}/usr/share/license
+cp -a %{_builddir}/%{buildsubdir}/COPYING %{buildroot}/usr/share/license/%{name}
+cp -a %{_builddir}/%{buildsubdir}/COPYING.MIT %{buildroot}/usr/share/license/%{name}.MIT
+cp -a %{_builddir}/%{buildsubdir}/COPYING.SGIFreeSWLicB_2_0 %{buildroot}/usr/share/license/%{name}.SGIFreeSWLicB_2_0
+cp -a %{_builddir}/%{buildsubdir}/COPYING.ZLIB %{buildroot}/usr/share/license/%{name}.ZLIB
+
 # release pkg
 mkdir -p %{buildroot}%{_libdir}/pkgconfig
 
@@ -91,6 +99,10 @@ rm -rf %{buildroot}
 %{_libdir}/libEGL.so*
 %{_libdir}/libGLESv1_CM.so*
 %{_libdir}/libGLESv2.so*
+/usr/share/license/%{name}
+/usr/share/license/%{name}.MIT
+/usr/share/license/%{name}.SGIFreeSWLicB_2_0
+/usr/share/license/%{name}.ZLIB
 
 %files devel
 %defattr(-,root,root,-)
