@@ -697,13 +697,16 @@ tracepath_api_trace_begin(const char *funcname, void *hint,
 				AST(tstate != NULL);
 			}
 
-			if (tstate->ftd_table == NULL) {
-				tstate->ftd_table = (Apicall_Data **)calloc(1,
-						    sizeof(Apicall_Data *) * MAX_TRACE_TABLE_SIZE);
-			}
 
-			ftd = (Apicall_Data *)_get_trace_data((Trace_Data **)tstate->ftd_table,
-							      sizeof(Apicall_Data), funcname);
+			if (tstate) {
+				if (tstate->ftd_table == NULL) {
+					tstate->ftd_table = (Apicall_Data **)calloc(1,
+							    sizeof(Apicall_Data *) * MAX_TRACE_TABLE_SIZE);
+				}
+
+				ftd = (Apicall_Data *)_get_trace_data((Trace_Data **)tstate->ftd_table,
+								      sizeof(Apicall_Data), funcname);
+			}
 		}
 
 		AST(ftd != NULL);
@@ -755,10 +758,12 @@ tracepath_api_trace_end(const char *funcname, void *hint, int trace_total_time)
 			}
 
 			AST(tstate != NULL);
-			AST(tstate->ftd_table != NULL);
+			AST(tstate && (tstate->ftd_table != NULL));
 
-			ftd = (Apicall_Data *)_get_trace_data((Trace_Data **)tstate->ftd_table,
-							      sizeof(Apicall_Data), funcname);
+			if (tstate && (tstate->ftd_table)) {
+				ftd = (Apicall_Data *)_get_trace_data((Trace_Data **)tstate->ftd_table,
+								      sizeof(Apicall_Data), funcname);
+			}
 		}
 
 		AST(ftd != NULL);

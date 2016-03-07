@@ -691,7 +691,7 @@ fastpath_eglBindAPI(EGLenum api)
 
 	{
 		EGLenum newapi = _orig_fastpath_eglQueryAPI();
-		if (tstate->binded_api != EGL_OPENGL_ES_API) {
+		if (tstate && (tstate->binded_api != EGL_OPENGL_ES_API)) {
 			tstate->binded_api = newapi;
 		}
 	}
@@ -1071,40 +1071,44 @@ fastpath_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read,
 	if (ctx == EGL_NO_CONTEXT) {
 		AST(gctx == NULL);
 
-		if (tstate->cstate != NULL) {
-			if (_bind_context_state(NULL, tstate->cstate, &ctx_list_access_mutex) != 1) {
-				COREGL_WRN("\E[40;31;1mError soft-makecurrent for context deletion\E[0m\n");
+		if (tstate) {
+
+			if (tstate->cstate != NULL) {
+				if (_bind_context_state(NULL, tstate->cstate, &ctx_list_access_mutex) != 1) {
+					COREGL_WRN("\E[40;31;1mError soft-makecurrent for context deletion\E[0m\n");
+				}
+				tstate->cstate = NULL;
 			}
-			tstate->cstate = NULL;
-		}
-		if (_orig_fastpath_eglMakeCurrent(dpy, draw, read, ctx) != EGL_TRUE) {
-			COREGL_WRN("Error making context [%p] current. (invalid EGL display [%p] or EGL surface [D:%p/R:%p])\n",
-				   ctx, dpy, draw, read);
-			ret = EGL_FALSE;
+			if (_orig_fastpath_eglMakeCurrent(dpy, draw, read, ctx) != EGL_TRUE) {
+				COREGL_WRN("Error making context [%p] current. (invalid EGL display [%p] or EGL surface [D:%p/R:%p])\n",
+					   ctx, dpy, draw, read);
+				ret = EGL_FALSE;
+				goto finish;
+			}
+
+			tstate->rsurf_draw = draw;
+			tstate->rsurf_read = read;
+
+			ret = EGL_TRUE;
 			goto finish;
 		}
-
-		tstate->rsurf_draw = draw;
-		tstate->rsurf_read = read;
-
-		ret = EGL_TRUE;
-		goto finish;
 	}
 
 	AST(gctx != NULL);
-	AST(gctx->cstate != NULL);
+	AST(gctx && (gctx->cstate != NULL));
 
-	if (gctx->rdpy != dpy) {
+	if (gctx && (gctx->rdpy != dpy)) {
 		COREGL_WRN("\E[40;31;1mInvalid context (or invalid EGL display)\E[0m\n");
 		ret = EGL_FALSE;
 		goto finish;
 	}
 
-	AST(gctx->real_ctx_option != NULL);
-	AST(gctx->real_ctx_sharable_option != NULL);
+	AST(gctx && (gctx->real_ctx_option != NULL));
+	AST(gctx && (gctx->real_ctx_sharable_option != NULL));
 
 	// Handle cross threading of context (when used by two or more gctx)
-	if (gctx->thread_id != get_current_thread() && gctx->cstate->ref_count > 1) {
+	if (gctx && gctx->thread_id != get_current_thread() &&
+	    gctx->cstate->ref_count > 1) {
 #define ATTRIB_LIST_BUFFER_SIZE 8
 
 		GLContextState *cstate_new = NULL;
@@ -1151,17 +1155,18 @@ fastpath_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read,
 	}
 
 	// If drawable changed, do a make current
-	if ((tstate->rsurf_draw != draw) ||
-	    (tstate->rsurf_read != read))
+	if (tstate &&
+	    ((tstate->rsurf_draw != draw) || (tstate->rsurf_read != read)))
 		need_mc = EGL_TRUE;
 
-	AST(gctx->cstate != NULL);
+	AST(gctx && (gctx->cstate != NULL));
 
 	// If binded real context changed, do a make current
-	if (tstate->cstate == NULL || tstate->cstate != gctx->cstate)
+	if (tstate && gctx && ((tstate->cstate == NULL) ||
+			       (tstate->cstate != gctx->cstate)))
 		need_mc = EGL_TRUE;
 
-	if (need_mc == EGL_TRUE) {
+	if (tstate && gctx && gctx->cstate && (need_mc == EGL_TRUE)) {
 		AST(dpy == gctx->cstate->rdpy);
 
 		// BB : full makecurrent
@@ -1189,7 +1194,7 @@ fastpath_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read,
 	}
 
 	// Initialize context states
-	if (gctx->initialized == 0) {
+	if (gctx && (gctx->initialized == 0)) {
 		if (fastpath_init_context_states(gctx) != 1) {
 			COREGL_ERR("\E[40;31;1mError intializing context. (Check driver specification)\E[0m\n");
 			goto finish;
@@ -1197,7 +1202,7 @@ fastpath_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read,
 	}
 
 	// Setup initial Viewport & Scissor
-	if (gctx->surface_attached == 0 && draw != EGL_NO_SURFACE) {
+	if (gctx && gctx->surface_attached == 0 && draw != EGL_NO_SURFACE) {
 		EGLint box_buffer[4];
 		EGLint width = 0;
 		EGLint height = 0;
@@ -1207,25 +1212,26 @@ fastpath_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read,
 		height = box_buffer[3];
 
 		gctx->_clear_flag1 |= _CLEAR_FLAG1_BIT_gl_viewport;
-		gctx->gl_viewport[0] = 0;
-		gctx->gl_viewport[1] = 0;
-		gctx->gl_viewport[2] = width;
-		gctx->gl_viewport[3] = height;
+		if (&gctx->gl_viewport[0]) gctx->gl_viewport[0] = 0;
+		if (&gctx->gl_viewport[1]) gctx->gl_viewport[1] = 0;
+		if (&gctx->gl_viewport[2]) gctx->gl_viewport[2] = width;
+		if (&gctx->gl_viewport[3]) gctx->gl_viewport[3] = height;
 
 		_orig_fastpath_glGetIntegerv(GL_SCISSOR_BOX, box_buffer);
 		width = box_buffer[2];
 		height = box_buffer[3];
 
 		gctx->_misc_flag2 |= _MISC_FLAG2_BIT_gl_scissor_box;
-		gctx->gl_scissor_box[0] = 0;
-		gctx->gl_scissor_box[1] = 0;
-		gctx->gl_scissor_box[2] = width;
-		gctx->gl_scissor_box[3] = height;
+		if (&gctx->gl_scissor_box[0]) gctx->gl_scissor_box[0] = 0;
+		if (&gctx->gl_scissor_box[1]) gctx->gl_scissor_box[1] = 0;
+		if (&gctx->gl_scissor_box[2]) gctx->gl_scissor_box[2] = width;
+		if (&gctx->gl_scissor_box[3]) gctx->gl_scissor_box[3] = height;
 
 		gctx->surface_attached = 1;
 	}
 
-	if (_bind_context_state(gctx, tstate->cstate, &ctx_list_access_mutex) != 1) {
+	if (tstate &&
+	    (_bind_context_state(gctx, tstate->cstate, &ctx_list_access_mutex) != 1)) {
 		ret = EGL_FALSE;
 		goto finish;
 	}
