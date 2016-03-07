@@ -1480,10 +1480,13 @@ finish:
 	}
 	if (png != NULL) {
 		if (info != NULL) {
-			dl_png_destroy_write_struct(&png, &info);
+			if (dl_png_destroy_write_struct)
+				dl_png_destroy_write_struct(&png, &info);
 			info = NULL;
-		} else
-			dl_png_destroy_write_struct(&png, NULL);
+		} else {
+			if (dl_png_destroy_write_struct)
+				dl_png_destroy_write_struct(&png, NULL);
+		}
 		png = NULL;
 	}
 }
