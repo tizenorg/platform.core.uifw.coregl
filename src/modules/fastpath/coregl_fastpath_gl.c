@@ -5103,7 +5103,7 @@ fastpath_glGetStringi(GLenum name, GLuint index)
 		goto finish;
 	case GL_EXTENSIONS:
 		_valid_extension_string();
-		if (index < 0 || index >= gl_extension_count) {
+		if (index >= gl_extension_count) {
 			_set_gl_error(GL_INVALID_VALUE);
 			goto finish;
 		}

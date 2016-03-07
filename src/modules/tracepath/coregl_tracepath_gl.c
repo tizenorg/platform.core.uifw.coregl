@@ -100,23 +100,22 @@ _add_glbuf_object(Glbuf_Data **glbuf, int obj_idx, const char *obj_type,
 		__addhash_glbuf_object(glbuf, data);
 	} else {
 		// Update
-		{
-			char ment[MAX_TRACE_NAME_LENGTH];
-			sprintf(ment, "%s(%4dx%4d %s)", obj_type, data->width, data->height,
-				data->format);
-			_COREGL_TRACE_MEM_REMOVE(ment, data->width * data->height * data->bpp);
-		}
+		char ment[MAX_TRACE_NAME_LENGTH];
+		snprintf(ment, MAX_TRACE_NAME_LENGTH, "%s(%4dx%4d %s)", obj_type, data->width,
+			 data->height,
+			 data->format);
+		_COREGL_TRACE_MEM_REMOVE(ment, data->width * data->height * data->bpp);
 	}
 
 	data->width = width;
 	data->height = height;
 	data->bpp = bpp;
-	sprintf(data->format, "%s", format);
-
+	snprintf(data->format, 80, "%s", format);
 	{
 		char ment[MAX_TRACE_NAME_LENGTH];
-		sprintf(ment, "%s(%4dx%4d %s)", obj_type, data->width, data->height,
-			data->format);
+		snprintf(ment, MAX_TRACE_NAME_LENGTH, "%s(%4dx%4d %s)", obj_type, data->width,
+			 data->height,
+			 data->format);
 		_COREGL_TRACE_MEM_ADD(ment, data->width * data->height * data->bpp);
 	}
 	goto finish;
@@ -137,8 +136,9 @@ _remove_glbuf_object(Glbuf_Data **glbuf, int obj_idx, const char *obj_type)
 
 	{
 		char ment[MAX_TRACE_NAME_LENGTH];
-		sprintf(ment, "%s(%4dx%4d %s)", obj_type, data->width, data->height,
-			data->format);
+		snprintf(ment, MAX_TRACE_NAME_LENGTH, "%s(%4dx%4d %s)", obj_type, data->width,
+			 data->height,
+			 data->format);
 		_COREGL_TRACE_MEM_REMOVE(ment, data->width * data->height * data->bpp);
 	}
 
@@ -169,7 +169,7 @@ _surface_trace_set(int set, GLint fbname, GLenum attachment,
 			//COREGL_LOG("FBO DUMPING BEGIN = (TEX)0x%X\n", attname);
 		{
 			char name[256];
-			sprintf(name, "FBOTEX_0x%X", attname);
+			snprintf(name, sizeof(name), "FBOTEX_0x%X", attname);
 			tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle,
 						    tstate->surf_draw, fbname, attname, 0, -1, -1, -1, NULL);
 		}
@@ -178,7 +178,7 @@ _surface_trace_set(int set, GLint fbname, GLenum attachment,
 			//COREGL_LOG("FBO DUMPING BEGIN = (RB)0x%X\n", attname);
 		{
 			char name[256];
-			sprintf(name, "FBORB_0x%X", attname);
+			snprintf(name, sizeof(name), "FBORB_0x%X", attname);
 			tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle,
 						    tstate->surf_draw, fbname, 0, attname, -1, -1, -1, NULL);
 		}
@@ -190,7 +190,7 @@ _surface_trace_set(int set, GLint fbname, GLenum attachment,
 			//COREGL_LOG("FBO DUMPING END = (TEX)0x%X\n", attname);
 		{
 			char name[256];
-			sprintf(name, "FBOTEX_0x%X", attname);
+			snprintf(name, sizeof(name), "FBOTEX_0x%X", attname);
 			tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle,
 						    tstate->surf_draw, 0, attname, 0, -1, -1, -1, NULL);
 		}
@@ -199,7 +199,7 @@ _surface_trace_set(int set, GLint fbname, GLenum attachment,
 			//COREGL_LOG("FBO DUMPING END = (RB)0x%X\n", attname);
 		{
 			char name[256];
-			sprintf(name, "FBORB_0x%X", attname);
+			snprintf(name, sizeof(name), "FBORB_0x%X", attname);
 			tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle,
 						    tstate->surf_draw, 0, 0, attname, -1, -1, -1, NULL);
 		}
@@ -839,9 +839,11 @@ finish:
 			_orig_tracepath_eglQuerySurface(_orig_tracepath_eglGetCurrentDisplay(),
 							_orig_tracepath_eglGetCurrentSurface(EGL_DRAW), EGL_RENDER_BUFFER, &btype);
 			if (btype == EGL_SINGLE_BUFFER)
-				sprintf(name, "EGLPIXMAP_%p", _orig_tracepath_eglGetCurrentSurface(EGL_DRAW));
+				snprintf(name, sizeof(name), "EGLPIXMAP_%p",
+					 _orig_tracepath_eglGetCurrentSurface(EGL_DRAW));
 			else
-				sprintf(name, "EGLWINDOW_%p", _orig_tracepath_eglGetCurrentSurface(EGL_DRAW));
+				snprintf(name, sizeof(name), "EGLWINDOW_%p",
+					 _orig_tracepath_eglGetCurrentSurface(EGL_DRAW));
 			tracepath_surface_trace_add(name, _orig_tracepath_eglGetCurrentDisplay(),
 						    _orig_tracepath_eglGetCurrentContext(),
 						    _orig_tracepath_eglGetCurrentSurface(EGL_DRAW), 0, 0, 0, 0, 0, 0, NULL);
@@ -872,9 +874,11 @@ finish:
 			_orig_tracepath_eglQuerySurface(_orig_tracepath_eglGetCurrentDisplay(),
 							_orig_tracepath_eglGetCurrentSurface(EGL_DRAW), EGL_RENDER_BUFFER, &btype);
 			if (btype == EGL_SINGLE_BUFFER)
-				sprintf(name, "EGLPIXMAP_%p", _orig_tracepath_eglGetCurrentSurface(EGL_DRAW));
+				snprintf(name, sizeof(name), "EGLPIXMAP_%p",
+					 _orig_tracepath_eglGetCurrentSurface(EGL_DRAW));
 			else
-				sprintf(name, "EGLWINDOW_%p", _orig_tracepath_eglGetCurrentSurface(EGL_DRAW));
+				snprintf(name, sizeof(name), "EGLWINDOW_%p",
+					 _orig_tracepath_eglGetCurrentSurface(EGL_DRAW));
 			tracepath_surface_trace_add(name, _orig_tracepath_eglGetCurrentDisplay(),
 						    _orig_tracepath_eglGetCurrentContext(),
 						    _orig_tracepath_eglGetCurrentSurface(EGL_DRAW), 0, 0, 0, 0, 0, 0, NULL);
@@ -1639,63 +1643,63 @@ finish:
 			char formatment[80];
 			switch (internalformat) {
 			case GL_ALPHA:
-				sprintf(formatment, "ALPHA");
+				snprintf(formatment, sizeof(formatment), "ALPHA");
 				bpp = 1;
 				break;
 			case GL_LUMINANCE:
-				sprintf(formatment, "LUMINANCE");
+				snprintf(formatment, sizeof(formatment), "LUMINANCE");
 				bpp = 1;
 				break;
 			case GL_LUMINANCE_ALPHA:
-				sprintf(formatment, "LUMINANCE_ALPHA");
+				snprintf(formatment, sizeof(formatment), "LUMINANCE_ALPHA");
 				bpp = 1;
 				break;
 			case GL_RGB:
-				sprintf(formatment, "RGB");
+				snprintf(formatment, sizeof(formatment), "RGB");
 				bpp = 2;
 				break;
 			case GL_RGBA:
-				sprintf(formatment, "RGBA");
+				snprintf(formatment, sizeof(formatment), "RGBA");
 				bpp = 4;
 				break;
 			case 0x80E1:
-				sprintf(formatment, "BGRA_EXT");
+				snprintf(formatment, sizeof(formatment), "BGRA_EXT");
 				bpp = 4;
 				break;
 			case 0x84F9:
-				sprintf(formatment, "DEPTH_STENCIL_OES");
+				snprintf(formatment, sizeof(formatment), "DEPTH_STENCIL_OES");
 				bpp = 4;
 				break;
 			case GL_DEPTH_COMPONENT :
-				sprintf(formatment, "DEPTH_COMPONENT");
+				snprintf(formatment, sizeof(formatment), "DEPTH_COMPONENT");
 				bpp = 1;
 				break;
 			case 0x81A5:
-				sprintf(formatment, "DEPTH_COMPONENT16_ARB");
+				snprintf(formatment, sizeof(formatment), "DEPTH_COMPONENT16_ARB");
 				bpp = 2;
 				break;
 			case 0x81A6:
-				sprintf(formatment, "DEPTH_COMPONENT24_ARB");
+				snprintf(formatment, sizeof(formatment), "DEPTH_COMPONENT24_ARB");
 				bpp = 3;
 				break;
 			case 0x81A7:
-				sprintf(formatment, "DEPTH_COMPONENT32_ARB");
+				snprintf(formatment, sizeof(formatment), "DEPTH_COMPONENT32_ARB");
 				bpp = 4;
 				break;
 			case 0x8D46 :
-				sprintf(formatment, "STENCIL_INDEX1_OES");
+				snprintf(formatment, sizeof(formatment), "STENCIL_INDEX1_OES");
 				bpp = 1;
 				break;
 			case 0x8D47 :
-				sprintf(formatment, "STENCIL_INDEX4_OES");
+				snprintf(formatment, sizeof(formatment), "STENCIL_INDEX4_OES");
 				bpp = 1;
 				break;
 			case 0x8D48 :
-				sprintf(formatment, "STENCIL_INDEX8_OES");
+				snprintf(formatment, sizeof(formatment), "STENCIL_INDEX8_OES");
 				bpp = 1;
 				break;
 			default:
-				sprintf(formatment, "0x%X", internalformat);
+				snprintf(formatment, sizeof(formatment), "0x%X", internalformat);
 				bpp = 0;
 				break;
 			}
@@ -1744,7 +1748,7 @@ finish:
 				}
 
 				char name[256];
-				sprintf(name, "FBORB_%d", objidx);
+				snprintf(name, sizeof(name), "FBORB_%d", objidx);
 				tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle,
 							    tstate->surf_draw, -1, 0, objidx, width, height, channel, NULL);
 			}
@@ -1906,63 +1910,63 @@ finish:
 			char formatment[80];
 			switch (internalformat) {
 			case GL_ALPHA:
-				sprintf(formatment, "ALPHA");
+				snprintf(formatment, sizeof(formatment), "ALPHA");
 				bpp = 1;
 				break;
 			case GL_LUMINANCE:
-				sprintf(formatment, "LUMINANCE");
+				snprintf(formatment, sizeof(formatment), "LUMINANCE");
 				bpp = 1;
 				break;
 			case GL_LUMINANCE_ALPHA:
-				sprintf(formatment, "LUMINANCE_ALPHA");
+				snprintf(formatment, sizeof(formatment), "LUMINANCE_ALPHA");
 				bpp = 1;
 				break;
 			case GL_RGB:
-				sprintf(formatment, "RGB");
+				snprintf(formatment, sizeof(formatment), "RGB");
 				bpp = 2;
 				break;
 			case GL_RGBA:
-				sprintf(formatment, "RGBA");
+				snprintf(formatment, sizeof(formatment), "RGBA");
 				bpp = 4;
 				break;
 			case 0x80E1:
-				sprintf(formatment, "BGRA_EXT");
+				snprintf(formatment, sizeof(formatment), "BGRA_EXT");
 				bpp = 4;
 				break;
 			case 0x84F9:
-				sprintf(formatment, "DEPTH_STENCIL_OES");
+				snprintf(formatment, sizeof(formatment), "DEPTH_STENCIL_OES");
 				bpp = 4;
 				break;
 			case GL_DEPTH_COMPONENT :
-				sprintf(formatment, "DEPTH_COMPONENT");
+				snprintf(formatment, sizeof(formatment), "DEPTH_COMPONENT");
 				bpp = 1;
 				break;
 			case 0x81A5:
-				sprintf(formatment, "DEPTH_COMPONENT16_ARB");
+				snprintf(formatment, sizeof(formatment), "DEPTH_COMPONENT16_ARB");
 				bpp = 2;
 				break;
 			case 0x81A6:
-				sprintf(formatment, "DEPTH_COMPONENT24_ARB");
+				snprintf(formatment, sizeof(formatment), "DEPTH_COMPONENT24_ARB");
 				bpp = 3;
 				break;
 			case 0x81A7:
-				sprintf(formatment, "DEPTH_COMPONENT32_ARB");
+				snprintf(formatment, sizeof(formatment), "DEPTH_COMPONENT32_ARB");
 				bpp = 4;
 				break;
 			case 0x8D46 :
-				sprintf(formatment, "STENCIL_INDEX1_OES");
+				snprintf(formatment, sizeof(formatment), "STENCIL_INDEX1_OES");
 				bpp = 1;
 				break;
 			case 0x8D47 :
-				sprintf(formatment, "STENCIL_INDEX4_OES");
+				snprintf(formatment, sizeof(formatment), "STENCIL_INDEX4_OES");
 				bpp = 1;
 				break;
 			case 0x8D48 :
-				sprintf(formatment, "STENCIL_INDEX8_OES");
+				snprintf(formatment, sizeof(formatment), "STENCIL_INDEX8_OES");
 				bpp = 1;
 				break;
 			default:
-				sprintf(formatment, "0x%X", internalformat);
+				snprintf(formatment, sizeof(formatment), "0x%X", internalformat);
 				bpp = 0;
 				break;
 			}
@@ -2011,7 +2015,7 @@ finish:
 				}
 
 				char name[256];
-				sprintf(name, "FBOTEX_0x%X", objidx);
+				snprintf(name, sizeof(name), "FBOTEX_0x%X", objidx);
 				tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle,
 							    tstate->surf_draw, -1, objidx, 0, width, height, channel, NULL);
 			}
@@ -2884,63 +2888,63 @@ finish:
 			char formatment[80];
 			switch (internalformat) {
 			case GL_ALPHA:
-				sprintf(formatment, "ALPHA");
+				snprintf(formatment, sizeof(formatment), "ALPHA");
 				bpp = 1;
 				break;
 			case GL_LUMINANCE:
-				sprintf(formatment, "LUMINANCE");
+				snprintf(formatment, sizeof(formatment), "LUMINANCE");
 				bpp = 1;
 				break;
 			case GL_LUMINANCE_ALPHA:
-				sprintf(formatment, "LUMINANCE_ALPHA");
+				snprintf(formatment, sizeof(formatment), "LUMINANCE_ALPHA");
 				bpp = 1;
 				break;
 			case GL_RGB:
-				sprintf(formatment, "RGB");
+				snprintf(formatment, sizeof(formatment), "RGB");
 				bpp = 2;
 				break;
 			case GL_RGBA:
-				sprintf(formatment, "RGBA");
+				snprintf(formatment, sizeof(formatment), "RGBA");
 				bpp = 4;
 				break;
 			case 0x80E1:
-				sprintf(formatment, "BGRA_EXT");
+				snprintf(formatment, sizeof(formatment), "BGRA_EXT");
 				bpp = 4;
 				break;
 			case 0x84F9:
-				sprintf(formatment, "DEPTH_STENCIL_OES");
+				snprintf(formatment, sizeof(formatment), "DEPTH_STENCIL_OES");
 				bpp = 4;
 				break;
 			case GL_DEPTH_COMPONENT :
-				sprintf(formatment, "DEPTH_COMPONENT");
+				snprintf(formatment, sizeof(formatment), "DEPTH_COMPONENT");
 				bpp = 1;
 				break;
 			case 0x81A5:
-				sprintf(formatment, "DEPTH_COMPONENT16_ARB");
+				snprintf(formatment, sizeof(formatment), "DEPTH_COMPONENT16_ARB");
 				bpp = 2;
 				break;
 			case 0x81A6:
-				sprintf(formatment, "DEPTH_COMPONENT24_ARB");
+				snprintf(formatment, sizeof(formatment), "DEPTH_COMPONENT24_ARB");
 				bpp = 3;
 				break;
 			case 0x81A7:
-				sprintf(formatment, "DEPTH_COMPONENT32_ARB");
+				snprintf(formatment, sizeof(formatment), "DEPTH_COMPONENT32_ARB");
 				bpp = 4;
 				break;
 			case 0x8D46 :
-				sprintf(formatment, "STENCIL_INDEX1_OES");
+				snprintf(formatment, sizeof(formatment), "STENCIL_INDEX1_OES");
 				bpp = 1;
 				break;
 			case 0x8D47 :
-				sprintf(formatment, "STENCIL_INDEX4_OES");
+				snprintf(formatment, sizeof(formatment), "STENCIL_INDEX4_OES");
 				bpp = 1;
 				break;
 			case 0x8D48 :
-				sprintf(formatment, "STENCIL_INDEX8_OES");
+				snprintf(formatment, sizeof(formatment), "STENCIL_INDEX8_OES");
 				bpp = 1;
 				break;
 			default:
-				sprintf(formatment, "0x%X", internalformat);
+				snprintf(formatment, sizeof(formatment), "0x%X", internalformat);
 				bpp = 0;
 				break;
 			}
@@ -2989,7 +2993,7 @@ finish:
 				}
 
 				char name[256];
-				sprintf(name, "FBORB_0x%X", objidx);
+				snprintf(name, sizeof(name), "FBORB_0x%X", objidx);
 				tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle,
 							    tstate->surf_draw, -1, 0, objidx, width, height, channel, NULL);
 			}
@@ -3026,63 +3030,63 @@ finish:
 			char formatment[80];
 			switch (internalformat) {
 			case GL_ALPHA:
-				sprintf(formatment, "ALPHA");
+				snprintf(formatment, sizeof(formatment), "ALPHA");
 				bpp = 1;
 				break;
 			case GL_LUMINANCE:
-				sprintf(formatment, "LUMINANCE");
+				snprintf(formatment, sizeof(formatment), "LUMINANCE");
 				bpp = 1;
 				break;
 			case GL_LUMINANCE_ALPHA:
-				sprintf(formatment, "LUMINANCE_ALPHA");
+				snprintf(formatment, sizeof(formatment), "LUMINANCE_ALPHA");
 				bpp = 1;
 				break;
 			case GL_RGB:
-				sprintf(formatment, "RGB");
+				snprintf(formatment, sizeof(formatment), "RGB");
 				bpp = 2;
 				break;
 			case GL_RGBA:
-				sprintf(formatment, "RGBA");
+				snprintf(formatment, sizeof(formatment), "RGBA");
 				bpp = 4;
 				break;
 			case 0x80E1:
-				sprintf(formatment, "BGRA_EXT");
+				snprintf(formatment, sizeof(formatment), "BGRA_EXT");
 				bpp = 4;
 				break;
 			case 0x84F9:
-				sprintf(formatment, "DEPTH_STENCIL_OES");
+				snprintf(formatment, sizeof(formatment), "DEPTH_STENCIL_OES");
 				bpp = 4;
 				break;
 			case GL_DEPTH_COMPONENT :
-				sprintf(formatment, "DEPTH_COMPONENT");
+				snprintf(formatment, sizeof(formatment), "DEPTH_COMPONENT");
 				bpp = 1;
 				break;
 			case 0x81A5:
-				sprintf(formatment, "DEPTH_COMPONENT16_ARB");
+				snprintf(formatment, sizeof(formatment), "DEPTH_COMPONENT16_ARB");
 				bpp = 2;
 				break;
 			case 0x81A6:
-				sprintf(formatment, "DEPTH_COMPONENT24_ARB");
+				snprintf(formatment, sizeof(formatment), "DEPTH_COMPONENT24_ARB");
 				bpp = 3;
 				break;
 			case 0x81A7:
-				sprintf(formatment, "DEPTH_COMPONENT32_ARB");
+				snprintf(formatment, sizeof(formatment), "DEPTH_COMPONENT32_ARB");
 				bpp = 4;
 				break;
 			case 0x8D46 :
-				sprintf(formatment, "STENCIL_INDEX1_OES");
+				snprintf(formatment, sizeof(formatment), "STENCIL_INDEX1_OES");
 				bpp = 1;
 				break;
 			case 0x8D47 :
-				sprintf(formatment, "STENCIL_INDEX4_OES");
+				snprintf(formatment, sizeof(formatment), "STENCIL_INDEX4_OES");
 				bpp = 1;
 				break;
 			case 0x8D48 :
-				sprintf(formatment, "STENCIL_INDEX8_OES");
+				snprintf(formatment, sizeof(formatment), "STENCIL_INDEX8_OES");
 				bpp = 1;
 				break;
 			default:
-				sprintf(formatment, "0x%X", internalformat);
+				snprintf(formatment, sizeof(formatment), "0x%X", internalformat);
 				bpp = 0;
 				break;
 			}
@@ -3131,7 +3135,7 @@ finish:
 				}
 
 				char name[256];
-				sprintf(name, "FBORB_0x%X", objidx);
+				snprintf(name, sizeof(name), "FBORB_0x%X", objidx);
 				tracepath_surface_trace_add(name, tstate->ctx->dpy, tstate->ctx->handle,
 							    tstate->surf_draw, -1, 0, objidx, width, height, channel, NULL);
 			}
