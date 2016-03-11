@@ -5,13 +5,15 @@ Summary:		CoreGL FastPath Optimization
 Version:		0.1.10
 Release:		02
 Group:			Graphics
-License:		Apache-2.0 and MIT and SGI-B-2.0 and Zlib 
+License:		Apache-2.0 and MIT and SGI-B-2.0 and Zlib
 URL:			http://www.tizen.org
 Source:			%{name}-%{version}.tar.gz
 
 BuildRequires:  cmake
 BuildRequires:  pkgconfig(dlog)
 BuildRequires:  pkgconfig(libpng)
+
+%global TZ_SYS_RO_SHARE	%{?TZ_SYS_RO_SHARE:%TZ_SYS_RO_SHARE}%{!?TZ_SYS_RO_SHARE:/usr/share}
 
 %description
 CoreGL provides the following capabilities:
@@ -47,11 +49,11 @@ make %{?jobs:-j%jobs}
 %install
 
 # for license notification
-mkdir -p %{buildroot}/usr/share/license
-cp -a %{_builddir}/%{buildsubdir}/COPYING %{buildroot}/usr/share/license/%{name}
-cp -a %{_builddir}/%{buildsubdir}/COPYING.MIT %{buildroot}/usr/share/license/%{name}.MIT
-cp -a %{_builddir}/%{buildsubdir}/COPYING.SGIFreeSWLicB_2_0 %{buildroot}/usr/share/license/%{name}.SGIFreeSWLicB_2_0
-cp -a %{_builddir}/%{buildsubdir}/COPYING.ZLIB %{buildroot}/usr/share/license/%{name}.ZLIB
+mkdir -p %{buildroot}/%{TZ_SYS_RO_SHARE}/license
+cp -a %{_builddir}/%{buildsubdir}/COPYING %{buildroot}/%{TZ_SYS_RO_SHARE}/license/%{name}
+cp -a %{_builddir}/%{buildsubdir}/COPYING.MIT %{buildroot}/%{TZ_SYS_RO_SHARE}/license/%{name}.MIT
+cp -a %{_builddir}/%{buildsubdir}/COPYING.SGIFreeSWLicB_2_0 %{buildroot}/%{TZ_SYS_RO_SHARE}/license/%{name}.SGIFreeSWLicB_2_0
+cp -a %{_builddir}/%{buildsubdir}/COPYING.ZLIB %{buildroot}/%{TZ_SYS_RO_SHARE}/license/%{name}.ZLIB
 
 # release pkg
 mkdir -p %{buildroot}%{_libdir}/pkgconfig
@@ -99,10 +101,10 @@ rm -rf %{buildroot}
 %{_libdir}/libEGL.so*
 %{_libdir}/libGLESv1_CM.so*
 %{_libdir}/libGLESv2.so*
-/usr/share/license/%{name}
-/usr/share/license/%{name}.MIT
-/usr/share/license/%{name}.SGIFreeSWLicB_2_0
-/usr/share/license/%{name}.ZLIB
+%{TZ_SYS_RO_SHARE}/license/%{name}
+%{TZ_SYS_RO_SHARE}/license/%{name}.MIT
+%{TZ_SYS_RO_SHARE}/license/%{name}.SGIFreeSWLicB_2_0
+%{TZ_SYS_RO_SHARE}/license/%{name}.ZLIB
 
 %files devel
 %defattr(-,root,root,-)
