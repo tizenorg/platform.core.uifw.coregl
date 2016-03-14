@@ -840,7 +840,8 @@ fastpath_eglCreateContext(EGLDisplay dpy, EGLConfig config,
 		char ment[256];
 		add_to_general_trace_list(&glue_ctx_trace_list, newgctx);
 
-		sprintf(ment, "eglCreateContext completed (GlueCTX=[%12p])", newgctx);
+		snprintf(ment, sizeof(ment), "eglCreateContext completed (GlueCTX=[%12p])",
+			 newgctx);
 		_dump_context_info(ment, 1);
 	}
 #endif // COREGL_FASTPATH_TRACE_CONTEXT_INFO
@@ -941,7 +942,8 @@ finish:
 #ifdef COREGL_FASTPATH_TRACE_CONTEXT_INFO
 	if (unlikely(trace_ctx_flag == 1)) {
 		char ment[256];
-		sprintf(ment, "eglDestroyContext completed (GlueCTX=[%12p])", ctx);
+		snprintf(ment, sizeof(ment), "eglDestroyContext completed (GlueCTX=[%12p])",
+			 ctx);
 		_dump_context_info(ment, 1);
 	}
 #endif // COREGL_FASTPATH_TRACE_CONTEXT_INFO
@@ -1147,7 +1149,7 @@ fastpath_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read,
 	}
 
 	// Check if the object is correct
-	if (gctx->magic != MAGIC_GLFAST) {
+	if (gctx && (gctx->magic != MAGIC_GLFAST)) {
 		COREGL_ERR("\E[40;31;1mGlue-CTX Magic Check Failed!!! (Memory broken?)\E[0m\n");
 		ret = EGL_FALSE;
 		goto finish;
@@ -1247,8 +1249,9 @@ finish:
 #ifdef COREGL_FASTPATH_TRACE_CONTEXT_INFO
 	if (unlikely(trace_ctx_flag == 1)) {
 		char ment[256];
-		sprintf(ment, "eglMakeCurrent finished (GlueCTX=[%12p] Surf=[D:%12p R:%12p])",
-			ctx, draw, read);
+		snprintf(ment, sizeof(ment),
+			 "eglMakeCurrent finished (GlueCTX=[%12p] Surf=[D:%12p R:%12p])",
+			 ctx, draw, read);
 		_dump_context_info(ment, 0);
 	}
 #endif // COREGL_FASTPATH_TRACE_CONTEXT_INFO
