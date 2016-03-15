@@ -301,7 +301,7 @@ init_modules_tracepath()
 				}
 			}
 		} else {
-			trace_surface_filter_handle = atoi(tmp);
+			trace_surface_filter_handle = (uintptr_t)atol(tmp);
 		}
 	}
 
@@ -361,8 +361,8 @@ init_modules_tracepath()
 			if (trace_surface_filter_type == 2)
 				COREGL_LOG("\E[40;36;1m(SURFACE-TYPE:FBO)\E[0m ");
 			if (trace_surface_filter_handle != 0)
-				COREGL_LOG("\E[40;36;1m(SURFACE-HANDLE:0x%x(%d))\E[0m ",
-					   trace_surface_filter_handle, trace_surface_filter_handle);
+				COREGL_LOG("\E[40;36;1m(SURFACE-HANDLE:%p(%ld))\E[0m ",
+					   (void *)trace_surface_filter_handle, (long int)trace_surface_filter_handle);
 			if (trace_surface_filter_size_w > 0 && trace_surface_filter_size_h > 0)
 				COREGL_LOG("\E[40;36;1m(SURFACE-SIZE:%dx%d)\E[0m ", trace_surface_filter_size_w,
 					   trace_surface_filter_size_h);
@@ -1236,7 +1236,7 @@ _dump_surface(int force_output, int type, const char *position,
 			    trace_surface_filter_type != 1) goto finish;;
 
 			if (trace_surface_filter_handle != 0 &&
-			    trace_surface_filter_handle != (int)sdata->surface) goto finish;
+			    trace_surface_filter_handle != (uintptr_t)sdata->surface) goto finish;
 
 			EGLConfig eglconfig;
 			GLint asize, rsize, gsize, bsize;
@@ -1318,8 +1318,8 @@ _dump_surface(int force_output, int type, const char *position,
 			    trace_surface_filter_type != 2) goto finish;
 
 			if (trace_surface_filter_handle != 0 &&
-			    trace_surface_filter_handle != sdata->tex &&
-			    trace_surface_filter_handle != sdata->rb) goto finish;
+			    trace_surface_filter_handle != (uintptr_t)sdata->tex &&
+			    trace_surface_filter_handle != (uintptr_t)sdata->rb) goto finish;
 
 			GLint oldfb;
 			_orig_tracepath_glGetIntegerv(GL_FRAMEBUFFER_BINDING, &oldfb);

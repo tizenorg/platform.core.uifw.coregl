@@ -1327,7 +1327,7 @@ fastpath_eglCreateImageKHR (EGLDisplay dpy, EGLContext ctx, EGLenum target,
 {
 	void *ret = NULL;
 	EGLContext real_ctx = EGL_NO_CONTEXT;
-	GLuint real_obj = 0;
+	EGLClientBuffer real_obj;
 
 	_COREGL_FASTPATH_FUNC_BEGIN();
 
@@ -1351,12 +1351,13 @@ fastpath_eglCreateImageKHR (EGLDisplay dpy, EGLContext ctx, EGLenum target,
 		case EGL_GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_KHR:
 		case EGL_GL_TEXTURE_3D_KHR:
 		case EGL_GL_RENDERBUFFER_KHR:
-			if ((GLuint )buffer == 0) {
+			if (buffer == NULL) {
 				COREGL_ERR("\E[40;31;1m fastpath_eglCreateImageKHR buffer object NULL \E[0m\n");
-				real_obj = 0;
+				real_obj = NULL;
 			} else {
-				real_obj = fastpath_ostate_get_object(&gctx->ostate, GL_OBJECT_TYPE_TEXTURE,
-								      (GLuint )buffer);
+				real_obj = (EGLClientBuffer)(uintptr_t)fastpath_ostate_get_object(&gctx->ostate,
+						GL_OBJECT_TYPE_TEXTURE,
+						(GLuint)(uintptr_t)buffer);
 			}
 			break;
 		default:
@@ -1365,11 +1366,11 @@ fastpath_eglCreateImageKHR (EGLDisplay dpy, EGLContext ctx, EGLenum target,
 		}
 
 	} else  {
-		real_obj = (GLuint )buffer;
+		real_obj = buffer;
 	}
 
-	ret = _orig_fastpath_eglCreateImageKHR(dpy, real_ctx, target,
-					       (EGLClientBuffer)real_obj, attrib_list);
+	ret = _orig_fastpath_eglCreateImageKHR(dpy, real_ctx, target, real_obj,
+					       attrib_list);
 
 
 	goto finish;

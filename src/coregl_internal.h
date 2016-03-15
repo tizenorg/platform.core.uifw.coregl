@@ -2,6 +2,7 @@
 #define COREGL_INTERNAL_H
 
 #include <stdio.h>
+#include <stdint.h>
 
 #include "coregl.h"
 
@@ -122,7 +123,7 @@ extern int                 trace_surface_sequence_sort_flag;
 extern int                 trace_surface_filter_period_begin;
 extern int                 trace_surface_filter_period_end;
 extern int                 trace_surface_filter_type;
-extern int                 trace_surface_filter_handle;
+extern uintptr_t           trace_surface_filter_handle;
 extern int                 trace_surface_filter_size_w;
 extern int                 trace_surface_filter_size_h;
 extern int                 trace_surface_print_only_flag;
