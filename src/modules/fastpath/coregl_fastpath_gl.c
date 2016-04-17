@@ -8409,3 +8409,26 @@ fastpath_glClearDepthxOES(GLclampx depth)
 finish:
 	_COREGL_FASTPATH_FUNC_END();
 }
+
+/* GLES3.2 API */
+void
+fastpath_glFramebufferTexture(GLenum target, GLenum attachment, GLuint texture, GLint level)
+{
+    GLuint real_obj;
+
+    DEFINE_FASTPAH_GL_FUNC();
+    _COREGL_FASTPATH_FUNC_BEGIN();
+    INIT_FASTPATH_GL_FUNC();
+
+    if (GET_REAL_OBJ(GL_OBJECT_TYPE_TEXTURE, texture, &real_obj) != 1) {
+        _set_gl_error(GL_OUT_OF_MEMORY);
+        goto finish;
+    }
+
+    _orig_fastpath_glFramebufferTexture(target, attachment, real_obj, level);
+
+    goto finish;
+
+finish:
+    _COREGL_FASTPATH_FUNC_END();
+}
