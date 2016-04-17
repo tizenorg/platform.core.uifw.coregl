@@ -251,7 +251,6 @@ _COREGL_SYMBOL(void, glVertexAttribPointer, (GLuint index, GLint size,
 		GLenum type, GLboolean normalized, GLsizei stride, const void *pointer))
 _COREGL_SYMBOL(void, glViewport, (GLint x, GLint y, GLsizei width,
 				  GLsizei height))
-_COREGL_SYMBOL(void, glGetPointerv, (GLenum pname, GLvoid **params))
 
 _COREGL_EXT_SYMBOL(void, glBindFramebufferOES, (GLenum target,
 		   GLuint framebuffer))
@@ -305,20 +304,7 @@ _COREGL_EXT_SYMBOL(void, glFrustumfOES, (GLfloat left, GLfloat right,
 _COREGL_EXT_SYMBOL(void, glGenerateMipmapOES, (GLenum target))
 _COREGL_EXT_SYMBOL(void, glGetClipPlanefOES, (GLenum pname, GLfloat eqn[4]))
 _COREGL_EXT_SYMBOL(void, glGetClipPlanexOES, (GLenum pname, GLfixed eqn[4]))
-_COREGL_EXT_SYMBOL(GLuint, glGetDebugMessageLog, (GLuint count, GLsizei bufsize,
-		   GLenum *sources, GLenum *types, GLuint *ids, GLenum *severities,
-		   GLsizei *lengths, GLchar *messageLog))
-_COREGL_EXT_SYMBOL(void, glGetObjectLabel, (GLenum identifier, GLuint name,
-		   GLsizei bufSize, GLsizei *length, GLchar *label))
-_COREGL_EXT_SYMBOL(void, glGetObjectPtrLabel, (void const *ptr, GLsizei bufSize,
-		   GLsizei *length, GLchar *label))
 _COREGL_EXT_SYMBOL(void, glGetPointervKHR, (GLenum pname, GLvoid **params))
-_COREGL_EXT_SYMBOL(void, glDebugMessageCallback, (GLDEBUGPROCKHR callback,
-		   void const *userParam))
-_COREGL_EXT_SYMBOL(void, glDebugMessageControl, (GLenum source, GLenum type,
-		   GLenum severity, GLsizei count, GLuint const *ids, GLboolean enabled))
-_COREGL_EXT_SYMBOL(void, glDebugMessageInsert, (GLenum source, GLenum type,
-		   GLuint id, GLenum severity, GLsizei length, GLchar const *buf))
 _COREGL_EXT_SYMBOL(void, glDebugMessageCallbackKHR, (GLDEBUGPROCKHR callback,
 		   void const *userParam))
 _COREGL_EXT_SYMBOL(void, glDebugMessageControlKHR, (GLenum source, GLenum type,
@@ -369,10 +355,6 @@ _COREGL_EXT_SYMBOL(void, glMultiTexCoord4bOES, (GLenum target, GLbyte s,
 _COREGL_EXT_SYMBOL(void, glMultiTexCoord4xOES, (GLenum target, GLfixed s,
 		   GLfixed t, GLfixed r, GLfixed q))
 _COREGL_EXT_SYMBOL(void, glNormal3xOES, (GLfixed nx, GLfixed ny, GLfixed nz))
-_COREGL_EXT_SYMBOL(void, glObjectLabel, (GLenum identifier, GLuint name,
-		   GLsizei length, const GLchar *label))
-_COREGL_EXT_SYMBOL(void, glObjectPtrLabel, (const void *ptr, GLsizei length,
-		   const GLchar *label))
 _COREGL_EXT_SYMBOL(void, glOrthofOES, (GLfloat left, GLfloat right,
 				       GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar))
 _COREGL_EXT_SYMBOL(void, glOrthoxOES, (GLfixed left, GLfixed right,
@@ -382,9 +364,6 @@ _COREGL_EXT_SYMBOL(void, glPointParameterxvOES, (GLenum pname,
 		   const GLfixed *params))
 _COREGL_EXT_SYMBOL(void, glPointSizexOES, (GLfixed size))
 _COREGL_EXT_SYMBOL(void, glPolygonOffsetxOES, (GLfixed factor, GLfixed units))
-_COREGL_EXT_SYMBOL(void, glPopDebugGroup, (void))
-_COREGL_EXT_SYMBOL(void, glPushDebugGroup, (GLenum source, GLuint id,
-		   GLsizei length, const GLchar *message))
 _COREGL_EXT_SYMBOL(void, glQueryCounterEXT, (GLuint id, GLenum target))
 _COREGL_EXT_SYMBOL(void, glRenderbufferStorageOES, (GLenum target,
 		   GLenum internalformat, GLsizei width, GLsizei height))
@@ -730,7 +709,128 @@ _COREGL_SYMBOL(void, glVertexAttribBinding, (GLuint attribindex,
 _COREGL_SYMBOL(void, glVertexBindingDivisor, (GLuint bindingindex,
 		GLuint divisor))
 _COREGL_END_API(COREGL_GLAPI_31)
-/* Extensions */
+
+/* OpenGL ES 3.2 */
+_COREGL_START_API(COREGL_GLAPI_32)
+_COREGL_SYMBOL(void, glBlendBarrier, (void))
+_COREGL_SYMBOL(void, glCopyImageSubData, (GLuint srcName, GLenum srcTarget,
+		GLint srcLevel, GLint srcX, GLint srcY, GLint srcZ, GLuint dstName,
+		GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ,
+		GLsizei srcWidth, GLsizei srcHeight, GLsizei srcDepth))
+_COREGL_SYMBOL(void, glDebugMessageControl, (GLenum source, GLenum type,
+		GLenum severity, GLsizei count, const GLuint *ids, GLboolean enabled))
+_COREGL_SYMBOL(void, glDebugMessageInsert, (GLenum source, GLenum type,
+		GLuint id, GLenum severity, GLsizei length, const GLchar *buf))
+_COREGL_SYMBOL(void, glDebugMessageCallback, (GLDEBUGPROC callback, const void *userParam))
+_COREGL_SYMBOL(GLuint, glGetDebugMessageLog, (GLuint count, GLsizei bufSize,
+		GLenum *sources, GLenum *types, GLuint *ids, GLenum *severities,
+		GLsizei *lengths, GLchar *messageLog))
+_COREGL_SYMBOL(void, glPushDebugGroup, (GLenum source, GLuint id, GLsizei length,
+		const GLchar *message))
+_COREGL_SYMBOL(void, glPopDebugGroup, (void))
+_COREGL_SYMBOL(void, glObjectLabel, (GLenum identifier, GLuint name,
+		GLsizei length, const GLchar *label))
+_COREGL_SYMBOL(void, glGetObjectLabel, (GLenum identifier, GLuint name,
+		GLsizei bufSize, GLsizei *length, GLchar *label))
+_COREGL_SYMBOL(void, glObjectPtrLabel, (const void *ptr, GLsizei length,
+		const GLchar *label))
+_COREGL_SYMBOL(void, glGetObjectPtrLabel, (const void *ptr, GLsizei bufSize,
+		GLsizei *length, GLchar *label))
+_COREGL_SYMBOL(void, glGetPointerv, (GLenum pname, void **params))
+_COREGL_SYMBOL(void, glEnablei, (GLenum target, GLuint index))
+_COREGL_SYMBOL(void, glDisablei, (GLenum target, GLuint index))
+_COREGL_SYMBOL(void, glBlendEquationi, (GLuint buf, GLenum mode))
+_COREGL_SYMBOL(void, glBlendEquationSeparatei, (GLuint buf, GLenum modeRGB,
+		GLenum modeAlpha))
+_COREGL_SYMBOL(void, glBlendFunci, (GLuint buf, GLenum src, GLenum dst))
+_COREGL_SYMBOL(void, glBlendFuncSeparatei, (GLuint buf, GLenum srcRGB, GLenum dstRGB,
+		GLenum srcAlpha, GLenum dstAlpha))
+_COREGL_SYMBOL(void, glColorMaski, (GLuint index, GLboolean r, GLboolean g, GLboolean b,
+		GLboolean a))
+_COREGL_SYMBOL(GLboolean, glIsEnabledi, (GLenum target, GLuint index))
+_COREGL_SYMBOL(void, glDrawElementsBaseVertex, (GLenum mode, GLsizei count, GLenum type,
+		const void *indices, GLint basevertex))
+_COREGL_SYMBOL(void, glDrawRangeElementsBaseVertex, (GLenum mode, GLuint start, GLuint end,
+		GLsizei count, GLenum type, const void *indices, GLint basevertex))
+_COREGL_SYMBOL(void, glDrawElementsInstancedBaseVertex, (GLenum mode, GLsizei count, GLenum type,
+		const void *indices, GLsizei instancecount, GLint basevertex))
+_COREGL_SYMBOL(void, glFramebufferTexture, (GLenum target, GLenum attachment, GLuint texture,
+		GLint level))
+_COREGL_SYMBOL(void, glPrimitiveBoundingBox, (GLfloat minX, GLfloat minY, GLfloat minZ,
+		GLfloat minW, GLfloat maxX, GLfloat maxY, GLfloat maxZ, GLfloat maxW))
+_COREGL_SYMBOL(GLenum, glGetGraphicsResetStatus, (void))
+_COREGL_SYMBOL(void, glReadnPixels, (GLint x, GLint y, GLsizei width, GLsizei height,
+		GLenum format, GLenum type, GLsizei bufSize, void *data))
+_COREGL_SYMBOL(void, glGetnUniformfv, (GLuint program, GLint location, GLsizei bufSize, GLfloat *params))
+_COREGL_SYMBOL(void, glGetnUniformiv, (GLuint program, GLint location, GLsizei bufSize, GLint *params))
+_COREGL_SYMBOL(void, glGetnUniformuiv, (GLuint program, GLint location, GLsizei bufSize, GLuint *params))
+_COREGL_SYMBOL(void, glMinSampleShading, (GLfloat value))
+_COREGL_SYMBOL(void, glPatchParameteri, (GLenum pname, GLint value))
+_COREGL_SYMBOL(void, glTexParameterIiv, (GLenum target, GLenum pname, const GLint *params))
+_COREGL_SYMBOL(void, glTexParameterIuiv, (GLenum target, GLenum pname, const GLuint *params))
+_COREGL_SYMBOL(void, glGetTexParameterIiv, (GLenum target, GLenum pname, GLint *params))
+_COREGL_SYMBOL(void, glGetTexParameterIuiv, (GLenum target, GLenum pname, GLuint *params))
+_COREGL_SYMBOL(void, glSamplerParameterIiv, (GLuint sampler, GLenum pname, const GLint *param))
+_COREGL_SYMBOL(void, glSamplerParameterIuiv, (GLuint sampler, GLenum pname, const GLuint *param))
+_COREGL_SYMBOL(void, glGetSamplerParameterIiv, (GLuint sampler, GLenum pname, GLint *params))
+_COREGL_SYMBOL(void, glGetSamplerParameterIuiv, (GLuint sampler, GLenum pname, GLuint *params))
+_COREGL_SYMBOL(void, glTexBuffer, (GLenum target, GLenum internalformat, GLuint buffer))
+_COREGL_SYMBOL(void, glTexBufferRange, (GLenum target, GLenum internalformat, GLuint buffer,
+		GLintptr offset, GLsizeiptr size))
+_COREGL_SYMBOL(void, glTexStorage3DMultisample, (GLenum target, GLsizei samples, GLenum internalformat,
+		GLsizei width, GLsizei height, GLsizei depth, GLboolean fixedsamplelocations))
+_COREGL_END_API(COREGL_GLAPI_32)
+
+/* OpenGL ES 3.2 Extensions */
+
+/* KHR_debug: APIs are declared above, related tokens are defined in GL32.h */
+/* KHR_texture_compression_astc_ldr: no new API provided, related tokens are defined in GL32.h */
+/* KHR_blend_equation_advanced: APIs are declared above in OpenGL ES 2.0, related tokens are defined in GL32.h */
+/* OES_sample_shading: related tokens are defined in GL32.h */
+_COREGL_EXT_SYMBOL(void, MinSampleShadingOES, (GLfloat value))
+/* OES_sample_variables: no new API or token provided */
+/* OES_shader_image_atomic: no new API or token provided */
+/* OES_shader_multisample_interpolation:  no new API provided, related tokens are defined in GL32.h */
+/* OES_texture_stencil8: no new API or token provided */
+/* OES_texture_storage_multisample_2d_array: APIs are declared above in OpenGL ES 2.0, related tokens are defined in GL32.h */
+/* EXT_copy_image : no token provided */
+_COREGL_EXT_SYMBOL(void, CopyImageSubDataEXT, (GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX,
+        GLint srcY, GLint srcZ, GLuint dstName, GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ,
+        GLsizei srcWidth, GLsizei srcHeight, GLsizei srcDepth))
+/* EXT_draw_buffers_indexed, related tokens are defined in GL32.h */
+_COREGL_EXT_SYMBOL(void, EnableiEXT, (GLenum target, GLuint index))
+_COREGL_EXT_SYMBOL(void, DisableiEXT, (GLenum target, GLuint index))
+_COREGL_EXT_SYMBOL(void, BlendEquationiEXT, (GLuint buf, GLenum mode))
+_COREGL_EXT_SYMBOL(void, BlendEquationSeparateiEXT, (GLuint buf, GLenum modeRGB, GLenum modeAlpha))
+_COREGL_EXT_SYMBOL(void, BlendFunciEXT, (GLuint buf, GLenum src, GLenum dst))
+_COREGL_EXT_SYMBOL(void, BlendFuncSeparateiEXT, (GLuint buf, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha))
+_COREGL_EXT_SYMBOL(void, ColorMaskiEXT, (GLuint buf, GLboolean r, GLboolean g, GLboolean b, GLboolean a))
+_COREGL_EXT_SYMBOL(GLboolean, IsEnablediEXT, (GLenum target, GLuint index))
+/* EXT_geometry_shader: related tokens are defined in GL32.h */
+_COREGL_EXT_SYMBOL(void, FramebufferTextureEXT, (GLenum target, GLenum attachment, GLuint texture, GLint level))
+/* EXT_gpu_shader5: no new API or token provided */
+/* EXT_primitive_bounding_box: related tokens are defined in GL32.h */
+_COREGL_EXT_SYMBOL(void, PrimitiveBoundingBoxEXT, (GLfloat minX, GLfloat minY, GLfloat minZ, GLfloat minW,
+        GLfloat maxX, GLfloat maxY, GLfloat maxZ, GLfloat maxW))
+/* EXT_shader_io_blocks: no new API or token provided */
+/* EXT_tessellation_shader: related tokens are defined in GL32.h */
+_COREGL_EXT_SYMBOL(void, PatchParameteriEXT, (GLenum pname, GLint value))
+/* EXT_texture_border_clamp: related tokens are defined in GL32.h */
+_COREGL_EXT_SYMBOL(void, TexParameterIivEXT, (GLenum target, GLenum pname, const GLint *params))
+_COREGL_EXT_SYMBOL(void, TexParameterIuivEXT, (GLenum target, GLenum pname, const GLuint *params))
+_COREGL_EXT_SYMBOL(void, GetTexParameterIivEXT, (GLenum target, GLenum pname, GLint *params))
+_COREGL_EXT_SYMBOL(void, GetTexParameterIuivEXT, (GLenum target, GLenum pname, GLuint *params))
+_COREGL_EXT_SYMBOL(void, SamplerParameterIivEXT, (GLuint sampler, GLenum pname, const GLint *params))
+_COREGL_EXT_SYMBOL(void, SamplerParameterIuivEXT, (GLuint sampler, GLenum pname, const GLuint *params))
+_COREGL_EXT_SYMBOL(void, GetSamplerParameterIivEXT, (GLuint sampler, GLenum pname, GLint *params))
+_COREGL_EXT_SYMBOL(void, GetSamplerParameterIuivEXT, (GLuint sampler, GLenum pname, GLuint *params))
+/* EXT_texture_buffer: related tokens are defined in GL32.h */
+_COREGL_EXT_SYMBOL(void, TexBufferEXT, (GLenum target, GLenum internalformat, GLuint buffer))
+_COREGL_EXT_SYMBOL(void, TexBufferRangeEXT, (GLenum target, GLenum internalformat, GLuint buffer,
+        GLintptr offset, GLsizeiptr size))
+/* EXT_texture_cube_map_array: no new API provided, related tokens are defined in GL32.h */
+/* EXT_texture_sRGB_decode: no new API provided, related tokens are defined in GL2ext.h*/
+
 
 _COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_EGL_image", 1.1, -1)
 _COREGL_EXT_SYMBOL(void, glEGLImageTargetTexture2DOES, (GLenum target,
