@@ -581,6 +581,10 @@ fastpath_apply_overrides_gl(int enable)
 			COREGL_OVERRIDE(fastpath_, glVertexAttribBinding);
 			COREGL_OVERRIDE(fastpath_, glVertexBindingDivisor);
 		}
+
+		if(driver_gl_version >= COREGL_GLAPI_32) {
+			COREGL_OVERRIDE(fastpath_, glFramebufferTexture);
+		}
 	} else {
 		COREGL_LOG("\E[40;35;1m[CoreGL] SKIP GL FASTPATH...\E[0m\n");
 	}
