@@ -777,6 +777,9 @@ typedef struct __GLsync *GLsync;
 #define GL_PROGRAM_PIPELINE_BINDING       0x825A
 #define GL_MAX_COMPUTE_WORK_GROUP_COUNT   0x91BE
 
+/* GLES 3.2 */
+typedef void (GL_APIENTRY  *GLDEBUGPROC)(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,const void *userParam);
+
 
 //---------------------------//
 // GLES extension defines
