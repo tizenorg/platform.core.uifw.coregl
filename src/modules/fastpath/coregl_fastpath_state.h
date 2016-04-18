@@ -336,20 +336,20 @@ GLUE_STATE(GLvoidptr, gl_vertex_array_pointer,
 		 _sym_glGetVertexAttribPointerv(i, GL_VERTEX_ATTRIB_ARRAY_POINTER,
 				 (GLvoidptr *)value);))
 GLUE_STATE(GLfloat, gl_vertex_attrib_value,
-	   4 * INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
+	   4 * INITIAL_CTX->gl_num_vertex_attribs[0], 4 * MAX_VERTEX_ATTRIBS,
 	   SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 4, SET_4(0, 0, 0, 1)),
 	   SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 4, _sym_glGetVertexAttribfv(i,
 			   GL_CURRENT_VERTEX_ATTRIB, (GLfloat *)value);))
 
 _COREGL_START_API(COREGL_GLAPI_3)
 GLUE_STATE(GLint, gl_vertex_attrib_value_integer,
-	   4 * INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
+	   4 * INITIAL_CTX->gl_num_vertex_attribs[0], 4 * MAX_VERTEX_ATTRIBS,
 	   SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 4, SET_4(0, 0, 0,
 			   GET_INT_FROM_FLOAT(1.0f))),
 	   SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 4, SET_4(0, 0, 0,
 			   GET_INT_FROM_FLOAT(1.0f))))
 GLUE_STATE(GLuint, gl_vertex_attrib_value_unsigned_integer,
-	   4 * INITIAL_CTX->gl_num_vertex_attribs[0], MAX_VERTEX_ATTRIBS,
+	   4 * INITIAL_CTX->gl_num_vertex_attribs[0], 4 * MAX_VERTEX_ATTRIBS,
 	   SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 4, SET_4(0, 0, 0,
 			   GET_UINT_FROM_FLOAT(1.0f))),
 	   SET_N(INITIAL_CTX->gl_num_vertex_attribs[0], 4, SET_4(0, 0, 0,
