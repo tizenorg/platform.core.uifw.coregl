@@ -70,7 +70,6 @@ ln -sf driver/libGLESv2.so.2.0		%{buildroot}%{_libdir}/libGLESv2.so.2.0
 %endif
 ln -sf libEGL.so.1.4				%{buildroot}%{_libdir}/libEGL.so.1
 ln -sf libEGL.so.1					%{buildroot}%{_libdir}/libEGL.so
-ln -sf driver/libGLESv1_CM.so.1.1	%{buildroot}%{_libdir}/libGLESv1_CM.so.1.1
 ln -sf libGLESv1_CM.so.1.1			%{buildroot}%{_libdir}/libGLESv1_CM.so.1
 ln -sf libGLESv1_CM.so.1			%{buildroot}%{_libdir}/libGLESv1_CM.so
 ln -sf libGLESv2.so.2.0				%{buildroot}%{_libdir}/libGLESv2.so.2
@@ -84,6 +83,8 @@ cp -a include_KHR/GLES2				%{buildroot}%{_includedir}
 cp -a include_KHR/GLES3				%{buildroot}%{_includedir}
 cp -a include_KHR/KHR				%{buildroot}%{_includedir}
 cp -a pkgconfig/*.pc				%{buildroot}%{_libdir}/pkgconfig/
+# CoreGL Provide Dummy libGLESv1_CM for devel package
+cp libGLESv1_CM.so.1.1				%{buildroot}%{_libdir}/
 
 %clean
 rm -rf %{buildroot}
@@ -99,7 +100,8 @@ rm -rf %{buildroot}
 %{_libdir}/libCOREGL.so*
 %endif
 %{_libdir}/libEGL.so*
-%{_libdir}/libGLESv1_CM.so*
+%{_libdir}/libGLESv1_CM.so
+%{_libdir}/libGLESv1_CM.so.1
 %{_libdir}/libGLESv2.so*
 %{TZ_SYS_RO_SHARE}/license/%{name}
 %{TZ_SYS_RO_SHARE}/license/%{name}.MIT
@@ -114,3 +116,4 @@ rm -rf %{buildroot}
 %{_includedir}/GLES3/*
 %{_includedir}/KHR/*
 %{_libdir}/pkgconfig/*.pc
+%{_libdir}/libGLESv1_CM.so.1.1
