@@ -10,9 +10,12 @@ SET(EGL_VERSION_MAJOR 1)
 SET(EGL_VERSION_MINOR 4)
 SET(GLES2_VERSION_MAJOR 2)
 SET(GLES2_VERSION_MINOR 0)
+SET(GLES1_VERSION_MAJOR 1)
+SET(GLES1_VERSION_MINOR 1)
 SET(COREGL_VERSION "${COREGL_VERSION_MAJOR}.${COREGL_VERSION_MINOR}")
 SET(EGL_VERSION "${EGL_VERSION_MAJOR}.${EGL_VERSION_MINOR}")
 SET(GLES2_VERSION "${GLES2_VERSION_MAJOR}.${GLES2_VERSION_MINOR}")
+SET(GLES1_VERSION "${GLES1_VERSION_MAJOR}.${GLES1_VERSION_MINOR}")
 SET(BUILD_ARCH "$ENV{RPM_ARCH}")
 
 IF(${BUILD_ARCH} MATCHES "aarch64")
@@ -95,8 +98,13 @@ SET(GLES2 "GLESv2")
 SET(GLES2_SRCS_common
 		src/wraps/coregl_gl.c
 )
-
-
+#################################################################
+# Build gles1 dummy Library
+# ------------------------------
+SET(GLES1 "GLESv1_CM")
+SET(GLES1_SRCS_common
+		src/dummy/gles1.c
+)
 
 #SET(HEADERS_common src/coregl_export.h src/coregl_fastpath.h src/coregl_fastpath_state.h src/coregl.h src/coregl_internal.h src/coregl_thread_pthread.h src/coregl_wrappath.h)
 
@@ -129,9 +137,15 @@ SET_TARGET_PROPERTIES(${GLES2} PROPERTIES VERSION ${GLES2_VERSION})
 #SET_TARGET_PROPERTIES(${COREGL} PROPERTIES COMPILE_FLAGS ${EXTRA_CFLAGS_common})
 TARGET_LINK_LIBRARIES(${GLES2} ${pkg_common_LDFLAGS} ${dlog_LIBRARIES} "-ldl -g -O2 -fvisibility=hidden -Wall -std=c99 -lpthread")
 
+ADD_LIBRARY(${GLES1} SHARED ${GLES1_SRCS_common})
+SET_TARGET_PROPERTIES(${GLES1} PROPERTIES SOVERSION ${GLES1_VERSION_MAJOR})
+SET_TARGET_PROPERTIES(${GLES1} PROPERTIES VERSION ${GLES1_VERSION})
+TARGET_LINK_LIBRARIES(${GLES1} ${pkg_common_LDFLAGS} "-g -O2 -fvisibility=default -Wall -std=c99")
+
 INSTALL(TARGETS ${COREGL} DESTINATION lib COMPONENT RuntimeLibraries)
 INSTALL(TARGETS ${EGL} DESTINATION lib COMPONENT RuntimeLibraries)
 INSTALL(TARGETS ${GLES2} DESTINATION lib COMPONENT RuntimeLibraries)
+INSTALL(TARGETS ${GLES1} DESTINATION lib COMPONENT RuntimeLibraries)
 
 #FOREACH(hfile ${HEADERS_common})
 #	INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/${hfile} DESTINATION include/coregl)
