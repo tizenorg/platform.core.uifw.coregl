@@ -1,6 +1,6 @@
 prefix=/usr
 exec_prefix=${prefix}
-libdir={exec_prefix}/@LIB@
+libdir=${exec_prefix}/@LIB@
 includedir=${prefix}/include
 
 Name: gles11
