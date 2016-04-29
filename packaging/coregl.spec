@@ -91,7 +91,6 @@ rm -rf %{buildroot}
 cd %{_libdir}
 ln -sf libGLESv1_CM.so.1.1 libGLESv1_CM.so.1
 ln -sf libGLESv1_CM.so.1 libGLESv1_CM.so
-/sbin/ldconfig > /dev/null 2>&1
 
 %postun
 cd %{_libdir}
