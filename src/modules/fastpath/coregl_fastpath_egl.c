@@ -1237,7 +1237,7 @@ fastpath_eglMakeCurrent(EGLDisplay dpy, EGLSurface draw, EGLSurface read,
 		ret = EGL_FALSE;
 		goto finish;
 	}
-	gctx->used_count++;
+	if (gctx) gctx->used_count++;
 
 	ret = EGL_TRUE;
 	goto finish;

@@ -711,12 +711,12 @@ tracepath_api_trace_begin(const char *funcname, void *hint,
 
 		AST(ftd != NULL);
 
-		ftd->call_count++;
-		AST(ftd->last_time.tv_sec == 0);
+		if (ftd) ftd->call_count++;
+		if (ftd) AST(ftd->last_time.tv_sec == 0);
 
-		AST(gettimeofday(&ftd->last_time, NULL) == 0);
+		if (ftd) AST(gettimeofday(&ftd->last_time, NULL) == 0);
 
-		if (initial_time.tv_sec == 0) {
+		if (ftd && initial_time.tv_sec == 0) {
 			initial_time = ftd->last_time;
 			last_initial_time = ftd->last_time;
 		}
@@ -768,20 +768,21 @@ tracepath_api_trace_end(const char *funcname, void *hint, int trace_total_time)
 
 		AST(ftd != NULL);
 
-		_add_timeval_period(&elapsed_time, t, ftd->last_time);
+		if (ftd) _add_timeval_period(&elapsed_time, t, ftd->last_time);
 
-		_add_timeval(&ftd->elapsed_time, elapsed_time);
+		if (ftd) _add_timeval(&ftd->elapsed_time, elapsed_time);
 
-		if (elapsed_time.tv_sec >= ftd->elapsed_time_max.tv_sec &&
+		if (ftd &&
+		    elapsed_time.tv_sec >= ftd->elapsed_time_max.tv_sec &&
 		    elapsed_time.tv_usec > ftd->elapsed_time_max.tv_usec) {
 			ftd->elapsed_time_max.tv_sec = elapsed_time.tv_sec;
 			ftd->elapsed_time_max.tv_usec = elapsed_time.tv_usec;
 		}
 
-		ftd->last_time.tv_sec = 0;
+		if (ftd) ftd->last_time.tv_sec = 0;
 
 		if (trace_total_time == 1) {
-			_add_timeval(&ftd->total_elapsed_time, elapsed_time);
+			if (ftd) _add_timeval(&ftd->total_elapsed_time, elapsed_time);
 
 			AST(gettimeofday(&last_trace_time, NULL) == 0);
 
@@ -792,7 +793,6 @@ tracepath_api_trace_end(const char *funcname, void *hint, int trace_total_time)
 		}
 
 	}
-
 
 	return ftd;
 }
