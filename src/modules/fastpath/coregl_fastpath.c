@@ -1405,26 +1405,29 @@ fastpath_init_context_states(GLGlueContext *ctx)
 # define INITIAL_CTX initial_ctx
 # define GLUE_STATE(TYPE, NAME, SIZE, ARRAY_SIZE, DEFAULT_STMT, GET_STMT)  \
       { \
-         int i; \
-         TYPE valuedata[SIZE]; \
-         TYPE *value = NULL; \
-         memset(valuedata, 0xcc, sizeof(TYPE) * SIZE); \
-         if(api_gl_version <= driver_gl_version) { \
-            value = valuedata; DEFAULT_STMT; value = valuedata; \
-            for (i = 0; i < SIZE; i++) \
-            { \
-               if (*((char *)(&value[i])) == 0xcc) \
-               { \
-                  memset(&value[i], 0xaa, sizeof(TYPE)); \
-                  value = valuedata; DEFAULT_STMT; value = valuedata; \
-                  if (*((char *)(&value[i])) == 0xaa) \
-                  { \
-                     COREGL_WRN("\E[40;31;1mGL-state '"#NAME"' cannot be retrieved\E[0m\n"); \
-                     break; \
-                  } \
-               } \
-               initial_ctx->NAME[i] = value[i]; \
-            } \
+         if(SIZE > 0) { \
+             int i; \
+             TYPE valuedata[SIZE]; \
+             TYPE *value = NULL; \
+             memset(valuedata, 0xcc, sizeof(TYPE) * SIZE); \
+             initial_ctx->NAME = (TYPE *)calloc(SIZE, sizeof(TYPE));\
+             if(api_gl_version <= driver_gl_version) { \
+                 value = valuedata; DEFAULT_STMT; value = valuedata; \
+                 for (i = 0; i < SIZE; i++) \
+                 { \
+                    if (*((char *)(&value[i])) == 0xcc) \
+                    { \
+                        memset(&value[i], 0xaa, sizeof(TYPE)); \
+                        value = valuedata; DEFAULT_STMT; value = valuedata; \
+                        if (*((char *)(&value[i])) == 0xaa) \
+                        { \
+                            COREGL_WRN("\E[40;31;1mGL-state '"#NAME"' cannot be retrieved\E[0m\n"); \
+                            break; \
+                        } \
+                    } \
+                    initial_ctx->NAME[i] = value[i]; \
+                 } \
+             } \
         }\
       }
 #  include "coregl_fastpath_state.h"
@@ -1444,55 +1447,58 @@ fastpath_init_context_states(GLGlueContext *ctx)
 
 # define GLUE_STATE(TYPE, NAME, SIZE, ARRAY_SIZE, DEFAULT_STMT, GET_STMT)  \
       { \
-         int i; \
-         int try_step = 0;\
-         TYPE valuedata[SIZE]; \
-         TYPE *value = NULL; \
-         _sym_glGetError(); \
-         memset(valuedata, 0xcc, sizeof(TYPE) * SIZE); \
-         if(api_gl_version <= driver_gl_version) { \
-            do { \
-               try_step++; \
-               SET_GLUE_VALUE(GET_STMT, DEFAULT_STMT); \
-               if (_sym_glGetError() == GL_INVALID_ENUM) \
-               { \
-                  initial_ctx->NAME##_used = 0; \
-                  value = valuedata; DEFAULT_STMT; value = valuedata; \
-                  break; \
-               } \
-               initial_ctx->NAME##_used = 1; \
-               for (i = 0; i < SIZE; i++) \
-               { \
-                  if (*((char *)(&value[i])) == 0xcc) \
-                  { \
-                     memset(&value[i], 0xaa, sizeof(TYPE)); \
-                     SET_GLUE_VALUE(GET_STMT, DEFAULT_STMT); \
-                     if (*((char *)(&value[i])) == 0xaa) \
-                     { \
-                        try_step++; \
-                        if (try_step == 2) \
-                        { \
-                           COREGL_WRN("\E[40;31;1mGL-state '"#NAME"' cannot be retrieved\E[0m\n"); \
-                        } \
-                        break; \
-                     } \
-                  } \
-                  initial_ctx->NAME[i] = value[i]; \
-               } \
-               if (try_step != 2) \
-               { \
-                  value = valuedata; DEFAULT_STMT; value = valuedata; \
-                  for (i = 0; i < SIZE; i++) \
-                  { \
-                     if (initial_ctx->NAME[i] != value[i]) \
-                     { \
-                        COREGL_WRN("GL-state '"#NAME"'[%d] value ["PRINTF_CHAR(TYPE)"] is different from SPEC-DEFAULT ["PRINTF_CHAR(TYPE)"]\n", i, initial_ctx->NAME[i], value[i]); \
-                     } \
-                  } \
-               } \
-            } \
-            while (try_step == 2); \
-         }\
+         if (SIZE > 0) { \
+             int i; \
+             int try_step = 0;\
+             TYPE valuedata[SIZE]; \
+             TYPE *value = NULL; \
+             _sym_glGetError(); \
+             memset(valuedata, 0xcc, sizeof(TYPE) * SIZE); \
+             initial_ctx->NAME = (TYPE *)calloc(SIZE, sizeof(TYPE));\
+             if(api_gl_version <= driver_gl_version) { \
+                do { \
+                   try_step++; \
+                   SET_GLUE_VALUE(GET_STMT, DEFAULT_STMT); \
+                   if (_sym_glGetError() == GL_INVALID_ENUM) \
+                   { \
+                      initial_ctx->NAME##_used = 0; \
+                      value = valuedata; DEFAULT_STMT; value = valuedata; \
+                      break; \
+                   } \
+                   initial_ctx->NAME##_used = 1; \
+                   for (i = 0; i < SIZE; i++) \
+                   { \
+                      if (*((char *)(&value[i])) == 0xcc) \
+                      { \
+                         memset(&value[i], 0xaa, sizeof(TYPE)); \
+                         SET_GLUE_VALUE(GET_STMT, DEFAULT_STMT); \
+                         if (*((char *)(&value[i])) == 0xaa) \
+                         { \
+                            try_step++; \
+                            if (try_step == 2) \
+                            { \
+                               COREGL_WRN("\E[40;31;1mGL-state '"#NAME"' cannot be retrieved\E[0m\n"); \
+                            } \
+                            break; \
+                         } \
+                      } \
+                      initial_ctx->NAME[i] = value[i]; \
+                   } \
+                   if (try_step != 2) \
+                   { \
+                      value = valuedata; DEFAULT_STMT; value = valuedata; \
+                      for (i = 0; i < SIZE; i++) \
+                      { \
+                         if (initial_ctx->NAME[i] != value[i]) \
+                         { \
+                            COREGL_WRN("GL-state '"#NAME"'[%d] value ["PRINTF_CHAR(TYPE)"] is different from SPEC-DEFAULT ["PRINTF_CHAR(TYPE)"]\n", i, initial_ctx->NAME[i], value[i]); \
+                         } \
+                      } \
+                   } \
+                } \
+                while (try_step == 2); \
+             }\
+        }\
       }
 #  include "coregl_fastpath_state.h"
 # undef SET_GLUE_VALUE
@@ -1529,12 +1535,17 @@ fastpath_init_context_states(GLGlueContext *ctx)
 #define _COREGL_END_API(version) api_gl_version = COREGL_GLAPI_2;
 #define INITIAL_CTX initial_ctx
 #define GLUE_STATE(TYPE, NAME, SIZE, ARRAY_SIZE, DEFAULT_STMT, GET_STMT)  \
-      if(api_gl_version <= driver_gl_version) { \
-         for (i = 0; i < SIZE; i++) \
-         { \
-            ctx->NAME[i] = initial_ctx->NAME[i]; \
-            ctx->NAME##_used = initial_ctx->NAME##_used; \
-         }\
+      { \
+        if(SIZE > 0) { \
+            ctx->NAME = (TYPE *)calloc(SIZE, sizeof(TYPE)); \
+            if(api_gl_version <= driver_gl_version) { \
+                for (i = 0; i < SIZE; i++) \
+                { \
+                   ctx->NAME[i] = initial_ctx->NAME[i]; \
+                   ctx->NAME##_used = initial_ctx->NAME##_used; \
+                }\
+            } \
+        } \
       }
 # include "coregl_fastpath_state.h"
 #undef GLUE_STATE
