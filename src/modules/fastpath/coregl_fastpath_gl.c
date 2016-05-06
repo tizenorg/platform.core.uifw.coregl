@@ -2658,9 +2658,9 @@ fastpath_glBlendEquation(GLenum mode)
 			_BLEND_FLAG_BIT_gl_blend_equation_alpha;
 
 		_orig_fastpath_glGetIntegerv(GL_BLEND_EQUATION_RGB,
-					     (GLint *) & (current_ctx->gl_blend_equation_rgb));
+					     (GLint *) (current_ctx->gl_blend_equation_rgb));
 		_orig_fastpath_glGetIntegerv(GL_BLEND_EQUATION_ALPHA,
-					     (GLint *) & (current_ctx->gl_blend_equation_alpha));
+					     (GLint *) (current_ctx->gl_blend_equation_alpha));
 	}
 	goto finish;
 
@@ -2709,13 +2709,13 @@ fastpath_glBlendFunc(GLenum sfactor, GLenum dfactor)
 			_BLEND_FLAG_BIT_gl_blend_dst_alpha;
 
 		_orig_fastpath_glGetIntegerv(GL_BLEND_SRC_RGB,
-					     (GLint *) & (current_ctx->gl_blend_src_rgb));
+					     (GLint *) (current_ctx->gl_blend_src_rgb));
 		_orig_fastpath_glGetIntegerv(GL_BLEND_SRC_ALPHA,
-					     (GLint *) & (current_ctx->gl_blend_src_alpha));
+					     (GLint *) (current_ctx->gl_blend_src_alpha));
 		_orig_fastpath_glGetIntegerv(GL_BLEND_DST_RGB,
-					     (GLint *) & (current_ctx->gl_blend_dst_rgb));
+					     (GLint *) (current_ctx->gl_blend_dst_rgb));
 		_orig_fastpath_glGetIntegerv(GL_BLEND_DST_ALPHA,
-					     (GLint *) & (current_ctx->gl_blend_dst_alpha));
+					     (GLint *) (current_ctx->gl_blend_dst_alpha));
 	}
 	goto finish;
 
@@ -8062,9 +8062,9 @@ fastpath_glBlendEquationOES(GLenum mode)
 			_BLEND_FLAG_BIT_gl_blend_equation_alpha;
 
 		_orig_fastpath_glGetIntegerv(GL_BLEND_EQUATION_RGB,
-					     (GLint *) & (current_ctx->gl_blend_equation_rgb));
+					     (GLint *) (current_ctx->gl_blend_equation_rgb));
 		_orig_fastpath_glGetIntegerv(GL_BLEND_EQUATION_ALPHA,
-					     (GLint *) & (current_ctx->gl_blend_equation_alpha));
+					     (GLint *) (current_ctx->gl_blend_equation_alpha));
 	}
 	goto finish;
 
