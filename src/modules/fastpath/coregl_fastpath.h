@@ -334,7 +334,7 @@ typedef struct _GLGlueContext {
 	GLenum                  gl_error;
 
 	// General state
-#define GLUE_STATE(TYPE, NAME, SIZE, ARRAY_SIZE, DEFAULT_STMT, GET_STMT)     TYPE NAME[ARRAY_SIZE];
+#define GLUE_STATE(TYPE, NAME, SIZE, ARRAY_SIZE, DEFAULT_STMT, GET_STMT)     TYPE *NAME;
 # include "coregl_fastpath_state.h"
 #undef GLUE_STATE
 #define GLUE_STATE(TYPE, NAME, SIZE, ARRAY_SIZE, DEFAULT_STMT, GET_STMT)     unsigned char NAME##_used;

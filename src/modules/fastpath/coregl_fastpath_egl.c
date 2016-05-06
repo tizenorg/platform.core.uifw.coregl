@@ -515,6 +515,10 @@ _remove_context_ref(GLGlueContext *gctx, Mutex *ctx_list_mtx)
 			free(gctx->real_ctx_sharable_option);
 			gctx->real_ctx_sharable_option = NULL;
 		}
+# define GLUE_STATE(TYPE, NAME, SIZE, ARRAY_SIZE, DEFAULT_STMT, GET_STMT)  \
+	if (gctx->NAME) free(gctx->NAME);
+#  include "coregl_fastpath_state.h"
+#undef GLUE_STATE
 		free(gctx);
 
 		{
