@@ -581,6 +581,21 @@ fastpath_apply_overrides_gl(int enable)
 			COREGL_OVERRIDE(fastpath_, glVertexAttribBinding);
 			COREGL_OVERRIDE(fastpath_, glVertexBindingDivisor);
 		}
+
+		if(driver_gl_version >= COREGL_GLAPI_32) {
+			COREGL_OVERRIDE(fastpath_, glBlendEquationi);
+			COREGL_OVERRIDE(fastpath_, glBlendEquationSeparatei);
+			COREGL_OVERRIDE(fastpath_, glTexBuffer);
+			COREGL_OVERRIDE(fastpath_, glTexBufferRange);
+			COREGL_OVERRIDE(fastpath_, glFramebufferTexture);
+			COREGL_OVERRIDE(fastpath_, glGetnUniformfv);
+			COREGL_OVERRIDE(fastpath_, glGetnUniformiv);
+			COREGL_OVERRIDE(fastpath_, glGetnUniformuiv);
+			COREGL_OVERRIDE(fastpath_, glSamplerParameterIiv);
+			COREGL_OVERRIDE(fastpath_, glSamplerParameterIuiv);
+			COREGL_OVERRIDE(fastpath_, glGetSamplerParameterIiv);
+			COREGL_OVERRIDE(fastpath_, glGetSamplerParameterIuiv);
+		}
 	} else {
 		COREGL_LOG("\E[40;35;1m[CoreGL] SKIP GL FASTPATH...\E[0m\n");
 	}
