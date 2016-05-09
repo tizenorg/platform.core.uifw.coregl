@@ -7470,3 +7470,257 @@ finish:
 	_COREGL_TRACEPATH_FUNC_END();
 }
 
+void
+tracepath_glMinSampleShadingOES(GLfloat value)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glMinSampleShadingOES(value);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glCopyImageSubDataEXT (GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srcY, GLint srcZ, GLuint dstName, GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLsizei srcWidth, GLsizei srcHeight, GLsizei srcDepth)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glCopyImageSubDataEXT(srcName, srcTarget, srcLevel, srcX, srcY, srcZ, dstName, dstTarget, dstLevel, dstX, dstY, dstZ, srcWidth, srcHeight, srcDepth);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glEnableiEXT(GLenum target, GLuint index)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glEnableiEXT(target, index);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glDisableiEXT(GLenum target, GLuint index)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glDisableiEXT(target, index);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glBlendEquationiEXT(GLuint buf, GLenum mode)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glBlendEquationiEXT(buf, mode);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glBlendEquationSeparateiEXT(GLuint buf, GLenum modeRGB, GLenum modeAlpha)
+{
+   _COREGL_TRACEPATH_FUNC_BEGIN();
+   _orig_tracepath_glBlendEquationSeparateiEXT(buf, modeRGB, modeAlpha);
+   goto finish;
+
+finish:
+   _COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glBlendFunciEXT(GLuint buf, GLenum src, GLenum dst)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glBlendFunciEXT(buf, src, dst);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glBlendFuncSeparateiEXT(GLuint buf, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glBlendFuncSeparateiEXT(buf, srcRGB, dstRGB, srcAlpha, dstAlpha);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glColorMaskiEXT(GLuint index, GLboolean r, GLboolean g, GLboolean b, GLboolean a)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glColorMaskiEXT(index, r, g, b, a);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+GLboolean
+tracepath_glIsEnablediEXT(GLenum target, GLuint index)
+{
+	GLboolean ret = GL_FALSE;
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	ret = _orig_tracepath_glIsEnablediEXT(target, index);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+	return ret;
+}
+
+void
+tracepath_glFramebufferTextureEXT(GLenum target, GLenum attachment, GLuint texture, GLint level)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glFramebufferTextureEXT(target, attachment, texture, level);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glPrimitiveBoundingBoxEXT(GLfloat minX, GLfloat minY, GLfloat minZ, GLfloat minW, GLfloat maxX, GLfloat maxY, GLfloat maxZ, GLfloat maxW)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glPrimitiveBoundingBoxEXT(minX, minY, minZ, minW, maxX, maxY, maxZ, maxW);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glPatchParameteriEXT(GLenum pname, GLint value)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glPatchParameteriEXT(pname, value);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glTexParameterIivEXT(GLenum target, GLenum pname, const GLint *params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glTexParameterIivEXT(target, pname, params);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glTexParameterIuivEXT(GLenum target, GLenum pname, const GLuint *params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glTexParameterIuivEXT(target, pname, params);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glGetTexParameterIivEXT(GLenum target, GLenum pname, GLint *params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGetTexParameterIivEXT(target, pname, params);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glGetTexParameterIuivEXT(GLenum target, GLenum pname, GLuint *params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGetTexParameterIuivEXT(target, pname, params);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glSamplerParameterIivEXT(GLuint sampler, GLenum pname, const GLint *param)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glSamplerParameterIivEXT(sampler, pname, param);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glSamplerParameterIuivEXT(GLuint sampler, GLenum pname, const GLuint *param)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glSamplerParameterIuivEXT(sampler, pname, param);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glGetSamplerParameterIivEXT(GLuint sampler, GLenum pname, GLint *params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGetSamplerParameterIivEXT(sampler, pname, params);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glGetSamplerParameterIuivEXT(GLuint sampler, GLenum pname, GLuint *params)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glGetSamplerParameterIuivEXT(sampler, pname, params);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glTexBufferEXT(GLenum target, GLenum internalformat, GLuint buffer)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glTexBufferEXT(target, internalformat, buffer);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}
+
+void
+tracepath_glTexBufferRangeEXT(GLenum target, GLenum internalformat, GLuint buffer, GLintptr offset, GLsizeiptr size)
+{
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	_orig_tracepath_glTexBufferRangeEXT(target, internalformat, buffer, offset, size);
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+}

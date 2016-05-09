@@ -781,6 +781,57 @@ _COREGL_SYMBOL(void, glTexStorage3DMultisample, (GLenum target, GLsizei samples,
 		GLsizei width, GLsizei height, GLsizei depth, GLboolean fixedsamplelocations))
 _COREGL_END_API(COREGL_GLAPI_32)
 
+/* AEP Extensions */
+
+/* KHR_debug: APIs are declared above, related tokens are defined in GL32.h */
+/* KHR_texture_compression_astc_ldr: no new API provided, related tokens are defined in GL32.h */
+/* KHR_blend_equation_advanced: APIs are declared above in OpenGL ES 2.0, related tokens are defined in GL32.h */
+/* OES_sample_shading: related tokens are defined in GL32.h */
+_COREGL_EXT_SYMBOL(void, glMinSampleShadingOES, (GLfloat value))
+/* OES_sample_variables: no new API or token provided */
+/* OES_shader_image_atomic: no new API or token provided */
+/* OES_shader_multisample_interpolation:  no new API provided, related tokens are defined in GL32.h */
+/* OES_texture_stencil8: no new API or token provided */
+/* OES_texture_storage_multisample_2d_array: APIs are declared above in OpenGL ES 2.0, related tokens are defined in GL32.h */
+/* EXT_copy_image : no token provided */
+_COREGL_EXT_SYMBOL(void, glCopyImageSubDataEXT, (GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX,
+        GLint srcY, GLint srcZ, GLuint dstName, GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ,
+        GLsizei srcWidth, GLsizei srcHeight, GLsizei srcDepth))
+/* EXT_draw_buffers_indexed, related tokens are defined in GL32.h */
+_COREGL_EXT_SYMBOL(void, glEnableiEXT, (GLenum target, GLuint index))
+_COREGL_EXT_SYMBOL(void, glDisableiEXT, (GLenum target, GLuint index))
+_COREGL_EXT_SYMBOL(void, glBlendEquationiEXT, (GLuint buf, GLenum mode))
+_COREGL_EXT_SYMBOL(void, glBlendEquationSeparateiEXT, (GLuint buf, GLenum modeRGB, GLenum modeAlpha))
+_COREGL_EXT_SYMBOL(void, glBlendFunciEXT, (GLuint buf, GLenum src, GLenum dst))
+_COREGL_EXT_SYMBOL(void, glBlendFuncSeparateiEXT, (GLuint buf, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha))
+_COREGL_EXT_SYMBOL(void, glColorMaskiEXT, (GLuint buf, GLboolean r, GLboolean g, GLboolean b, GLboolean a))
+_COREGL_EXT_SYMBOL(GLboolean, glIsEnablediEXT, (GLenum target, GLuint index))
+/* EXT_geometry_shader: related tokens are defined in GL32.h */
+_COREGL_EXT_SYMBOL(void, glFramebufferTextureEXT, (GLenum target, GLenum attachment, GLuint texture, GLint level))
+/* EXT_gpu_shader5: no new API or token provided */
+/* EXT_primitive_bounding_box: related tokens are defined in GL32.h */
+_COREGL_EXT_SYMBOL(void, glPrimitiveBoundingBoxEXT, (GLfloat minX, GLfloat minY, GLfloat minZ, GLfloat minW,
+        GLfloat maxX, GLfloat maxY, GLfloat maxZ, GLfloat maxW))
+/* EXT_shader_io_blocks: no new API or token provided */
+/* EXT_tessellation_shader: related tokens are defined in GL32.h */
+_COREGL_EXT_SYMBOL(void, glPatchParameteriEXT, (GLenum pname, GLint value))
+/* EXT_texture_border_clamp: related tokens are defined in GL32.h */
+_COREGL_EXT_SYMBOL(void, glTexParameterIivEXT, (GLenum target, GLenum pname, const GLint *params))
+_COREGL_EXT_SYMBOL(void, glTexParameterIuivEXT, (GLenum target, GLenum pname, const GLuint *params))
+_COREGL_EXT_SYMBOL(void, glGetTexParameterIivEXT, (GLenum target, GLenum pname, GLint *params))
+_COREGL_EXT_SYMBOL(void, glGetTexParameterIuivEXT, (GLenum target, GLenum pname, GLuint *params))
+_COREGL_EXT_SYMBOL(void, glSamplerParameterIivEXT, (GLuint sampler, GLenum pname, const GLint *params))
+_COREGL_EXT_SYMBOL(void, glSamplerParameterIuivEXT, (GLuint sampler, GLenum pname, const GLuint *params))
+_COREGL_EXT_SYMBOL(void, glGetSamplerParameterIivEXT, (GLuint sampler, GLenum pname, GLint *params))
+_COREGL_EXT_SYMBOL(void, glGetSamplerParameterIuivEXT, (GLuint sampler, GLenum pname, GLuint *params))
+/* EXT_texture_buffer: related tokens are defined in GL32.h */
+_COREGL_EXT_SYMBOL(void, glTexBufferEXT, (GLenum target, GLenum internalformat, GLuint buffer))
+_COREGL_EXT_SYMBOL(void, glTexBufferRangeEXT, (GLenum target, GLenum internalformat, GLuint buffer,
+        GLintptr offset, GLsizeiptr size))
+/* EXT_texture_cube_map_array: no new API provided, related tokens are defined in GL32.h */
+/* EXT_texture_sRGB_decode: no new API provided, related tokens are defined in GL2ext.h*/
+
+
 _COREGL_FASTPATH_SUPPORTED_EXTENSION("GL_OES_EGL_image", 1.1, -1)
 _COREGL_EXT_SYMBOL(void, glEGLImageTargetTexture2DOES, (GLenum target,
 		   GLeglImageOES image))
