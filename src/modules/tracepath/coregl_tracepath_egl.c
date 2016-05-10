@@ -1104,3 +1104,35 @@ finish:
 	_COREGL_TRACEPATH_FUNC_END();
 	return ret;
 }
+
+EGLBoolean
+tracepath_eglSetDamageRegionKHR(EGLDisplay dpy, EGLSurface surface,
+				EGLint *rects, EGLint n_rects)
+{
+	EGLBoolean ret = EGL_FALSE;
+
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	ret = _orig_tracepath_eglSetDamageRegionKHR(dpy, surface, rects, n_rects);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+	return ret;
+}
+
+EGLBoolean
+tracepath_eglSwapBuffersWithDamageKHR(EGLDisplay dpy, EGLSurface surface,
+				EGLint *rects, EGLint n_rects)
+{
+	EGLBoolean ret = EGL_FALSE;
+
+	_COREGL_TRACEPATH_FUNC_BEGIN();
+	ret = _orig_tracepath_eglSwapBuffersWithDamageKHR(dpy, surface, rects, n_rects);
+
+	goto finish;
+
+finish:
+	_COREGL_TRACEPATH_FUNC_END();
+	return ret;
+}
