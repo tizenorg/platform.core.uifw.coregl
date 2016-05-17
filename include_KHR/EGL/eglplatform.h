@@ -93,7 +93,7 @@ typedef struct ANativeWindow           *EGLNativeWindowType;
 typedef struct egl_native_pixmap_t     *EGLNativePixmapType;
 typedef void                           *EGLNativeDisplayType;
 
-/* 20140708-sw815.ha: add additional macro checking to verify X11 window system */
+/* add additional macro checking to verify X11 window system */
 /* #elif defined(__unix__) */
 #elif defined(__unix__) && defined(SUPPORT_X11)
 
@@ -109,7 +109,7 @@ typedef void *EGLNativeWindowType;
 typedef void *EGLNativePixmapType;
 
 #else
-/* 20140708-sw815.ha: enable compilation even for unsupported platforms */
+/* enable compilation even for unsupported platforms */
 /* #error "Platform not recognized" */
 typedef void *EGLNativeDisplayType;
 typedef void *EGLNativeWindowType;

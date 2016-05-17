@@ -23,7 +23,7 @@ CoreGL provides the following capabilities:
 
 Supported versions:
 - EGL 1.4
-- OpenGL ES 2.0, 3.0
+- OpenGL ES 2.0, 3.0, 3.1
 
 %package devel
 Summary:		Development files for EGL 1.4 and OpenGL ES 1.1 and 2.0
