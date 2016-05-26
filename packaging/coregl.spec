@@ -82,7 +82,7 @@ cp -a include_KHR/GLES3				%{buildroot}%{_includedir}
 cp -a include_KHR/KHR				%{buildroot}%{_includedir}
 cp -a pkgconfig/*.pc				%{buildroot}%{_libdir}/pkgconfig/
 # CoreGL Provide Dummy libGLESv1_CM for devel package
-cp libGLESv1_CM.so.1.1				%{buildroot}%{_libdir}/
+#cp libGLESv1_CM.so.1.1				%{buildroot}%{_libdir}/
 
 %clean
 rm -rf %{buildroot}
@@ -119,4 +119,4 @@ rm -rf libGLESv1_CM.so.1
 %{_includedir}/GLES3/*
 %{_includedir}/KHR/*
 %{_libdir}/pkgconfig/*.pc
-%{_libdir}/libGLESv1_CM.so.1.1
+#%{_libdir}/libGLESv1_CM.so.1.1
