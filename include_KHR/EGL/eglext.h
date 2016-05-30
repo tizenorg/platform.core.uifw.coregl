@@ -445,6 +445,14 @@ EGLAPI EGLBoolean EGLAPIENTRY eglSwapBuffersWithDamageKHR (EGLDisplay dpy, EGLSu
 #endif
 #endif /* EGL_KHR_swap_buffers_with_damage */
 
+#ifndef EGL_SEC_frontbuffer_set
+#define EGL_SEC_frontbuffer_set 1
+typedef EGLBoolean (EGLAPIENTRYP PFEGLFRONTBUFFERSETSECPROC) (EGLDisplay dpy, EGLSurface surface, EGLBoolean set);
+#ifdef EGL_EGLEXT_PROTOTYPES
+EGLAPI EGLBoolean EGLAPIENTRY eglFrontBufferSetSEC (EGLDisplay dpy, EGLSurface surface, EGLBoolean set);
+#endif
+#endif /* EGL_SEC_frontbuffer_set */
+
 #ifndef EGL_KHR_vg_parent_image
 #define EGL_KHR_vg_parent_image 1
 #define EGL_VG_PARENT_IMAGE_KHR           0x30BA
