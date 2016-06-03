@@ -328,6 +328,63 @@ _valid_extension_string()
 	AST(mutex_unlock(&extension_check_mutex) == 1);
 }
 
+void
+fastpath_glClientActiveTexture (GLenum texture)
+{
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	CURR_STATE_COMPARE(gl_client_active_texture, texture) {
+		IF_GL_SUCCESS(_orig_fastpath_glClientActiveTexture(texture)) {
+			current_ctx->_tex_flag1 |= _TEX_FLAG1_BIT_gl_client_active_texture;
+			current_ctx->gl_client_active_texture[0] = texture;
+		}
+	}
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glSampleCoveragex(GLclampx value, GLboolean invert)
+{
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if ((current_ctx->gl_sample_coverage_value[0] != value) ||
+	    (current_ctx->gl_sample_coverage_invert[0] != invert)) {
+		IF_GL_SUCCESS(_orig_fastpath_glSampleCoveragex(value, invert)) {
+			current_ctx->_misc_flag1 |=
+				_MISC_FLAG1_BIT_gl_sample_coverage_value |
+				_MISC_FLAG1_BIT_gl_sample_coverage_invert;
+
+			current_ctx->gl_sample_coverage_value[0] = value;
+			current_ctx->gl_sample_coverage_invert[0] = invert;
+		}
+	}
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glVertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer)
+{
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	_orig_fastpath_glVertexPointer(size, type, stride, pointer);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
 
 GLenum
 fastpath_glGetError(void)
@@ -7057,7 +7114,6 @@ fastpath_glBindVertexBuffer (GLuint bindingindex, GLuint buffer,
 
 finish:
 	_COREGL_FASTPATH_FUNC_END();
-
 }
 
 void

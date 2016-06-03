@@ -1055,8 +1055,8 @@ typedef void (GL_APIENTRYP PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC) (GLenum 
 #ifndef GL_EXT_multi_draw_arrays
 #define GL_EXT_multi_draw_arrays 1
 #ifdef GL_GLEXT_PROTOTYPES
-GL_API void GL_APIENTRY glMultiDrawArraysEXT (GLenum, const GLint *, const GLsizei *, GLsizei);
-GL_API void GL_APIENTRY glMultiDrawElementsEXT (GLenum, const GLsizei *, GLenum, const GLvoid* *, GLsizei);
+GL_API void GL_APIENTRY glMultiDrawArraysEXT (GLenum mode, const GLint *first, const GLsizei *count, GLsizei primcount);
+GL_API void GL_APIENTRY glMultiDrawElementsEXT (GLenum mode, const GLsizei *count, GLenum type, const void *const*indices, GLsizei primcount);
 #endif /* GL_GLEXT_PROTOTYPES */
 typedef void (GL_APIENTRYP PFNGLMULTIDRAWARRAYSEXTPROC) (GLenum mode, const GLint *first, const GLsizei *count, GLsizei primcount);
 typedef void (GL_APIENTRYP PFNGLMULTIDRAWELEMENTSEXTPROC) (GLenum mode, const GLsizei *count, GLenum type, const GLvoid* *indices, GLsizei primcount);
@@ -1165,6 +1165,34 @@ GL_API void GL_APIENTRY glFramebufferTexture2DMultisampleIMG (GLenum, GLenum, GL
 #endif
 typedef void (GL_APIENTRYP PFNGLRENDERBUFFERSTORAGEMULTISAMPLEIMGPROC) (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height);
 typedef void (GL_APIENTRYP PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEIMGPROC) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLsizei samples);
+#endif
+
+/* GL_IMG_texture_stream */
+#ifdef GL_IMG_texture_stream
+GL_API void GL_APIENTRY glTexBindStreamIMG(GLint device, GLint deviceoffset){ return; }
+GL_API void GL_APIENTRY glGetTexStreamDeviceAttributeivIMG(GLint device, GLenum pname, GLint *params){ return; }
+GL_API const GLubyte * GL_APIENTRY glGetTexStreamDeviceNameIMG(GLint device){ return; }
+#endif
+
+/* GL_IMG_vertex_program */
+#ifdef GL_IMG_vertex_program
+GL_API void GL_APIENTRY glVertexAttrib4fARB(GLuint index, GLfloat x, GLfloat y, GLfloat z, GLfloat w){ return; }
+GL_API void GL_APIENTRY glProgramEnvParameter4fARB(GLenum target, GLuint index, GLfloat x, GLfloat y, GLfloat z, GLfloat w){ return; }
+GL_API void GL_APIENTRY glProgramEnvParameter4fvARB(GLenum target, GLuint index, const GLfloat *params){ return; }
+GL_API void GL_APIENTRY glProgramLocalParameter4fARB(GLenum target, GLuint index, GLfloat x, GLfloat y, GLfloat z, GLfloat w){ return; }
+GL_API void GL_APIENTRY glProgramLocalParameter4fvARB(GLenum target, GLuint index, const GLfloat *params){ return; }
+GL_API void GL_APIENTRY glVertexAttrib4xIMG(GLuint index, GLfixed x, GLfixed y, GLfixed z, GLfixed w){ return; }
+GL_API void GL_APIENTRY glProgramLocalParameter4xIMG(GLenum target, GLuint index, GLfixed x, GLfixed y, GLfixed z, GLfixed w){ return; }
+GL_API void GL_APIENTRY glProgramLocalParameter4xvIMG(GLenum target, GLuint index, const GLfixed *params){ return; }
+GL_API void GL_APIENTRY glProgramEnvParameter4xIMG(GLenum target, GLuint index, GLfixed x, GLfixed y, GLfixed z, GLfixed w){ return; }
+GL_API void GL_APIENTRY glProgramEnvParameter4xvIMG(GLenum target, GLuint index, const GLfixed *params){ return; }
+GL_API void GL_APIENTRY glVertexAttribPointerARB(GLuint index, GLsizei size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer){ return; }
+GL_API void GL_APIENTRY glEnableVertexAttribArrayARB(GLuint index){ return; }
+GL_API void GL_APIENTRY glDisableVertexAttribArrayARB(GLuint index){ return; }
+GL_API void GL_APIENTRY glProgramStringARB(GLenum target, GLenum format, GLsizei len, const void *string){ return; }
+GL_API void GL_APIENTRY glBindProgramARB(GLenum target, GLuint program){ return; }
+GL_API void GL_APIENTRY glDeleteProgramsARB(GLsizei n, const GLuint *programs){ return; }
+GL_API void GL_APIENTRY glGenProgramsARB(GLsizei n, GLuint *programs){ return; }
 #endif
 
 /*------------------------------------------------------------------------*
