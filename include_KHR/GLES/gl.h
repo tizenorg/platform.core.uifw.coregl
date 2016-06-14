@@ -9,6 +9,10 @@
 extern "C" {
 #endif
 
+#ifndef GL_APIENTRYP
+#define GL_APIENTRYP GL_APIENTRY*
+#endif
+
 /*
  * This document is licensed under the SGI Free Software B License Version
  * 2.0. For details, see http://oss.sgi.com/projects/FreeB/ .
@@ -755,6 +759,7 @@ GL_API void GL_APIENTRY glViewport (GLint x, GLint y, GLsizei width, GLsizei hei
 #ifndef GL_OES_point_size_array
 #define GL_OES_point_size_array 1
 GL_API void GL_APIENTRY glPointSizePointerOES (GLenum type, GLsizei stride, const GLvoid *pointer);
+typedef void (GL_APIENTRYP PFNGLPOINTSIZEPOINTEROESPROC) (GLenum type, GLsizei stride, const GLvoid *pointer);
 #endif
 
 /* GL_OES_point_sprite */

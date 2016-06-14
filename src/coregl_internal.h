@@ -78,6 +78,8 @@ typedef GLuint       GLuintmask;
 #define COREGL_GLAPI_31	4
 #define COREGL_GLAPI_3	3
 #define COREGL_GLAPI_2	2
+#define COREGL_GLAPI_1	1
+
 
 #define _COREGL_INT_INIT_VALUE -3
 

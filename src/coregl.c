@@ -10,7 +10,9 @@
 #include "coregl_export.h"
 
 void               *egl_lib_handle;
-void               *gl_lib_handle;
+void               *glv1_lib_handle;
+void               *glv2_lib_handle;
+
 int                 driver_gl_version = COREGL_GLAPI_2;
 static int          api_gl_version = COREGL_GLAPI_2;
 
@@ -18,8 +20,12 @@ static int          api_gl_version = COREGL_GLAPI_2;
 #define _COREGL_VENDOR_EGL_LIB_PATH "/usr/lib/driver/libEGL.so" /* DEFAULT EGL PATH */
 #endif
 
-#ifndef _COREGL_VENDOR_GL_LIB_PATH
-#define _COREGL_VENDOR_GL_LIB_PATH "/usr/lib/driver/libGLESv2.so" /* DEFAULT GL PATH */
+#ifndef _COREGL_VENDOR_GLV2_LIB_PATH
+#define _COREGL_VENDOR_GLV2_LIB_PATH "/usr/lib/driver/libGLESv2.so" /* DEFAULT GL PATH */
+#endif
+
+#ifndef _COREGL_VENDOR_GLV1_LIB_PATH
+#define _COREGL_VENDOR_GLV1_LIB_PATH "/usr/lib/driver/libGLESv1_CM.so" /* GLV1 PATH */
 #endif
 
 // Symbol definition for real
@@ -84,8 +90,16 @@ _sym_missing()
 	COREGL_ERR("GL symbol missing! Check client version!\n");
 }
 
-#define FINDSYM(libhandle, getproc, dst, sym) \
+#define FINDGLSYM(libhandle, getproc, dst, sym) \
    if(api_gl_version <= driver_gl_version) { \
+      if (!dst || (void *)dst == (void *)_sym_missing) \
+		  if (getproc) dst = (__typeof__(dst))getproc(sym); \
+      if (!dst || (void *)dst == (void *)_sym_missing) \
+		  dst = (__typeof__(dst))dlsym(libhandle, sym); \
+	  if (!dst) dst = (__typeof__(dst))_sym_missing;\
+   }
+
+#define FINDEGLSYM(libhandle, getproc, dst, sym) { \
       if (!dst || (void *)dst == (void *)_sym_missing) \
 		  if (getproc) dst = (__typeof__(dst))getproc(sym); \
       if (!dst || (void *)dst == (void *)_sym_missing) \
@@ -100,9 +114,9 @@ _glue_sym_init(void)
 #define _COREGL_START_API(version) 		api_gl_version = version;
 #define _COREGL_END_API(version) 		api_gl_version = COREGL_GLAPI_2;
 #define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST) \
-    FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME);
+    FINDEGLSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME);
 #define _COREGL_EXT_SYMBOL_ALIAS(FUNC_NAME, ALIAS_NAME) \
-    FINDSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##ALIAS_NAME, #FUNC_NAME);
+    FINDEGLSYM(egl_lib_handle, _sym_eglGetProcAddress, _sym_##ALIAS_NAME, #FUNC_NAME);
 
 #include "headers/sym_egl.h"
 
@@ -121,9 +135,19 @@ _gl_sym_init(void)
 #define _COREGL_START_API(version) 		api_gl_version = version;
 #define _COREGL_END_API(version)		api_gl_version = COREGL_GLAPI_2;
 #define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST) \
-    FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME);
+	if(glv2_lib_handle) {	\
+		FINDGLSYM(glv2_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME);\
+	}	\
+	else {	\
+		FINDGLSYM(glv1_lib_handle, _sym_eglGetProcAddress, _sym_##FUNC_NAME, #FUNC_NAME);\
+	}
 #define _COREGL_EXT_SYMBOL_ALIAS(FUNC_NAME, ALIAS_NAME) \
-    FINDSYM(gl_lib_handle, _sym_eglGetProcAddress, _sym_##ALIAS_NAME, #FUNC_NAME);
+	if(glv2_lib_handle) {	\
+		FINDGLSYM(glv2_lib_handle, _sym_eglGetProcAddress, _sym_##ALIAS_NAME, #FUNC_NAME);\
+	}	\
+	else {	\
+		FINDGLSYM(glv1_lib_handle, _sym_eglGetProcAddress, _sym_##ALIAS_NAME, #FUNC_NAME);\
+	}
 
 #include "headers/sym_gl.h"
 
@@ -135,7 +159,8 @@ _gl_sym_init(void)
 	return 1;
 }
 
-#undef FINDSYM
+#undef FINDEGLSYM
+#undef FINDGLSYM
 
 
 COREGL_API void coregl_symbol_exported()
@@ -164,30 +189,53 @@ _gl_lib_init(void)
 	}
 
 	// use gl_lib handle for GL symbols
-	gl_lib_handle = dlopen(_COREGL_VENDOR_GL_LIB_PATH, RTLD_LAZY | RTLD_LOCAL);
-	if (!gl_lib_handle) {
+	glv1_lib_handle = dlopen(_COREGL_VENDOR_GLV1_LIB_PATH, RTLD_LAZY | RTLD_LOCAL);
+	if(!glv1_lib_handle) {
 		COREGL_ERR("\E[40;31;1m%s\E[0m\n\n", dlerror());
 		COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> %s)\E[0m\n",
-			   _COREGL_VENDOR_GL_LIB_PATH);
-		return 0;
+			_COREGL_VENDOR_GLV1_LIB_PATH);
+	}
+	else {
+		driver_gl_version = COREGL_GLAPI_1;
+		// test for invalid linking gl
+		if (dlsym(glv1_lib_handle, "coregl_symbol_exported")) {
+			COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> %s)\E[0m\n",
+				   _COREGL_VENDOR_GLV1_LIB_PATH);
+			return 0;
+		}
 	}
 
-	// test for invalid linking gl
-	if (dlsym(gl_lib_handle, "coregl_symbol_exported")) {
+	glv2_lib_handle = dlopen(_COREGL_VENDOR_GLV2_LIB_PATH, RTLD_LAZY | RTLD_LOCAL);
+	if (!glv2_lib_handle) {
+		COREGL_ERR("\E[40;31;1m%s\E[0m\n\n", dlerror());
 		COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> %s)\E[0m\n",
-			   _COREGL_VENDOR_GL_LIB_PATH);
-		return 0;
+			_COREGL_VENDOR_GLV2_LIB_PATH);
+		if(!glv1_lib_handle) {
+			return 0;
+		}
+		else {
+			COREGL_LOG("[CoreGL] Driver GL version 2.0 \n");
+		}
 	}
+	else {
+		driver_gl_version = COREGL_GLAPI_2;
+		// test for invalid linking gl
+		if (dlsym(glv2_lib_handle, "coregl_symbol_exported")) {
+			COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> %s)\E[0m\n",
+				   _COREGL_VENDOR_GLV2_LIB_PATH);
+			return 0;
+		}
 
-	// test for a GLES 3.0 symbol
-	if (dlsym(gl_lib_handle, "glBindProgramPipeline")) {
-		COREGL_LOG("[CoreGL] Driver GL version 3.1 \n");
-		driver_gl_version = COREGL_GLAPI_31;
-	} else if (dlsym(gl_lib_handle, "glReadBuffer")) {
-		COREGL_LOG("[CoreGL] Driver GL version 3.0 \n");
-		driver_gl_version = COREGL_GLAPI_3;
-	} else {
-		COREGL_LOG("[CoreGL] Driver GL version 2.0 \n");
+		// test for a GLES 3.0 symbol
+		if (dlsym(glv2_lib_handle, "glBindProgramPipeline")) {
+			COREGL_LOG("[CoreGL] Driver GL version 3.1 \n");
+			driver_gl_version = COREGL_GLAPI_31;
+		} else if (dlsym(glv2_lib_handle, "glReadBuffer")) {
+			COREGL_LOG("[CoreGL] Driver GL version 3.0 \n");
+			driver_gl_version = COREGL_GLAPI_3;
+		} else {
+			COREGL_LOG("[CoreGL] Driver GL version 2.0 \n");
+		}
 	}
 
 	//------------------------------------------------//
@@ -202,7 +250,8 @@ static int
 _gl_lib_deinit(void)
 {
 	if (egl_lib_handle) dlclose(egl_lib_handle);
-	if (gl_lib_handle) dlclose(gl_lib_handle);
+	if (glv1_lib_handle) dlclose(glv1_lib_handle);
+	if (glv2_lib_handle) dlclose(glv2_lib_handle);
 
 	return 1;
 }
