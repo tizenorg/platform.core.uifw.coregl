@@ -6,6 +6,8 @@
 
 #include <sys/types.h>
 #include <unistd.h>
+#include <GLES/gl.h>
+
 
 #define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*_orig_fastpath_##FUNC_NAME) PARAM_LIST = NULL;
 #include "../../headers/sym.h"
@@ -284,6 +286,12 @@ fastpath_apply_overrides_gl(int enable)
 #undef _COREGL_END_API
 
 	if (debug_nofp != 1) {
+		if (driver_gl_version >= COREGL_GLAPI_1) {
+			COREGL_OVERRIDE(fastpath_, glClientActiveTexture);
+			COREGL_OVERRIDE(fastpath_, glSampleCoveragex);
+			COREGL_OVERRIDE(fastpath_, glVertexPointer);
+		}
+
 		COREGL_OVERRIDE(fastpath_, glGetError);
 		COREGL_OVERRIDE(fastpath_, glGetString);
 
