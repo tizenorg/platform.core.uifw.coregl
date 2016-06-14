@@ -1,4 +1,5 @@
 #include "coregl_tracepath.h"
+#include <GLES/gl.h>
 
 #include <stdlib.h>
 #include <string.h>

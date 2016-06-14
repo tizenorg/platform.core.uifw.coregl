@@ -72,6 +72,7 @@ ln -sf libEGL.so.1.4				%{buildroot}%{_libdir}/libEGL.so.1
 ln -sf libEGL.so.1					%{buildroot}%{_libdir}/libEGL.so
 ln -sf libGLESv2.so.2.0				%{buildroot}%{_libdir}/libGLESv2.so.2
 ln -sf libGLESv2.so.2				%{buildroot}%{_libdir}/libGLESv2.so
+ln -sf libGLESv2.so				%{buildroot}%{_libdir}/libGLESv1_CM.so.1.1
 
 # devel pkg
 mkdir -p %{buildroot}%{_includedir}
@@ -104,6 +105,7 @@ rm -rf libGLESv1_CM.so.1
 %endif
 %{_libdir}/libEGL.so*
 %{_libdir}/libGLESv2.so*
+%{_libdir}/libGLESv1_CM.so*
 %{TZ_SYS_RO_SHARE}/license/%{name}
 %{TZ_SYS_RO_SHARE}/license/%{name}.MIT
 %{TZ_SYS_RO_SHARE}/license/%{name}.SGIFreeSWLicB_2_0
