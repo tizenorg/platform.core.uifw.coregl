@@ -1,5 +1,511 @@
 #include "coregl_export.h"
 
+/* Beginning of OpenGL ES 1.1*/
+void
+coregl_api_glAlphaFunc(GLenum func, GLclampf ref)
+{
+	ovr_glAlphaFunc(func, ref);
+}
+
+void
+coregl_api_glClipPlanef(GLenum plane, const GLfloat *equation)
+{
+	ovr_glClipPlanef(plane, equation);
+}
+
+void
+coregl_api_glColor4f(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
+{
+	ovr_glColor4f(red, green, blue, alpha);
+}
+
+void
+coregl_api_glFogf(GLenum pname, GLfloat param)
+{
+	ovr_glFogf(pname, param);
+}
+
+void
+coregl_api_glFogfv(GLenum pname, const GLfloat *params)
+{
+	ovr_glFogfv(pname, params);
+}
+
+void
+coregl_api_glFrustumf(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar)
+{
+	ovr_glFrustumf(left, right, bottom, top, zNear, zFar);
+}
+
+void
+coregl_api_glGetClipPlanef(GLenum pname, GLfloat eqn[4])
+{
+	ovr_glGetClipPlanef(pname, eqn);
+}
+
+void
+coregl_api_glGetLightfv(GLenum light, GLenum pname, GLfloat *params)
+{
+	ovr_glGetLightfv(light, pname, params);
+}
+
+void
+coregl_api_glGetMaterialfv(GLenum face, GLenum pname, GLfloat *params)
+{
+	ovr_glGetMaterialfv(face, pname, params);
+}
+
+void
+coregl_api_glGetTexEnvfv(GLenum env, GLenum pname, GLfloat *params)
+{
+	ovr_glGetTexEnvfv(env, pname, params);
+}
+
+void
+coregl_api_glLightModelf(GLenum pname, GLfloat param)
+{
+	ovr_glLightModelf(pname, param);
+}
+
+void
+coregl_api_glLightModelfv(GLenum pname, const GLfloat *params)
+{
+	ovr_glLightModelfv(pname, params);
+}
+
+void
+coregl_api_glLightf(GLenum light, GLenum pname, GLfloat param)
+{
+	ovr_glLightf(light, pname, param);
+}
+
+void
+coregl_api_glLightfv(GLenum light, GLenum pname, const GLfloat *params)
+{
+	ovr_glLightfv(light, pname, params);
+}
+
+void
+coregl_api_glLoadMatrixf(const GLfloat *m)
+{
+	ovr_glLoadMatrixf(m);
+}
+
+void
+coregl_api_glMaterialf(GLenum face, GLenum pname, GLfloat param)
+{
+	ovr_glMaterialf(face, pname, param);
+}
+
+void
+coregl_api_glMaterialfv(GLenum face, GLenum pname, const GLfloat *params)
+{
+	ovr_glMaterialfv(face, pname, params);
+}
+
+void
+coregl_api_glMultMatrixf(const GLfloat *m)
+{
+	ovr_glMultMatrixf(m);
+}
+
+void
+coregl_api_glMultiTexCoord4f(GLenum target, GLfloat s, GLfloat t, GLfloat r, GLfloat q)
+{
+	ovr_glMultiTexCoord4f(target, s, t, r, q);
+}
+
+void
+coregl_api_glNormal3f(GLfloat nx, GLfloat ny, GLfloat nz)
+{
+	ovr_glNormal3f(nx, ny, nz);
+}
+
+void
+coregl_api_glOrthof(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar)
+{
+	ovr_glOrthof(left, right, bottom, top, zNear, zFar);
+}
+
+void
+coregl_api_glPointParameterf(GLenum pname, GLfloat param)
+{
+	ovr_glPointParameterf(pname, param);
+}
+
+void
+coregl_api_glPointParameterfv(GLenum pname, const GLfloat *params)
+{
+	ovr_glPointParameterfv(pname, params);
+}
+
+void
+coregl_api_glPointSize(GLfloat size)
+{
+	ovr_glPointSize(size);
+}
+
+void
+coregl_api_glRotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloat z)
+{
+	ovr_glRotatef(angle, x, y, z);
+}
+
+void
+coregl_api_glScalef(GLfloat x, GLfloat y, GLfloat z)
+{
+	ovr_glScalef(x, y, z);
+}
+
+void
+coregl_api_glTexEnvf(GLenum target, GLenum pname, GLfloat param)
+{
+	ovr_glTexEnvf(target, pname, param);
+}
+
+void
+coregl_api_glTexEnvfv(GLenum target, GLenum pname, const GLfloat *params)
+{
+	ovr_glTexEnvfv(target, pname, params);
+}
+
+void
+coregl_api_glTranslatef(GLfloat x, GLfloat y, GLfloat z)
+{
+	ovr_glTranslatef(x, y, z);
+}
+
+void
+coregl_api_glAlphaFuncx(GLenum func, GLclampx ref)
+{
+	ovr_glAlphaFuncx(func, ref);
+}
+
+void
+coregl_api_glClearColorx(GLclampx red, GLclampx green, GLclampx blue, GLclampx alpha)
+{
+	ovr_glClearColorx(red, green, blue, alpha);
+}
+
+void
+coregl_api_glClearDepthx(GLclampx depth)
+{
+	ovr_glClearDepthx(depth);
+}
+
+void
+coregl_api_glClientActiveTexture(GLenum texture)
+{
+	ovr_glClientActiveTexture(texture);
+}
+
+void
+coregl_api_glClipPlanex(GLenum plane, const GLfixed *equation)
+{
+	ovr_glClipPlanex(plane, equation);
+}
+
+void
+coregl_api_glColor4ub(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha)
+{
+	ovr_glColor4ub(red, green, blue, alpha);
+}
+
+void
+coregl_api_glColor4x(GLfixed red, GLfixed green, GLfixed blue, GLfixed alpha)
+{
+	ovr_glColor4x(red, green, blue, alpha);
+}
+
+void
+coregl_api_glColorPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer)
+{
+	ovr_glColorPointer(size, type, stride, pointer);
+}
+
+void
+coregl_api_glDepthRangex(GLclampx zNear, GLclampx zFar)
+{
+	ovr_glDepthRangex(zNear, zFar);
+}
+
+void
+coregl_api_glEnableClientState(GLenum array)
+{
+	ovr_glEnableClientState(array);
+}
+
+void
+coregl_api_glFogx(GLenum pname, GLfixed param)
+{
+	ovr_glFogx(pname, param);
+}
+
+void
+coregl_api_glFogxv(GLenum pname, const GLfixed *params)
+{
+	ovr_glFogxv(pname, params);
+}
+
+void
+coregl_api_glFrustumx(GLfixed left, GLfixed right, GLfixed bottom, GLfixed top, GLfixed zNear, GLfixed zFar)
+{
+	ovr_glFrustumx(left, right, bottom, top, zNear, zFar);
+}
+
+void
+coregl_api_glGetClipPlanex(GLenum pname, GLfixed eqn[4])
+{
+	ovr_glGetClipPlanex(pname, eqn);
+}
+
+void
+coregl_api_glGetFixedv(GLenum pname, GLfixed *params)
+{
+	ovr_glGetFixedv(pname, params);
+}
+
+void
+coregl_api_glGetLightxv(GLenum light, GLenum pname, GLfixed *params)
+{
+	ovr_glGetLightxv(light, pname, params);
+}
+
+void
+coregl_api_glGetMaterialxv(GLenum face, GLenum pname, GLfixed *params)
+{
+	ovr_glGetMaterialxv(face, pname, params);
+}
+
+void
+coregl_api_glGetTexEnviv(GLenum env, GLenum pname, GLint *params)
+{
+	ovr_glGetTexEnviv(env, pname, params);
+}
+
+void
+coregl_api_glGetTexEnvxv(GLenum env, GLenum pname, GLfixed *params)
+{
+	ovr_glGetTexEnvxv(env, pname, params);
+}
+
+void
+coregl_api_glGetTexParameterxv(GLenum target, GLenum pname, GLfixed *params)
+{
+	ovr_glGetTexParameterxv(target, pname, params);
+}
+
+void
+coregl_api_glLightModelx(GLenum pname, GLfixed param)
+{
+	ovr_glLightModelx(pname, param);
+}
+
+void
+coregl_api_glLightModelxv(GLenum pname, const GLfixed *params)
+{
+	ovr_glLightModelxv(pname, params);
+}
+
+void
+coregl_api_glLightx(GLenum light, GLenum pname, GLfixed param)
+{
+	ovr_glLightx(light, pname, param);
+}
+
+void
+coregl_api_glLightxv(GLenum light, GLenum pname, const GLfixed *params)
+{
+	ovr_glLightxv(light, pname, params);
+}
+
+void
+coregl_api_glLineWidthx(GLfixed width)
+{
+	ovr_glLineWidthx(width);
+}
+
+void
+coregl_api_glLoadIdentity(void)
+{
+	ovr_glLoadIdentity();
+}
+
+void
+coregl_api_glLoadMatrixx(const GLfixed *m)
+{
+	ovr_glLoadMatrixx(m);
+}
+
+void
+coregl_api_glLogicOp(GLenum opcode)
+{
+	ovr_glLogicOp(opcode);
+}
+
+void
+coregl_api_glMaterialx(GLenum face, GLenum pname, GLfixed param)
+{
+	ovr_glMaterialx(face, pname, param);
+}
+
+void
+coregl_api_glMaterialxv(GLenum face, GLenum pname, const GLfixed *params)
+{
+	ovr_glMaterialxv(face, pname, params);
+}
+
+void
+coregl_api_glMatrixMode(GLenum mode)
+{
+	ovr_glMatrixMode(mode);
+}
+
+void
+coregl_api_glMultMatrixx(const GLfixed *m)
+{
+	ovr_glMultMatrixx(m);
+}
+
+void
+coregl_api_glMultiTexCoord4x(GLenum target, GLfixed s, GLfixed t, GLfixed r, GLfixed q)
+{
+	ovr_glMultiTexCoord4x(target, s, t, r, q);
+}
+
+void
+coregl_api_glNormal3x(GLfixed nx, GLfixed ny, GLfixed nz)
+{
+	ovr_glNormal3x(nx, ny, nz);
+}
+
+void
+coregl_api_glNormalPointer(GLenum type, GLsizei stride, const GLvoid *pointer)
+{
+	ovr_glNormalPointer(type, stride, pointer);
+}
+
+void
+coregl_api_glOrthox(GLfixed left, GLfixed right, GLfixed bottom, GLfixed top, GLfixed zNear, GLfixed zFar)
+{
+	ovr_glOrthox(left, right, bottom, top, zNear, zFar);
+}
+
+void
+coregl_api_glPointParameterx(GLenum pname, GLfixed param)
+{
+	ovr_glPointParameterx(pname, param);
+}
+
+void
+coregl_api_glPointParameterxv(GLenum pname, const GLfixed *params)
+{
+	ovr_glPointParameterxv(pname, params);
+}
+
+void
+coregl_api_glPointSizex(GLfixed size)
+{
+	ovr_glPointSizex(size);
+}
+
+void
+coregl_api_glPolygonOffsetx(GLfixed factor, GLfixed units)
+{
+	ovr_glPolygonOffsetx(factor, units);
+}
+
+void
+coregl_api_glPopMatrix(void)
+{
+	ovr_glPopMatrix();
+}
+
+void
+coregl_api_glPushMatrix(void)
+{
+	ovr_glPushMatrix();
+}
+
+void
+coregl_api_glRotatex(GLfixed angle, GLfixed x, GLfixed y, GLfixed z)
+{
+	ovr_glRotatex (angle, x, y, z);
+}
+
+void
+coregl_api_glSampleCoveragex(GLclampx value, GLboolean invert)
+{
+	ovr_glSampleCoveragex(value, invert);
+}
+
+void
+coregl_api_glScalex(GLfixed x, GLfixed y, GLfixed z)
+{
+	ovr_glScalex (x, y, z);
+}
+
+void
+coregl_api_glShadeModel(GLenum mode)
+{
+	ovr_glShadeModel(mode);
+}
+
+void
+coregl_api_glTexCoordPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer)
+{
+	ovr_glTexCoordPointer(size, type, stride, pointer);
+}
+
+void
+coregl_api_glTexEnvi(GLenum target, GLenum pname, GLint param)
+{
+	ovr_glTexEnvi(target, pname, param);
+}
+
+void
+coregl_api_glTexEnvx(GLenum target, GLenum pname, GLfixed param)
+{
+	ovr_glTexEnvx(target, pname, param);
+}
+
+void
+coregl_api_glTexEnviv(GLenum target, GLenum pname, const GLint *params)
+{
+	ovr_glTexEnviv(target, pname, params);
+}
+
+void
+coregl_api_glTexEnvxv(GLenum target, GLenum pname, const GLfixed *params)
+{
+	ovr_glTexEnvxv(target, pname, params);
+}
+
+void
+coregl_api_glTexParameterx(GLenum target, GLenum pname, GLfixed param)
+{
+	ovr_glTexParameterx(target, pname, param);
+}
+
+void
+coregl_api_glTexParameterxv(GLenum target, GLenum pname, const GLfixed *params)
+{
+	ovr_glTexParameterxv(target, pname, params);
+}
+
+void
+coregl_api_glTranslatex(GLfixed x, GLfixed y, GLfixed z)
+{
+	ovr_glTranslatex(x, y, z);
+}
+
+void
+coregl_api_glVertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer)
+{
+	ovr_glVertexPointer(size, type, stride, pointer);
+}
+/* Ending of OpenGL ES 1.1*/
+
 void
 coregl_api_glActiveTexture(GLenum texture)
 {

@@ -22,6 +22,10 @@ static int          api_gl_version = COREGL_GLAPI_2;
 #define _COREGL_VENDOR_GL_LIB_PATH "/usr/lib/driver/libGLESv2.so" /* DEFAULT GL PATH */
 #endif
 
+#ifndef _COREGL_VENDOR_GLV1_LIB_PATH
+#define _COREGL_VENDOR_GLV1_LIB_PATH "/usr/lib/driver/libGLESv1_CM.so" /* GLV1 PATH */
+#endif
+
 // Symbol definition for real
 #define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*_sym_##FUNC_NAME) PARAM_LIST;
 #include "headers/sym.h"
@@ -166,10 +170,15 @@ _gl_lib_init(void)
 	// use gl_lib handle for GL symbols
 	gl_lib_handle = dlopen(_COREGL_VENDOR_GL_LIB_PATH, RTLD_LAZY | RTLD_LOCAL);
 	if (!gl_lib_handle) {
-		COREGL_ERR("\E[40;31;1m%s\E[0m\n\n", dlerror());
-		COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> %s)\E[0m\n",
-			   _COREGL_VENDOR_GL_LIB_PATH);
-		return 0;
+		gl_lib_handle = dlopen(_COREGL_VENDOR_GLV1_LIB_PATH, RTLD_LAZY | RTLD_LOCAL);
+		if(!gl_lib_handle) {
+			COREGL_ERR("\E[40;31;1m%s\E[0m\n\n", dlerror());
+			COREGL_ERR("\E[40;31;1mInvalid library link! (Check linkage of libCOREGL -> %s and %s)\E[0m\n",
+			   _COREGL_VENDOR_GL_LIB_PATH, _COREGL_VENDOR_GLV1_LIB_PATH);
+			return 0;
+		}
+		driver_gl_version = COREGL_GLAPI_1;
+		COREGL_LOG("[CoreGL] Driver GL version 1.0 \n");
 	}
 
 	// test for invalid linking gl
@@ -180,14 +189,16 @@ _gl_lib_init(void)
 	}
 
 	// test for a GLES 3.0 symbol
-	if (dlsym(gl_lib_handle, "glBindProgramPipeline")) {
-		COREGL_LOG("[CoreGL] Driver GL version 3.1 \n");
-		driver_gl_version = COREGL_GLAPI_31;
-	} else if (dlsym(gl_lib_handle, "glReadBuffer")) {
-		COREGL_LOG("[CoreGL] Driver GL version 3.0 \n");
-		driver_gl_version = COREGL_GLAPI_3;
-	} else {
-		COREGL_LOG("[CoreGL] Driver GL version 2.0 \n");
+	if(driver_gl_version != COREGL_GLAPI_1) {
+		if (dlsym(gl_lib_handle, "glBindProgramPipeline")) {
+			COREGL_LOG("[CoreGL] Driver GL version 3.1 \n");
+			driver_gl_version = COREGL_GLAPI_31;
+		} else if (dlsym(gl_lib_handle, "glReadBuffer")) {
+			COREGL_LOG("[CoreGL] Driver GL version 3.0 \n");
+			driver_gl_version = COREGL_GLAPI_3;
+		} else {
+			COREGL_LOG("[CoreGL] Driver GL version 2.0 \n");
+		}
 	}
 
 	//------------------------------------------------//
