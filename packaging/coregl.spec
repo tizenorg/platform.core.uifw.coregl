@@ -64,15 +64,18 @@ ln -sf libCOREGL.so.4.0				%{buildroot}%{_libdir}/libCOREGL.so.4
 ln -sf libCOREGL.so.4				%{buildroot}%{_libdir}/libCOREGL.so
 cp libEGL.so.1.4					%{buildroot}%{_libdir}/
 cp libGLESv2.so.2.0					%{buildroot}%{_libdir}/
+cp libGLESv1_CM.so.1.1				%{buildroot}%{_libdir}/
 %else
 ln -sf driver/libEGL.so.1.4			%{buildroot}%{_libdir}/libEGL.so.1.4
 ln -sf driver/libGLESv2.so.2.0		%{buildroot}%{_libdir}/libGLESv2.so.2.0
+ln -sf driver/libGLESv1_CM.so.1.1	%{buildroot}%{_libdir}/libGLESv1_CM.so.1.1
 %endif
 ln -sf libEGL.so.1.4				%{buildroot}%{_libdir}/libEGL.so.1
 ln -sf libEGL.so.1					%{buildroot}%{_libdir}/libEGL.so
 ln -sf libGLESv2.so.2.0				%{buildroot}%{_libdir}/libGLESv2.so.2
 ln -sf libGLESv2.so.2				%{buildroot}%{_libdir}/libGLESv2.so
-ln -sf libGLESv2.so				%{buildroot}%{_libdir}/libGLESv1_CM.so.1.1
+ln -sf libGLESv1_CM.so.1.1			%{buildroot}%{_libdir}/libGLESv1_CM.so.1
+ln -sf libGLESv1_CM.so.1			%{buildroot}%{_libdir}/libGLESv1_CM.so
 
 # devel pkg
 mkdir -p %{buildroot}%{_includedir}

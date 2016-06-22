@@ -510,6 +510,13 @@ coregl_api_glVertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid
 {
 	ovr_glVertexPointer(size, type, stride, pointer);
 }
+
+/* Khronos GLES 1.1 CTS requires glPointSizePointerOES as shared library symbol.*/
+void
+coregl_api_glPointSizePointerOES(GLenum type, GLsizei stride, const GLvoid *pointer)
+{
+	ovr_glPointSizePointerOES(type, stride, pointer);
+}
 /* Ending of OpenGL ES 1.1*/
 
 void
