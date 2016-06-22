@@ -10,7 +10,9 @@
 
 
 #define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*_orig_fastpath_##FUNC_NAME) PARAM_LIST = NULL;
-#include "../../headers/sym.h"
+# include "../../headers/sym_gl2.h"
+# include "../../headers/sym_gl_common.h"
+# include "../../headers/sym_egl.h"
 #undef _COREGL_SYMBOL
 
 Fastpath_Opt_Flag   fp_opt = FP_UNKNOWN_PATH;
@@ -275,23 +277,14 @@ fastpath_apply_overrides_egl(int enable)
 void
 fastpath_apply_overrides_gl(int enable)
 {
-#define _COREGL_START_API(version) api_gl_version = version;
-#define _COREGL_END_API(version) api_gl_version = COREGL_GLAPI_2;
 #define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     \
-   if(api_gl_version <= driver_gl_version) COREGL_INIT_ORIGINAL(_orig_fastpath_, FUNC_NAME);
+		COREGL_INIT_ORIGINAL(_orig_fastpath_, FUNC_NAME);
 
-# include "../../headers/sym_gl.h"
+# include "../../headers/sym_gl2.h"
+# include "../../headers/sym_gl_common.h"
 #undef _COREGL_SYMBOL
-#undef _COREGL_START_API
-#undef _COREGL_END_API
 
 	if (debug_nofp != 1) {
-		if (driver_gl_version >= COREGL_GLAPI_1) {
-			COREGL_OVERRIDE(fastpath_, glClientActiveTexture);
-			COREGL_OVERRIDE(fastpath_, glSampleCoveragex);
-			COREGL_OVERRIDE(fastpath_, glVertexPointer);
-		}
-
 		COREGL_OVERRIDE(fastpath_, glGetError);
 		COREGL_OVERRIDE(fastpath_, glGetString);
 
