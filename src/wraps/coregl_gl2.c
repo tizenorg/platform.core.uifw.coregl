@@ -17,19 +17,20 @@
 
 #define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_API extern RET_TYPE FUNC_NAME PARAM_LIST;
 #define _COREGL_EXT_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)
-# include "../headers/sym_gl.h"
+# include "../headers/sym_gl2.h"
 #undef _COREGL_EXT_SYMBOL
 #undef _COREGL_SYMBOL
 
 #define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*ovr_##FUNC_NAME) PARAM_LIST = NULL;
 #define _COREGL_EXT_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)
-# include "../headers/sym_gl.h"
+# include "../headers/sym_gl2.h"
 #undef _COREGL_EXT_SYMBOL
 #undef _COREGL_SYMBOL
 
 #define INIT_EXPORT()
 
 void *lib_handle = NULL;
+void (* set_driver_gl_version)(int version);
 
 __attribute__((constructor))
 int
@@ -42,6 +43,12 @@ coregl_glwrap_init()
 		return 0;
 	}
 
+	set_driver_gl_version = dlsym(lib_handle, "set_driver_gl_version");
+	if(set_driver_gl_version)
+		set_driver_gl_version(2);
+	else
+		LOGE("%s\n", dlerror());
+
 #define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST) \
    ovr_##FUNC_NAME = (__typeof__(ovr_##FUNC_NAME))dlsym(lib_handle, "coregl_api_"#FUNC_NAME); \
 	if (ovr_##FUNC_NAME == NULL) \
@@ -51,529 +58,11 @@ coregl_glwrap_init()
 	}
 
 #define _COREGL_EXT_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)
-#include "../headers/sym_gl.h"
+#include "../headers/sym_gl2.h"
 #undef _COREGL_EXT_SYMBOL
 #undef _COREGL_SYMBOL
 
 	return 1;
-}
-
-/* Beginning of OpenGL ES 1.1*/
-void
-glAlphaFunc(GLenum func, GLclampf ref)
-{
-	ovr_glAlphaFunc(func, ref);
-}
-
-void
-glClipPlanef(GLenum plane, const GLfloat *equation)
-{
-	ovr_glClipPlanef(plane, equation);
-}
-
-void
-glColor4f(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
-{
-	ovr_glColor4f(red, green, blue, alpha);
-}
-
-void
-glFogf(GLenum pname, GLfloat param)
-{
-	ovr_glFogf(pname, param);
-}
-
-void
-glFogfv(GLenum pname, const GLfloat *params)
-{
-	ovr_glFogfv(pname, params);
-}
-
-void
-glFrustumf(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar)
-{
-	ovr_glFrustumf(left, right, bottom, top, zNear, zFar);
-}
-
-void
-glGetClipPlanef(GLenum pname, GLfloat eqn[4])
-{
-	ovr_glGetClipPlanef(pname, eqn);
-}
-
-void
-glGetLightfv(GLenum light, GLenum pname, GLfloat *params)
-{
-	ovr_glGetLightfv(light, pname, params);
-}
-
-void
-glGetMaterialfv(GLenum face, GLenum pname, GLfloat *params)
-{
-	ovr_glGetMaterialfv(face, pname, params);
-}
-
-void
-glGetTexEnvfv(GLenum env, GLenum pname, GLfloat *params)
-{
-	ovr_glGetTexEnvfv(env, pname, params);
-}
-
-void
-glLightModelf(GLenum pname, GLfloat param)
-{
-	ovr_glLightModelf(pname, param);
-}
-
-void
-glLightModelfv(GLenum pname, const GLfloat *params)
-{
-	ovr_glLightModelfv(pname, params);
-}
-
-void
-glLightf(GLenum light, GLenum pname, GLfloat param)
-{
-	ovr_glLightf(light, pname, param);
-}
-
-void
-glLightfv(GLenum light, GLenum pname, const GLfloat *params)
-{
-	ovr_glLightfv(light, pname, params);
-}
-
-void
-glLoadMatrixf(const GLfloat *m)
-{
-	ovr_glLoadMatrixf(m);
-}
-
-void
-glMaterialf(GLenum face, GLenum pname, GLfloat param)
-{
-	ovr_glMaterialf(face, pname, param);
-}
-
-void
-glMaterialfv(GLenum face, GLenum pname, const GLfloat *params)
-{
-	ovr_glMaterialfv(face, pname, params);
-}
-
-void
-glMultMatrixf(const GLfloat *m)
-{
-	ovr_glMultMatrixf(m);
-}
-
-void
-glMultiTexCoord4f(GLenum target, GLfloat s, GLfloat t, GLfloat r, GLfloat q)
-{
-	ovr_glMultiTexCoord4f(target, s, t, r, q);
-}
-
-void
-glNormal3f(GLfloat nx, GLfloat ny, GLfloat nz)
-{
-	ovr_glNormal3f(nx, ny, nz);
-}
-
-void
-glOrthof(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar)
-{
-	ovr_glOrthof(left, right, bottom, top, zNear, zFar);
-}
-
-void
-glPointParameterf(GLenum pname, GLfloat param)
-{
-	ovr_glPointParameterf(pname, param);
-}
-
-void
-glPointParameterfv(GLenum pname, const GLfloat *params)
-{
-	ovr_glPointParameterfv(pname, params);
-}
-
-void
-glPointSize(GLfloat size)
-{
-	ovr_glPointSize(size);
-}
-
-void
-glRotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloat z)
-{
-	ovr_glRotatef(angle, x, y, z);
-}
-
-void
-glScalef(GLfloat x, GLfloat y, GLfloat z)
-{
-	ovr_glScalef(x, y, z);
-}
-
-void
-glTexEnvf(GLenum target, GLenum pname, GLfloat param)
-{
-	ovr_glTexEnvf(target, pname, param);
-}
-
-void
-glTexEnvfv(GLenum target, GLenum pname, const GLfloat *params)
-{
-	ovr_glTexEnvfv(target, pname, params);
-}
-
-void
-glTranslatef(GLfloat x, GLfloat y, GLfloat z)
-{
-	ovr_glTranslatef(x, y, z);
-}
-
-void
-glAlphaFuncx(GLenum func, GLclampx ref)
-{
-	ovr_glAlphaFuncx(func, ref);
-}
-
-void
-glClearColorx(GLclampx red, GLclampx green, GLclampx blue, GLclampx alpha)
-{
-	ovr_glClearColorx(red, green, blue, alpha);
-}
-
-void
-glClearDepthx(GLclampx depth)
-{
-	ovr_glClearDepthx(depth);
-}
-
-void
-glClientActiveTexture(GLenum texture)
-{
-	ovr_glClientActiveTexture(texture);
-}
-
-void
-glClipPlanex(GLenum plane, const GLfixed *equation)
-{
-	ovr_glClipPlanex(plane, equation);
-}
-
-void
-glColor4ub(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha)
-{
-	ovr_glColor4ub(red, green, blue, alpha);
-}
-
-void
-glColor4x(GLfixed red, GLfixed green, GLfixed blue, GLfixed alpha)
-{
-	ovr_glColor4x(red, green, blue, alpha);
-}
-
-void
-glColorPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer)
-{
-	ovr_glColorPointer(size, type, stride, pointer);
-}
-
-void
-glDepthRangex(GLclampx zNear, GLclampx zFar)
-{
-	ovr_glDepthRangex(zNear, zFar);
-}
-
-void
-glDisableClientState(GLenum array)
-{
-	ovr_glDisableClientState(array);
-}
-
-void
-glEnableClientState(GLenum array)
-{
-	ovr_glEnableClientState(array);
-}
-
-void
-glFogx(GLenum pname, GLfixed param)
-{
-	ovr_glFogx(pname, param);
-}
-
-void
-glFogxv(GLenum pname, const GLfixed *params)
-{
-	ovr_glFogxv(pname, params);
-}
-
-void
-glFrustumx(GLfixed left, GLfixed right, GLfixed bottom, GLfixed top, GLfixed zNear, GLfixed zFar)
-{
-	ovr_glFrustumx(left, right, bottom, top, zNear, zFar);
-}
-
-void
-glGetClipPlanex(GLenum pname, GLfixed eqn[4])
-{
-	ovr_glGetClipPlanex(pname, eqn);
-}
-
-void
-glGetFixedv(GLenum pname, GLfixed *params)
-{
-	ovr_glGetFixedv(pname, params);
-}
-
-void
-glGetLightxv(GLenum light, GLenum pname, GLfixed *params)
-{
-	ovr_glGetLightxv(light, pname, params);
-}
-
-void
-glGetMaterialxv(GLenum face, GLenum pname, GLfixed *params)
-{
-	ovr_glGetMaterialxv(face, pname, params);
-}
-
-void
-glGetTexEnviv(GLenum env, GLenum pname, GLint *params)
-{
-	ovr_glGetTexEnviv(env, pname, params);
-}
-
-void
-glGetTexEnvxv(GLenum env, GLenum pname, GLfixed *params)
-{
-	ovr_glGetTexEnvxv(env, pname, params);
-}
-
-void
-glGetTexParameterxv(GLenum target, GLenum pname, GLfixed *params)
-{
-	ovr_glGetTexParameterxv(target, pname, params);
-}
-
-void
-glLightModelx(GLenum pname, GLfixed param)
-{
-	ovr_glLightModelx(pname, param);
-}
-
-void
-glLightModelxv(GLenum pname, const GLfixed *params)
-{
-	ovr_glLightModelxv(pname, params);
-}
-
-void
-glLightx(GLenum light, GLenum pname, GLfixed param)
-{
-	ovr_glLightx(light, pname, param);
-}
-
-void
-glLightxv(GLenum light, GLenum pname, const GLfixed *params)
-{
-	ovr_glLightxv(light, pname, params);
-}
-
-void
-glLineWidthx(GLfixed width)
-{
-	ovr_glLineWidthx(width);
-}
-
-void
-glLoadIdentity(void)
-{
-	ovr_glLoadIdentity();
-}
-
-void
-glLoadMatrixx(const GLfixed *m)
-{
-	ovr_glLoadMatrixx(m);
-}
-
-void
-glLogicOp(GLenum opcode)
-{
-	ovr_glLogicOp(opcode);
-}
-
-void
-glMaterialx(GLenum face, GLenum pname, GLfixed param)
-{
-	ovr_glMaterialx(face, pname, param);
-}
-
-void
-glMaterialxv(GLenum face, GLenum pname, const GLfixed *params)
-{
-	ovr_glMaterialxv(face, pname, params);
-}
-
-void
-glMatrixMode(GLenum mode)
-{
-	ovr_glMatrixMode(mode);
-}
-
-void
-glMultMatrixx(const GLfixed *m)
-{
-	ovr_glMultMatrixx(m);
-}
-
-void
-glMultiTexCoord4x(GLenum target, GLfixed s, GLfixed t, GLfixed r, GLfixed q)
-{
-	ovr_glMultiTexCoord4x(target, s, t, r, q);
-}
-
-void
-glNormal3x(GLfixed nx, GLfixed ny, GLfixed nz)
-{
-	ovr_glNormal3x(nx, ny, nz);
-}
-
-void
-glNormalPointer(GLenum type, GLsizei stride, const GLvoid *pointer)
-{
-	ovr_glNormalPointer(type, stride, pointer);
-}
-
-void
-glOrthox(GLfixed left, GLfixed right, GLfixed bottom, GLfixed top, GLfixed zNear, GLfixed zFar)
-{
-	ovr_glOrthox(left, right, bottom, top, zNear, zFar);
-}
-
-void
-glPointParameterx(GLenum pname, GLfixed param)
-{
-	ovr_glPointParameterx(pname, param);
-}
-
-void
-glPointParameterxv(GLenum pname, const GLfixed *params)
-{
-	ovr_glPointParameterxv(pname, params);
-}
-
-void
-glPointSizex(GLfixed size)
-{
-	ovr_glPointSizex(size);
-}
-
-void
-glPolygonOffsetx(GLfixed factor, GLfixed units)
-{
-	ovr_glPolygonOffsetx(factor, units);
-}
-
-void
-glPopMatrix(void)
-{
-	ovr_glPopMatrix();
-}
-
-void
-glPushMatrix(void)
-{
-	ovr_glPushMatrix();
-}
-
-void
-glRotatex(GLfixed angle, GLfixed x, GLfixed y, GLfixed z)
-{
-	ovr_glRotatex (angle, x, y, z);
-}
-
-void
-glSampleCoveragex(GLclampx value, GLboolean invert)
-{
-	ovr_glSampleCoveragex(value, invert);
-}
-
-void
-glScalex(GLfixed x, GLfixed y, GLfixed z)
-{
-	ovr_glScalex (x, y, z);
-}
-
-void
-glShadeModel(GLenum mode)
-{
-	ovr_glShadeModel(mode);
-}
-
-void
-glTexCoordPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer)
-{
-	ovr_glTexCoordPointer(size, type, stride, pointer);
-}
-
-void
-glTexEnvi(GLenum target, GLenum pname, GLint param)
-{
-	ovr_glTexEnvi(target, pname, param);
-}
-
-void
-glTexEnvx(GLenum target, GLenum pname, GLfixed param)
-{
-	ovr_glTexEnvx(target, pname, param);
-}
-
-void
-glTexEnviv(GLenum target, GLenum pname, const GLint *params)
-{
-	ovr_glTexEnviv(target, pname, params);
-}
-
-void
-glTexEnvxv(GLenum target, GLenum pname, const GLfixed *params)
-{
-	ovr_glTexEnvxv(target, pname, params);
-}
-
-void
-glTexParameterx(GLenum target, GLenum pname, GLfixed param)
-{
-	ovr_glTexParameterx(target, pname, param);
-}
-
-void
-glTexParameterxv(GLenum target, GLenum pname, const GLfixed *params)
-{
-	ovr_glTexParameterxv(target, pname, params);
-}
-
-void
-glTranslatex(GLfixed x, GLfixed y, GLfixed z)
-{
-	ovr_glTranslatex(x, y, z);
-}
-
-void
-glVertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer)
-{
-	ovr_glVertexPointer(size, type, stride, pointer);
-}
-/* Ending of OpenGL ES 1.1*/
-
-void
-glActiveTexture(GLenum texture)
-{
-	ovr_glActiveTexture(texture);
 }
 
 void
@@ -589,12 +78,6 @@ glBindAttribLocation(GLuint program, GLuint index, const char *name)
 }
 
 void
-glBindBuffer(GLenum target, GLuint buffer)
-{
-	ovr_glBindBuffer(target, buffer);
-}
-
-void
 glBindFramebuffer(GLenum target, GLuint framebuffer)
 {
 	ovr_glBindFramebuffer(target, framebuffer);
@@ -607,33 +90,15 @@ glBindRenderbuffer(GLenum target, GLuint renderbuffer)
 }
 
 void
-glBindTexture(GLenum target, GLuint texture)
-{
-	ovr_glBindTexture(target, texture);
-}
-
-void
 glBlendColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
 {
 	ovr_glBlendColor(red, green, blue, alpha);
 }
 
 void
-glBlendEquation(GLenum mode)
-{
-	ovr_glBlendEquation(mode);
-}
-
-void
 glBlendEquationSeparate(GLenum modeRGB, GLenum modeAlpha)
 {
 	ovr_glBlendEquationSeparate(modeRGB, modeAlpha);
-}
-
-void
-glBlendFunc(GLenum sfactor, GLenum dfactor)
-{
-	ovr_glBlendFunc(sfactor, dfactor);
 }
 
 void
@@ -644,16 +109,9 @@ glBlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha,
 }
 
 void
-glBufferData(GLenum target, GLsizeiptr size, const void *data, GLenum usage)
+glBlendEquation(GLenum mode)
 {
-	ovr_glBufferData(target, size, data, usage);
-}
-
-void
-glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size,
-		const void *data)
-{
-	ovr_glBufferSubData(target, offset, size, data);
+	ovr_glBlendEquation(mode);
 }
 
 GLenum
@@ -663,73 +121,11 @@ glCheckFramebufferStatus(GLenum target)
 }
 
 void
-glClear(GLbitfield mask)
-{
-	ovr_glClear(mask);
-}
-
-void
-glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
-{
-	ovr_glClearColor(red, green, blue, alpha);
-}
-
-void
-glClearDepthf(GLclampf depth)
-{
-	ovr_glClearDepthf(depth);
-}
-
-void
-glClearStencil(GLint s)
-{
-	ovr_glClearStencil(s);
-}
-
-void
-glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
-{
-	ovr_glColorMask(red, green, blue, alpha);
-}
-
-void
 glCompileShader(GLuint shader)
 {
 	ovr_glCompileShader(shader);
 }
 
-void
-glCompressedTexImage2D(GLenum target, GLint level, GLenum internalformat,
-		       GLsizei width, GLsizei height, GLint border, GLsizei imageSize,
-		       const void *data)
-{
-	ovr_glCompressedTexImage2D(target, level, internalformat, width, height, border,
-				   imageSize, data);
-}
-
-void
-glCompressedTexSubImage2D(GLenum target, GLint level, GLint xoffset,
-			  GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize,
-			  const void *data)
-{
-	ovr_glCompressedTexSubImage2D(target, level, xoffset, yoffset, width, height,
-				      format, imageSize, data);
-}
-
-void
-glCopyTexImage2D(GLenum target, GLint level, GLenum internalformat, GLint x,
-		 GLint y, GLsizei width, GLsizei height, GLint border)
-{
-	ovr_glCopyTexImage2D(target, level, internalformat, x, y, width, height,
-			     border);
-}
-
-void
-glCopyTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset,
-		    GLint x, GLint y, GLsizei width, GLsizei height)
-{
-	ovr_glCopyTexSubImage2D(target, level, xoffset, yoffset, x, y, width, height);
-}
 
 GLuint
 glCreateProgram(void)
@@ -741,18 +137,6 @@ GLuint
 glCreateShader(GLenum type)
 {
 	return ovr_glCreateShader(type);
-}
-
-void
-glCullFace(GLenum mode)
-{
-	ovr_glCullFace(mode);
-}
-
-void
-glDeleteBuffers(GLsizei n, const GLuint *buffers)
-{
-	ovr_glDeleteBuffers(n, buffers);
 }
 
 void
@@ -780,39 +164,9 @@ glDeleteShader(GLuint shader)
 }
 
 void
-glDeleteTextures(GLsizei n, const GLuint *textures)
-{
-	ovr_glDeleteTextures(n, textures);
-}
-
-void
-glDepthFunc(GLenum func)
-{
-	ovr_glDepthFunc(func);
-}
-
-void
-glDepthMask(GLboolean flag)
-{
-	ovr_glDepthMask(flag);
-}
-
-void
-glDepthRangef(GLclampf zNear, GLclampf zFar)
-{
-	ovr_glDepthRangef(zNear, zFar);
-}
-
-void
 glDetachShader(GLuint program, GLuint shader)
 {
 	ovr_glDetachShader(program, shader);
-}
-
-void
-glDisable(GLenum cap)
-{
-	ovr_glDisable(cap);
 }
 
 void
@@ -822,39 +176,9 @@ glDisableVertexAttribArray(GLuint index)
 }
 
 void
-glDrawArrays(GLenum mode, GLint first, GLsizei count)
-{
-	ovr_glDrawArrays(mode, first, count);
-}
-
-void
-glDrawElements(GLenum mode, GLsizei count, GLenum type, const void *indices)
-{
-	ovr_glDrawElements(mode, count, type, indices);
-}
-
-void
-glEnable(GLenum cap)
-{
-	ovr_glEnable(cap);
-}
-
-void
 glEnableVertexAttribArray(GLuint index)
 {
 	ovr_glEnableVertexAttribArray(index);
-}
-
-void
-glFinish(void)
-{
-	ovr_glFinish();
-}
-
-void
-glFlush(void)
-{
-	ovr_glFlush();
 }
 
 void
@@ -870,12 +194,6 @@ glFramebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget,
 		       GLuint texture, GLint level)
 {
 	ovr_glFramebufferTexture2D(target, attachment, textarget, texture, level);
-}
-
-void
-glFrontFace(GLenum mode)
-{
-	ovr_glFrontFace(mode);
 }
 
 void
@@ -897,18 +215,6 @@ glGetVertexAttribPointerv(GLuint index, GLenum pname, void **pointer)
 }
 
 void
-glHint(GLenum target, GLenum mode)
-{
-	ovr_glHint(target, mode);
-}
-
-void
-glGenBuffers(GLsizei n, GLuint *buffers)
-{
-	ovr_glGenBuffers(n, buffers);
-}
-
-void
 glGenerateMipmap(GLenum target)
 {
 	ovr_glGenerateMipmap(target);
@@ -924,12 +230,6 @@ void
 glGenRenderbuffers(GLsizei n, GLuint *renderbuffers)
 {
 	ovr_glGenRenderbuffers(n, renderbuffers);
-}
-
-void
-glGenTextures(GLsizei n, GLuint *textures)
-{
-	ovr_glGenTextures(n, textures);
 }
 
 void
@@ -960,40 +260,10 @@ glGetAttribLocation(GLuint program, const char *name)
 }
 
 void
-glGetBooleanv(GLenum pname, GLboolean *params)
-{
-	ovr_glGetBooleanv(pname, params);
-}
-
-void
-glGetBufferParameteriv(GLenum target, GLenum pname, GLint *params)
-{
-	ovr_glGetBufferParameteriv(target, pname, params);
-}
-
-GLenum
-glGetError(void)
-{
-	return ovr_glGetError();
-}
-
-void
-glGetFloatv(GLenum pname, GLfloat *params)
-{
-	ovr_glGetFloatv(pname, params);
-}
-
-void
 glGetFramebufferAttachmentParameteriv(GLenum target, GLenum attachment,
 				      GLenum pname, GLint *params)
 {
 	ovr_glGetFramebufferAttachmentParameteriv(target, attachment, pname, params);
-}
-
-void
-glGetIntegerv(GLenum pname, GLint *params)
-{
-	ovr_glGetIntegerv(pname, params);
 }
 
 void
@@ -1041,24 +311,6 @@ glGetShaderSource(GLuint shader, GLsizei bufsize, GLsizei *length, char *source)
 	ovr_glGetShaderSource(shader, bufsize, length, source);
 }
 
-const GLubyte *
-glGetString(GLenum name)
-{
-	return ovr_glGetString(name);
-}
-
-void
-glGetTexParameterfv(GLenum target, GLenum pname, GLfloat *params)
-{
-	ovr_glGetTexParameterfv(target, pname, params);
-}
-
-void
-glGetTexParameteriv(GLenum target, GLenum pname, GLint *params)
-{
-	ovr_glGetTexParameteriv(target, pname, params);
-}
-
 void
 glGetUniformfv(GLuint program, GLint location, GLfloat *params)
 {
@@ -1075,18 +327,6 @@ int
 glGetUniformLocation(GLuint program, const char *name)
 {
 	return ovr_glGetUniformLocation(program, name);
-}
-
-GLboolean
-glIsBuffer(GLuint buffer)
-{
-	return ovr_glIsBuffer(buffer);
-}
-
-GLboolean
-glIsEnabled(GLenum cap)
-{
-	return ovr_glIsEnabled(cap);
 }
 
 GLboolean
@@ -1113,41 +353,10 @@ glIsShader(GLuint shader)
 	return ovr_glIsShader(shader);
 }
 
-GLboolean
-glIsTexture(GLuint texture)
-{
-	return ovr_glIsTexture(texture);
-}
-
-void
-glLineWidth(GLfloat width)
-{
-	ovr_glLineWidth(width);
-}
-
 void
 glLinkProgram(GLuint program)
 {
 	ovr_glLinkProgram(program);
-}
-
-void
-glPixelStorei(GLenum pname, GLint param)
-{
-	ovr_glPixelStorei(pname, param);
-}
-
-void
-glPolygonOffset(GLfloat factor, GLfloat units)
-{
-	ovr_glPolygonOffset(factor, units);
-}
-
-void
-glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format,
-	     GLenum type, void *pixels)
-{
-	ovr_glReadPixels(x, y, width, height, format, type, pixels);
 }
 
 void
@@ -1164,18 +373,6 @@ glRenderbufferStorage(GLenum target, GLenum internalformat, GLsizei width,
 }
 
 void
-glSampleCoverage(GLclampf value, GLboolean invert)
-{
-	ovr_glSampleCoverage(value, invert);
-}
-
-void
-glScissor(GLint x, GLint y, GLsizei width, GLsizei height)
-{
-	ovr_glScissor(x, y, width, height);
-}
-
-void
 glShaderBinary(GLsizei n, const GLuint *shaders, GLenum binaryformat,
 	       const void *binary, GLsizei length)
 {
@@ -1189,22 +386,11 @@ glShaderSource(GLuint shader, GLsizei count, const char **string,
 	ovr_glShaderSource(shader, count, string, length);
 }
 
-void
-glStencilFunc(GLenum func, GLint ref, GLuint mask)
-{
-	ovr_glStencilFunc(func, ref, mask);
-}
 
 void
 glStencilFuncSeparate(GLenum face, GLenum func, GLint ref, GLuint mask)
 {
 	ovr_glStencilFuncSeparate(face, func, ref, mask);
-}
-
-void
-glStencilMask(GLuint mask)
-{
-	ovr_glStencilMask(mask);
 }
 
 void
@@ -1214,55 +400,9 @@ glStencilMaskSeparate(GLenum face, GLuint mask)
 }
 
 void
-glStencilOp(GLenum fail, GLenum zfail, GLenum zpass)
-{
-	ovr_glStencilOp(fail, zfail, zpass);
-}
-
-void
 glStencilOpSeparate(GLenum face, GLenum fail, GLenum zfail, GLenum zpass)
 {
 	ovr_glStencilOpSeparate(face, fail, zfail, zpass);
-}
-
-void
-glTexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width,
-	     GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels)
-{
-	ovr_glTexImage2D(target, level, internalformat, width, height, border, format,
-			 type, pixels);
-}
-
-void
-glTexParameterf(GLenum target, GLenum pname, GLfloat param)
-{
-	ovr_glTexParameterf(target, pname, param);
-}
-
-void
-glTexParameterfv(GLenum target, GLenum pname, const GLfloat *params)
-{
-	ovr_glTexParameterfv(target, pname, params);
-}
-
-void
-glTexParameteri(GLenum target, GLenum pname, GLint param)
-{
-	ovr_glTexParameteri(target, pname, param);
-}
-
-void
-glTexParameteriv(GLenum target, GLenum pname, const GLint *params)
-{
-	ovr_glTexParameteriv(target, pname, params);
-}
-
-void
-glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset,
-		GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels)
-{
-	ovr_glTexSubImage2D(target, level, xoffset, yoffset, width, height, format,
-			    type, pixels);
 }
 
 void
@@ -1453,12 +593,6 @@ glVertexAttribPointer(GLuint index, GLint size, GLenum type,
 		      GLboolean normalized, GLsizei stride, const void *pointer)
 {
 	ovr_glVertexAttribPointer(index, size, type, normalized, stride, pointer);
-}
-
-void
-glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
-{
-	ovr_glViewport(x, y, width, height);
 }
 
 /* OpenGL ES 3.0 */
@@ -2623,11 +1757,3 @@ glVertexBindingDivisor (GLuint bindingindex, GLuint divisor)
 {
 	ovr_glVertexBindingDivisor (bindingindex, divisor);
 }
-
-void
-glGetPointerv(GLenum pname, GLvoid **params)
-{
-	ovr_glGetPointerv(pname, params);
-}
-
-

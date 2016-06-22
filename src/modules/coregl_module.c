@@ -40,11 +40,15 @@ reset_modules_override()
 	init_export();
 
 	// Step 2 : User Define Modules : Sequence is important! (Last module's API is called first)
-	fastpath_apply_overrides();
+	if(driver_gl_version > COREGL_GLAPI_1) {
+		fastpath_apply_overrides();
+	}
 	appopt_apply_overrides();
 
 	// Step 3 : Common Wrapping Modules
-	tracepath_apply_overrides();
+	if(driver_gl_version > COREGL_GLAPI_1) {
+		tracepath_apply_overrides();
+	}
 }
 
 void
