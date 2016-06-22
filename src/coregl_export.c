@@ -25,7 +25,8 @@ _clean_overrides()
 #undef _COREGL_SYMBOL
 
 #define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     OVERRIDE(FUNC_NAME);
-# include "headers/sym_gl.h"
+# include "headers/sym_gl1.h"
+# include "headers/sym_gl2.h"
 #undef _COREGL_SYMBOL
 
 #undef OVERRIDE

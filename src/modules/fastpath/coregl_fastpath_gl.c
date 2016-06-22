@@ -313,7 +313,8 @@ _valid_extension_string()
 							gl_extension_count++; \
 						}
 
-# include "../../headers/sym_gl.h"
+# include "../../headers/sym_gl1.h"
+# include "../../headers/sym_gl2.h"
 
 #undef _COREGL_FASTPATH_SUPPORTED_EXTENSION
 #undef _COREGL_SYMBOL

@@ -280,7 +280,8 @@ fastpath_apply_overrides_gl(int enable)
 #define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     \
    if(api_gl_version <= driver_gl_version) COREGL_INIT_ORIGINAL(_orig_fastpath_, FUNC_NAME);
 
-# include "../../headers/sym_gl.h"
+# include "../../headers/sym_gl1.h"
+# include "../../headers/sym_gl2.h"
 #undef _COREGL_SYMBOL
 #undef _COREGL_START_API
 #undef _COREGL_END_API

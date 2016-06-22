@@ -149,7 +149,8 @@ _gl_sym_init(void)
 		FINDGLSYM(glv1_lib_handle, _sym_eglGetProcAddress, _sym_##ALIAS_NAME, #FUNC_NAME);\
 	}
 
-#include "headers/sym_gl.h"
+#include "headers/sym_gl1.h"
+#include "headers/sym_gl2.h"
 
 #undef _COREGL_EXT_SYMBOL_ALIAS
 #undef _COREGL_SYMBOL
