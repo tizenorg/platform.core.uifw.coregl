@@ -925,7 +925,8 @@ tracepath_eglGetProcAddress(const char *procname)
    }
 
 #include "../../headers/sym_egl.h"
-#include "../../headers/sym_gl.h"
+#include "../../headers/sym_gl1.h"
+#include "../../headers/sym_gl2.h"
 #undef _COREGL_SYMBOL
 #undef _COREGL_EXT_SYMBOL_ALIAS
 

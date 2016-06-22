@@ -65,7 +65,9 @@ appopt_apply_overrides_gl(int enable)
 {
 #define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     COREGL_INIT_ORIGINAL(_orig_appopt_, FUNC_NAME);
 #define _COREGL_EXT_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST) _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)
-# include "../../headers/sym_gl.h"
+# include "../../headers/sym_gl1.h"
+# include "../../headers/sym_gl2.h"
+# include "../../headers/sym_gl_common.h"
 #undef _COREGL_EXT_SYMBOL
 #undef _COREGL_SYMBOL
 }

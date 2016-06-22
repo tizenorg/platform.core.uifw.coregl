@@ -4,10 +4,12 @@
 
 #ifndef _COREGL_START_API
 #define _COREGL_START_API(version)
+#define _COREGL_START_API_DEFINED_INSIDE
 #endif
 
 #ifndef _COREGL_END_API
 #define _COREGL_END_API(version)
+#define _COREGL_END_API_DEFINED_INSIDE
 #endif
 
 
@@ -376,3 +378,12 @@ GLUE_STATE(GLboolean, gl_transform_feedback_paused, 1, 1, SET_1(0),
 	   _sym_glGetBooleanv(GL_TRANSFORM_FEEDBACK_PAUSED, (GLboolean *)value);)
 _COREGL_END_API(COREGL_GLAPI_3)
 
+#ifdef _COREGL_START_API_DEFINED_INSIDE
+#undef _COREGL_START_API
+#undef _COREGL_START_API_DEFINED_INSIDE
+#endif
+
+#ifdef _COREGL_END_API_DEFINED_INSIDE
+#undef _COREGL_END_API
+#undef _COREGL_END_API_DEFINED_INSIDE
+#endif

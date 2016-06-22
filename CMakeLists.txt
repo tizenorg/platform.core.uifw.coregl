@@ -8,10 +8,13 @@ SET(COREGL_VERSION_MAJOR 4)
 SET(COREGL_VERSION_MINOR 0)
 SET(EGL_VERSION_MAJOR 1)
 SET(EGL_VERSION_MINOR 4)
+SET(GLES1_VERSION_MAJOR 1)
+SET(GLES1_VERSION_MINOR 1)
 SET(GLES2_VERSION_MAJOR 2)
 SET(GLES2_VERSION_MINOR 0)
 SET(COREGL_VERSION "${COREGL_VERSION_MAJOR}.${COREGL_VERSION_MINOR}")
 SET(EGL_VERSION "${EGL_VERSION_MAJOR}.${EGL_VERSION_MINOR}")
+SET(GLES1_VERSION "${GLES1_VERSION_MAJOR}.${GLES1_VERSION_MINOR}")
 SET(GLES2_VERSION "${GLES2_VERSION_MAJOR}.${GLES2_VERSION_MINOR}")
 SET(BUILD_ARCH "$ENV{RPM_ARCH}")
 
@@ -88,12 +91,23 @@ SET(EGL "EGL")
 SET(EGL_SRCS_common
 		src/wraps/coregl_egl.c
 )
+
+#################################################################
+# Build gles1 Library
+# ------------------------------
+SET(GLES1 "GLESv1_CM")
+SET(GLES1_SRCS_common
+		src/wraps/coregl_gl1.c
+		src/wraps/coregl_gl_common.c
+)
+
 #################################################################
 # Build gles2 Library
 # ------------------------------
 SET(GLES2 "GLESv2")
 SET(GLES2_SRCS_common
-		src/wraps/coregl_gl.c
+		src/wraps/coregl_gl2.c
+		src/wraps/coregl_gl_common.c
 )
 
 #SET(HEADERS_common src/coregl_export.h src/coregl_fastpath.h src/coregl_fastpath_state.h src/coregl.h src/coregl_internal.h src/coregl_thread_pthread.h src/coregl_wrappath.h)
@@ -121,6 +135,12 @@ SET_TARGET_PROPERTIES(${EGL} PROPERTIES VERSION ${EGL_VERSION})
 #SET_TARGET_PROPERTIES(${COREGL} PROPERTIES COMPILE_FLAGS ${EXTRA_CFLAGS_common})
 TARGET_LINK_LIBRARIES(${EGL} ${pkg_common_LDFLAGS} ${dlog_LIBRARIES} "-ldl -g -O2 -fvisibility=hidden -Wall -std=c99 -lpthread")
 
+ADD_LIBRARY(${GLES1} SHARED ${GLES1_SRCS_common})
+SET_TARGET_PROPERTIES(${GLES1} PROPERTIES SOVERSION ${GLES1_VERSION_MAJOR})
+SET_TARGET_PROPERTIES(${GLES1} PROPERTIES VERSION ${GLES1_VERSION})
+#SET_TARGET_PROPERTIES(${COREGL} PROPERTIES COMPILE_FLAGS ${EXTRA_CFLAGS_common})
+TARGET_LINK_LIBRARIES(${GLES1} ${pkg_common_LDFLAGS} ${dlog_LIBRARIES} "-ldl -g -O2 -fvisibility=hidden -Wall -std=c99 -lpthread")
+
 ADD_LIBRARY(${GLES2} SHARED ${GLES2_SRCS_common})
 SET_TARGET_PROPERTIES(${GLES2} PROPERTIES SOVERSION ${GLES2_VERSION_MAJOR})
 SET_TARGET_PROPERTIES(${GLES2} PROPERTIES VERSION ${GLES2_VERSION})
@@ -129,6 +149,7 @@ TARGET_LINK_LIBRARIES(${GLES2} ${pkg_common_LDFLAGS} ${dlog_LIBRARIES} "-ldl -g 
 
 INSTALL(TARGETS ${COREGL} DESTINATION lib COMPONENT RuntimeLibraries)
 INSTALL(TARGETS ${EGL} DESTINATION lib COMPONENT RuntimeLibraries)
+INSTALL(TARGETS ${GLES1} DESTINATION lib COMPONENT RuntimeLibraries)
 INSTALL(TARGETS ${GLES2} DESTINATION lib COMPONENT RuntimeLibraries)
 
 #FOREACH(hfile ${HEADERS_common})
