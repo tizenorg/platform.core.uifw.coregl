@@ -286,8 +286,8 @@ int gl_extension_count = 0;
 static void
 _valid_extension_string()
 {
-	char string_tmpbuf[2048];
 	const char *res = NULL;
+	int len = 0;
 
 	AST(mutex_lock(&extension_check_mutex) == 1);
 
@@ -296,8 +296,17 @@ _valid_extension_string()
 			if (string_extensions[0] == 0x00) {
 				double GLver = _get_gl_version();
 
-				strcpy(string_tmpbuf, res);
-				char *fstr = &string_tmpbuf[0], *estr = NULL;
+				len = strlen(res);
+				char *str = malloc(len + 1);
+				if(!str) {
+					return;
+				}
+
+				strncpy(str, res, len);
+				str[len] = '\0';
+
+				char *fstr, *estr;
+				fstr = estr = str;
 				for (estr = fstr; ; estr++) {
 					if (*estr == 0x00) break;
 					if (*estr == ' ') {
@@ -322,6 +331,8 @@ _valid_extension_string()
 						fstr = estr + 1;
 					}
 				}
+
+				free(str);
 			}
 		}
 	}
@@ -710,17 +721,19 @@ fastpath_glDeleteTextures(GLsizei n, const GLuint *textures)
 				while (current != NULL) {
 					GLGlueContext *cur_gctx = (GLGlueContext *)current->value;
 
-					for (j = 0; j < cur_gctx->gl_num_tex_units[0]; j++) {
-						if (cur_gctx->gl_tex_2d_state[j] == objid_array[i])
-							cur_gctx->gl_tex_2d_state[j] = 0;
-						if (cur_gctx->gl_tex_3d_state[j] == objid_array[i])
-							cur_gctx->gl_tex_3d_state[j] = 0;
-						if (cur_gctx->gl_tex_2d_array_state[j] == objid_array[i])
-							cur_gctx->gl_tex_2d_array_state[j] = 0;
-						if (cur_gctx->gl_tex_cube_state[j] == objid_array[i])
-							cur_gctx->gl_tex_cube_state[j] = 0;
-						if (cur_gctx->gl_tex_external_oes_state[j] == objid_array[i])
-							cur_gctx->gl_tex_external_oes_state[j] = 0;
+					if (cur_gctx->initialized == 1) {
+						for (j = 0; j < cur_gctx->gl_num_tex_units[0]; j++) {
+							if (cur_gctx->gl_tex_2d_state[j] == objid_array[i])
+								cur_gctx->gl_tex_2d_state[j] = 0;
+							if (cur_gctx->gl_tex_3d_state[j] == objid_array[i])
+								cur_gctx->gl_tex_3d_state[j] = 0;
+							if (cur_gctx->gl_tex_2d_array_state[j] == objid_array[i])
+								cur_gctx->gl_tex_2d_array_state[j] = 0;
+							if (cur_gctx->gl_tex_cube_state[j] == objid_array[i])
+								cur_gctx->gl_tex_cube_state[j] = 0;
+							if (cur_gctx->gl_tex_external_oes_state[j] == objid_array[i])
+								cur_gctx->gl_tex_external_oes_state[j] = 0;
+						}
 					}
 
 					current = current->next;
@@ -924,40 +937,41 @@ fastpath_glDeleteBuffers(GLsizei n, const GLuint *buffers)
 				while (current != NULL) {
 					GLGlueContext *cur_gctx = (GLGlueContext *)current->value;
 
-					if (cur_gctx->gl_array_buffer_binding[0] == objid_array[i]) {
-						cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_array_buffer_binding);
-						cur_gctx->gl_array_buffer_binding[0] = 0;
+					if (cur_gctx->initialized == 1) {
+						if (cur_gctx->gl_array_buffer_binding[0] == objid_array[i]) {
+							cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_array_buffer_binding);
+							cur_gctx->gl_array_buffer_binding[0] = 0;
+						}
+						if (cur_gctx->gl_copy_read_buffer_binding[0] == objid_array[i]) {
+							cur_gctx->_bind_flag2 &= (~_BIND_FLAG2_BIT_gl_copy_read_buffer_binding);
+							cur_gctx->gl_copy_read_buffer_binding[0] = 0;
+						}
+						if (cur_gctx->gl_copy_write_buffer_binding[0] == objid_array[i]) {
+							cur_gctx->_bind_flag2 &= (~_BIND_FLAG2_BIT_gl_copy_write_buffer_binding);
+							cur_gctx->gl_copy_write_buffer_binding[0] = 0;
+						}
+						if (cur_gctx->gl_element_array_buffer_binding[0] == objid_array[i]) {
+							cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_element_array_buffer_binding);
+							cur_gctx->gl_element_array_buffer_binding[0] = 0;
+						}
+						if (cur_gctx->gl_pixel_pack_buffer_binding[0] == objid_array[i]) {
+							cur_gctx->_bind_flag2 &= (~_BIND_FLAG2_BIT_gl_pixel_pack_buffer_binding);
+							cur_gctx->gl_pixel_pack_buffer_binding[0] = 0;
+						}
+						if (cur_gctx->gl_pixel_unpack_buffer_binding[0] == objid_array[i]) {
+							cur_gctx->_bind_flag2 &= (~_BIND_FLAG2_BIT_gl_pixel_unpack_buffer_binding);
+							cur_gctx->gl_pixel_unpack_buffer_binding[0] = 0;
+						}
+						if (cur_gctx->gl_transform_feedback_buffer_binding[0] == objid_array[i]) {
+							cur_gctx->_bind_flag2 &=
+								(~_BIND_FLAG2_BIT_gl_transform_feedback_buffer_binding);
+							cur_gctx->gl_transform_feedback_buffer_binding[0] = 0;
+						}
+						if (cur_gctx->gl_uniform_buffer_binding[0] == objid_array[i]) {
+							cur_gctx->_bind_flag2 &= (~_BIND_FLAG2_BIT_gl_uniform_buffer_binding);
+							cur_gctx->gl_uniform_buffer_binding[0] = 0;
+						}
 					}
-					if (cur_gctx->gl_copy_read_buffer_binding[0] == objid_array[i]) {
-						cur_gctx->_bind_flag2 &= (~_BIND_FLAG2_BIT_gl_copy_read_buffer_binding);
-						cur_gctx->gl_copy_read_buffer_binding[0] = 0;
-					}
-					if (cur_gctx->gl_copy_write_buffer_binding[0] == objid_array[i]) {
-						cur_gctx->_bind_flag2 &= (~_BIND_FLAG2_BIT_gl_copy_write_buffer_binding);
-						cur_gctx->gl_copy_write_buffer_binding[0] = 0;
-					}
-					if (cur_gctx->gl_element_array_buffer_binding[0] == objid_array[i]) {
-						cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_element_array_buffer_binding);
-						cur_gctx->gl_element_array_buffer_binding[0] = 0;
-					}
-					if (cur_gctx->gl_pixel_pack_buffer_binding[0] == objid_array[i]) {
-						cur_gctx->_bind_flag2 &= (~_BIND_FLAG2_BIT_gl_pixel_pack_buffer_binding);
-						cur_gctx->gl_pixel_pack_buffer_binding[0] = 0;
-					}
-					if (cur_gctx->gl_pixel_unpack_buffer_binding[0] == objid_array[i]) {
-						cur_gctx->_bind_flag2 &= (~_BIND_FLAG2_BIT_gl_pixel_unpack_buffer_binding);
-						cur_gctx->gl_pixel_unpack_buffer_binding[0] = 0;
-					}
-					if (cur_gctx->gl_transform_feedback_buffer_binding[0] == objid_array[i]) {
-						cur_gctx->_bind_flag2 &=
-							(~_BIND_FLAG2_BIT_gl_transform_feedback_buffer_binding);
-						cur_gctx->gl_transform_feedback_buffer_binding[0] = 0;
-					}
-					if (cur_gctx->gl_uniform_buffer_binding[0] == objid_array[i]) {
-						cur_gctx->_bind_flag2 &= (~_BIND_FLAG2_BIT_gl_uniform_buffer_binding);
-						cur_gctx->gl_uniform_buffer_binding[0] = 0;
-					}
-
 					current = current->next;
 				}
 			}
@@ -1162,19 +1176,20 @@ fastpath_glDeleteFramebuffers(GLsizei n, const GLuint *framebuffers)
 				while (current != NULL) {
 					GLGlueContext *cur_gctx = (GLGlueContext *)current->value;
 
-					if (cur_gctx->gl_framebuffer_binding[0] == objid_array[i]) {
-						cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_framebuffer_binding);
-						cur_gctx->gl_framebuffer_binding[0] = 0;
+					if (cur_gctx->initialized == 1) {
+						if (cur_gctx->gl_framebuffer_binding[0] == objid_array[i]) {
+							cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_framebuffer_binding);
+							cur_gctx->gl_framebuffer_binding[0] = 0;
+						}
+						if (cur_gctx->gl_framebuffer_binding_read[0] == objid_array[i]) {
+							cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_framebuffer_binding_read);
+							cur_gctx->gl_framebuffer_binding_read[0] = 0;
+						}
+						if (cur_gctx->gl_framebuffer_binding_draw[0] == objid_array[i]) {
+							cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_framebuffer_binding_draw);
+							cur_gctx->gl_framebuffer_binding_draw[0] = 0;
+						}
 					}
-					if (cur_gctx->gl_framebuffer_binding_read[0] == objid_array[i]) {
-						cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_framebuffer_binding_read);
-						cur_gctx->gl_framebuffer_binding_read[0] = 0;
-					}
-					if (cur_gctx->gl_framebuffer_binding_draw[0] == objid_array[i]) {
-						cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_framebuffer_binding_draw);
-						cur_gctx->gl_framebuffer_binding_draw[0] = 0;
-					}
-
 					current = current->next;
 				}
 			}
@@ -1361,12 +1376,12 @@ fastpath_glDeleteRenderbuffers(GLsizei n, const GLuint *renderbuffers)
 
 				while (current != NULL) {
 					GLGlueContext *cur_gctx = (GLGlueContext *)current->value;
-
-					if (cur_gctx->gl_renderbuffer_binding[0] == objid_array[i]) {
-						cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_renderbuffer_binding);
-						cur_gctx->gl_renderbuffer_binding[0] = 0;
+					if (cur_gctx->initialized == 1) {
+						if (cur_gctx->gl_renderbuffer_binding[0] == objid_array[i]) {
+							cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_renderbuffer_binding);
+							cur_gctx->gl_renderbuffer_binding[0] = 0;
+						}
 					}
-
 					current = current->next;
 				}
 			}
@@ -4468,9 +4483,10 @@ fastpath_glDeleteVertexArrays(GLsizei n, const GLuint *arrays)
 				while (current != NULL) {
 					GLGlueContext *cur_gctx = (GLGlueContext *)current->value;
 
-					if (cur_gctx->gl_vertex_array_binding[0] == objid_array[i])
-						cur_gctx->gl_vertex_array_binding[0] = 0;
-
+					if (cur_gctx->initialized == 1) {
+						if (cur_gctx->gl_vertex_array_binding[0] == objid_array[i])
+							cur_gctx->gl_vertex_array_binding[0] = 0;
+					}
 					current = current->next;
 				}
 			}
@@ -4725,9 +4741,10 @@ fastpath_glDeleteTransformFeedbacks(GLsizei n, const GLuint *ids)
 				while (current != NULL) {
 					GLGlueContext *cur_gctx = (GLGlueContext *)current->value;
 
-					if (cur_gctx->gl_transform_feedback_binding[0] == objid_array[i])
-						cur_gctx->gl_transform_feedback_binding[0] = 0;
-
+					if (cur_gctx->initialized == 1) {
+						if (cur_gctx->gl_transform_feedback_binding[0] == objid_array[i])
+							cur_gctx->gl_transform_feedback_binding[0] = 0;
+					}
 					current = current->next;
 				}
 			}
@@ -5801,9 +5818,10 @@ fastpath_glDeleteProgramPipelines(GLsizei n, GLuint const *pipelines)
 				while (current != NULL) {
 					GLGlueContext *cur_gctx = (GLGlueContext *)current->value;
 
-					if (cur_gctx->gl_program_pipeline_binding[0] == objid_array[i])
-						cur_gctx->gl_program_pipeline_binding[0] = 0;
-
+					if (cur_gctx->initialized == 1) {
+						if (cur_gctx->gl_program_pipeline_binding[0] == objid_array[i])
+							cur_gctx->gl_program_pipeline_binding[0] = 0;
+					}
 					current = current->next;
 				}
 			}
@@ -7363,19 +7381,20 @@ fastpath_glDeleteFramebuffersOES(GLsizei n, const GLuint *framebuffers)
 				while (current != NULL) {
 					GLGlueContext *cur_gctx = (GLGlueContext *)current->value;
 
-					if (cur_gctx->gl_framebuffer_binding[0] == objid_array[i]) {
-						cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_framebuffer_binding);
-						cur_gctx->gl_framebuffer_binding[0] = 0;
+					if (cur_gctx->initialized == 1) {
+						if (cur_gctx->gl_framebuffer_binding[0] == objid_array[i]) {
+							cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_framebuffer_binding);
+							cur_gctx->gl_framebuffer_binding[0] = 0;
+						}
+						if (cur_gctx->gl_framebuffer_binding_read[0] == objid_array[i]) {
+							cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_framebuffer_binding_read);
+							cur_gctx->gl_framebuffer_binding_read[0] = 0;
+						}
+						if (cur_gctx->gl_framebuffer_binding_draw[0] == objid_array[i]) {
+							cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_framebuffer_binding_draw);
+							cur_gctx->gl_framebuffer_binding_draw[0] = 0;
+						}
 					}
-					if (cur_gctx->gl_framebuffer_binding_read[0] == objid_array[i]) {
-						cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_framebuffer_binding_read);
-						cur_gctx->gl_framebuffer_binding_read[0] = 0;
-					}
-					if (cur_gctx->gl_framebuffer_binding_draw[0] == objid_array[i]) {
-						cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_framebuffer_binding_draw);
-						cur_gctx->gl_framebuffer_binding_draw[0] = 0;
-					}
-
 					current = current->next;
 				}
 			}
@@ -7436,11 +7455,12 @@ fastpath_glDeleteRenderbuffersOES(GLsizei n, const GLuint *renderbuffers)
 				while (current != NULL) {
 					GLGlueContext *cur_gctx = (GLGlueContext *)current->value;
 
-					if (cur_gctx->gl_renderbuffer_binding[0] == objid_array[i]) {
-						cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_renderbuffer_binding);
-						cur_gctx->gl_renderbuffer_binding[0] = 0;
+					if (cur_gctx->initialized == 1) {
+						if (cur_gctx->gl_renderbuffer_binding[0] == objid_array[i]) {
+							cur_gctx->_bind_flag1 &= (~_BIND_FLAG1_BIT_gl_renderbuffer_binding);
+							cur_gctx->gl_renderbuffer_binding[0] = 0;
+						}
 					}
-
 					current = current->next;
 				}
 			}
@@ -8352,9 +8372,10 @@ fastpath_glDeleteVertexArraysOES(GLsizei n, const GLuint *arrays)
 				while (current != NULL) {
 					GLGlueContext *cur_gctx = (GLGlueContext *)current->value;
 
-					if (cur_gctx->gl_vertex_array_binding[0] == objid_array[i])
-						cur_gctx->gl_vertex_array_binding[0] = 0;
-
+					if (cur_gctx->initialized == 1) {
+						if (cur_gctx->gl_vertex_array_binding[0] == objid_array[i])
+							cur_gctx->gl_vertex_array_binding[0] = 0;
+					}
 					current = current->next;
 				}
 			}
