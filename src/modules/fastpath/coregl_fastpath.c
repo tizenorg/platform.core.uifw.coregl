@@ -6,7 +6,6 @@
 
 #include <sys/types.h>
 #include <unistd.h>
-#include <GLES/gl.h>
 
 
 #define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*_orig_fastpath_##FUNC_NAME) PARAM_LIST = NULL;

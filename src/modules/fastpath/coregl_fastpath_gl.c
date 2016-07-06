@@ -245,10 +245,10 @@ fastpath_release_gl_context(GLGlueContext *gctx)
 }
 
 
-static float
+static double
 _get_gl_version()
 {
-	float GLver = 0.0;
+	double GLver = 0.0;
 	const char *vret;
 	int vlen = _COREGL_INT_INIT_VALUE;
 	int i = _COREGL_INT_INIT_VALUE;
@@ -368,7 +368,7 @@ fastpath_glGetString(GLenum name)
 	case GL_VERSION:
 		IF_GL_SUCCESS(ret = (const char *)_orig_fastpath_glGetString(name)) {
 			double GLver = _get_gl_version();
-			if (GLver > 3.1) {
+			if (GLver > 3.2) {
 				COREGL_WRN("\E[40;31;1mFastpath can't support %s (Fixed to %s)\E[0m\n", ret,
 					   string_gles30);
 				ret = string_gles30;

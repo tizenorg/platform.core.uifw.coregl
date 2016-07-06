@@ -770,6 +770,7 @@ typedef struct __GLsync *GLsync;
 #define GL_MAX_ELEMENT_INDEX                             0x8D6B
 #define GL_NUM_SAMPLE_COUNTS                             0x9380
 #define GL_TEXTURE_IMMUTABLE_LEVELS                      0x82DF
+#define GL_CLIENT_ACTIVE_TEXTURE						 0x84E1
 
 /* GLES 3.1 */
 #define GL_COMPUTE_SHADER                 0x91B9
