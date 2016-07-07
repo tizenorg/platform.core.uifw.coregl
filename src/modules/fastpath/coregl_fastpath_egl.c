@@ -1011,8 +1011,12 @@ fastpath_eglReleaseThread(void)
 	_COREGL_FASTPATH_FUNC_BEGIN();
 
 	dpy = _orig_fastpath_eglGetCurrentDisplay();
-	AST(dpy != EGL_NO_DISPLAY);
-	fastpath_eglMakeCurrent(dpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+
+	/* according to spec,
+	 * Even if EGL is not initialized on any EGLDisplay, eglReleaseThread should succeed
+	 */
+	if (dpy != EGL_NO_DISPLAY)
+		fastpath_eglMakeCurrent(dpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 	ret = _orig_fastpath_eglReleaseThread();
 	goto finish;
 
