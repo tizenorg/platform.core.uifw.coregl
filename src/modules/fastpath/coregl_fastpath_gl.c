@@ -313,6 +313,7 @@ _valid_extension_string()
 							gl_extension_count++; \
 						}
 
+# include "../../headers/sym_gl1.h"
 # include "../../headers/sym_gl2.h"
 # include "../../headers/sym_gl_common.h"
 
@@ -327,6 +328,64 @@ _valid_extension_string()
 	}
 
 	AST(mutex_unlock(&extension_check_mutex) == 1);
+}
+
+void
+fastpath_glClientActiveTexture (GLenum texture)
+{
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	CURR_STATE_COMPARE(gl_client_active_texture, texture) {
+		IF_GL_SUCCESS(_orig_fastpath_glClientActiveTexture(texture)) {
+			current_ctx->_tex_flag1 |= _TEX_FLAG1_BIT_gl_client_active_texture;
+			current_ctx->gl_client_active_texture[0] = texture;
+		}
+	}
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glSampleCoveragex(GLclampx value, GLboolean invert)
+{
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	if ((current_ctx->gl_sample_coverage_value[0] != value) ||
+		(current_ctx->gl_sample_coverage_invert[0] != invert)) {
+		IF_GL_SUCCESS(_orig_fastpath_glSampleCoveragex(value, invert)) {
+			current_ctx->_misc_flag1 |=
+				_MISC_FLAG1_BIT_gl_sample_coverage_value |
+				_MISC_FLAG1_BIT_gl_sample_coverage_invert;
+
+			current_ctx->gl_sample_coverage_value[0] = value;
+			current_ctx->gl_sample_coverage_invert[0] = invert;
+		}
+	}
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
+}
+
+void
+fastpath_glVertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer)
+{
+	DEFINE_FASTPAH_GL_FUNC();
+	_COREGL_FASTPATH_FUNC_BEGIN();
+	INIT_FASTPATH_GL_FUNC();
+
+	_orig_fastpath_glVertexPointer(size, type, stride, pointer);
+
+	goto finish;
+
+finish:
+	_COREGL_FASTPATH_FUNC_END();
 }
 
 GLenum
@@ -357,8 +416,8 @@ const GLubyte *
 fastpath_glGetString(GLenum name)
 {
 	const char *ret = NULL;
-	static const char *string_gles20 = "OpenGL ES 2.0";
-	static const char *string_gles30 = "OpenGL ES 3.0";
+	static const char *string_gles11 = "OpenGL ES 1.1";
+	static const char *string_gles32 = "OpenGL ES 3.2";
 
 	DEFINE_FASTPAH_GL_FUNC();
 	_COREGL_FASTPATH_FUNC_BEGIN();
@@ -368,15 +427,15 @@ fastpath_glGetString(GLenum name)
 	case GL_VERSION:
 		IF_GL_SUCCESS(ret = (const char *)_orig_fastpath_glGetString(name)) {
 			double GLver = _get_gl_version();
-			if (GLver > 3.1) {
+			if (GLver > 3.2f) {
 				COREGL_WRN("\E[40;31;1mFastpath can't support %s (Fixed to %s)\E[0m\n", ret,
-					   string_gles30);
-				ret = string_gles30;
+					   string_gles32);
+				ret = string_gles32;
 			}
-			if (GLver < 2.0) {
+			if (GLver < 1.1f) {
 				COREGL_WRN("\E[40;31;1mFastpath can't support %s (Fixed to %s)\E[0m\n", ret,
-					   string_gles20);
-				ret = string_gles20;
+					   string_gles11);
+				ret = string_gles11;
 			}
 		}
 		break;

@@ -15,6 +15,7 @@
 
 #define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     extern RET_TYPE (*_orig_tracepath_##FUNC_NAME) PARAM_LIST;
 # include "../../headers/sym_egl.h"
+# include "../../headers/sym_gl1.h"
 # include "../../headers/sym_gl2.h"
 # include "../../headers/sym_gl_common.h"
 #undef _COREGL_SYMBOL
@@ -22,6 +23,7 @@
 // Symbol definition for tracepath
 #define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     extern RET_TYPE (tracepath_##FUNC_NAME) PARAM_LIST;
 # include "../../headers/sym_egl.h"
+# include "../../headers/sym_gl1.h"
 # include "../../headers/sym_gl2.h"
 # include "../../headers/sym_gl_common.h"
 #undef _COREGL_SYMBOL

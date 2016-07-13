@@ -14,6 +14,7 @@
 #include "../../coregl_export.h"
 
 #define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     extern RET_TYPE (*_orig_fastpath_##FUNC_NAME) PARAM_LIST;
+# include "../../headers/sym_gl1.h"
 # include "../../headers/sym_gl2.h"
 # include "../../headers/sym_gl_common.h"
 # include "../../headers/sym_egl.h"
@@ -21,6 +22,7 @@
 
 // Symbol definition for fastpath
 #define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     extern RET_TYPE (fastpath_##FUNC_NAME) PARAM_LIST;
+# include "../../headers/sym_gl1.h"
 # include "../../headers/sym_gl2.h"
 # include "../../headers/sym_gl_common.h"
 # include "../../headers/sym_egl.h"

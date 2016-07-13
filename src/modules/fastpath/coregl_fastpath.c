@@ -10,6 +10,7 @@
 
 
 #define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     RET_TYPE (*_orig_fastpath_##FUNC_NAME) PARAM_LIST = NULL;
+# include "../../headers/sym_gl1.h"
 # include "../../headers/sym_gl2.h"
 # include "../../headers/sym_gl_common.h"
 # include "../../headers/sym_egl.h"
@@ -282,6 +283,7 @@ fastpath_apply_overrides_gl(int enable)
 #define _COREGL_SYMBOL(RET_TYPE, FUNC_NAME, PARAM_LIST)     \
    if(api_gl_version <= driver_gl_version) COREGL_INIT_ORIGINAL(_orig_fastpath_, FUNC_NAME);
 
+# include "../../headers/sym_gl1.h"
 # include "../../headers/sym_gl2.h"
 # include "../../headers/sym_gl_common.h"
 #undef _COREGL_SYMBOL
@@ -289,6 +291,12 @@ fastpath_apply_overrides_gl(int enable)
 #undef _COREGL_END_API
 
 	if (debug_nofp != 1) {
+		if (driver_gl_version >= COREGL_GLAPI_1) {
+			COREGL_OVERRIDE(fastpath_, glClientActiveTexture);
+			COREGL_OVERRIDE(fastpath_, glSampleCoveragex);
+			COREGL_OVERRIDE(fastpath_, glVertexPointer);
+		}
+
 		COREGL_OVERRIDE(fastpath_, glGetError);
 		COREGL_OVERRIDE(fastpath_, glGetString);
 
@@ -1417,6 +1425,7 @@ fastpath_init_context_states(GLGlueContext *ctx)
 	if (initial_ctx == NULL) {
 		initial_ctx = (GLGlueContext *)calloc(1, sizeof(GLGlueContext));
 		AST(initial_ctx != NULL);
+
 
 //#define FORCE_DEFAULT_VALUE
 #define _COREGL_START_API(version) api_gl_version = version;
