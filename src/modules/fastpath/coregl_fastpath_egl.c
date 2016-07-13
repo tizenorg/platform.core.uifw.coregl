@@ -265,8 +265,8 @@ _pack_egl_context_option(EGL_packed_option *pack_data, EGLDisplay dpy,
 		pack_data->force_unique = force_unique_free_id++;
 
 	// Default context attributes
-	pack_data->attrib_list.context_major_version = EGL_DONT_CARE;
-	pack_data->attrib_list.context_minor_version = EGL_DONT_CARE;
+	pack_data->attrib_list.context_major_version = 1;
+	pack_data->attrib_list.context_minor_version = 0;
 	pack_data->attrib_list.context_flags = EGL_DONT_CARE;
 	pack_data->attrib_list.context_opengl_profile_mask = EGL_DONT_CARE;
 	pack_data->attrib_list.opengl_reset_notification_strategy = EGL_DONT_CARE;
@@ -620,9 +620,15 @@ _egl_create_context(EGL_packed_option *real_ctx_option,
 			current = glctx_list;
 			while (current != NULL) {
 				EGLDisplay cur_dpy = EGL_NO_DISPLAY;
-				AST(_unpack_egl_context_option(current->option, &cur_dpy, NULL, NULL, NULL,
-							       0) == 1);
+				EGLint attribs[11];
+				_unpack_egl_context_option(current->option, &cur_dpy, NULL, NULL, attribs, 11);
 				if (cur_dpy == dpy) {
+					if(attribs[0] == EGL_CONTEXT_MAJOR_VERSION_KHR &&
+							attribs[1] != real_ctx_option->attrib_list.context_major_version) {
+						current = current->next;
+						continue;
+					}
+
 					AST(current->cstate != NULL);
 					real_share_context = current->cstate->rctx;
 					break;
@@ -664,7 +670,6 @@ _egl_create_context(EGL_packed_option *real_ctx_option,
 
 finish:
 	return cstate;
-
 }
 
 
@@ -763,7 +768,8 @@ fastpath_eglCreateContext(EGLDisplay dpy, EGLConfig config,
 	}
 	cstate = _egl_create_context(real_ctx_option, &cstate_new, &ctx, dpy, config,
 				     attrib_list);
-	AST(cstate != NULL);
+	if(cstate == NULL)
+		goto finish;
 
 	// Pack shared context options
 	real_ctx_sharable_option = (EGL_packed_sharable_option *)calloc(1,
@@ -903,6 +909,7 @@ finish:
 	}
 
 	_COREGL_FASTPATH_FUNC_END();
+
 	return (EGLContext)gctx;
 }
 
