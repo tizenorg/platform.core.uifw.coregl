@@ -455,7 +455,7 @@ tracepath_dump_context_states(int force_output)
 
 	_sym_glGetIntegerv(GL_MAX_DRAW_BUFFERS,
 			   (GLint *)initial_fake_ctx->gl_num_draw_buffers);
-	_sym_glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS,
+	_sym_glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS,
 			   (GLint *)initial_fake_ctx->gl_num_tex_units);
 	_sym_glGetIntegerv(GL_MAX_VERTEX_ATTRIBS,
 			   (GLint *)initial_fake_ctx->gl_num_vertex_attribs);

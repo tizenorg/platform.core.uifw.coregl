@@ -33,9 +33,9 @@ GLUE_STATE(GLuint, gl_num_draw_buffers, 1, 1,
 	   _sym_glGetIntegerv(GL_MAX_DRAW_BUFFERS, (GLint *)value);)
 
 GLUE_STATE(GLuint, gl_num_tex_units, 1, 1,
-	   _sym_glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS,
+	   _sym_glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS,
 			      (GLint *)value); /* DEFAULT NOT EFFECT */,
-	   _sym_glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, (GLint *)value);)
+	   _sym_glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, (GLint *)value);)
 
 GLUE_STATE(GLuint, gl_num_vertex_attribs, 1, 1,
 	   _sym_glGetIntegerv(GL_MAX_VERTEX_ATTRIBS,
