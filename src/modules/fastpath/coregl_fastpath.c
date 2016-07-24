@@ -1438,6 +1438,7 @@ fastpath_init_context_states(GLGlueContext *ctx)
              TYPE *value = NULL; \
              memset(valuedata, 0xcc, sizeof(TYPE) * SIZE); \
              initial_ctx->NAME = (TYPE *)calloc(SIZE, sizeof(TYPE));\
+             initial_ctx->NAME##_updated = (GLboolean *)calloc(SIZE, sizeof(GLboolean)); \
              if(api_gl_version <= driver_gl_version) { \
                  value = valuedata; DEFAULT_STMT; value = valuedata; \
                  for (i = 0; i < SIZE; i++) \
@@ -1453,6 +1454,7 @@ fastpath_init_context_states(GLGlueContext *ctx)
                         } \
                     } \
                     initial_ctx->NAME[i] = value[i]; \
+                    initial_ctx->NAME##_updated[i] = GL_FALSE; \
                  } \
              } \
         }\
@@ -1482,6 +1484,7 @@ fastpath_init_context_states(GLGlueContext *ctx)
              _sym_glGetError(); \
              memset(valuedata, 0xcc, sizeof(TYPE) * SIZE); \
              initial_ctx->NAME = (TYPE *)calloc(SIZE, sizeof(TYPE));\
+             initial_ctx->NAME##_updated = (GLboolean *)calloc(SIZE, sizeof(GLboolean)); \
              if(api_gl_version <= driver_gl_version) { \
                 do { \
                    try_step++; \
@@ -1510,6 +1513,7 @@ fastpath_init_context_states(GLGlueContext *ctx)
                          } \
                       } \
                       initial_ctx->NAME[i] = value[i]; \
+                      initial_ctx->NAME##_updated[i] = GL_FALSE; \
                    } \
                    if (try_step != 2) \
                    { \
@@ -1565,11 +1569,13 @@ fastpath_init_context_states(GLGlueContext *ctx)
       { \
         if(SIZE > 0) { \
             ctx->NAME = (TYPE *)calloc(SIZE, sizeof(TYPE)); \
+            ctx->NAME##_updated = (GLboolean *)calloc(SIZE, sizeof(GLboolean)); \
             if(api_gl_version <= driver_gl_version) { \
                 for (i = 0; i < SIZE; i++) \
                 { \
                    ctx->NAME[i] = initial_ctx->NAME[i]; \
                    ctx->NAME##_used = initial_ctx->NAME##_used; \
+                   ctx->NAME##_updated[i] = initial_ctx->NAME##_updated[i]; \
                 }\
             } \
         } \
