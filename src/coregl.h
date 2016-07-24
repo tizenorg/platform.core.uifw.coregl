@@ -8,6 +8,9 @@
 # include <EGL/eglplatform.h>
 # include "headers/egl.h"
 # include "headers/gl.h"
+#include <GLES3/gl31.h>
+#include <GLES3/gl32.h>
+#include <GLES2/gl2ext.h>
 
 typedef void (*_eng_fn) (void);
 
