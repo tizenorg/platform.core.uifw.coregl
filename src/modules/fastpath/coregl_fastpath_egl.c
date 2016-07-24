@@ -517,7 +517,8 @@ _remove_context_ref(GLGlueContext *gctx, Mutex *ctx_list_mtx)
 		}
 
 # define GLUE_STATE(TYPE, NAME, SIZE, ARRAY_SIZE, DEFAULT_STMT, GET_STMT)  \
-	if (gctx->NAME) {free(gctx->NAME); gctx->NAME = NULL;}
+	if (gctx->NAME) {free(gctx->NAME); gctx->NAME = NULL;}	\
+	if (gctx->NAME##_updated){free(gctx->NAME##_updated); gctx->NAME##_updated = NULL;}
 #  include "coregl_fastpath_state.h"
 #undef GLUE_STATE
 		free(gctx);
