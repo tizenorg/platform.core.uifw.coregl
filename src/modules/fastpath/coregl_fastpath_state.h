@@ -68,6 +68,14 @@ GLUE_STATE(GLuint, gl_transform_feedback_buffer_binding, 1, 1, SET_1(0),
 	   _sym_glGetIntegerv(GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, (GLint *)value);)
 GLUE_STATE(GLuint, gl_uniform_buffer_binding, 1, 1, SET_1(0),
 	   _sym_glGetIntegerv(GL_UNIFORM_BUFFER_BINDING, (GLint *)value);)
+GLUE_STATE(GLuint, gl_shader_storage_buffer_binding, 1, 1, SET_1(0),
+	   _sym_glGetIntegerv(GL_SHADER_STORAGE_BUFFER_BINDING, (GLint *)value);)
+GLUE_STATE(GLuint, gl_atomic_counter_buffer_binding, 1, 1, SET_1(0),
+	   _sym_glGetIntegerv(GL_ATOMIC_COUNTER_BUFFER_BINDING, (GLint *)value);)
+GLUE_STATE(GLuint, gl_draw_indirect_buffer_binding, 1, 1, SET_1(0),
+	   _sym_glGetIntegerv(GL_DRAW_INDIRECT_BUFFER_BINDING, (GLint *)value);)
+GLUE_STATE(GLuint, gl_dispatch_indirect_buffer_binding, 1, 1, SET_1(0),
+	   _sym_glGetIntegerv(GL_DISPATCH_INDIRECT_BUFFER_BINDING, (GLint *)value);)
 
 _COREGL_START_API(COREGL_GLAPI_3)
 GLUE_STATE(GLuint, gl_transform_feedback_buffer_binding_array,
@@ -104,6 +112,36 @@ GLUE_STATE(GLsizeiptr, gl_uniform_buffer_binding_array_size,
 	   INITIAL_CTX->gl_num_uniform_buffer_bindings[0], MAX_UNIFORM_BUFFER_BINDINGS,
 	   _state_get_uniform_buffer_bindings_size(value); /* DEFAULT NOT EFFECT */,
 	   _state_get_uniform_buffer_bindings_size(value);)
+
+GLUE_STATE(GLuint, gl_shader_storage_buffer_binding_array,
+	   INITIAL_CTX->gl_num_uniform_buffer_bindings[0], MAX_UNIFORM_BUFFER_BINDINGS,
+	   _state_get_uniform_buffer_bindings(value); /* DEFAULT NOT EFFECT */,
+	   _state_get_uniform_buffer_bindings(value);)
+
+GLUE_STATE(GLintptr, gl_shader_storage_buffer_binding_array_offset,
+	   INITIAL_CTX->gl_num_uniform_buffer_bindings[0], MAX_UNIFORM_BUFFER_BINDINGS,
+	   _state_get_uniform_buffer_bindings_offset(value); /* DEFAULT NOT EFFECT */,
+	   _state_get_uniform_buffer_bindings_offset(value);)
+
+GLUE_STATE(GLsizeiptr, gl_shader_storage_buffer_binding_array_size,
+	   INITIAL_CTX->gl_num_uniform_buffer_bindings[0], MAX_UNIFORM_BUFFER_BINDINGS,
+	   _state_get_uniform_buffer_bindings_size(value); /* DEFAULT NOT EFFECT */,
+	   _state_get_uniform_buffer_bindings_size(value);)
+
+GLUE_STATE(GLuint, gl_atomic_counter_buffer_binding_array,
+	   INITIAL_CTX->gl_num_uniform_buffer_bindings[0], MAX_UNIFORM_BUFFER_BINDINGS,
+	   _state_get_uniform_buffer_bindings(value); /* DEFAULT NOT EFFECT */,
+	   _state_get_uniform_buffer_bindings(value);)
+
+GLUE_STATE(GLintptr, gl_atomic_counter_buffer_binding_array_offset,
+	   INITIAL_CTX->gl_num_uniform_buffer_bindings[0], MAX_UNIFORM_BUFFER_BINDINGS,
+	   _state_get_uniform_buffer_bindings_offset(value); /* DEFAULT NOT EFFECT */,
+	   _state_get_uniform_buffer_bindings_offset(value);)
+
+GLUE_STATE(GLsizeiptr, gl_atomic_counter_buffer_binding_array_size,
+	   INITIAL_CTX->gl_num_uniform_buffer_bindings[0], MAX_UNIFORM_BUFFER_BINDINGS,
+	   _state_get_uniform_buffer_bindings_size(value); /* DEFAULT NOT EFFECT */,
+	   _state_get_uniform_buffer_bindings_size(value);)
 _COREGL_END_API(COREGL_GLAPI_3)
 
 GLUE_STATE(GLuint, gl_framebuffer_binding, 1, 1, SET_1(0),
@@ -134,11 +172,17 @@ GLUE_STATE(GLboolean, gl_scissor_test, 1, 1, SET_1(GL_FALSE),
 	   _sym_glGetBooleanv(GL_SCISSOR_TEST, (GLboolean *)value);)
 GLUE_STATE(GLboolean, gl_stencil_test, 1, 1, SET_1(GL_FALSE),
 	   _sym_glGetBooleanv(GL_STENCIL_TEST, (GLboolean *)value);)
+GLUE_STATE(GLboolean, gl_sample_shading_oes, 1, 1, SET_1(GL_FALSE),
+	   _sym_glGetBooleanv(GL_SAMPLE_SHADING_OES, (GLboolean *)value);)
+GLUE_STATE(GLboolean, gl_sample_mask, 1, 1, SET_1(GL_FALSE),
+	   _sym_glGetBooleanv(GL_SAMPLE_MASK, (GLboolean *)value);)
 
 GLUE_STATE(GLboolean, gl_primitive_restart_fixed_index, 1, 1, SET_1(GL_FALSE),
 	   _sym_glGetBooleanv(GL_PRIMITIVE_RESTART_FIXED_INDEX, (GLboolean *)value);)
 GLUE_STATE(GLboolean, gl_rasterizer_discard, 1, 1, SET_1(GL_FALSE),
 	   _sym_glGetBooleanv(GL_RASTERIZER_DISCARD, (GLboolean *)value);)
+GLUE_STATE(GLboolean, gl_blend_advanced_coherent_khr, 1, 1, SET_1(GL_TRUE),
+	   _sym_glGetBooleanv(GL_BLEND_ADVANCED_COHERENT_KHR, (GLboolean *)value);)
 
 GLUE_STATE(GLint, gl_viewport, 4, 4,
 	   _sym_glGetIntegerv(GL_VIEWPORT, (GLint *)value); /* DEFAULT NOT EFFECT */,
@@ -182,6 +226,18 @@ GLUE_STATE(GLuint, gl_tex_external_oes_state, INITIAL_CTX->gl_num_tex_units[0],
 	   MAX_TEXTURE_UNITS,
 	   SET_N(INITIAL_CTX->gl_num_tex_units[0], 1, SET_1(0)),
 	   _state_get_texture_states(GL_TEXTURE_EXTERNAL_OES, (GLint *)value);)
+GLUE_STATE(GLuint, gl_tex_buffer_ext_state, INITIAL_CTX->gl_num_tex_units[0],
+	   MAX_TEXTURE_UNITS,
+	   SET_N(INITIAL_CTX->gl_num_tex_units[0], 1, SET_1(0)),
+	   _state_get_texture_states(GL_TEXTURE_BUFFER_EXT, (GLint *)value);)
+GLUE_STATE(GLuint, gl_tex_2d_multisample_state, INITIAL_CTX->gl_num_tex_units[0],
+	   MAX_TEXTURE_UNITS,
+	   SET_N(INITIAL_CTX->gl_num_tex_units[0], 1, SET_1(0)),
+	   _state_get_texture_states(GL_TEXTURE_2D_MULTISAMPLE, (GLint *)value);)
+GLUE_STATE(GLuint, gl_tex_2d_multisample_array_oes_state, INITIAL_CTX->gl_num_tex_units[0],
+	   MAX_TEXTURE_UNITS,
+	   SET_N(INITIAL_CTX->gl_num_tex_units[0], 1, SET_1(0)),
+	   _state_get_texture_states(GL_TEXTURE_2D_MULTISAMPLE_ARRAY_OES, (GLint *)value);)
 
 GLUE_STATE(GLenum, gl_active_texture, 1, 1, SET_1(GL_TEXTURE0),
 	   _sym_glGetIntegerv(GL_ACTIVE_TEXTURE, (GLint *)value))
