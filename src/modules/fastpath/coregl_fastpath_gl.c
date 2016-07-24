@@ -583,6 +583,15 @@ fastpath_glBindTexture(GLenum target, GLuint texture)
 	case GL_TEXTURE_EXTERNAL_OES:
 		STATE_PROC(gl_tex_external_oes_state, _tex_flag1, _TEX_FLAG1_BIT);
 		break;
+	case GL_TEXTURE_BUFFER_EXT:
+		STATE_PROC(gl_tex_buffer_ext_state, _tex_flag2, _TEX_FLAG2_BIT);
+		break;
+	case GL_TEXTURE_2D_MULTISAMPLE:
+		STATE_PROC(gl_tex_2d_multisample_state, _tex_flag2, _TEX_FLAG2_BIT);
+		break;
+	case GL_TEXTURE_2D_MULTISAMPLE_ARRAY_OES:
+		STATE_PROC(gl_tex_2d_multisample_array_oes_state, _tex_flag2, _TEX_FLAG2_BIT);
+		break;
 	default:
 		_set_gl_error(GL_INVALID_ENUM);
 		break;
@@ -789,7 +798,7 @@ fastpath_glDeleteTextures(GLsizei n, const GLuint *textures)
 					GLGlueContext *cur_gctx = (GLGlueContext *)current->value;
 
 					if (cur_gctx->initialized == 1) {
-						for (j = 0; j < cur_gctx->gl_num_tex_units[0]; j++) {
+						for (j = 0; j < cur_gctx->gl_tex_units_num[0]; j++) {
 							if (cur_gctx->gl_tex_2d_state[j] == objid_array[i]) {
 								CURR_STATE_CLEAR(gl_tex_2d_state, j)
 							}
@@ -869,6 +878,7 @@ void
 fastpath_glBindBuffer(GLenum target, GLuint buffer)
 {
 	GLuint real_obj;
+	int index;
 
 	DEFINE_FASTPAH_GL_FUNC();
 	_COREGL_FASTPATH_FUNC_BEGIN();
@@ -879,12 +889,23 @@ fastpath_glBindBuffer(GLenum target, GLuint buffer)
 		goto finish;
 	}
 
+/* clear states set in fastpath_glBindBufferBase() */
+#define BIND_STATE_ARRAY_CLEAR(gl_state)						\
+	if (buffer == 0) {											\
+		for(index = 0; index < current_ctx->gl_state##_num[0]; index++)	{	\
+			CURR_STATE_CLEAR(gl_state##_array, index)				\
+		}															\
+	}
 
 #define STATE_PROC(gl_state, flagid, flagbit) \
-	if CURR_STATE_COMPARE(gl_state, 0, real_obj) \
-	{ \
-		IF_GL_SUCCESS(_orig_fastpath_glBindBuffer(target, real_obj)) \
-		{ \
+	if(buffer == 0) {	\
+		IF_GL_SUCCESS(_orig_fastpath_glBindBuffer(target, real_obj)) { \
+			current_ctx->flagid &= (~flagbit##_##gl_state);	\
+			CURR_STATE_CLEAR(gl_state, 0);					\
+		}													\
+	}\
+	else if CURR_STATE_COMPARE(gl_state, 0, real_obj) { \
+		IF_GL_SUCCESS(_orig_fastpath_glBindBuffer(target, real_obj)) { \
 			if (real_obj == 0) \
 				current_ctx->flagid &= (~flagbit##_##gl_state); \
 			else \
@@ -893,7 +914,6 @@ fastpath_glBindBuffer(GLenum target, GLuint buffer)
 			CURR_STATE_UPDATE(gl_state, 0, real_obj);	\
 		} 	\
 	}
-
 
 	switch (target) {
 	case GL_ARRAY_BUFFER:
@@ -921,9 +941,28 @@ fastpath_glBindBuffer(GLenum target, GLuint buffer)
 	case GL_TRANSFORM_FEEDBACK_BUFFER:
 		STATE_PROC_WITH_CHECK(gl_transform_feedback_buffer_binding, _bind_flag2,
 				      _BIND_FLAG2_BIT);
+		BIND_STATE_ARRAY_CLEAR(gl_transform_feedback_buffer_binding);
 		break;
 	case GL_UNIFORM_BUFFER:
 		STATE_PROC_WITH_CHECK(gl_uniform_buffer_binding, _bind_flag2, _BIND_FLAG2_BIT);
+		BIND_STATE_ARRAY_CLEAR(gl_uniform_buffer_binding);
+		break;
+	case GL_SHADER_STORAGE_BUFFER:
+		STATE_PROC_WITH_CHECK(gl_shader_storage_buffer_binding, _bind_flag3, _BIND_FLAG3_BIT);
+		BIND_STATE_ARRAY_CLEAR(gl_shader_storage_buffer_binding);
+		break;
+	case GL_ATOMIC_COUNTER_BUFFER:
+		STATE_PROC_WITH_CHECK(gl_atomic_counter_buffer_binding, _bind_flag3, _BIND_FLAG3_BIT);
+		BIND_STATE_ARRAY_CLEAR(gl_atomic_counter_buffer_binding);
+		break;
+	case GL_DRAW_INDIRECT_BUFFER:
+		STATE_PROC_WITH_CHECK(gl_draw_indirect_buffer_binding, _bind_flag3, _BIND_FLAG3_BIT);
+		break;
+	case GL_DISPATCH_INDIRECT_BUFFER:
+		STATE_PROC_WITH_CHECK(gl_dispatch_indirect_buffer_binding, _bind_flag3, _BIND_FLAG3_BIT);
+		break;
+	case GL_TEXTURE_BUFFER:
+		STATE_PROC_WITH_CHECK(gl_texture_buffer_binding, _bind_flag3, _BIND_FLAG3_BIT);
 		break;
 	default:
 		_set_gl_error(GL_INVALID_ENUM);
@@ -3071,6 +3110,12 @@ fastpath_glDisable(GLenum cap)
 	case GL_STENCIL_TEST:
 		STATE_PROC(gl_stencil_test, _enable_flag2, _ENABLE_FLAG2_BIT);
 		break;
+	case GL_SAMPLE_SHADING_OES:
+		STATE_PROC(gl_sample_shading_oes, _enable_flag2, _ENABLE_FLAG2_BIT);
+		break;
+	case GL_SAMPLE_MASK:
+		STATE_PROC(gl_sample_mask, _enable_flag2, _ENABLE_FLAG2_BIT);
+		break;
 	default:
 		_set_gl_error(GL_INVALID_ENUM);
 		break;
@@ -3159,6 +3204,9 @@ fastpath_glEnable(GLenum cap)
 		break;
 	case GL_STENCIL_TEST:
 		STATE_PROC(gl_stencil_test, _enable_flag2, _ENABLE_FLAG2_BIT);
+		break;
+	case GL_BLEND_ADVANCED_COHERENT_KHR:
+		STATE_PROC(gl_blend_advanced_coherent_khr, _enable_flag3, _ENABLE_FLAG3_BIT);
 		break;
 	default:
 		_set_gl_error(GL_INVALID_ENUM);
@@ -3306,6 +3354,9 @@ fastpath_glPixelStorei(GLenum pname, GLint param)
 		break;
 	case GL_UNPACK_ROW_LENGTH:
 		STATE_PROC_WITH_CHECK(gl_unpack_row_length, _pixel_flag2, _PIXEL_FLAG2_BIT);
+		break;
+	case GL_UNPACK_SKIP_ROWS:
+		STATE_PROC_WITH_CHECK(gl_unpack_skip_rows, _pixel_flag2, _PIXEL_FLAG2_BIT);
 		break;
 	case GL_UNPACK_IMAGE_HEIGHT:
 		STATE_PROC_WITH_CHECK(gl_unpack_image_height, _pixel_flag2, _PIXEL_FLAG2_BIT);
@@ -4851,12 +4902,12 @@ fastpath_glBindBufferBase(GLenum target, GLuint index, GLuint buffer)
 	}
 
 #define STATE_PROC(gl_state, flagid, flagbit) \
-	if CURR_STATE_COMPARE(gl_state##_array, index, real_obj) { \
+	if CURR_STATE_COMPARE(gl_state##_array, index, real_obj) { 		\
 		IF_GL_SUCCESS(_orig_fastpath_glBindBufferBase(target, index, real_obj)) { \
-			current_ctx->flagid |= flagbit##_##gl_state; \
+			current_ctx->flagid |= flagbit##_##gl_state; 			\
 			CURR_STATE_UPDATE(gl_state##_array, index, real_obj)	\
-			current_ctx->gl_state##_array_offset[index] = 0; \
-			current_ctx->gl_state##_array_size[index] = 0; \
+			current_ctx->gl_state##_array_offset[index] = 0; 		\
+			current_ctx->gl_state##_array_size[index] = 0; 			\
 		} \
 	}
 
@@ -4866,6 +4917,12 @@ fastpath_glBindBufferBase(GLenum target, GLuint index, GLuint buffer)
 		break;
 	case GL_UNIFORM_BUFFER:
 		STATE_PROC(gl_uniform_buffer_binding, _bind_flag2, _BIND_FLAG2_BIT);
+		break;
+	case GL_SHADER_STORAGE_BUFFER:
+		STATE_PROC(gl_shader_storage_buffer_binding, _bind_flag3, _BIND_FLAG3_BIT);
+		break;
+	case GL_ATOMIC_COUNTER_BUFFER:
+		STATE_PROC(gl_atomic_counter_buffer_binding, _bind_flag3, _BIND_FLAG3_BIT);
 		break;
 	default:
 		_set_gl_error(GL_INVALID_ENUM);
