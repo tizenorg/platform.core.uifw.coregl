@@ -229,6 +229,12 @@ typedef struct _GLGlueContext {
 #define _BIND_FLAG2_BIT_gl_transform_feedback_buffer_binding  FLAG_BIT_4
 #define _BIND_FLAG2_BIT_gl_uniform_buffer_binding             FLAG_BIT_5
 
+	unsigned char           _bind_flag3;
+#define	_BIND_FLAG3_BIT_gl_shader_storage_buffer_binding      FLAG_BIT_0
+#define	_BIND_FLAG3_BIT_gl_atomic_counter_buffer_binding      FLAG_BIT_1
+#define	_BIND_FLAG3_BIT_gl_draw_indirect_buffer_binding       FLAG_BIT_2
+#define	_BIND_FLAG3_BIT_gl_dispatch_indirect_buffer_binding   FLAG_BIT_3
+
 	unsigned char           _enable_flag1;
 #define _ENABLE_FLAG1_BIT_gl_blend        FLAG_BIT_0
 #define _ENABLE_FLAG1_BIT_gl_cull_face    FLAG_BIT_1
@@ -241,10 +247,13 @@ typedef struct _GLGlueContext {
 #define _ENABLE_FLAG2_BIT_gl_sample_coverage           FLAG_BIT_2
 #define _ENABLE_FLAG2_BIT_gl_scissor_test              FLAG_BIT_3
 #define _ENABLE_FLAG2_BIT_gl_stencil_test              FLAG_BIT_4
+#define _ENABLE_FLAG2_BIT_gl_sample_shading_oes        FLAG_BIT_5
+#define _ENABLE_FLAG2_BIT_gl_sample_mask               FLAG_BIT_6
 
 	unsigned char           _enable_flag3;
 #define _ENABLE_FLAG3_BIT_gl_primitive_restart_fixed_index  FLAG_BIT_0
 #define _ENABLE_FLAG3_BIT_gl_rasterizer_discard             FLAG_BIT_1
+#define _ENABLE_FLAG3_BIT_gl_blend_advanced_coherent_khr	FLAG_BIT_2
 
 	unsigned char           _clear_flag1;
 #define _CLEAR_FLAG1_BIT_gl_viewport            FLAG_BIT_0
@@ -269,6 +278,10 @@ typedef struct _GLGlueContext {
 #define _TEX_FLAG1_BIT_gl_tex_external_oes_state FLAG_BIT_6
 #define	_TEX_FLAG1_BIT_gl_client_active_texture	 FLAG_BIT_7
 
+	unsigned char           _tex_flag2;
+#define	_TEX_FLAG2_BIT_gl_tex_buffer_ext_state	 FLAG_BIT_0
+#define	_TEX_FLAG2_BIT_gl_tex_2d_multisample_state	 FLAG_BIT_1
+#define	_TEX_FLAG2_BIT_gl_tex_2d_multisample_array_oes_state	 FLAG_BIT_2
 
 	unsigned char           _blend_flag;
 #define _BLEND_FLAG_BIT_gl_blend_color           FLAG_BIT_0

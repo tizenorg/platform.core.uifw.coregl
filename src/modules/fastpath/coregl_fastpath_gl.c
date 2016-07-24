@@ -583,6 +583,15 @@ fastpath_glBindTexture(GLenum target, GLuint texture)
 	case GL_TEXTURE_EXTERNAL_OES:
 		STATE_PROC(gl_tex_external_oes_state, _tex_flag1, _TEX_FLAG1_BIT);
 		break;
+	case GL_TEXTURE_BUFFER_EXT:
+		STATE_PROC(gl_tex_buffer_ext_state, _tex_flag2, _TEX_FLAG2_BIT);
+		break;
+	case GL_TEXTURE_2D_MULTISAMPLE:
+		STATE_PROC(gl_tex_2d_multisample_state, _tex_flag2, _TEX_FLAG2_BIT);
+		break;
+	case GL_TEXTURE_2D_MULTISAMPLE_ARRAY_OES:
+		STATE_PROC(gl_tex_2d_multisample_array_oes_state, _tex_flag2, _TEX_FLAG2_BIT);
+		break;
 	default:
 		_set_gl_error(GL_INVALID_ENUM);
 		break;
@@ -924,6 +933,18 @@ fastpath_glBindBuffer(GLenum target, GLuint buffer)
 		break;
 	case GL_UNIFORM_BUFFER:
 		STATE_PROC_WITH_CHECK(gl_uniform_buffer_binding, _bind_flag2, _BIND_FLAG2_BIT);
+		break;
+	case GL_SHADER_STORAGE_BUFFER:
+		STATE_PROC_WITH_CHECK(gl_shader_storage_buffer_binding, _bind_flag3, _BIND_FLAG3_BIT);
+		break;
+	case GL_ATOMIC_COUNTER_BUFFER:
+		STATE_PROC_WITH_CHECK(gl_atomic_counter_buffer_binding, _bind_flag3, _BIND_FLAG3_BIT);
+		break;
+	case GL_DRAW_INDIRECT_BUFFER:
+		STATE_PROC_WITH_CHECK(gl_draw_indirect_buffer_binding, _bind_flag3, _BIND_FLAG3_BIT);
+		break;
+	case GL_DISPATCH_INDIRECT_BUFFER:
+		STATE_PROC_WITH_CHECK(gl_dispatch_indirect_buffer_binding, _bind_flag3, _BIND_FLAG3_BIT);
 		break;
 	default:
 		_set_gl_error(GL_INVALID_ENUM);
@@ -3071,6 +3092,12 @@ fastpath_glDisable(GLenum cap)
 	case GL_STENCIL_TEST:
 		STATE_PROC(gl_stencil_test, _enable_flag2, _ENABLE_FLAG2_BIT);
 		break;
+	case GL_SAMPLE_SHADING_OES:
+		STATE_PROC(gl_sample_shading_oes, _enable_flag2, _ENABLE_FLAG2_BIT);
+		break;
+	case GL_SAMPLE_MASK:
+		STATE_PROC(gl_sample_mask, _enable_flag2, _ENABLE_FLAG2_BIT);
+		break;
 	default:
 		_set_gl_error(GL_INVALID_ENUM);
 		break;
@@ -3159,6 +3186,9 @@ fastpath_glEnable(GLenum cap)
 		break;
 	case GL_STENCIL_TEST:
 		STATE_PROC(gl_stencil_test, _enable_flag2, _ENABLE_FLAG2_BIT);
+		break;
+	case GL_BLEND_ADVANCED_COHERENT_KHR:
+		STATE_PROC(gl_blend_advanced_coherent_khr, _enable_flag3, _ENABLE_FLAG3_BIT);
 		break;
 	default:
 		_set_gl_error(GL_INVALID_ENUM);
@@ -3306,6 +3336,9 @@ fastpath_glPixelStorei(GLenum pname, GLint param)
 		break;
 	case GL_UNPACK_ROW_LENGTH:
 		STATE_PROC_WITH_CHECK(gl_unpack_row_length, _pixel_flag2, _PIXEL_FLAG2_BIT);
+		break;
+	case GL_UNPACK_SKIP_ROWS:
+		STATE_PROC_WITH_CHECK(gl_unpack_skip_rows, _pixel_flag2, _PIXEL_FLAG2_BIT);
 		break;
 	case GL_UNPACK_IMAGE_HEIGHT:
 		STATE_PROC_WITH_CHECK(gl_unpack_image_height, _pixel_flag2, _PIXEL_FLAG2_BIT);
@@ -4866,6 +4899,12 @@ fastpath_glBindBufferBase(GLenum target, GLuint index, GLuint buffer)
 		break;
 	case GL_UNIFORM_BUFFER:
 		STATE_PROC(gl_uniform_buffer_binding, _bind_flag2, _BIND_FLAG2_BIT);
+		break;
+	case GL_SHADER_STORAGE_BUFFER:
+		_orig_fastpath_glBindBufferBase(target, index, real_obj);
+		break;
+	case GL_ATOMIC_COUNTER_BUFFER:
+		_orig_fastpath_glBindBufferBase(target, index, real_obj);
 		break;
 	default:
 		_set_gl_error(GL_INVALID_ENUM);
