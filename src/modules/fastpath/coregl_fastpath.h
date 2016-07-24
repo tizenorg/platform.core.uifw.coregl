@@ -345,6 +345,9 @@ typedef struct _GLGlueContext {
 #define GLUE_STATE(TYPE, NAME, SIZE, ARRAY_SIZE, DEFAULT_STMT, GET_STMT)     TYPE *NAME;
 # include "coregl_fastpath_state.h"
 #undef GLUE_STATE
+#define GLUE_STATE(TYPE, NAME, SIZE, ARRAY_SIZE, DEFAULT_STMT, GET_STMT)     GLboolean *NAME##_updated;
+# include "coregl_fastpath_state.h"
+#undef GLUE_STATE
 #define GLUE_STATE(TYPE, NAME, SIZE, ARRAY_SIZE, DEFAULT_STMT, GET_STMT)     unsigned char NAME##_used;
 # include "coregl_fastpath_state.h"
 #undef GLUE_STATE
